@@ -3,8 +3,9 @@
 import { RUN_LENGTH } from './director.js';
 import { BUILDINGS, buildingCost } from '../content/buildings.js';
 import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, SET_BONUS, MILESTONES, slotCost } from '../content/gear.js';
+import { Profiles } from './profiles.js';
 
-const KEY = 'survivelmon.meta';
+const KEY = Profiles.key('meta'); // this player's save
 const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
   mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, buffs: [] });
 

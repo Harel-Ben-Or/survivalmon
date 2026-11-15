@@ -30,6 +30,7 @@ import { Shrine } from '../systems/shrine.js';
 import { SETS, SLOTS, SLOT_NAME, offWeaponLevel } from '../content/gear.js';
 import { MATERIALS } from '../content/buildings.js';
 import { UI } from '../ui/ui.js';
+import { Profiles } from '../systems/profiles.js';
 
 const MAX_STEP = 1 / 60;
 // Icons that only exist as PixelLab art (no code-drawn version)
@@ -37,7 +38,8 @@ const EXTRA_ICONS = ['mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helm
 const GATHER_TIME = 1.6;  // seconds standing at a gathering spot
 const GATHER = { wood: 3, stone: 3, clay: 2, iron: 1 };
 const SETTINGS_KEY = 'survivelmon.settings';
-const BEST_KEY = 'survivelmon.best';
+const BEST_KEY = Profiles.key('best');
+const PENDING_KEY = Profiles.key('pending'); // a run in progress when the app was closed
 
 function load(key, fallback) {
   try { const v = JSON.parse(localStorage.getItem(key)); return v ? { ...fallback, ...v } : fallback; } catch { return fallback; }
@@ -66,7 +68,8 @@ export class Game {
     this.ui = new UI(this);
     window.addEventListener('resize', () => this.resize());
     window.addEventListener('blur', () => this.autoPause());
-    document.addEventListener('visibilitychange', () => { if (document.hidden) this.autoPause(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { this.autoPause(); this.saveOnHide(); } else this.clearPending(); });
+    window.addEventListener('pagehide', () => this.saveOnHide());
     window.addEventListener('touchstart', () => {
       if (this.sawTouch) return;
       this.sawTouch = true;
@@ -126,10 +129,13 @@ export class Game {
     Meta.load();
     Shrine.load();
     Box.load();
+    this.bankClosedRun();
+    navigator.storage?.persist?.().catch(() => {}); // ask the browser not to clear this save
     this.ui.init();
     this.newWorld();
     this.freshWorld = true;
     this.toTitle();
+    this.ui.askProfileOnStart();
     // One update per displayed frame (split into pieces of at most 1/60 s), so motion advances
     // every frame on 60, 90 and 120 Hz screens instead of a fixed step that sometimes ran 0 or 2 times.
     let last = performance.now();
@@ -269,7 +275,35 @@ export class Game {
       level: Math.max(this.best.level, P.level), wins: this.best.wins + (won ? 1 : 0),
     };
     save(BEST_KEY, this.best);
+    this.clearPending();
     this.ui.showEnd(kind, rec, newBest, earned);
+  }
+
+  // ------------------------------------------------------------ closing the app
+  // Whenever the app goes to the background, everything is saved. During a run, what the run has
+  // earned so far is noted too: if the app is then closed for good, it's banked on the next start.
+  saveOnHide() {
+    if (Profiles.leaving) return; // this save was just erased (reset or deleted)
+    Box.save(); Meta.save(); Shrine.save();
+    if (this.mode !== 'world' && this.mode !== 'house') return;
+    const P = this.player;
+    save(PENDING_KEY, {
+      coins: Math.floor(P.coins), mats: { ...P.mats }, time: this.time, kills: P.kills,
+      pets: P.pets.map((p) => ({ id: p.mon.id, hp: p.fainted ? 0 : p.hp / p.maxHp })),
+    });
+  }
+  clearPending() { try { localStorage.removeItem(PENDING_KEY); } catch { /* ignore */ } }
+  bankClosedRun() {
+    const r = load(PENDING_KEY, null);
+    if (!r) return;
+    this.clearPending();
+    for (const p of r.pets || []) { const mon = Box.get(p.id); if (mon) mon.hp = Math.max(0, Math.min(1, p.hp)); }
+    Box.warmEggs(r.time || 0);
+    Box.save();
+    Meta.bankMats(r.mats || {});
+    Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, r.time || 0);
+    Meta.bank(r.coins || 0);
+    this.unlockNote = `Your last run was closed before it ended. You kept its ${r.coins || 0} coins and the materials you gathered.`;
   }
 
   // ------------------------------------------------------------ update

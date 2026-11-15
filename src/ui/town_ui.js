@@ -193,6 +193,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>
           <button class="btn secondary" data-act="help">How to play</button>
+          <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>
       </div>`);

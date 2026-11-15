@@ -642,3 +642,19 @@ body.in-town .dash-btn { display: none; }
 .slot-buy { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 .counters .mats img { width: 13px; height: 13px; vertical-align: -2px; margin-left: 4px; }
 .end-coins img + img { margin-left: 6px; }
+
+/* ---------- player profiles ("Who's playing?") */
+.prof-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; width: min(900px, 100%); }
+.prof-card { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; min-width: 0; }
+.prof-card.active { box-shadow: 0 0 0 3px var(--gold), 0 4px 0 var(--ink); }
+.prof-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 34px; }
+.prof-name { font-size: 20px; overflow-wrap: anywhere; }
+.prof-tag { font-size: 11px; font-weight: 800; color: var(--ink); background: var(--gold); border-radius: 4px; padding: 1px 6px; }
+.prof-line { font-size: 13px; color: var(--muted); }
+.prof-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.prof-input { flex: 1; min-width: 0; font: 800 18px var(--font); color: var(--ink); background: #f3eedc; border: 3px solid var(--ink); border-radius: 6px; padding: 4px 8px; }
+@media (max-height: 520px), (max-width: 640px) {
+  .prof-grid { gap: 8px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .prof-card { padding: 6px 8px; gap: 4px; }
+  .prof-name { font-size: 17px; }
+}

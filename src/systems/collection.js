@@ -3,8 +3,9 @@
 import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, EVO_LEVEL, breedResult } from '../content/species.js';
 import { BASE_ODDS, rollTier, rollPassive, sameSkill } from '../content/skills.js';
 import { Meta } from './meta.js';
+import { Profiles } from './profiles.js';
 
-const KEY = 'survivelmon.box';
+const KEY = Profiles.key('box'); // this player's save
 export const EGG_SLOTS = 3;
 export const STARTER_HATCH = 60;     // seconds in the wild before the starter egg hatches
 export const FOUND_HATCH = 120;      // eggs found in runs

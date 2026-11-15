@@ -17,6 +17,8 @@ import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
 import { TouchControls } from './touch.js';
 import { TownUI } from './town_ui.js';
+import { ProfilesUI } from './profiles_ui.js';
+import { Profiles } from '../systems/profiles.js';
 import { Meta } from '../systems/meta.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -111,7 +113,11 @@ export class UI {
       </div>
       <div class="title-buttons">
         <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
-        ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+        ${document.fullscreenEnabled && !standalone() ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+      </div>
+      <div class="title-buttons">
+        <button class="btn small secondary" data-act="profiles">👤 ${esc(Profiles.active.name)} · Change player</button>
+        ${window.__install && !standalone() ? '<button class="btn small go-btn" data-act="install">📲 Install app</button>' : ''}
       </div>
       ${isIOS() && !standalone() ? '<div class="best panel">Tip: tap Share → <b>Add to Home Screen</b> to play fullscreen</div>' : ''}
       ${b.time > 0 ? `<div class="best panel">Best: ${formatTime(b.time)} survived · ${b.kills} kills · Lv ${b.level}${b.wins ? ` · ${b.wins} win${b.wins > 1 ? 's' : ''}` : ''}</div>` : ''}
@@ -681,7 +687,7 @@ export class UI {
 
   // ------------------------------------------------------------ input
   onClick(e) {
-    const t = e.target.closest('[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact]');
+    const t = e.target.closest('[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact],[data-pact]');
     if (!t) return;
     Audio.unlock();
     const g = this.g;
@@ -697,6 +703,7 @@ export class UI {
     if (t.dataset.swap) { this.lootSwap(t.dataset.swap); return; }
     if (t.dataset.starter) { this.chooseStarter(t.dataset.starter); return; }
     if (t.dataset.mact) { Audio.play('click'); this.monsAct(t.dataset.mact, t); return; }
+    if (t.dataset.pact) { Audio.play('click'); this.profAct(t.dataset.pact, t); return; }
     if (t.dataset.evolve) {
       const mon = Box.get(+t.dataset.evolve);
       if (!mon) return;
@@ -706,6 +713,12 @@ export class UI {
     }
     Audio.play('click');
     switch (t.dataset.act) {
+      case 'profiles': this.closeModal(); this.showProfiles(); break;
+      case 'install': {
+        const p = window.__install;
+        if (p) { p.prompt(); p.userChoice.finally(() => { window.__install = null; if (this.screen === 'title') this.showTitle(); }); }
+        break;
+      }
       case 'play':
         if (g.touchMode) this.enterFullscreen();
         if (Box.isEmpty && !Box.eggs.length) this.showStarter(); else g.toTown();
@@ -743,6 +756,11 @@ export class UI {
   onKey(e) {
     const k = e.code;
     if (e.repeat && this.modalKind) return;
+    if (this.screen === 'profiles' && !this.modalKind) {
+      if (e.target.classList?.contains('prof-input')) { if (k === 'Enter' || k === 'NumpadEnter') this.profAct('save-name', e.target); else if (k === 'Escape') this.showProfiles(); return; }
+      if (k === 'Escape') this.back();
+      return;
+    }
     if (this.modalKind === 'help') { if (k === 'Escape' || k === 'Enter') { this.closeModal(); if (this.g.mode === 'town') this.g.modal = null; } return; }
     if (this.modalKind === 'levelup') {
       const i = ['Digit1', 'Digit2', 'Digit3'].indexOf(k);
@@ -792,6 +810,6 @@ export class UI {
   }
 }
 
-Object.assign(UI.prototype, TownUI, MonsUI, ShopUI);
+Object.assign(UI.prototype, TownUI, MonsUI, ShopUI, ProfilesUI);
 
 export { iconOf };

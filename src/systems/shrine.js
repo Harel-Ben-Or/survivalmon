@@ -2,8 +2,9 @@
 // improves the odds of good skill tiers. Research runs on a real-time timer, even with the game closed.
 import { Meta } from './meta.js';
 import { BASE_ODDS } from '../content/skills.js';
+import { Profiles } from './profiles.js';
 
-const KEY = 'survivelmon.shrine';
+const KEY = Profiles.key('shrine'); // this player's save
 const pct = (v) => `${Math.round(v * 100)}%`;
 export const SHRINE_NODES = [
   { id: 'dmg', branch: 'Power', name: 'Team damage', icon: 'fang', per: 0.03, max: 25, base: 20, desc: (v) => `+${pct(v)} damage for every survivalmon` },
