@@ -16,7 +16,7 @@ import { Particles } from '../systems/particles.js';
 import { Combat } from '../systems/combat.js';
 import { Pickups } from '../systems/pickups.js';
 import { Director, RUN_LENGTH, PACE } from '../systems/director.js';
-import { rollContainer, rollItem, levelUpOptions, applyLevelCard, rollStone } from '../systems/loot.js';
+import { rollContainer, levelUpOptions, applyLevelCard, rollStone } from '../systems/loot.js';
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
@@ -453,28 +453,36 @@ export class Game {
     const cx = c.x + c.w / 2, cy = c.y + 4;
     Audio.play(c.type === 'chest' || c.type === 'altar' ? 'chest' : 'open');
     this.particles.burst(cx, cy + 6, { n: 12, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 50, life: 0.5, up: 20 });
+    this.applyDrops(res, cx, cy);
+    if (this.room.containers.every((k) => k.opened)) {
+      this.house.looted = true;
+      this.toast('Everything here has been searched.');
+    }
+  }
+  // Chests dropped by elites (1) and bosses (2) open where you pick them up.
+  openWorldChest(n) {
+    const P = this.player;
+    Audio.play('chest');
+    this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood' }), P.x, P.y - 14);
+  }
+  applyDrops(res, cx, cy) {
+    const P = this.player;
     for (const d of res.drops) {
       if (d.kind === 'coin') { P.coins += d.value; this.runStats.coins += d.value; this.particles.number(cx, cy + 18, d.value, 'crit'); Audio.play('coin'); }
       else if (d.kind === 'heart') P.heal(20 * P.stats.heartMult);
       else if (d.kind === 'xp') { P.addXp(d.value); this.particles.number(cx, cy + 18, d.value, 'xp'); }
       else if (d.kind === 'berry') this.feedTeam(d.value);
       else if (d.kind === 'stone') this.gainStone(d.value);
+      else if (d.kind === 'mats') {
+        this.addMats(d.value);
+        this.toast(Object.entries(d.value).map(([k, v]) => `+${Math.max(1, Math.round(v * (this.matMult || 1)))} ${MATERIALS[k].name}`).join(' · '));
+      } else if (d.kind === 'egg') this.findEgg(cx, cy);
+      else if (d.kind === 'gear') {
+        const gear = this.rollGear();
+        if (gear) this.collectGear(gear); else this.addMats({ iron: 2, wood: 3 });
+      }
     }
     if (res.text) this.toast(res.text);
-    if (this.room.containers.every((k) => k.opened)) {
-      this.house.looted = true;
-      this.toast('Everything here has been searched.');
-    }
-    if (res.items.length) this.openLoot(res.items, c.type === 'altar' ? 'The altar glows...' : 'You found something!');
-  }
-  openWorldChest(n) {
-    const items = [];
-    for (let i = 0; i < n; i++) {
-      const it = rollItem(this.player, { levels: n > 1 && i === 0 ? 2 : 1, exclude: new Set(items.map((x) => `${x.cat}:${x.id}`)) });
-      if (it) items.push(it);
-    }
-    Audio.play('chest');
-    if (items.length) this.openLoot(items, n > 1 ? 'Boss treasure!' : 'Treasure chest!');
   }
   openLoot(items, title) {
     this.modal = 'loot';

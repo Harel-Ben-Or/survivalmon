@@ -35,61 +35,70 @@ export function rollItem(P, { cat, levels = 1, exclude = new Set(), allowEgg = t
   return null;
 }
 
-// What a container gives. Returns { items:[...], drops:[{kind,value}], text }
+// What a container gives: coins, EXP, hearts, berries (survivalmon EXP), materials, eggs,
+// evolution stones and gear. Returns { items: [], drops: [{ kind, value }], text }.
+// (Weapons, spells and artifacts no longer come from containers: runs are about your survivalmons.)
 export function rollContainer(P, c) {
   const luck = P.stats.luck;
   const out = { items: [], drops: [], text: '' };
   const coins = (a, b) => out.drops.push({ kind: 'coin', value: randInt(a, b) });
   const xp = (a, b) => out.drops.push({ kind: 'xp', value: randInt(a, b) });
   const heart = () => out.drops.push({ kind: 'heart', value: 1 });
-  const item = (o) => { const it = rollItem(P, { ...o, exclude: new Set(out.items.map((i) => `${i.cat}:${i.id}`)) }); if (it) out.items.push(it); };
+  const berries = (a, b) => out.drops.push({ kind: 'berry', value: randInt(a, b) });
+  const stone = () => out.drops.push({ kind: 'stone', value: rollStone(P) });
+  const egg = () => out.drops.push({ kind: 'egg', value: 1 });
+  const gear = () => out.drops.push({ kind: 'gear', value: 1 });
+  const mats = (n, kinds = ['wood', 'stone', 'clay']) => {
+    const m = {};
+    for (let i = 0; i < n; i++) { const k = kinds[(Math.random() * kinds.length) | 0]; m[k] = (m[k] || 0) + 1; }
+    out.drops.push({ kind: 'mats', value: m });
+  };
   switch (c.type) {
     case 'chest':
-      if (c.tier === 'gold') { item({ levels: 2 }); item({}); coins(15, 30); }
-      else if (c.tier === 'silver') { item({ levels: chance(0.4) ? 2 : 1 }); coins(8, 16); }
-      else { item({}); coins(2, 8); }
+      if (c.tier === 'gold') {
+        coins(15, 30); berries(2, 3); mats(6, ['wood', 'stone', 'clay', 'iron']);
+        if (chance(0.35 * luck)) gear();
+        if (chance(0.25 * luck)) stone();
+        if (chance(0.1 * luck)) egg();
+      } else if (c.tier === 'silver') {
+        coins(8, 16); berries(1, 2);
+        if (chance(0.5)) mats(4, ['wood', 'stone', 'clay', 'iron']);
+        if (chance(0.12 * luck)) gear();
+        if (chance(0.08 * luck)) stone();
+        if (chance(0.05 * luck)) egg();
+      } else {
+        coins(4, 10);
+        if (chance(0.4)) berries(1, 2);
+        if (chance(0.25)) mats(2);
+        if (chance(0.05 * luck)) gear();
+      }
       break;
     case 'altar':
-      item({ cat: chance(0.5) ? 'spell' : 'artifact', levels: 2 });
-      if (chance(0.2)) out.items.push({ cat: 'egg', id: 'egg', levels: 1 });
+      if (chance(0.3 * luck)) gear();
+      if (chance(0.35 * luck)) stone();
+      if (chance(0.15 * luck)) egg();
+      if (!out.drops.length) { berries(3, 4); xp(20, 40); out.text = 'The altar hums. Your survivalmons feel stronger.'; }
       break;
     case 'bookshelf':
-      if (chance(0.35 * luck)) item({ cat: 'spell' });
-      else { xp(10, 25); out.text = 'You skim an old tome. (+EXP)'; }
+      xp(10, 25);
+      if (chance(0.25)) { berries(1, 2); out.text = 'You read a field guide to survivalmons. (+EXP)'; } else out.text = 'You skim an old tome. (+EXP)';
       break;
     case 'cupboard':
-      if (chance(0.2 * luck)) item({ cat: 'artifact' });
-      else if (chance(0.4)) { heart(); coins(3, 8); }
-      else coins(5, 14);
+      if (chance(0.4)) { heart(); coins(3, 8); } else coins(5, 14);
+      if (chance(0.25)) berries(1, 2);
+      if (chance(0.15)) mats(2, ['clay']);
       break;
     case 'crate': case 'barrel':
-      if (chance(0.1 * luck)) item({});
-      else if (chance(0.45)) coins(3, 10);
+      if (chance(0.45)) coins(3, 10);
       else if (chance(0.4)) heart();
       else xp(5, 15);
+      if (chance(0.25)) berries(1, 2);
+      if (chance(0.2)) mats(2, ['wood']);
       break;
     case 'pot':
       if (chance(0.6)) coins(1, 6);
       else if (chance(0.4)) heart();
       else out.text = 'Just dust...';
-      break;
-  }
-  // Berries and (rarely) evolution stones
-  const berries = (a, b) => out.drops.push({ kind: 'berry', value: randInt(a, b) });
-  const stoneDrop = () => out.drops.push({ kind: 'stone', value: rollStone(P) });
-  switch (c.type) {
-    case 'chest':
-      if (c.tier === 'gold') { if (chance(0.25 * luck)) stoneDrop(); berries(2, 3); }
-      else if (c.tier === 'silver') { if (chance(0.05 * luck)) stoneDrop(); if (chance(0.5)) berries(1, 2); }
-      else if (chance(0.4)) berries(1, 2);
-      break;
-    case 'altar':
-      if (chance(0.3 * luck)) stoneDrop();
-      break;
-    case 'crate': case 'barrel': case 'cupboard':
-      if (chance(0.25)) berries(1, 2);
-      break;
-    case 'pot':
       if (chance(0.15)) berries(1, 1);
       break;
   }
@@ -104,33 +113,79 @@ export function rollStone(P) {
   return all[(Math.random() * all.length) | 0];
 }
 
-// Three level-up cards: mostly stat boosts, sometimes a weapon/spell training card.
+// Hero cards: plain stat boosts for this run (pet power, luck and the old spell stats are gone)
+const HERO_CARDS = UPGRADES.filter((u) => !['luck', 'velocity', 'endurance', 'bond'].includes(u.id));
+const pct = (v) => `${Math.round(v * 100)}%`;
+// Survivalmon cards: boosts for the whole team for this run
+export const TEAM_CARDS = [
+  { id: 't_power', name: 'Team Power', icon: 'fang', base: 0.12, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
+  { id: 't_haste', name: 'Team Haste', icon: 'hourglass', base: 0.08, key: 'haste', w: 8, cap: 0.5, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
+  { id: 't_guard', name: 'Team Guard', icon: 'shell', base: 0.08, key: 'def', w: 7, cap: 0.6, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
+  { id: 't_vigor', name: 'Team Vigor', icon: 'heart', base: 0.15, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
+  { id: 't_focus', name: 'Team Focus', icon: 'clover', base: 0.05, key: 'crit', w: 5, cap: 0.5, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
+  { id: 't_heal', name: 'Second Breath', icon: 'heart', w: 6, noRarity: true, fmt: () => 'Heal your survivalmons fully. Fainted ones get back up.' },
+];
+const hurtTeam = (P) => P.pets.some((p) => p.fainted || p.hp < p.maxHp * 0.6);
+
+function heroCard(used) {
+  const pool = HERO_CARDS.filter((u) => !used.has(u.id) && !(u.cap !== undefined && (used.P.bonus[u.key] || 0) >= u.cap));
+  const u = weightedChoice(pool, (x) => x.w);
+  if (!u) return null;
+  used.add(u.id);
+  const rar = u.noRarity ? RARITIES[0] : weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? 1 : used.P.stats.luck));
+  const v = u.round ? Math.max(1, Math.round(u.base * rar.mult)) : +(u.base * rar.mult).toFixed(3);
+  return { kind: 'stat', up: u, rarity: rar, value: v };
+}
+function monCard(used) {
+  const P = used.P, g = P.g;
+  // sometimes: one of your survivalmon's skills goes up a tier for this run
+  const boostable = P.pets.filter((p) => !p.fainted).flatMap((p) => p.mon.skills.filter((s) => p.tierOf(s) < 4).map((s) => ({ pet: p, skill: s })));
+  if (boostable.length && !used.has('skill') && chance(0.35)) {
+    used.add('skill');
+    const { pet, skill } = boostable[(Math.random() * boostable.length) | 0];
+    return { kind: 'skill', pet, skill, from: pet.tierOf(skill) };
+  }
+  const pool = TEAM_CARDS.filter((u) => !used.has(u.id) && (u.id !== 't_heal' || hurtTeam(P)) && !(u.cap !== undefined && (g.team?.[u.key] || 0) >= u.cap));
+  const u = weightedChoice(pool, (x) => x.w);
+  if (!u) return null;
+  used.add(u.id);
+  const rar = u.noRarity ? RARITIES[0] : weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? 1 : P.stats.luck));
+  return { kind: 'team', up: u, rarity: rar, value: u.base ? +(u.base * rar.mult).toFixed(3) : 0 };
+}
+
+// Three level-up cards: sometimes a training card for one of your hero's weapons, one or two cards
+// for your survivalmons (when you have any), and hero stat cards for the rest.
 export function levelUpOptions(P) {
   const picks = [];
   const used = new Set();
-  const capped = (u) => u.cap !== undefined && (P.bonus[u.key] || 0) >= u.cap;
-  const pool = UPGRADES.filter((u) => !capped(u) && (!u.needsPet || P.pets.length));
-  const trainable = [...P.weapons.map((w) => ['weapon', w]), ...P.spells.map((s) => ['spell', s])]
-    .filter(([cat, it]) => it.level < CAT_DEFS[cat][it.id].max);
-  if (trainable.length && chance(0.45)) {
-    const [cat, it] = trainable[(Math.random() * trainable.length) | 0];
-    picks.push({ kind: 'train', cat, id: it.id });
-  }
-  while (picks.length < 3 && pool.length) {
-    const u = weightedChoice(pool.filter((x) => !used.has(x.id)), (x) => x.w);
-    if (!u) break;
-    used.add(u.id);
-    const rar = u.noRarity ? RARITIES[0] : weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? 1 : P.stats.luck));
-    let v = u.base * rar.mult;
-    v = u.round ? Math.max(1, Math.round(v)) : +v.toFixed(3);
-    picks.push({ kind: 'stat', up: u, rarity: rar, value: v });
-    if (used.size >= pool.length) break;
-  }
+  used.P = P;
+  const trainable = P.weapons.filter((w) => w.level < WEAPONS[w.id].max);
+  if (trainable.length && chance(0.4)) picks.push({ kind: 'train', cat: 'weapon', id: trainable[(Math.random() * trainable.length) | 0].id });
+  let mons = P.pets.length ? (chance(0.5) ? 2 : 1) : 0;
+  while (mons-- > 0 && picks.length < 3) { const c = monCard(used); if (c) picks.push(c); }
+  while (picks.length < 3) { const c = heroCard(used); if (!c) break; picks.push(c); }
   return shuffle(picks);
 }
 
 export function applyLevelCard(P, card) {
+  const g = P.g;
   if (card.kind === 'train') { P.addItem(card.cat, card.id, 1); return; }
+  if (card.kind === 'skill') {
+    card.pet.boost.set(card.skill, (card.pet.boost.get(card.skill) || 0) + 1);
+    card.pet.refresh();
+    P.recompute(); g.applyTeamPassives?.();
+    return;
+  }
+  if (card.kind === 'team') {
+    if (card.up.id === 't_heal') {
+      for (const p of P.pets) { p.fainted = false; p.hp = p.maxHp; }
+      P.recompute(); g.applyTeamPassives?.();
+      return;
+    }
+    g.team[card.up.key] = (g.team[card.up.key] || 0) + card.value;
+    if (card.up.key === 'hp') for (const p of P.pets) p.refresh();
+    return;
+  }
   const k = card.up.key;
   P.bonus[k] = (P.bonus[k] || 0) + card.value;
   if (k === 'maxHp') P.hp += card.value;

@@ -658,3 +658,9 @@ body.in-town .dash-btn { display: none; }
   .prof-card { padding: 6px 8px; gap: 4px; }
   .prof-name { font-size: 17px; }
 }
+
+/* survivalmon level-up cards */
+.card.mon-card { box-shadow: inset 0 0 0 3px #7af0ff, 0 4px 0 var(--ink); }
+.card.mon-card .val b { font-size: 1.15em; }
+.pet-skills { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.inv-item.fainted img { opacity: .45; filter: grayscale(.6); }

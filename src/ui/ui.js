@@ -20,6 +20,7 @@ import { TownUI } from './town_ui.js';
 import { ProfilesUI } from './profiles_ui.js';
 import { Profiles } from '../systems/profiles.js';
 import { Meta } from '../systems/meta.js';
+import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const CONTROL_NAMES = { auto: 'Auto', touch: 'Touch', keys: 'Keyboard' };
@@ -44,7 +45,7 @@ export class UI {
       <div id="rotate" class="screen hidden">
         <div class="phone-icon"><div></div></div>
         <div class="rotate-title">Turn your phone sideways</div>
-        <div class="rotate-sub">Left thumb moves · right thumb dashes, casts spells and opens doors</div>
+        <div class="rotate-sub">Left thumb moves · right thumb dashes and opens doors</div>
         <button class="btn small secondary" data-act="portrait">Play in portrait anyway</button>
       </div>`;
     this.el = {
@@ -179,20 +180,21 @@ export class UI {
     const controls = this.g.touchMode
       ? `<b>Left thumb</b> — drag anywhere on the left side to move<br>
           <b>!</b> button — enter houses, search chests, crates, shelves (or tap the speech bubble) &nbsp;·&nbsp; walk out the door to leave<br>
-          <b>DASH</b> — quick dodge &nbsp;·&nbsp; tap a <b>spell icon</b> to cast it &nbsp;·&nbsp; <b>II</b> — pause, inventory & combos<br><br>`
+          <b>DASH</b> — quick dodge &nbsp;·&nbsp; <b>II</b> — pause, team & stats<br><br>`
       : `<span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> / arrows — move &nbsp;·&nbsp; <span class="key">Space</span> — dash<br>
           <span class="key">E</span> — enter houses, search chests, crates, shelves &nbsp;·&nbsp; walk out the door to leave<br>
-          <span class="key">1</span> <span class="key">2</span> <span class="key">3</span> — cast spells &nbsp;·&nbsp; <span class="key">Esc</span> — pause, inventory & combos &nbsp;·&nbsp; <span class="key">M</span> — mute<br><br>`;
+          <span class="key">Esc</span> — pause, team & stats &nbsp;·&nbsp; <span class="key">M</span> — mute<br><br>`;
     this.openModal(`
       <div class="modal-box panel">
         <h2>How to play</h2>
         <div class="help">
           ${controls}
-          • Weapons fire on their own. Kill monsters, grab the blue gems, level up and pick a boost.<br>
-          • <b>Inside a house the clock stops</b> — search everything for weapons, spells, artifacts and pet eggs.<br>
-          • Some items form <b>combos</b> when you own both (see the pause menu).<br>
-          • Pets hatch from eggs, follow you around and fight by your side.<br>
-          • Runs start short. When the timer runs out you're back in town: spend your coins in the <b>Training Hall</b> for longer, stronger runs.<br>
+          • Your hero's weapons fire on their own, and your <b>survivalmons</b> fight beside you with their own skills.<br>
+          • Kill monsters, grab the blue gems and level up: pick a boost for your hero or for your survivalmons.<br>
+          • <b>Inside a house the clock stops</b>: search it for coins, berries, materials, eggs, evolution stones and gear.<br>
+          • Stand at a tree, rock or clay spot to gather materials for upgrading buildings.<br>
+          • A rare <b>wild survivalmon</b> may appear: defeat it within 25 seconds to catch it.<br>
+          • Runs start short. When the timer runs out you're back in town to upgrade, heal, breed and get ready.<br>
           • Bosses arrive around 2:00, 4:00 and 6:00. Last the full <b>8:00</b>, through the Night Lord's final 30 seconds, to win!
         </div>
         <button class="btn" data-act="close">Got it</button>
@@ -226,7 +228,6 @@ export class UI {
       </div>
       <div class="minimap panel"><canvas class="px" width="112" height="112"></canvas></div>
       <div class="hud-bottom">
-        ${[0, 1, 2].map((i) => `<div class="spell empty" data-slot="${i}"><img class="px hidden"><div class="cd"></div><div class="cdt"></div><span class="key">${i + 1}</span></div>`).join('')}
         <div class="dash"><div class="pip"><div></div></div><span>SPACE</span></div>
       </div>
       <div class="hud-arts"></div>
@@ -394,8 +395,18 @@ export class UI {
           <div class="small">${esc(levelDiff(c.cat, c.id, cur.level, cur.level + 1))}</div>
           <span class="key kb">${i + 1}</span></div>`;
       }
-      return `<div class="card ${c.rarity.id} clickable" data-pick="${i}">
-        <span class="rar" style="background:${c.rarity.color}">${c.rarity.name}</span>
+      if (c.kind === 'skill') {
+        const s = c.skill, name = s.k === 'u' ? SPECIES[s.sp].unique.name : PASSIVES[s.id].name;
+        return `<div class="card mon-card clickable" data-pick="${i}">
+          <span class="rar" style="background:${TIER_COLOR[c.from + 1]}">Skill up</span>
+          <img class="px" src="${artURL('creature', c.pet.species)}">
+          <div class="title">${esc(c.pet.name)}</div><div class="cat">${esc(name)}</div>
+          <div class="val"><b style="color:${TIER_COLOR[c.from]}">${TIERS[c.from]}</b> → <b style="color:${TIER_COLOR[c.from + 1]}">${TIERS[c.from + 1]}</b> for this run</div>
+          <span class="key kb">${i + 1}</span></div>`;
+      }
+      const team = c.kind === 'team';
+      return `<div class="card ${c.rarity.id} ${team ? 'mon-card' : ''} clickable" data-pick="${i}">
+        <span class="rar" style="background:${c.rarity.color}">${team ? (c.up.noRarity ? 'Survivalmons' : `${c.rarity.name} · Team`) : c.rarity.name}</span>
         <img class="px" src="${icon(c.up.icon, 4)}">
         <div class="title">${c.up.name}</div>
         <div class="val">${esc(c.up.fmt(c.value))}</div>
@@ -565,7 +576,7 @@ export class UI {
   }
 
   openPause() {
-    const g = this.g, P = g.player, S = P.stats;
+    const g = this.g, P = g.player, S = P.stats, T = g.team || { dmg: 0, haste: 0, def: 0, hp: 0 };
     g.modal = 'pause';
     this.prompt(null);
     const row = (cat, list) => list.length ? list.map((i) => {
@@ -575,23 +586,17 @@ export class UI {
     const pets = P.pets.length ? P.pets.map((p) => {
       const need = petXpFor(p.mon.level);
       const ready = Box.canEvolve(p.mon);
-      return `<div class="inv-item pet-item"><img class="px" src="${artURL('creature', p.species)}"><div><b>${esc(p.name)}</b> Lv ${p.mon.level}<div class="xp"><div style="width:${Math.min(100, (p.mon.xp / need) * 100).toFixed(0)}%"></div></div></div>${ready ? `<button class="btn small" data-evolve="${p.mon.id}">Evolve</button>` : ''}</div>`;
-    }).join('') : '<span style="color:var(--muted);font-size:14px">— catch wild critters or hatch eggs —</span>';
+      const skills = p.mon.skills.map((k) => { const t = p.tierOf(k); return `${esc(k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name)} <b style="color:${TIER_COLOR[t]}">${TIERS[t]}</b>`; }).join(' · ');
+      return `<div class="inv-item pet-item ${p.fainted ? 'fainted' : ''}"><img class="px" src="${artURL('creature', p.species)}"><div><b>${esc(p.name)}</b> Lv ${p.mon.level}${p.fainted ? ' · fainted' : ''}<div class="pet-skills">${skills}</div><div class="xp"><div style="width:${Math.min(100, (p.mon.xp / need) * 100).toFixed(0)}%"></div></div></div>${ready ? `<button class="btn small" data-evolve="${p.mon.id}">Evolve</button>` : ''}</div>`;
+    }).join('') : '<span style="color:var(--muted);font-size:14px">— hatch your egg or catch wild survivalmons —</span>';
     const pct = (v) => `${Math.round(v * 100)}%`;
     const stats = [
       ['Max HP', S.maxHp], ['Regen', `${S.regen.toFixed(1)}/s`], ['Armor', S.armor], ['Move speed', pct(S.speed / 64)],
       ['Damage', pct(S.might)], ['Cooldowns', pct(S.cooldown)], ['Area', pct(S.area)], ['Projectiles', `+${S.amount}`],
-      ['Crit chance', pct(S.crit)], ['Crit damage', pct(S.critMult)], ['Pickup range', pct(S.magnet / 30)], ['Luck', pct(S.luck)],
-      ['EXP gain', pct(S.growth)], ['Pet power', pct(S.petPower)],
+      ['Crit chance', pct(S.crit)], ['Crit damage', pct(S.critMult)], ['Pickup range', pct(S.magnet / 30)],
+      ['EXP gain', pct(S.growth)], ['Team damage', `+${pct(T.dmg)}`], ['Team attack speed', `+${pct(T.haste)}`],
+      ['Team defense', `+${pct(T.def)}`], ['Team max HP', `+${pct(T.hp)}`],
     ].map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join('');
-    const combos = COMBOS.map((c) => {
-      const on = g.activeCombos.has(c.id);
-      const pieces = c.pieces.map((p) => {
-        const have = p === 'pet:any' ? P.pets.length > 0 : P.has(p);
-        return `<span style="color:${have ? '#9af08a' : 'inherit'}">${esc(p === 'pet:any' ? 'any pet' : nameOf(p))}</span>`;
-      }).join(' + ');
-      return `<div class="${on ? 'on' : 'off'}">${on ? '★' : '☆'} <b>${c.name}</b>: ${pieces}<br><span style="font-size:12px;opacity:.85">${esc(c.desc)}</span></div>`;
-    }).join('');
     const st = g.settings;
     this.openModal(`
       <div class="modal-box panel pause-box">
@@ -599,14 +604,11 @@ export class UI {
         <div class="pause-body">
         <div class="pause-grid">
           <div class="pause-sec">
-            <h3>Weapons ${P.weapons.length}/${SLOTS.weapon}</h3><div class="inv-row">${row('weapon', P.weapons)}</div>
-            <h3 style="margin-top:10px">Spells ${P.spells.length}/${SLOTS.spell}</h3><div class="inv-row">${row('spell', P.spells)}</div>
-            <h3 style="margin-top:10px">Artifacts ${P.artifacts.length}/${SLOTS.artifact}</h3><div class="inv-row">${row('artifact', P.artifacts)}</div>
-            <h3 style="margin-top:10px">Team ${P.pets.length}/${SLOTS.pet}</h3><div class="inv-row">${pets}</div>
+            <h3>Weapons</h3><div class="inv-row">${row('weapon', P.weapons)}</div>
+            <h3 style="margin-top:10px">Team ${P.pets.length}/${Box.teamSize()}</h3><div class="inv-row">${pets}</div>
           </div>
           <div class="pause-sec"><h3>Stats</h3><div class="stat-list">${stats}</div>
             <div class="toggles" style="margin-top:12px"><h3>Options</h3>
-              <label><input type="checkbox" data-set="autoCast" ${st.autoCast ? 'checked' : ''}> Auto-cast spells</label>
               <label><input type="checkbox" data-set="shake" ${st.shake ? 'checked' : ''}> Screen shake</label>
               <label><input type="checkbox" data-set="music" ${st.music ? 'checked' : ''}> Music</label>
               <div class="loot-actions" style="justify-content:flex-start;margin-top:6px">
@@ -616,7 +618,6 @@ export class UI {
             </div>
           </div>
         </div>
-        <div class="pause-sec combo-list"><h3>Combos</h3>${combos}</div>
         </div>
         <div class="loot-actions pause-actions"><button class="btn" data-act="resume">Resume <span class="key">Esc</span></button><button class="btn secondary" data-act="quit">End run</button></div>
       </div>`);
@@ -646,7 +647,7 @@ export class UI {
     const tiles = [
       ['Survived', formatTime(rec.time)], ['Level', rec.level], ['Defeated', rec.kills.toLocaleString()],
       ['Damage', Math.round(R.damage).toLocaleString()], ['Coins', earned.toLocaleString()], ['Houses', `${R.houses}/${g.world.houses.length}`],
-      ['Spells cast', R.casts], ['Combos', g.activeCombos.size],
+      ['Caught', P.caught.length], ['Team', P.pets.length],
     ].map(([k, v]) => `<div class="end-tile"><span>${k}</span><b>${esc(v)}</b></div>`).join('');
     const startLv = g.runStart?.petLv || new Map();
     const team = P.pets.map((p) => {

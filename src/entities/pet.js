@@ -28,6 +28,7 @@ function tiered(sp, t) {
 export class Pet {
   constructor(g, mon) {
     this.g = g; this.mon = mon;
+    this.boost = new Map(); // skill -> extra tiers from level-up cards (this run only)
     this.refresh();
     const P = g.player;
     this.x = P.x + rand(-10, 10); this.y = P.y + rand(-10, 10);
@@ -44,15 +45,17 @@ export class Pet {
     this.id = sp.line; // combos refer to the species line (Emberpup, not Cinderhound)
     this.art = CREATURE[sp.id];
     this.pass = {};
-    for (const s of this.mon.skills) if (s.k === 'p') this.pass[s.id] = Math.max(this.pass[s.id] || 0, PASSIVES[s.id].vals[s.t]);
+    for (const s of this.mon.skills) if (s.k === 'p') this.pass[s.id] = Math.max(this.pass[s.id] || 0, PASSIVES[s.id].vals[this.tierOf(s)]);
     this.attacks = this.mon.skills.filter((s) => s.k === 'u' && SPECIES[s.sp]).map((s) => ({
-      s, arch: SPECIES[s.sp].arch, q: tiered(SPECIES[s.sp], s.t), cd: rand(0.5, 1.5), healT: rand(2, 5),
+      s, arch: SPECIES[s.sp].arch, q: tiered(SPECIES[s.sp], this.tierOf(s)), cd: rand(0.5, 1.5), healT: rand(2, 5),
     }));
     this.q = this.attacks[0]?.q || {};
     const prev = this.maxHp;
     this.maxHp = Math.round(sp.hp * (1 + 0.12 * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * (1 + this.team.hp));
     if (prev && this.hp > 0) this.hp = Math.min(this.maxHp, this.hp * (this.maxHp / prev));
   }
+  // A skill's tier in this run: its rolled tier plus any level-up boosts (S is the top)
+  tierOf(s) { return Math.min(4, s.t + (this.boost?.get(s) || 0)); }
   get team() { return this.g.team || TEAM0; }
   get name() { return this.sp.name; }
   get power() {

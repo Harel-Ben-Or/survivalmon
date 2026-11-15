@@ -4,9 +4,13 @@ A cozy pixel-art survival roguelite with a creature-collector twist. Runs start 
 long: every monster you defeat pays coins, and when the timer runs out you're back in **town**.
 Spend the coins in the **Training Hall** (run time, HP, damage, speed…) and head out again for a
 longer, stronger run, up to the full **8 minutes**: King Slime around 2:00, the Treant around 4:00,
-the Colossus around 6:00, and the Night Lord for the last 30 seconds. During a run you
-level up, duck into houses (the clock stops inside!) for **weapons, spells, artifacts and eggs**,
-discover **combos**, and fight beside a team of survivalmons.
+the Colossus around 6:00, and the Night Lord for the last 30 seconds.
+
+Runs are **mons-first**: your hero fights with their two weapons (main hand and off hand from their
+gear), and your **survivalmons** do the rest with their own skills. Level-up cards boost either the
+hero (HP, damage, speed…) or your team (team damage, attack speed, defense, max HP, a full heal, or
+one of a survivalmon's skills going up a tier for that run). Houses (the clock stops inside!) and
+chests give coins, berries, materials, eggs, evolution stones and gear.
 
 The full design (buildings, breeding, skill tiers, gear) is in the design doc;
 `PLAN.md` covers the original build.
@@ -64,7 +68,7 @@ Then open http://localhost:5173. No install step — it's plain JavaScript with 
    The first time, Windows may ask whether Node.js can use the network — allow it on private networks.
 3. Hold the phone sideways. Touch controls switch on automatically:
    drag on the left half to move; on the right are **DASH**, the **!** action button
-   (enter houses / search) and your spell icons; **II** pauses.
+   (enter houses / search); **II** pauses.
 4. For a full-screen app icon: Android — the game goes fullscreen when you pick a hero;
    iPhone — Share → **Add to Home Screen**.
 
@@ -77,7 +81,6 @@ The **Controls** button on the title screen switches between Auto / Touch / Keyb
 | WASD / Arrows | Move |
 | Space | Dash |
 | E | Enter a building or house / search / take loot |
-| 1 · 2 · 3 | Cast spells |
 | Esc / P | Pause (in a run) or the town menu |
 | M | Mute |
 
@@ -85,7 +88,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 
 ## Where things live
 
-- `src/content/` — all game data: heroes, weapons, spells, artifacts, combos, pets, monsters, waves.
+- `src/content/` — all game data: heroes, weapons, survivalmons, skills, gear, buildings, monsters, waves.
+  (spells.js and artifacts.js are no longer used in runs.)
   Tweak numbers here to rebalance.
 - `assets/sprites/` — all PixelLab art. Replace a file with the same name to change a sprite:
   - `heroes/<id>/<direction>.png` (8 directions) and `heroes/<id>/walk/<direction>_<frame>.png` (walk cycles, counts in `walk/frames.json`)
