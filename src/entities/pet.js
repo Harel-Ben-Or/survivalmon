@@ -1,7 +1,7 @@
 // A survivalmon in a run: trails the hero, fights with every attack skill it has (its own unique
 // skill plus any it inherited), carries its passive skills, and has its own HP. It can faint; the
 // HP it ends the run with is saved, and the Clinic heals it.
-import { CREATURE, creatureMotion, drawCreature, snap } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS } from '../gfx/art.js';
 import { SPECIES } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { Box } from '../systems/collection.js';
@@ -37,7 +37,11 @@ export class Pet {
     this.face = 1; this.anim = rand(0, 2); this.seed = rand(0, 10);
     this.state = 'follow'; this.rollT = 0; this.hits = new Set();
     this.moving = false; this.hopT = 0; this.flash = 0; this.windUsed = false;
+    this.atkT = -1;                      // time into its attack animation (-1 = not attacking)
+    this.faintT = this.fainted ? 99 : 0; // time since it fainted (already down: show it lying there)
   }
+  // Plays the attack animation (if it has one) as a skill fires
+  swing() { if (this.art?.anim?.attack) this.atkT = 0; }
   // Re-read species, skills and stats after a level up or evolution.
   refresh() {
     const sp = this.sp = SPECIES[this.mon.species];
@@ -90,6 +94,8 @@ export class Pet {
     }
     this.hp = 0;
     this.fainted = true;
+    this.faintT = 0;
+    this.atkT = -1;
     this.state = 'follow';
     this.g.toast(`${this.name} fainted! Heal it at the Clinic.`);
     this.g.player.recompute();
@@ -117,6 +123,8 @@ export class Pet {
   update(dt, index, inRoom) {
     const g = this.g, P = g.player;
     this.flash = Math.max(0, this.flash - dt);
+    if (this.atkT >= 0) { this.atkT += dt; if (this.atkT * ANIM_FPS.attack >= 6) this.atkT = -1; }
+    if (this.fainted) this.faintT += dt;
     // out of the fight for a few seconds, a survivalmon slowly gets its breath back
     this.calmT = (this.calmT || 0) + dt;
     if (!this.fainted && g.mode === 'world' && this.calmT > 4 && this.hp < this.maxHp) this.hp = Math.min(this.maxHp, this.hp + this.maxHp * 0.02 * dt);
@@ -189,6 +197,19 @@ export class Pet {
     ctx.globalAlpha = 1;
     if (!a) return;
     if (this.fainted) {
+      if (a.anim?.faint) {
+        // collapses once, then lies there with dizzy stars circling
+        const n = a.anim.faint.length, f = Math.floor(this.faintT * ANIM_FPS.faint), down = f >= n;
+        drawCreature(ctx, a, x, y, { left: this.face < 0, anim: 'faint', frame: f, alpha: down ? 0.7 : 1 });
+        if (down) {
+          ctx.fillStyle = '#ffe07a';
+          for (let i = 0; i < 3; i++) {
+            const ang = this.g.realTime * 4 + (i * TAU) / 3, sx = Math.round(x + Math.cos(ang) * 6), sy = Math.round(y - a.ch * 0.45 - 3 + Math.sin(ang) * 2);
+            ctx.fillRect(sx, sy - 1, 1, 3); ctx.fillRect(sx - 1, sy, 3, 1);
+          }
+        }
+        return;
+      }
       drawCreature(ctx, a, x, y, { left: this.face < 0, alpha: 0.45, sx: 1.05, sy: 0.8 });
       if (Math.floor(this.g.realTime * 2 + this.seed) % 2) { ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y - a.ch - 2, 2, 1); ctx.fillRect(x + 5, y - a.ch - 3, 1, 1); }
       return;
@@ -197,6 +218,7 @@ export class Pet {
     // drawn frames: flyers always flap, the rest step while moving and breathe while still
     m.anim = a.motion === 'fly' || this.moving || this.state === 'roll' ? 'move' : 'idle';
     m.at = this.g.realTime + this.seed;
+    if (this.atkT >= 0 && a.anim?.attack) { m.anim = 'attack'; m.frame = Math.floor(this.atkT * ANIM_FPS.attack); }
     if (this.state === 'roll' && this.rollQ?.hop) m.bob += Math.sin(Math.max(0, this.rollT) / 0.55 * Math.PI) * 10;
     if (this.hopT > 0) m.bob += Math.sin(this.hopT / 0.3 * Math.PI) * 8;
     if (this.state === 'roll' && this.rollQ?.spin) {
@@ -239,6 +261,7 @@ const ARCH = {
       });
     }
     if (q.element === 'fire') Audio.play('fire'); else Audio.play('shoot');
+    pet.swing();
     return q.cd;
   },
   zapper(pet, g, q) {
@@ -246,8 +269,9 @@ const ARCH = {
     if (!first) return 0.3;
     const n = (q.chains || 3) + (pet.id === 'voltowl' && g.combo('stormwings') ? 4 : 0);
     const pts = [[pet.x, pet.y - 4]];
-    chain(g, pet, first, n, q.dmg * pet.power, { burn: q.burn, chill: q.chill }, pts);
+    chain(g, pet, first, n, q.dmg * pet.power, { burn: q.burn, chill: q.chill, stun: q.stun }, pts);
     Audio.play('zap');
+    pet.swing();
     return q.cd;
   },
   roller(pet, g, q) {
@@ -260,7 +284,9 @@ const ARCH = {
     return pet.id === 'pebblet' && g.combo('rockslide') ? q.cd / 2 : q.cd;
   },
   aura(pet, g, q) {
+    let hit = false;
     g.enemiesInRadius(pet.x, pet.y, q.radius || 30, (e) => {
+      hit = true;
       const frz = q.freezeChance && Math.random() < q.freezeChance ? 1.2 : 0;
       g.damageEnemy(e, q.dmg * pet.power, { pet: true, petRef: pet, small: true, silent: true, chill: q.chill, burn: q.burn, freeze: frz });
     });
@@ -268,12 +294,15 @@ const ARCH = {
       const ang = rand(0, TAU), d = rand(0, q.radius || 30);
       g.particles.add({ x: pet.x + Math.cos(ang) * d, y: pet.y - 4 + Math.sin(ang) * d * 0.7, vx: rand(-6, 6), vy: rand(4, 14), life: 0.6, color: Math.random() < 0.5 ? q.color || '#ffffff' : '#ffffff' });
     }
+    // the dust is always on; every few seconds of fighting it gives a visible pulse
+    pet.auraT = (pet.auraT || 0) + (q.tick || 0.5);
+    if (hit && pet.auraT >= 2.5) { pet.auraT = 0; pet.swing(); }
     return q.tick || 0.5;
   },
   slam(pet, g, q) {
     const R = q.radius || 36;
     if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) return 0.3;
-    pet.hopT = 0.3;
+    if (pet.art?.anim?.attack) pet.swing(); else pet.hopT = 0.3;
     g.explode(pet.x, pet.y, R, q.dmg * pet.power, { pet: true, petRef: pet, knock: q.knock || 200, stun: q.stun, root: q.root, chill: q.chill, burn: q.burn, small: true });
     g.addEffect({ type: 'ring', x: pet.x, y: pet.y, R, life: 0.35, color: q.root ? '#6cc24e' : q.chill ? '#8fe0ff' : '#c4beb4' });
     g.shake(1.5, 0.12);
@@ -283,6 +312,7 @@ const ARCH = {
     const n = q.count || 1;
     const targets = g.randomEnemies(pet.x, pet.y, q.range || 140, n);
     if (!targets.length) return 0.3;
+    pet.swing();
     for (const t of targets) {
       const sx = pet.x, sy = pet.y, tx = t.x, ty = t.y, T = 0.5;
       g.spawnProjectile({

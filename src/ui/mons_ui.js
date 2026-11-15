@@ -2,7 +2,7 @@
 // breeding), the Clinic, the Survidex and the Spirit Shrine.
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
-import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, BREED_LEVEL, petXpFor, breedResult } from '../content/species.js';
+import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult } from '../content/species.js';
 import { TIERS, PASSIVES } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
@@ -199,7 +199,7 @@ export const MonsUI = {
       <h2>Survidex</h2>
       <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span></div>
       <div class="dex-body">
-        <div class="journal panel">${group('Species', DEX_IDS.slice(0, 6))}${group('Same-species breeds', DEX_IDS.slice(6, 12))}${group('Mixed breeds', DEX_IDS.slice(12, 27))}${group('Evolved breeds', DEX_IDS.slice(27))}</div>
+        <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('Evolved breeds', EVOLVED_IDS)}</div>
         <div class="panel dex-detail">${detail}</div>
       </div>`);
   },

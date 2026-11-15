@@ -2,7 +2,7 @@
 import { TAU, rand, dist2, chance, choice } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { SPR } from '../gfx/assets.js';
-import { snap } from '../gfx/art.js';
+import { snap, drawCreature, ANIM_FPS } from '../gfx/art.js';
 import { SPECIES, STONE_OF } from '../content/species.js';
 import { TIERS, PASSIVES } from '../content/skills.js';
 import { Box, rollSkills } from './collection.js';
@@ -119,7 +119,8 @@ export const Combat = {
     for (const p of this.projectiles) {
       if (p.draw) { p.draw(ctx, p, cam); continue; }
       if (!p.spr) continue;
-      const s = SPR[p.spr];
+      const s = SPR[p.spr] || SPR.p_bubble; // a shot whose picture is missing borrows the bubble's
+      if (!s) continue;
       const x = snap(p.x - cam.x), y = snap(p.y - cam.y - p.z);
       if (p.z > 10 && !p.hostile) {
         ctx.globalAlpha = 0.25; ctx.fillStyle = '#000';
@@ -248,6 +249,14 @@ export const Combat = {
           ctx.beginPath(); ctx.ellipse(x, y - 6, e.R * 0.65, e.R * 0.52, 0, a0, a0 + sweep); ctx.stroke();
           break;
         }
+        case 'monfaint': {
+          const t = e.age, n = e.art.anim.faint.length, landed = n / ANIM_FPS.faint;
+          const fade = t > landed + 0.35 ? Math.max(0, 1 - (t - landed - 0.35) / 0.3) : 1;
+          const sc = 0.35 + 0.65 * fade;
+          drawCreature(ctx, e.art, x, y, { left: e.left, anim: 'faint', frame: Math.floor(t * ANIM_FPS.faint), alpha: fade, sx: sc, sy: sc });
+          if (fade < 1) { ctx.globalAlpha = 1 - fade; ctx.fillStyle = '#bff8ff'; ctx.beginPath(); ctx.arc(x, y - 6, 3 + 9 * (1 - fade), 0, TAU); ctx.fill(); }
+          break;
+        }
         case 'ring': {
           const r = e.R * (0.2 + 0.8 * Math.sqrt(k));
           ctx.globalAlpha = 1 - k; ctx.strokeStyle = e.color; ctx.lineWidth = 2;
@@ -373,6 +382,8 @@ export const Combat = {
     this.dropXp(e.x, e.y - 4, e.xp);
     this.gainCoins(10, e.x, e.y - 14, true);
     this.particles.burst(e.x, e.y - 8, { n: 30, colors: ['#7af0ff', '#ffe07a', '#ffffff'], speed: 90, life: 0.6 });
+    // it faints where it stood, then shrinks away in a flash of light as it's caught
+    if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4 });
     // wild ones met later in a run are further grown
     const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level: 1 + Math.floor(this.time / 60) });
     P.caught.push(species);

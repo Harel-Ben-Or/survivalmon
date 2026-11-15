@@ -1,6 +1,6 @@
 // PixelLab sprite art: loads the PNGs and prepares flipped, hit-flash and outlined variants.
 // World art is drawn at 2x the logical resolution (WS), so a 64px sprite is 32 logical px.
-import { SPECIES, MIXED_IDS, EVOLVED_IDS, DEX_IDS } from '../content/species.js';
+import { SPECIES, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, DEX_IDS } from '../content/species.js';
 
 export const WS = 2;
 
@@ -23,11 +23,22 @@ export const MOTION = {
   gustleaf: 'fly', stormleaf: 'fly', mossmound: 'hop', mossgiant: 'walk', petalwisp: 'fly', blossomwisp: 'fly',
   zapgill: 'hop', stormgill: 'hop', coralump: 'walk', reefguard: 'walk', mistmoth: 'fly', dreammoth: 'fly',
   cragowl: 'fly', titanowl: 'fly', aurowl: 'fly', celestowl: 'fly', gemmoth: 'fly', prismoth: 'fly',
+  // the four newer species, their same-species breeds, and their mixed breeds with evolutions
+  duskit: 'walk', nightprowl: 'walk', snowpip: 'walk', emperice: 'walk', venewt: 'walk', venomander: 'walk', ferrit: 'walk', steelfang: 'walk',
+  cindercat: 'walk', infernyx: 'walk', thornshade: 'hop', nightbramble: 'walk', gloomowl: 'fly', eclipsowl: 'fly',
+  murkfin: 'hop', abyssfin: 'hop', shadestone: 'hop', obsidclaw: 'walk', duskmoth: 'fly', nocturna: 'fly',
+  frostflare: 'walk', auroravix: 'walk', frostbloom: 'hop', wintergrove: 'walk', blizzowl: 'fly', hailstrix: 'fly',
+  floepip: 'hop', glacierback: 'walk', avalump: 'hop', glacitan: 'walk', frostfae: 'fly', aurorafae: 'fly',
+  smogpup: 'walk', fumeroar: 'walk', sporebun: 'hop', mycelord: 'walk', toxivolt: 'walk', voltoxin: 'walk',
+  sludgill: 'hop', swamplord: 'hop', corrodon: 'walk', corrosaur: 'walk', fogwing: 'fly', hazewing: 'fly',
+  forgepup: 'walk', forgehound: 'walk', vinegear: 'hop', gearwood: 'walk', magnowl: 'fly', teslowl: 'fly',
+  anchorfin: 'hop', dreadnaut: 'walk', ironclod: 'hop', titanclad: 'walk', chromoth: 'fly', mirrorwing: 'fly',
+  frostshade: 'walk', rimeshade: 'walk', gloomnewt: 'walk', gloomdrake: 'walk', shurikat: 'walk', phantomblade: 'walk',
+  slushling: 'walk', frostbite: 'walk', steelpeng: 'walk', ironberg: 'walk', rustail: 'walk', scrapdrake: 'walk',
 };
 
 const CREATURE_IDS = [
-  'emberpup', 'cinderhound', 'leafkit', 'thornhare', 'voltowl', 'tempestowl', 'puddlit', 'tidetoad',
-  'pebblet', 'boulderon', 'glimmoth', 'lunamoth',
+  ...BASE_IDS, ...PURE_IDS,
   'slime', 'bat', 'shroom', 'wisp', 'wolf', 'spore', 'beetle', 'imp', 'golem',
   'king_slime', 'treant', 'colossus', 'alpha_wolf', 'night_lord',
   ...MIXED_IDS, ...EVOLVED_IDS,
@@ -36,9 +47,12 @@ const CREATURE_IDS = [
 const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom_blue: ['shroom', 185] };
 const HEROES = ['rowan', 'bram', 'lyra', 'pip'];
 // Survivalmons with drawn animation: creatures/anim/<id>.png holds one cell per frame (cell = the
-// sprite's own size), row 0 = moving (8 frames), row 1 = idle (6 frames). Frame 0 is the still sprite.
-const ANIM_FRAMES = { move: 8, idle: 6 };
-const ANIM_FPS = { move: 10, fly: 12, idle: 7 };
+// sprite's own size, 8 cells across): row 0 = moving (8 frames), row 1 = idle (6), row 2 = attack (6,
+// played once each time it attacks), row 3 = faint (8, played once, ending lying down). Frame 0 of
+// the moving row is the still sprite. A missing or empty attack/faint row just isn't used.
+const ANIM_FRAMES = { move: 8, idle: 6, attack: 6, faint: 8 };
+const ANIM_ROWS = [['move', 0], ['idle', 1], ['attack', 2], ['faint', 3]];
+export const ANIM_FPS = { move: 10, fly: 12, idle: 7, attack: 14, faint: 10 };
 
 // ---------------------------------------------------------------- canvas helpers
 function loadImage(src) {
@@ -119,13 +133,22 @@ function makeCreature(id, canvas) {
 function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
 // A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
 function animatedCreature(id, sheet) {
-  const c = sheet.height / 2;
+  const c = sheet.width / 8, rows = Math.round(sheet.height / c);
   const a = makeCreature(id, cut(sheet, 0, 0, c, c));
   a.anim = {};
-  for (const [k, row] of [['move', 0], ['idle', 1]]) {
-    a.anim[k] = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => { const R = cut(sheet, i * c, row * c, c, c); return { R, L: flip(R) }; });
+  for (const [k, row] of ANIM_ROWS) {
+    if (row >= rows) continue;
+    const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => cut(sheet, i * c, row * c, c, c));
+    if (row >= 2 && frames.every(blank)) continue; // e.g. rollers have no attack frames
+    a.anim[k] = frames.map((R) => ({ R, L: flip(R) }));
   }
   return a;
+}
+// True if a frame has nothing drawn in it
+function blank(c) {
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+  for (let i = 3; i < d.length; i += 16) if (d[i] > 20) return false;
+  return true;
 }
 
 // ---------------------------------------------------------------- loading
@@ -208,8 +231,11 @@ export function drawCreature(ctx, s, x, y, o = {}) {
   else if (o.outline === 'elite') img = left ? s.LE : s.RE;
   else if (o.outline === 'catch') img = left ? s.LC : s.RC;
   else if (o.anim && s.anim?.[o.anim]) {
-    const fr = s.anim[o.anim], fps = o.anim === 'idle' ? ANIM_FPS.idle : s.motion === 'fly' ? ANIM_FPS.fly : ANIM_FPS.move;
-    const f = fr[Math.floor((o.at || 0) * fps) % fr.length];
+    const fr = s.anim[o.anim];
+    let i;
+    if (o.frame !== undefined) i = Math.max(0, Math.min(fr.length - 1, o.frame)); // attack and faint play once
+    else { const fps = o.anim === 'idle' ? ANIM_FPS.idle : s.motion === 'fly' ? ANIM_FPS.fly : ANIM_FPS.move; i = Math.floor((o.at || 0) * fps) % fr.length; }
+    const f = fr[i];
     img = left ? f.L : f.R;
   }
   const pad = (img.width - s.w) / 2;
@@ -325,7 +351,7 @@ export async function loadWorldArt(SPR, base = 'assets/sprites') {
 }
 
 // Projectiles: centred anchors so they rotate around their middle
-const PROJ = ['arrow', 'ember', 'leaf', 'boomerang', 'bomb', 'pebble', 'spore', 'imp_fire', 'boulder', 'bubble', 'fireball', 'meteor', 'dark_orb', 'root'];
+const PROJ = ['arrow', 'ember', 'leaf', 'boomerang', 'bomb', 'pebble', 'spore', 'imp_fire', 'boulder', 'bubble', 'fireball', 'meteor', 'dark_orb', 'root', 'ice'];
 export async function loadProjArt(SPR, base = 'assets/sprites/projectiles') {
   await Promise.all(PROJ.map(async (id) => {
     const img = await loadImage(`${base}/${id}.png`);

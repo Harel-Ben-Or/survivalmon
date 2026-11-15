@@ -41,9 +41,9 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 - **Ranch**: every survivalmon you own roams the pasture. Train them (they gain EXP while you're away),
   free copies for species coins, and spend those on species upgrades.
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
-  used up) into an egg of their breed: same species gives its grown-up form, two species one of 15 mixes.
+  used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
-- **Survidex**: all 42 survivalmons and breeds, and breeding recipes you've found.
+- **Survidex**: all 110 survivalmons and breeds, and breeding recipes you've found.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
 - **Merchant**: items for your next run.
@@ -55,7 +55,11 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
   survivalmon** turns up now and then: defeat it within 25 s to catch it. Monsters are never caught.
 - Each one has its species' unique skill (an attack) and a random passive skill, each with a tier
   (D 65%, C 20%, B 10%, A 4%, S 1%). They fight with their own HP; fainted ones stay home until healed.
+- 10 species in 10 types: Emberpup (fire), Leafkit (grass), Puddlit (water), Voltowl (storm), Pebblet (rock),
+  Glimmoth (fairy), Duskit (shadow), Snowpip (ice), Venewt (toxic) and Ferrit (metal). Each type has its own
+  zone in the wild, where its species turns up most.
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
+- Every species and breed hatches from its own egg, and has walk, attack and faint animations.
 
 ## Run it
 

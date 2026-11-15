@@ -1,4 +1,4 @@
-// Survivalmons: the 6 species, their same-species breeds (Voltowl + Voltowl = Tempestowl), the 15
+// Survivalmons: the 10 species, their same-species breeds (Voltowl + Voltowl = Tempestowl), the 45
 // mixed breeds and the mixed breeds' evolutions. Monsters live in creatures.js and are never caught.
 // stage 1 = species (wild, starter eggs) · 2 = breeds · 3 = evolved mixed breeds.
 
@@ -10,6 +10,9 @@ export const TYPES = {
   rock: { name: 'Rock', color: '#a89a88' },
   fairy: { name: 'Fairy', color: '#f5a0d8' },
   shadow: { name: 'Shadow', color: '#8a6ad0' },
+  ice: { name: 'Ice', color: '#8fe0f0' },
+  toxic: { name: 'Toxic', color: '#a6c83a' },
+  metal: { name: 'Metal', color: '#9aa8bc' },
 };
 
 // Evolution stones: a mixed breed evolves with a stone of either parent's type. Rare boss and wild drops.
@@ -21,8 +24,12 @@ export const STONES = {
   earth_stone: { name: 'Earth Stone', type: 'rock', icon: 'stone_rock' },
   moon_stone: { name: 'Moon Stone', type: 'fairy', icon: 'stone_fairy' },
   dusk_stone: { name: 'Dusk Stone', type: 'shadow', icon: 'stone_shadow' },
+  frost_stone: { name: 'Frost Stone', type: 'ice', icon: 'stone_ice' },
+  venom_stone: { name: 'Venom Stone', type: 'toxic', icon: 'stone_toxic' },
+  steel_stone: { name: 'Steel Stone', type: 'metal', icon: 'stone_metal' },
 };
-export const STONE_OF = { fire: 'ember_stone', water: 'tide_stone', grass: 'leaf_stone', storm: 'thunder_stone', rock: 'earth_stone', fairy: 'moon_stone' };
+export const STONE_OF = { fire: 'ember_stone', water: 'tide_stone', grass: 'leaf_stone', storm: 'thunder_stone', rock: 'earth_stone', fairy: 'moon_stone',
+  shadow: 'dusk_stone', ice: 'frost_stone', toxic: 'venom_stone', metal: 'steel_stone' };
 
 export const EVO_LEVEL = 10;      // mixed breeds evolve from this level (plus a matching stone)
 export const BREED_LEVEL = 3;     // both parents need this level to breed
@@ -63,6 +70,26 @@ const BASE = {
     unique: { name: 'Glitter Dust', desc: 'Dust that hurts nearby foes and widens your pickup range.' },
     q: { dmg: 5, tick: 0.5, radius: 30, magnet: 0.3, color: '#f5b8e8', fly: true },
   },
+  duskit: {
+    name: 'Duskit', type: 'shadow', arch: 'shooter', hp: 60, desc: 'A shadow kitten that flings homing dark orbs.',
+    unique: { name: 'Shade Orb', desc: 'Homing dark orbs that pass through a foe.' },
+    q: { dmg: 10, cd: 1.4, range: 160, proj: 'p_dark_orb', speed: 140, homing: 5, pierce: 1, count: 1, glow: '#a070ff' },
+  },
+  snowpip: {
+    name: 'Snowpip', type: 'ice', arch: 'shooter', hp: 70, desc: 'A penguin chick that throws ice shards.',
+    unique: { name: 'Ice Shard', desc: 'Shards that slow foes and sometimes freeze them.' },
+    q: { dmg: 8, cd: 1.3, range: 150, proj: 'p_ice', speed: 180, chill: 2, freezeChance: 0.15, count: 1, glow: '#bff4ff' },
+  },
+  venewt: {
+    name: 'Venewt', type: 'toxic', arch: 'lobber', hp: 65, desc: 'A newt that spits poison goo into puddles.',
+    unique: { name: 'Toxic Puddle', desc: 'Lobs goo that leaves a poison puddle.' },
+    q: { dmg: 6, cd: 2.2, range: 150, radius: 24, dur: 3, tick: 0.5, burn: 3, count: 1 },
+  },
+  ferrit: {
+    name: 'Ferrit', type: 'metal', arch: 'shooter', hp: 80, desc: 'A steel ferret that throws spinning blades.',
+    unique: { name: 'Blade Spin', desc: 'Spinning blades that cut through a line of foes.' },
+    q: { dmg: 11, cd: 1.6, range: 150, proj: 'p_boomerang', speed: 190, pierce: 3, knock: 50, life: 1.0, count: 1 },
+  },
 };
 
 // ---------------------------------------------------------------- same-species breeds
@@ -74,6 +101,10 @@ const PURE = {
   tidetoad: { from: 'puddlit', name: 'Tidetoad', desc: 'Its croak calls the tide.', mod: { count: 1, freeze: 0.8 }, unique: { name: 'Riptide', desc: 'Twin bubbles that can freeze foes.' } },
   boulderon: { from: 'pebblet', name: 'Boulderon', desc: 'A rolling mountain with a magma heart.', mod: { burn: 6, cd: -0.5 }, unique: { name: 'Magma Roll', desc: 'Rolls that leave foes burning.' } },
   lunamoth: { from: 'glimmoth', name: 'Lunamoth', desc: 'Its wings glow like the full moon.', mod: { radius: 10, magnet: 0.2, freezeChance: 0.1 }, unique: { name: 'Moonbeam', desc: 'A wider cloud that sometimes freezes foes.' } },
+  nightprowl: { from: 'duskit', name: 'Nightprowl', desc: 'A panther of living shadow.', mod: { count: 1, homing: 3 }, unique: { name: 'Twin Shades', desc: 'Two homing dark orbs at once.' } },
+  emperice: { from: 'snowpip', name: 'Emperice', desc: 'An emperor penguin crowned with ice.', mod: { count: 1, freezeChance: 0.15 }, unique: { name: 'Blizzard Shards', desc: 'Twin shards that freeze foes more often.' } },
+  venomander: { from: 'venewt', name: 'Venomander', desc: 'A salamander dragon with dripping spikes.', mod: { radius: 8, burn: 3 }, unique: { name: 'Acid Bog', desc: 'Wider puddles of stronger poison.' } },
+  steelfang: { from: 'ferrit', name: 'Steelfang', desc: 'A steel wolverine with a twin-blade tail.', mod: { count: 1, pierce: 2 }, unique: { name: 'Twin Blades', desc: 'Two spinning blades that cut deeper.' } },
 };
 
 // ---------------------------------------------------------------- mixed breeds and their evolutions
@@ -139,6 +170,136 @@ const MIXED = {
     unique: { name: 'Prism Shards', desc: 'Crystal clouds that daze the foes inside.' },
     q: { dmg: 10, cd: 2.2, range: 150, radius: 24, dur: 2.5, tick: 0.5, stun: 0.3, count: 2 },
     evo: { id: 'prismoth', name: 'Prismoth', desc: 'Light bends around its wings.' } },
+
+  // --- Duskit (shadow) with the first six
+  cindercat: { pair: ['emberpup', 'duskit'], name: 'Cindercat', desc: 'A smoky cat whose violet flames flicker in the dark.', arch: 'shooter', hp: 1.6,
+    unique: { name: 'Hellfire Orb', desc: 'Homing dark fireballs that burn.' },
+    q: { dmg: 13, cd: 1.4, range: 160, proj: 'p_dark_orb', speed: 150, homing: 6, burn: 4, count: 2, element: 'fire', glow: '#c070ff' },
+    evo: { id: 'infernyx', name: 'Infernyx', desc: 'A panther wreathed in violet fire.' } },
+  thornshade: { pair: ['leafkit', 'duskit'], name: 'Thornshade', desc: 'A bunny-cat that hides in thorny shadows.', arch: 'slam', hp: 1.8,
+    unique: { name: 'Night Thorns', desc: 'Thorns burst from the shadows and root foes.' },
+    q: { dmg: 20, cd: 2.6, radius: 38, knock: 140, root: 1.6 },
+    evo: { id: 'nightbramble', name: 'Nightbramble', desc: 'Its thorns bloom only at midnight.' } },
+  gloomowl: { pair: ['voltowl', 'duskit'], name: 'Gloomowl', desc: 'An owl that flies silent on dark lightning.', arch: 'zapper', hp: 1.5,
+    unique: { name: 'Dark Volt', desc: 'Lightning that jumps between 4 foes and dazes them.' },
+    q: { dmg: 14, cd: 2, range: 160, chains: 4, stun: 0.3 },
+    evo: { id: 'eclipsowl', name: 'Eclipsowl', desc: 'It blots out the moon when it spreads its wings.' } },
+  murkfin: { pair: ['puddlit', 'duskit'], name: 'Murkfin', desc: 'A frog-cat that lurks in black water.', arch: 'shooter', hp: 1.7,
+    unique: { name: 'Murk Bubble', desc: 'Homing bubbles that slow foes.' },
+    q: { dmg: 10, cd: 1.2, range: 160, proj: 'p_bubble', speed: 130, homing: 5, chill: 2.5, r: 5, count: 2 },
+    evo: { id: 'abyssfin', name: 'Abyssfin', desc: 'It rises from the deepest, darkest lake.' } },
+  shadestone: { pair: ['pebblet', 'duskit'], name: 'Shadestone', desc: 'A stone kitten with a crack of shadow.', arch: 'roller', hp: 1.9,
+    unique: { name: 'Shadow Roll', desc: 'Rolls through foes and leaves them dazed.' },
+    q: { dmg: 24, cd: 3, range: 150, speed: 230, time: 0.7, knock: 200, stun: 0.5, spin: true },
+    evo: { id: 'obsidclaw', name: 'Obsidclaw', desc: 'Its obsidian hide drinks the light.' } },
+  duskmoth: { pair: ['glimmoth', 'duskit'], name: 'Duskmoth', desc: 'A moth with wings like the night sky.', arch: 'aura', hp: 1.5,
+    unique: { name: 'Night Dust', desc: 'Dust that hurts foes, sometimes freezes them, and pulls in EXP.' },
+    q: { dmg: 6, tick: 0.5, radius: 32, magnet: 0.3, freezeChance: 0.08, color: '#9a7ae0', fly: true },
+    evo: { id: 'nocturna', name: 'Nocturna', desc: 'Its wings hold a thousand sleeping stars.' } },
+
+  // --- Snowpip (ice) with the first six
+  frostflare: { pair: ['emberpup', 'snowpip'], name: 'Frostflare', desc: 'A fox whose tail burns with cold blue fire.', arch: 'shooter', hp: 1.6,
+    unique: { name: 'Frostfire', desc: 'Homing embers that burn and slow.' },
+    q: { dmg: 12, cd: 1.3, range: 160, proj: 'p_ember', speed: 160, homing: 6, burn: 3, chill: 1.5, count: 2, element: 'fire', glow: '#8fe0ff' },
+    evo: { id: 'auroravix', name: 'Auroravix', desc: 'Its fur shimmers between flame and frost.' } },
+  frostbloom: { pair: ['leafkit', 'snowpip'], name: 'Frostbloom', desc: 'A bunny wrapped in frosted leaves.', arch: 'shooter', hp: 1.7,
+    unique: { name: 'Frost Leaf', desc: 'Piercing icy leaves that slow foes and heal the team.' },
+    q: { dmg: 11, cd: 1.3, range: 160, proj: 'p_leaf', speed: 200, pierce: 2, chill: 2, count: 2, heal: 3, healCd: 8 },
+    evo: { id: 'wintergrove', name: 'Wintergrove', desc: 'A pine forest in winter, on four paws.' } },
+  blizzowl: { pair: ['voltowl', 'snowpip'], name: 'Blizzowl', desc: 'An owl that brings sleet and lightning.', arch: 'zapper', hp: 1.5,
+    unique: { name: 'Sleet Bolt', desc: 'Lightning that jumps between 4 foes and slows them.' },
+    q: { dmg: 14, cd: 2, range: 160, chains: 4, chill: 2 },
+    evo: { id: 'hailstrix', name: 'Hailstrix', desc: 'Hail falls wherever it hunts.' } },
+  floepip: { pair: ['puddlit', 'snowpip'], name: 'Floepip', desc: 'A penguin-frog that slides on ice floes.', arch: 'shooter', hp: 1.8,
+    unique: { name: 'Freeze Bubble', desc: 'Bubbles that slow foes and often freeze them.' },
+    q: { dmg: 9, cd: 1.2, range: 150, proj: 'p_bubble', speed: 130, chill: 2.5, freeze: 0.8, r: 5, count: 2 },
+    evo: { id: 'glacierback', name: 'Glacierback', desc: 'An iceberg rides on its shell.' } },
+  avalump: { pair: ['pebblet', 'snowpip'], name: 'Avalump', desc: 'A snowy boulder that starts avalanches.', arch: 'roller', hp: 2,
+    unique: { name: 'Avalanche', desc: 'Rolls through foes and leaves them slowed.' },
+    q: { dmg: 26, cd: 3, range: 150, speed: 230, time: 0.7, knock: 220, chill: 2.5, spin: true },
+    evo: { id: 'glacitan', name: 'Glacitan', desc: 'As big and cold as a glacier.' } },
+  frostfae: { pair: ['glimmoth', 'snowpip'], name: 'Frostfae', desc: 'A snowflake fairy that sparkles in the cold.', arch: 'aura', hp: 1.5,
+    unique: { name: 'Diamond Dust', desc: 'Icy dust that slows foes and sometimes freezes them.' },
+    q: { dmg: 5, tick: 0.5, radius: 34, chill: 1.5, freezeChance: 0.1, magnet: 0.2, color: '#d8f6ff', fly: true },
+    evo: { id: 'aurorafae', name: 'Aurorafae', desc: 'Northern lights trail behind it.' } },
+
+  // --- Venewt (toxic) with the first six
+  smogpup: { pair: ['emberpup', 'venewt'], name: 'Smogpup', desc: 'A pup that breathes choking smoke.', arch: 'lobber', hp: 1.6,
+    unique: { name: 'Smog Cloud', desc: 'Lobs burning clouds of smog.' },
+    q: { dmg: 8, cd: 2.2, range: 150, radius: 26, dur: 3, tick: 0.5, burn: 5, count: 1 },
+    evo: { id: 'fumeroar', name: 'Fumeroar', desc: 'Its roar is a cloud of burning smog.' } },
+  sporebun: { pair: ['leafkit', 'venewt'], name: 'Sporebun', desc: 'A bunny with poison mushrooms on its back.', arch: 'lobber', hp: 1.7,
+    unique: { name: 'Spore Puff', desc: 'Poison spore clouds; heals the team now and then.' },
+    q: { dmg: 7, cd: 2.2, range: 150, radius: 26, dur: 3, tick: 0.5, burn: 3, count: 2, heal: 3, healCd: 9 },
+    evo: { id: 'mycelord', name: 'Mycelord', desc: 'A walking forest of toadstools.' } },
+  toxivolt: { pair: ['voltowl', 'venewt'], name: 'Toxivolt', desc: 'A newt whose slime sparks with electricity.', arch: 'zapper', hp: 1.6,
+    unique: { name: 'Venom Volt', desc: 'Lightning that jumps between 4 foes and poisons them.' },
+    q: { dmg: 13, cd: 2, range: 150, chains: 4, burn: 4 },
+    evo: { id: 'voltoxin', name: 'Voltoxin', desc: 'Its venom glows like lightning.' } },
+  sludgill: { pair: ['puddlit', 'venewt'], name: 'Sludgill', desc: 'A slimy fish-newt from murky bogs.', arch: 'shooter', hp: 1.7,
+    unique: { name: 'Sludge Shot', desc: 'Globs that poison and slow foes.' },
+    q: { dmg: 9, cd: 1.3, range: 150, proj: 'p_spore', speed: 140, burn: 3, chill: 2, r: 5, count: 2 },
+    evo: { id: 'swamplord', name: 'Swamplord', desc: 'The whole swamp obeys its croak.' } },
+  corrodon: { pair: ['pebblet', 'venewt'], name: 'Corrodon', desc: 'A rock lizard dripping with acid.', arch: 'slam', hp: 1.9,
+    unique: { name: 'Acid Quake', desc: 'A slam that splashes acid on foes.' },
+    q: { dmg: 22, cd: 2.8, radius: 38, knock: 180, burn: 4 },
+    evo: { id: 'corrosaur', name: 'Corrosaur', desc: 'Its acid melts mountains.' } },
+  fogwing: { pair: ['glimmoth', 'venewt'], name: 'Fogwing', desc: 'A lovely moth with poisonous scales.', arch: 'aura', hp: 1.5,
+    unique: { name: 'Poison Haze', desc: 'A haze that poisons foes and pulls in EXP.' },
+    q: { dmg: 5, tick: 0.5, radius: 34, burn: 2, magnet: 0.3, color: '#c0e070', fly: true },
+    evo: { id: 'hazewing', name: 'Hazewing', desc: 'Its haze lulls foes into a deep sleep.' } },
+
+  // --- Ferrit (metal) with the first six
+  forgepup: { pair: ['emberpup', 'ferrit'], name: 'Forgepup', desc: 'A pup with a glowing forge in its chest.', arch: 'shooter', hp: 1.7,
+    unique: { name: 'Molten Rivet', desc: 'Red-hot rivets that pierce and burn.' },
+    q: { dmg: 13, cd: 1.4, range: 160, proj: 'p_ember', speed: 200, pierce: 2, burn: 4, count: 2, element: 'fire', glow: '#ffb040' },
+    evo: { id: 'forgehound', name: 'Forgehound', desc: 'It hammers out its own armor.' } },
+  vinegear: { pair: ['leafkit', 'ferrit'], name: 'Vinegear', desc: 'A brass clockwork bunny wrapped in vines.', arch: 'shooter', hp: 1.8,
+    unique: { name: 'Gear Leaf', desc: 'Spinning gear-blades that cut through foes; heals the team.' },
+    q: { dmg: 12, cd: 1.5, range: 150, proj: 'p_boomerang', speed: 190, pierce: 3, count: 1, life: 1.0, heal: 3, healCd: 8 },
+    evo: { id: 'gearwood', name: 'Gearwood', desc: 'An ancient clockwork tree.' } },
+  magnowl: { pair: ['voltowl', 'ferrit'], name: 'Magnowl', desc: 'A magnetic owl with copper feathers.', arch: 'zapper', hp: 1.6,
+    unique: { name: 'Magnet Arc', desc: 'Lightning that jumps between 5 foes; widens your pickup range.' },
+    q: { dmg: 13, cd: 2, range: 160, chains: 5, magnet: 0.4 },
+    evo: { id: 'teslowl', name: 'Teslowl', desc: 'It hums with a million volts.' } },
+  anchorfin: { pair: ['puddlit', 'ferrit'], name: 'Anchorfin', desc: 'A steel-finned frog as heavy as an anchor.', arch: 'slam', hp: 2.1,
+    unique: { name: 'Anchor Drop', desc: 'A heavy slam that knocks foes back and slows them.' },
+    q: { dmg: 22, cd: 2.7, radius: 40, knock: 300, chill: 2 },
+    evo: { id: 'dreadnaut', name: 'Dreadnaut', desc: 'An armored warship of a frog.' } },
+  ironclod: { pair: ['pebblet', 'ferrit'], name: 'Ironclod', desc: 'A boulder bound in iron bands.', arch: 'roller', hp: 2.2,
+    unique: { name: 'Iron Roll', desc: 'A heavy roll that sends foes flying.' },
+    q: { dmg: 30, cd: 3.2, range: 150, speed: 220, time: 0.75, knock: 320, spin: true, armor: 2 },
+    evo: { id: 'titanclad', name: 'Titanclad', desc: 'Nothing can dent its iron shell.' } },
+  chromoth: { pair: ['glimmoth', 'ferrit'], name: 'Chromoth', desc: 'A moth with mirror-chrome wings.', arch: 'aura', hp: 1.6,
+    unique: { name: 'Mirror Dust', desc: 'Shiny dust that hurts foes and guards you.' },
+    q: { dmg: 6, tick: 0.5, radius: 32, magnet: 0.2, armor: 2, color: '#e0e8f0', fly: true },
+    evo: { id: 'mirrorwing', name: 'Mirrorwing', desc: 'Foes are dazzled by their own reflection.' } },
+
+  // --- the four new species with each other
+  frostshade: { pair: ['duskit', 'snowpip'], name: 'Frostshade', desc: 'A cat of black ice with frosty eyes.', arch: 'shooter', hp: 1.6,
+    unique: { name: 'Black Ice', desc: 'Homing dark shards that slow and sometimes freeze foes.' },
+    q: { dmg: 12, cd: 1.4, range: 160, proj: 'p_ice', speed: 160, homing: 5, chill: 2, freezeChance: 0.15, count: 2, glow: '#a090ff' },
+    evo: { id: 'rimeshade', name: 'Rimeshade', desc: 'Its shadow freezes whatever it touches.' } },
+  gloomnewt: { pair: ['duskit', 'venewt'], name: 'Gloomnewt', desc: 'A newt that hides in poisonous shadows.', arch: 'lobber', hp: 1.6,
+    unique: { name: 'Shadow Bog', desc: 'Dark poison pools that daze the foes inside.' },
+    q: { dmg: 8, cd: 2.2, range: 150, radius: 26, dur: 3, tick: 0.5, burn: 3, stun: 0.2, count: 2 },
+    evo: { id: 'gloomdrake', name: 'Gloomdrake', desc: 'A shadow dragon dripping with venom.' } },
+  shurikat: { pair: ['duskit', 'ferrit'], name: 'Shurikat', desc: 'A steel cat that throws shadow stars.', arch: 'shooter', hp: 1.7,
+    unique: { name: 'Shadow Star', desc: 'Homing blades that cut through foes.' },
+    q: { dmg: 13, cd: 1.5, range: 160, proj: 'p_boomerang', speed: 200, homing: 4, pierce: 2, count: 2, life: 1.0 },
+    evo: { id: 'phantomblade', name: 'Phantomblade', desc: 'It strikes from the shadows, silent as steel.' } },
+  slushling: { pair: ['snowpip', 'venewt'], name: 'Slushling', desc: 'A newt of poisonous slush.', arch: 'lobber', hp: 1.7,
+    unique: { name: 'Toxic Slush', desc: 'Freezing poison puddles that slow foes.' },
+    q: { dmg: 7, cd: 2.2, range: 150, radius: 26, dur: 3, tick: 0.5, burn: 3, chill: 2, count: 2 },
+    evo: { id: 'frostbite', name: 'Frostbite', desc: 'Its bite is cold and venomous.' } },
+  steelpeng: { pair: ['snowpip', 'ferrit'], name: 'Steelpeng', desc: 'A penguin in polished steel armor.', arch: 'roller', hp: 2,
+    unique: { name: 'Steel Slide', desc: 'Belly-slides through foes, slowing them.' },
+    q: { dmg: 26, cd: 2.8, range: 150, speed: 260, time: 0.6, knock: 240, chill: 2, armor: 1 },
+    evo: { id: 'ironberg', name: 'Ironberg', desc: 'An iceberg wearing a steel helmet.' } },
+  rustail: { pair: ['venewt', 'ferrit'], name: 'Rustail', desc: 'A newt whose acid rusts iron.', arch: 'lobber', hp: 1.8,
+    unique: { name: 'Rust Rain', desc: 'Acid clouds that poison foes; guards you a little.' },
+    q: { dmg: 8, cd: 2.2, range: 150, radius: 24, dur: 3, tick: 0.5, burn: 4, count: 2, armor: 1 },
+    evo: { id: 'scrapdrake', name: 'Scrapdrake', desc: 'It eats rust and breathes acid.' } },
 };
 
 export const SPECIES = {};

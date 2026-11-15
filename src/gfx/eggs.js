@@ -1,11 +1,11 @@
 // Survivalmon eggs, all drawn on the same egg shape. Every type has its own patterned shell
 // (icons/egg_<type>.png) and every mixed breed has an egg of its own that blends its two types
-// (icons/egg_<species>.png). icons/egg.png is the confetti egg for eggs not yet in the Hatchery.
+// (icons/egg_<species>.png), and so does every same-species breed. icons/egg.png is the confetti egg for eggs not yet in the Hatchery.
 import { ICON_ART } from './art.js';
-import { SPECIES, MIXED_IDS } from '../content/species.js';
+import { SPECIES, PURE_IDS, MIXED_IDS } from '../content/species.js';
 
-export const EGG_TYPES = ['fire', 'water', 'grass', 'storm', 'rock', 'fairy', 'shadow'];
-export const EGG_ICONS = [...EGG_TYPES, ...MIXED_IDS].map((t) => `egg_${t}`);
+export const EGG_TYPES = ['fire', 'water', 'grass', 'storm', 'rock', 'fairy', 'shadow', 'ice', 'toxic', 'metal'];
+export const EGG_ICONS = [...EGG_TYPES, ...PURE_IDS, ...MIXED_IDS].map((t) => `egg_${t}`);
 export const EGG_SIZE = 32;
 // The row the shell splits at when it hatches, per column: a zigzag across the middle of the egg
 export const seamY = (x) => 14 + Math.abs((x % 6) - 3);

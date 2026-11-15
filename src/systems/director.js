@@ -12,7 +12,8 @@ export const RUN_LENGTH = 8 * 60;
 export const PACE = 2.5;
 const FINAL_BOSS_AT = RUN_LENGTH - 30;
 // Glimmoth only turns up in the wild, and more rarely
-const WILD_POOL = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'].map((type) => ({ type, weight: 2 })).concat([{ type: 'glimmoth', weight: 1 }]);
+const WILD_POOL = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'].map((type) => ({ type, weight: 2 }))
+  .concat(['glimmoth', 'duskit', 'snowpip', 'venewt', 'ferrit'].map((type) => ({ type, weight: 1 })));
 // Kills come PACE times faster than they used to, so each pays a bit more EXP to keep levelling up in a short run.
 export const XP_PACE = Math.sqrt(PACE);
 const MAX_ENEMIES = 320;
