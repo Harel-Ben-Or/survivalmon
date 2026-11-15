@@ -6,7 +6,9 @@ import { mulberry32, fbm, hash2, clamp } from '../core/util.js';
 import { PC } from '../gfx/assets.js';
 
 export const TILE = 16;
-export const T = { GRASS: 0, DIRT: 1, FARM: 2, WATER: 3, DARK: 4, STONE: 5 };
+export const T = { GRASS: 0, DIRT: 1, FARM: 2, WATER: 3, DARK: 4, STONE: 5, SAND: 6, ASH: 7, GRAVEL: 8, FROST: 9, BLOSSOM: 10 };
+// each zone's own ground, laid in patches over the grass
+const ZONE_GROUND = { water: T.SAND, fire: T.ASH, rock: T.GRAVEL, storm: T.FROST, fairy: T.BLOSSOM };
 export const SOLID = { NONE: 0, WALL: 1, WATER: 2, BORDER: 3 };
 export const CHUNK = 32;            // tiles per chunk side
 const ACTIVE_R = 2;                // chunks kept live around the hero (5 x 5)
@@ -266,9 +268,9 @@ class Chunk {
       let t = T.GRASS;
       const forest = fbm(tx * 0.07, ty * 0.07, s + 5);
       const patch = fbm(tx * 0.09, ty * 0.09, s + 11);
-      if (z === 'rock' && patch > 0.5) t = T.STONE;
-      else if (z === 'storm' && patch > 0.62) t = T.STONE;
-      else if (z === 'fire' && patch > 0.46) t = T.DIRT;
+      // the zone's own ground covers much of it (the lakes get theirs as beaches round the water)
+      const own = { rock: 0.44, storm: 0.48, fire: 0.42, fairy: 0.5, water: 0.6 }[z];
+      if (own !== undefined && patch > own) t = ZONE_GROUND[z];
       if (forest > L.forest) t = T.DARK;
       // winding trails across the land
       const road = fbm(tx * 0.017, ty * 0.017, s + 21);
@@ -418,6 +420,14 @@ class Chunk {
           if (d < 1) water.push([x, y]);
         }
         for (const [x, y] of water) { this.setTile(x, y, T.WATER); this.solid[this.idx(x, y)] = SOLID.WATER; }
+        if (this.zone(pcx, pcy) === 'water') {
+          for (let y = pcy - R; y <= pcy + R; y++) for (let x = pcx - R; x <= pcx + R; x++) {
+            if (!this.inb(x, y) || this.solid[this.idx(x, y)]) continue;
+            let near = false;
+            for (let j = -2; j <= 2 && !near; j++) for (let i = -2; i <= 2 && !near; i++) near = this.tileAt(x + i, y + j) === T.WATER;
+            if (near) this.setTile(x, y, T.SAND);
+          }
+        }
         this.reserve(pcx - R, pcy - R, R * 2 + 1, R * 2 + 1);
         for (const [x, y] of water) {
           const inner = [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([a, b]) => this.tileAt(x + a, y + b) === T.WATER);
@@ -451,7 +461,7 @@ class Chunk {
       const k = this.idx(tx, ty);
       if (this.reserved[k] || this.solid[k]) continue;
       const t = this.tiles[k];
-      if (t !== T.GRASS && t !== T.DARK && t !== T.DIRT) continue;
+      if (t === T.WATER || t === T.FARM || t === T.STONE || t === T.SAND) continue;
       const z = this.zone(tx, ty), L = LOOK[z];
       const forest = fbm(tx * 0.07, ty * 0.07, this.seed + 5);
       const p = t === T.DARK ? 0.7 : forest > L.forest - 0.07 ? 0.18 : t === T.DIRT ? L.trees * 0.4 : L.trees;
@@ -480,7 +490,9 @@ class Chunk {
       const fl = flowers[this.ri(0, flowers.length - 1)];
       for (let i = 0, n = this.ri(3, 9); i < n; i++) {
         const x = tx + this.ri(-1, 1), y = ty + this.ri(-1, 1);
-        if (!this.inb(x, y) || !open(x, y) || this.tiles[this.idx(x, y)] === T.DARK) continue;
+        if (!this.inb(x, y) || this.solid[this.idx(x, y)]) continue;
+        const ft = this.tiles[this.idx(x, y)];
+        if (ft !== T.GRASS && ft !== T.BLOSSOM) continue;
         this.baked.push({ pc: PC[fl], name: fl, x: x * TILE + this.ri(0, 11), y: y * TILE + this.ri(0, 11) });
       }
     }

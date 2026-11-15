@@ -8,7 +8,7 @@ import { T, TILE } from './world.js';
 const CH = 16;                 // tiles per chunk side
 const MAX_CHUNKS = 36;
 // Draw order: later terrains sit on top where two meet.
-const ORDER = [['dark', T.DARK], ['farm', T.FARM], ['dirt', T.DIRT], ['stone', T.STONE], ['water', T.WATER]];
+const ORDER = [['dark', T.DARK], ['farm', T.FARM], ['sand', T.SAND], ['ash', T.ASH], ['gravel', T.GRAVEL], ['frost', T.FROST], ['blossom', T.BLOSSOM], ['dirt', T.DIRT], ['stone', T.STONE], ['water', T.WATER]];
 
 function loadImage(src) {
   return new Promise((resolve) => {
@@ -63,6 +63,7 @@ export class TileGround {
     // 2) terrain overlays on the dual grid
     const at = (x, y) => w.tileAt(x, y);
     for (const [key, type] of ORDER) {
+      if (!this.cfg.sets[key]) continue; // an older tiles.json without this ground
       const lut = this.cfg.sets[key].tiles, img = this.sheets[key];
       for (let vy = 0; vy <= CH; vy++) for (let vx = 0; vx <= CH; vx++) {
         const X = tx0 + vx, Y = ty0 + vy;

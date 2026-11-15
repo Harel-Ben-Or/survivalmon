@@ -322,7 +322,8 @@ export class UI {
       const rc = cv.getContext('2d'), img = rc.createImageData(R * 2, R * 2), d = img.data;
       const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
       const zc = {}; for (const [k, z] of Object.entries(ZONES)) zc[k] = hex(z.color);
-      const fixed = { [T.DIRT]: hex('#e3c48c'), [T.FARM]: hex('#8a5a36'), [T.WATER]: hex('#3d8fd0'), [T.STONE]: hex('#cfc8b8') };
+      const fixed = { [T.DIRT]: hex('#e3c48c'), [T.FARM]: hex('#8a5a36'), [T.WATER]: hex('#3d8fd0'), [T.STONE]: hex('#cfc8b8'),
+        [T.SAND]: hex('#f0dca0'), [T.ASH]: hex('#4a4446'), [T.GRAVEL]: hex('#9c988e'), [T.FROST]: hex('#e2f0f8'), [T.BLOSSOM]: hex('#f4b4d4') };
       for (let y = 0; y < R * 2; y++) for (let x = 0; x < R * 2; x++) {
         const tx = ptx - R + x, ty = pty - R + y, t = W.tileAt(tx, ty);
         let c = fixed[t];
