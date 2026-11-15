@@ -35,6 +35,10 @@ const CREATURE_IDS = [
 // Enemy colour variants made by shifting the hue of an existing sprite
 const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom_blue: ['shroom', 185] };
 const HEROES = ['rowan', 'bram', 'lyra', 'pip'];
+// Survivalmons with drawn animation: creatures/anim/<id>.png holds one cell per frame (cell = the
+// sprite's own size), row 0 = moving (8 frames), row 1 = idle (6 frames). Frame 0 is the still sprite.
+const ANIM_FRAMES = { move: 8, idle: 6 };
+const ANIM_FPS = { move: 10, fly: 12, idle: 7 };
 
 // ---------------------------------------------------------------- canvas helpers
 function loadImage(src) {
@@ -112,9 +116,23 @@ function makeCreature(id, canvas) {
   };
 }
 
+function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
+// A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
+function animatedCreature(id, sheet) {
+  const c = sheet.height / 2;
+  const a = makeCreature(id, cut(sheet, 0, 0, c, c));
+  a.anim = {};
+  for (const [k, row] of [['move', 0], ['idle', 1]]) {
+    a.anim[k] = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => { const R = cut(sheet, i * c, row * c, c, c); return { R, L: flip(R) }; });
+  }
+  return a;
+}
+
 // ---------------------------------------------------------------- loading
 export async function loadArt(base = 'assets/sprites') {
   await Promise.all(CREATURE_IDS.map(async (id) => {
+    const sheet = SPECIES[id] ? await loadImage(`${base}/creatures/anim/${id}.png`) : null;
+    if (sheet) { CREATURE[id] = animatedCreature(id, sheet); return; }
     const img = await loadImage(`${base}/creatures/${id}.png`);
     if (img) CREATURE[id] = makeCreature(id, fromImage(img));
   }));
@@ -136,7 +154,16 @@ export async function loadArt(base = 'assets/sprites') {
     if (!dirs.south) return;
     // Walk cycles: heroes/<id>/walk/<dir>_<n>.png, frames counted from walk/frames.json
     const walk = {}, walkFlash = {};
-    const meta = await fetch(`${base}/heroes/${id}/walk/frames.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    // heroes/<id>/walk.png: one row per direction (DIR8 order), one 64px cell per frame
+    const sheet = await loadImage(`${base}/heroes/${id}/walk.png`);
+    if (sheet) {
+      const c = dirs.south.width, n = Math.floor(sheet.width / c);
+      DIR8.forEach((d, r) => {
+        walk[d] = Array.from({ length: n }, (_, i) => cut(sheet, i * c, r * c, c, c));
+        walkFlash[d] = walk[d].map((f) => silhouette(f, '#ffffff'));
+      });
+    }
+    const meta = sheet ? null : await fetch(`${base}/heroes/${id}/walk/frames.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (meta) await Promise.all(DIR8.map(async (d) => {
       const imgs = await Promise.all(Array.from({ length: meta[d] || 0 }, (_, i) => loadImage(`${base}/heroes/${id}/walk/${d}_${i}.png`)));
       if (imgs.length && imgs.every(Boolean)) { walk[d] = imgs.map(fromImage); walkFlash[d] = walk[d].map((c) => silhouette(c, '#ffffff')); }
@@ -151,8 +178,15 @@ export async function loadArt(base = 'assets/sprites') {
 export const snap = (v) => Math.round(v * WS) / WS;
 
 // Code-driven motion for single-image creatures. t = time, moving = is it travelling.
-export function creatureMotion(kind, t, moving, seed = 0) {
+export function creatureMotion(kind, t, moving, seed = 0, animated = false) {
   const p = t + seed;
+  if (animated) {
+    // the drawn frames do the squash and flap; code only adds hover height and a light bounce
+    if (kind === 'fly') return { bob: 5 + Math.sin(p * 2.5) * 1.5, sx: 1, sy: 1 };
+    if (kind === 'float') return { bob: 4 + Math.sin(p * 2.4) * 2, sx: 1, sy: 1 };
+    if (kind === 'hop' && moving) return { bob: Math.abs(Math.sin(p * 7)) * 2, sx: 1, sy: 1 };
+    return { bob: 0, sx: 1, sy: 1 };
+  }
   if (kind === 'fly') return { bob: 5 + Math.sin(p * 4) * 2, sx: 1 + Math.sin(p * 14) * 0.03, sy: 1 - Math.sin(p * 14) * 0.03 };
   if (kind === 'float') return { bob: 4 + Math.sin(p * 2.4) * 2.5, sx: 1, sy: 1 + Math.sin(p * 2.4) * 0.03 };
   if (!moving) { const br = Math.sin(p * 2.2) * 0.025; return { bob: 0, sx: 1 - br * 0.5, sy: 1 + br }; }
@@ -166,13 +200,18 @@ export function creatureMotion(kind, t, moving, seed = 0) {
 }
 
 // Draw a creature with its feet at logical (x, y).
-// o: { left, flash, outline: 'elite' | 'catch', bob, sx, sy, alpha }
+// o: { left, flash, outline: 'elite' | 'catch', bob, sx, sy, alpha, anim: 'move' | 'idle', at: seconds }
 export function drawCreature(ctx, s, x, y, o = {}) {
   const left = !!o.left;
   let img = left ? s.L : s.R;
   if (o.flash) img = left ? s.LF : s.RF;
   else if (o.outline === 'elite') img = left ? s.LE : s.RE;
   else if (o.outline === 'catch') img = left ? s.LC : s.RC;
+  else if (o.anim && s.anim?.[o.anim]) {
+    const fr = s.anim[o.anim], fps = o.anim === 'idle' ? ANIM_FPS.idle : s.motion === 'fly' ? ANIM_FPS.fly : ANIM_FPS.move;
+    const f = fr[Math.floor((o.at || 0) * fps) % fr.length];
+    img = left ? f.L : f.R;
+  }
   const pad = (img.width - s.w) / 2;
   const sx = o.sx ?? 1, sy = o.sy ?? 1;
   const ax = (left ? s.w - s.ax : s.ax) + pad, ay = s.ay + pad;

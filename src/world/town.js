@@ -276,7 +276,7 @@ export const TownMode = {
         ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
         ctx.beginPath(); ctx.ellipse(x, y, Math.max(5, a.cw * 0.34), Math.max(2, a.cw * 0.12), 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
-        drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, this.realTime, m.moving, m.seed) });
+        drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, this.realTime, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: this.realTime + m.seed });
       } else if (it.egg) {
         const art = ICON_ART.egg, x = snap(it.n.x - cam.x), y = snap(it.n.y - cam.y);
         const wob = it.egg.progress >= it.egg.need ? Math.sin(this.realTime * 12) * 0.6 : 0;

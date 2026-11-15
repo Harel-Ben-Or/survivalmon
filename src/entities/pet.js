@@ -193,7 +193,10 @@ export class Pet {
       if (Math.floor(this.g.realTime * 2 + this.seed) % 2) { ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y - a.ch - 2, 2, 1); ctx.fillRect(x + 5, y - a.ch - 3, 1, 1); }
       return;
     }
-    const m = creatureMotion(a.motion, this.g.realTime, this.moving, this.seed);
+    const m = creatureMotion(a.motion, this.g.realTime, this.moving, this.seed, !!a.anim);
+    // drawn frames: flyers always flap, the rest step while moving and breathe while still
+    m.anim = a.motion === 'fly' || this.moving || this.state === 'roll' ? 'move' : 'idle';
+    m.at = this.g.realTime + this.seed;
     if (this.state === 'roll' && this.rollQ?.hop) m.bob += Math.sin(Math.max(0, this.rollT) / 0.55 * Math.PI) * 10;
     if (this.hopT > 0) m.bob += Math.sin(this.hopT / 0.3 * Math.PI) * 8;
     if (this.state === 'roll' && this.rollQ?.spin) {
