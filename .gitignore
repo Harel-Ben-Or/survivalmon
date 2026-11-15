@@ -1,0 +1,6 @@
+# local tools and settings
+.claude/
+node_modules/
+# large design drafts (not part of the game)
+mockups/pixellab/
+mockups/town/

@@ -1,0 +1,10 @@
+{
+  "name": "survivalmon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A pixel survival roguelite: short runs into the wild, a town to grow, and survivalmons to catch and breed.",
+  "scripts": {
+    "dev": "node server.js 5173",
+    "start": "node server.js 5173"
+  }
+}

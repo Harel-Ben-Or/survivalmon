@@ -1,0 +1,296 @@
+// PixelLab sprite art: loads the PNGs and prepares flipped, hit-flash and outlined variants.
+// World art is drawn at 2x the logical resolution (WS), so a 64px sprite is 32 logical px.
+import { SPECIES, MIXED_IDS, EVOLVED_IDS, DEX_IDS } from '../content/species.js';
+
+export const WS = 2;
+
+export const CREATURE = {};  // id -> creature sprite (critters, monsters, bosses)
+export const HERO_ART = {};  // id -> { dirs: { south: canvas, ... }, flash, w, h, ax, ay }
+
+export const DIR8 = ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'];
+export const dir8 = (angle) => DIR8[((Math.round(angle / (Math.PI / 4)) % 8) + 8) % 8];
+
+// How each creature moves when animated in code: hop | walk | fly | float
+export const MOTION = {
+  emberpup: 'walk', cinderhound: 'walk', leafkit: 'hop', thornhare: 'hop', voltowl: 'fly', tempestowl: 'fly',
+  puddlit: 'hop', tidetoad: 'hop', pebblet: 'hop', boulderon: 'walk', glimmoth: 'fly', lunamoth: 'fly',
+  slime: 'hop', slime_blue: 'hop', slime_red: 'hop', bat: 'fly', shroom: 'walk', shroom_blue: 'walk',
+  wisp: 'float', wolf: 'walk', spore: 'hop', beetle: 'walk', imp: 'fly', golem: 'walk',
+  king_slime: 'hop', treant: 'walk', colossus: 'walk', alpha_wolf: 'walk', night_lord: 'float',
+  // breeds and their evolutions
+  ashbloom: 'hop', infernobloom: 'walk', scaldfrog: 'hop', geyserking: 'hop', blazewing: 'fly', phoenowl: 'fly',
+  magmaul: 'walk', volcanox: 'walk', pyrefly: 'fly', solarfly: 'fly', lilypaw: 'hop', lotusage: 'hop',
+  gustleaf: 'fly', stormleaf: 'fly', mossmound: 'hop', mossgiant: 'walk', petalwisp: 'fly', blossomwisp: 'fly',
+  zapgill: 'hop', stormgill: 'hop', coralump: 'walk', reefguard: 'walk', mistmoth: 'fly', dreammoth: 'fly',
+  cragowl: 'fly', titanowl: 'fly', aurowl: 'fly', celestowl: 'fly', gemmoth: 'fly', prismoth: 'fly',
+};
+
+const CREATURE_IDS = [
+  'emberpup', 'cinderhound', 'leafkit', 'thornhare', 'voltowl', 'tempestowl', 'puddlit', 'tidetoad',
+  'pebblet', 'boulderon', 'glimmoth', 'lunamoth',
+  'slime', 'bat', 'shroom', 'wisp', 'wolf', 'spore', 'beetle', 'imp', 'golem',
+  'king_slime', 'treant', 'colossus', 'alpha_wolf', 'night_lord',
+  ...MIXED_IDS, ...EVOLVED_IDS,
+];
+// Enemy colour variants made by shifting the hue of an existing sprite
+const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom_blue: ['shroom', 185] };
+const HEROES = ['rowan', 'bram', 'lyra', 'pip'];
+
+// ---------------------------------------------------------------- canvas helpers
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+function canvasOf(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function fromImage(img) { const c = canvasOf(img.width, img.height); c.getContext('2d').drawImage(img, 0, 0); return c; }
+function flip(src) {
+  const c = canvasOf(src.width, src.height), g = c.getContext('2d');
+  g.translate(src.width, 0); g.scale(-1, 1); g.drawImage(src, 0, 0);
+  return c;
+}
+function silhouette(src, color) {
+  const c = canvasOf(src.width, src.height), g = c.getContext('2d');
+  g.drawImage(src, 0, 0);
+  g.globalCompositeOperation = 'source-in';
+  g.fillStyle = color; g.fillRect(0, 0, c.width, c.height);
+  return c;
+}
+// 1px coloured outline around the sprite; result is padded by 1px on every side
+function outlined(src, color) {
+  const sil = silhouette(src, color);
+  const c = canvasOf(src.width + 2, src.height + 2), g = c.getContext('2d');
+  for (const [dx, dy] of [[0, 1], [2, 1], [1, 0], [1, 2]]) g.drawImage(sil, dx, dy);
+  g.drawImage(src, 1, 1);
+  return c;
+}
+function bbox(src) {
+  const { data, width, height } = src.getContext('2d').getImageData(0, 0, src.width, src.height);
+  let x0 = width, y0 = height, x1 = -1, y1 = -1;
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    if (data[(y * width + x) * 4 + 3] < 40) continue;
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+  }
+  if (x1 < 0) return { x0: 0, y0: 0, x1: width - 1, y1: height - 1 };
+  return { x0, y0, x1, y1 };
+}
+function hueShift(src, deg) {
+  const c = fromImage(src), g = c.getContext('2d');
+  const img = g.getImageData(0, 0, c.width, c.height), d = img.data;
+  const rot = (deg / 360) % 1;
+  for (let i = 0; i < d.length; i += 4) {
+    if (!d[i + 3]) continue;
+    const r = d[i] / 255, gg = d[i + 1] / 255, b = d[i + 2] / 255;
+    const max = Math.max(r, gg, b), min = Math.min(r, gg, b), l = (max + min) / 2;
+    if (max === min) continue;
+    const dd = max - min, s = l > 0.5 ? dd / (2 - max - min) : dd / (max + min);
+    let h = max === r ? (gg - b) / dd + (gg < b ? 6 : 0) : max === gg ? (b - r) / dd + 2 : (r - gg) / dd + 4;
+    h = (h / 6 + rot + 1) % 1;
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+    const f = (t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 0.5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+    d[i] = f(h + 1 / 3) * 255; d[i + 1] = f(h) * 255; d[i + 2] = f(h - 1 / 3) * 255;
+  }
+  g.putImageData(img, 0, 0);
+  return c;
+}
+
+function makeCreature(id, canvas) {
+  const b = bbox(canvas);
+  const L = flip(canvas);
+  return {
+    id, w: canvas.width, h: canvas.height,
+    ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1,       // feet, in native px
+    cw: (b.x1 - b.x0 + 1) / WS, ch: (b.y1 - b.y0 + 1) / WS, // content size, logical px
+    R: canvas, L,
+    RF: silhouette(canvas, '#ffffff'), LF: silhouette(L, '#ffffff'),
+    RE: outlined(canvas, '#ffd84a'), LE: outlined(L, '#ffd84a'),
+    RC: outlined(canvas, '#5ff0ff'), LC: outlined(L, '#5ff0ff'),
+    motion: MOTION[id] || 'walk',
+  };
+}
+
+// ---------------------------------------------------------------- loading
+export async function loadArt(base = 'assets/sprites') {
+  await Promise.all(CREATURE_IDS.map(async (id) => {
+    const img = await loadImage(`${base}/creatures/${id}.png`);
+    if (img) CREATURE[id] = makeCreature(id, fromImage(img));
+  }));
+  for (const [id, [from, deg]] of Object.entries(VARIANTS)) {
+    if (CREATURE[from]) CREATURE[id] = makeCreature(id, hueShift(CREATURE[from].R, deg));
+  }
+  // A survivalmon whose picture is missing borrows the one it grew from (or its first parent's).
+  for (const id of DEX_IDS) {
+    if (CREATURE[id]) continue;
+    const sp = SPECIES[id], from = CREATURE[sp.from] || CREATURE[sp.pair?.[0]];
+    if (from) CREATURE[id] = from;
+  }
+  await Promise.all(HEROES.map(async (id) => {
+    const dirs = {}, flash = {};
+    await Promise.all(DIR8.map(async (d) => {
+      const img = await loadImage(`${base}/heroes/${id}/${d}.png`);
+      if (img) { dirs[d] = fromImage(img); flash[d] = silhouette(dirs[d], '#ffffff'); }
+    }));
+    if (!dirs.south) return;
+    // Walk cycles: heroes/<id>/walk/<dir>_<n>.png, frames counted from walk/frames.json
+    const walk = {}, walkFlash = {};
+    const meta = await fetch(`${base}/heroes/${id}/walk/frames.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (meta) await Promise.all(DIR8.map(async (d) => {
+      const imgs = await Promise.all(Array.from({ length: meta[d] || 0 }, (_, i) => loadImage(`${base}/heroes/${id}/walk/${d}_${i}.png`)));
+      if (imgs.length && imgs.every(Boolean)) { walk[d] = imgs.map(fromImage); walkFlash[d] = walk[d].map((c) => silhouette(c, '#ffffff')); }
+    }));
+    const b = bbox(dirs.south);
+    HERO_ART[id] = { dirs, flash, walk, walkFlash, w: dirs.south.width, h: dirs.south.height, ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1, ch: (b.y1 - b.y0 + 1) / WS };
+  }));
+}
+
+// ---------------------------------------------------------------- drawing
+// Round a logical coordinate to the nearest canvas pixel (half a logical pixel at WS = 2).
+export const snap = (v) => Math.round(v * WS) / WS;
+
+// Code-driven motion for single-image creatures. t = time, moving = is it travelling.
+export function creatureMotion(kind, t, moving, seed = 0) {
+  const p = t + seed;
+  if (kind === 'fly') return { bob: 5 + Math.sin(p * 4) * 2, sx: 1 + Math.sin(p * 14) * 0.03, sy: 1 - Math.sin(p * 14) * 0.03 };
+  if (kind === 'float') return { bob: 4 + Math.sin(p * 2.4) * 2.5, sx: 1, sy: 1 + Math.sin(p * 2.4) * 0.03 };
+  if (!moving) { const br = Math.sin(p * 2.2) * 0.025; return { bob: 0, sx: 1 - br * 0.5, sy: 1 + br }; }
+  if (kind === 'hop') {
+    const h = Math.abs(Math.sin(p * 7));
+    const land = h < 0.25 ? (0.25 - h) * 0.4 : 0;
+    return { bob: h * 4, sx: 1 + land - (1 - h) * 0.0, sy: 1 - land + h * 0.04 };
+  }
+  const s = Math.sin(p * 11);
+  return { bob: Math.abs(s) * 1.5, sx: 1, sy: 1 + s * 0.025 };
+}
+
+// Draw a creature with its feet at logical (x, y).
+// o: { left, flash, outline: 'elite' | 'catch', bob, sx, sy, alpha }
+export function drawCreature(ctx, s, x, y, o = {}) {
+  const left = !!o.left;
+  let img = left ? s.L : s.R;
+  if (o.flash) img = left ? s.LF : s.RF;
+  else if (o.outline === 'elite') img = left ? s.LE : s.RE;
+  else if (o.outline === 'catch') img = left ? s.LC : s.RC;
+  const pad = (img.width - s.w) / 2;
+  const sx = o.sx ?? 1, sy = o.sy ?? 1;
+  const ax = (left ? s.w - s.ax : s.ax) + pad, ay = s.ay + pad;
+  const dw = (img.width / WS) * sx, dh = (img.height / WS) * sy;
+  const dx = x - (ax / WS) * sx, dy = y - (o.bob || 0) - (ay / WS) * sy;
+  if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
+  ctx.drawImage(img, snap(dx), snap(dy), dw, dh);
+  if (o.alpha !== undefined) ctx.globalAlpha = 1;
+}
+
+export function drawHero(ctx, h, x, y, dir, o = {}) {
+  const cycle = o.walk != null && (o.flash ? h.walkFlash : h.walk)?.[dir];
+  const img = cycle ? cycle[Math.floor(o.walk) % cycle.length] : (o.flash ? h.flash : h.dirs)[dir] || h.dirs.south;
+  const sx = o.sx ?? 1, sy = o.sy ?? 1;
+  const dw = (h.w / WS) * sx, dh = (h.h / WS) * sy;
+  ctx.drawImage(img, snap(x - (h.ax / WS) * sx), snap(y - (o.bob || 0) - (h.ay / WS) * sy), dw, dh);
+}
+
+// Data URL of a sprite cropped to its content, for DOM icons/portraits.
+const urlCache = new Map();
+export function artURL(kind, id) {
+  const key = `${kind}:${id}`;
+  if (urlCache.has(key)) return urlCache.get(key);
+  const src = kind === 'hero' ? HERO_ART[id]?.dirs.south : CREATURE[id]?.R;
+  if (!src) return '';
+  const b = bbox(src);
+  const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1, s = Math.max(w, h) + 2;
+  const c = canvasOf(s, s);
+  c.getContext('2d').drawImage(src, b.x0, b.y0, w, h, Math.floor((s - w) / 2), s - h - 1, w, h);
+  const url = c.toDataURL();
+  urlCache.set(key, url);
+  return url;
+}
+export const hasArt = (id) => !!CREATURE[id];
+
+// ---------------------------------------------------------------- world, interior and item art
+// Replaces code-drawn sprites in SPR (same names), so the rest of the game needs no changes.
+// [file, flipped?]. Variants without their own file reuse another image, sometimes mirrored.
+const WORLD_ART = {
+  tree_green_0: ['world/tree_green_0'], tree_green_1: ['world/tree_green_1'], tree_green_2: ['world/tree_green_0', true], tree_green_3: ['world/tree_green_1', true],
+  tree_dark_0: ['world/tree_dark_0'], tree_dark_1: ['world/tree_dark_0', true], tree_dark_2: ['world/tree_big_0'], tree_dark_3: ['world/tree_big_0', true],
+  tree_autumn_0: ['world/tree_autumn_0'], tree_autumn_1: ['world/tree_autumn_0', true],
+  tree_pink_0: ['world/tree_pink_0'], tree_pink_1: ['world/tree_pink_0', true],
+  tree_big_0: ['world/tree_big_0'], tree_big_1: ['world/tree_big_0', true],
+  pine_0: ['world/pine_0'], pine_1: ['world/pine_0', true],
+  bush_0: ['world/bush_0'], bush_1: ['world/bush_1'],
+  house_0: ['world/house_straw'], house_1: ['world/house_red'], house_2: ['world/house_blue'], house_3: ['world/house_moss'],
+  house_4: ['world/house_straw', true], house_5: ['world/house_blue', true],
+  barn: ['world/barn'], shrine: ['world/shrine'],
+  well: ['world/well'], lamp: ['world/lamp'], sign: ['world/sign'], hay: ['world/hay'], cart: ['world/cart'],
+  crate: ['world/crate'], crate_open: ['world/crate_open'], barrel: ['world/barrel'], barrel_open: ['world/barrel_open'],
+  pot: ['world/pot'], pot_broken: ['world/pot_broken'], rock: ['world/rock'], rock_big: ['world/rock_big'], stump: ['world/stump'],
+  fence_h: ['world/fence_h'], fence_v: ['world/fence_v'],
+  town_gate: ['town/gate'], town_dummy: ['town/dummy'], town_clinic: ['town/clinic'], town_workshop: ['town/workshop'],
+  town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'],
+  node_wood: ['world/node_wood'], node_clay: ['world/node_clay'], node_iron: ['world/node_iron'],
+  bed_r: ['interior/bed_r'], bed_b: ['interior/bed_b'], bed_g: ['interior/bed_g'], table: ['interior/table'], chair: ['interior/chair'],
+  bookshelf: ['interior/bookshelf'], bookshelf2: ['interior/bookshelf', true], fireplace: ['interior/fireplace'], stove: ['interior/stove'],
+  cupboard: ['interior/cupboard'], plant: ['interior/plant'], clock: ['interior/clock'], altar: ['interior/altar'],
+  painting_0: ['interior/painting_0'], painting_1: ['interior/painting_1'],
+  chest_wood: ['interior/chest_wood'], chest_wood_open: ['interior/chest_wood_open'], chest_silver: ['interior/chest_silver'],
+  chest_silver_open: ['interior/chest_silver_open'], chest_gold: ['interior/chest_gold'], chest_gold_open: ['interior/chest_gold_open'],
+};
+// Ground decals baked into the map
+export const DECAL_ART = {};
+const DECALS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b', 'tuft', 'tuft_d', 'crop_carrot', 'crop_cabbage',
+  'crop_wheat', 'crop_pumpkin', 'crop_sprout', 'lily_0', 'lily_1', 'lily_2', 'rock_s'];
+// Interior surfaces (seamless tiles)
+export const ROOM_ART = {};
+const ROOMS = ['floor_wood', 'floor_barn', 'floor_stone', 'wall_wood', 'wall_barn', 'wall_stone', 'rug_r', 'rug_b', 'rug_g', 'window', 'window_stained', 'torch'];
+// Item icons and projectiles
+export const ICON_ART = {};
+
+function cropped(src, flipIt) {
+  const b = bbox(src);
+  const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
+  const c = canvasOf(w, h);
+  c.getContext('2d').drawImage(src, b.x0, b.y0, w, h, 0, 0, w, h);
+  return flipIt ? flip(c) : c;
+}
+
+export async function loadWorldArt(SPR, base = 'assets/sprites') {
+  const files = new Map();
+  const get = async (path) => {
+    if (!files.has(path)) files.set(path, loadImage(`${base}/${path}.png`));
+    return files.get(path);
+  };
+  await Promise.all(Object.entries(WORLD_ART).map(async ([name, [path, flipped]]) => {
+    const img = await get(path);
+    if (!img) return;
+    const c = cropped(fromImage(img), flipped);
+    SPR[name] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
+  }));
+  await Promise.all(DECALS.map(async (name) => {
+    const img = await get(`decals/${name}`);
+    if (img) { const c = cropped(fromImage(img)); DECAL_ART[name] = { img: c, w: c.width / WS, h: c.height / WS }; }
+  }));
+  await Promise.all(ROOMS.map(async (name) => {
+    const img = await get(`interior/${name}`);
+    if (img) ROOM_ART[name] = { img, w: img.width / WS, h: img.height / WS };
+  }));
+}
+
+// Projectiles: centred anchors so they rotate around their middle
+const PROJ = ['arrow', 'ember', 'leaf', 'boomerang', 'bomb', 'pebble', 'spore', 'imp_fire', 'boulder', 'bubble', 'fireball', 'meteor', 'dark_orb', 'root'];
+export async function loadProjArt(SPR, base = 'assets/sprites/projectiles') {
+  await Promise.all(PROJ.map(async (id) => {
+    const img = await loadImage(`${base}/${id}.png`);
+    if (!img) return;
+    const c = cropped(fromImage(img));
+    SPR[`p_${id}`] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS / 2, frames: [c], png: true };
+  }));
+}
+
+// Icons (32px PNGs shown at 16 logical px in the world, any size in the UI)
+export async function loadIconArt(ids, base = 'assets/sprites/icons') {
+  await Promise.all(ids.map(async (id) => {
+    const img = await loadImage(`${base}/${id}.png`);
+    if (img) { const full = fromImage(img), c = cropped(full); ICON_ART[id] = { img: c, full, w: c.width / WS, h: c.height / WS }; }
+  }));
+}
