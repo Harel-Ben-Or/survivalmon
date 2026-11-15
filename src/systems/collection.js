@@ -142,12 +142,16 @@ export const Box = {
     this.save();
   },
   // Hatches every egg that's ready. Returns the new survivalmons.
+  // hatchedNew: ids of the hatched ones that are a species you never had before (for a "New!" badge)
   hatchReady() {
     const out = [];
+    this.hatchedNew = new Set();
     this.data.eggs = this.data.eggs.filter((e) => {
       if (e.progress < e.need) return true;
+      const fresh = !this.known(e.species);
       const mon = this.add(e.species, { skills: e.skills, origin: e.kind === 'bred' ? 'bred' : 'egg' });
       if (e.kind === 'bred') this.data.discovered[e.species] = true;
+      if (fresh) this.hatchedNew.add(mon.id);
       out.push(mon);
       return false;
     });

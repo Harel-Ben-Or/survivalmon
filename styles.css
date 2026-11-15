@@ -590,7 +590,7 @@ body.in-town .dash-btn { display: none; }
 .sp-up .lvl, .lvl { color: var(--gold); font-size: 13px; }
 .nests { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .nest { width: 190px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; text-align: center; }
-.nest img { width: 48px; height: 48px; }
+.nest img { width: 64px; height: 64px; }
 .nest .hp-bar { width: 100%; flex: none; }
 .breed-box { width: min(900px, 100%); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .breed-pool { max-height: 220px; }
@@ -615,10 +615,10 @@ body.in-town .dash-btn { display: none; }
 .odds { display: flex; gap: 10px; flex-wrap: wrap; font-size: 14px; }
 .odds span { display: inline-flex; align-items: center; gap: 4px; }
 .odds.next { color: #9af08a; font-size: 13px; }
-.egg-pick { width: 72px; height: 72px; }
+.egg-pick { width: 96px; height: 96px; }
 @media (max-width: 760px) { .dex-body, .shrine-grid { grid-template-columns: 1fr; } }
 @media (max-height: 520px), (max-width: 640px) {
-  .nest { width: 150px; padding: 6px; } .nest img { width: 34px; height: 34px; }
+  .nest { width: 150px; padding: 6px; } .nest img { width: 32px; height: 32px; }
   .egg-pick { width: 48px; height: 48px; }
   .sk { font-size: 10px; } .tier { min-width: 15px; height: 15px; font-size: 10px; }
   .sp-up img { width: 26px; height: 26px; }
@@ -664,3 +664,16 @@ body.in-town .dash-btn { display: none; }
 .card.mon-card .val b { font-size: 1.15em; }
 .pet-skills { font-size: 11px; color: var(--muted); line-height: 1.2; }
 .inv-item.fainted img { opacity: .45; filter: grayscale(.6); }
+
+/* ---------- hatch and evolve animations (src/ui/cutscene.js) */
+.cut-box { max-width: 520px; }
+canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixelated; cursor: pointer; touch-action: manipulation; }
+.cut-skip { font-size: 13px; color: var(--muted); }
+.pet-reveal { position: relative; }
+.new-badge { position: absolute; top: -10px; right: -8px; z-index: 1; background: var(--gold); color: var(--ink); font-weight: 700; font-size: 15px; padding: 2px 10px; border-radius: 999px; transform: rotate(8deg); box-shadow: 0 2px 0 rgba(0,0,0,.3); }
+.egg-ready { animation: eggWob 1.4s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes eggWob { 0%, 55%, 100% { transform: rotate(0); } 65% { transform: rotate(-10deg); } 75% { transform: rotate(8deg); } 85% { transform: rotate(-4deg); } }
+@media (max-height: 520px), (max-width: 640px) {
+  canvas.cut { width: 200px; height: 170px; }
+  .cut-box { gap: 4px; }
+}

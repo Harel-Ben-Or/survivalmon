@@ -246,6 +246,15 @@ export function artURL(kind, id) {
   return url;
 }
 export const hasArt = (id) => !!CREATURE[id];
+// A creature's picture cropped to its content, as a canvas (for the hatch and evolve animations)
+const cropCache = new Map();
+export function creatureArt(id) {
+  const src = CREATURE[id]?.R;
+  if (!src) return null;
+  if (!cropCache.has(id)) cropCache.set(id, cropped(src));
+  return cropCache.get(id);
+}
+export { silhouette };
 
 // ---------------------------------------------------------------- world, interior and item art
 // Replaces code-drawn sprites in SPR (same names), so the rest of the game needs no changes.

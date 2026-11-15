@@ -5,6 +5,7 @@ import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
 import { loadArt, loadWorldArt, loadProjArt, loadIconArt, WS, snap, ICON_ART } from '../gfx/art.js';
+import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
 import { World, TILE, ZONES } from '../world/world.js';
 import { buildInterior } from '../world/interior.js';
@@ -33,7 +34,7 @@ import { Profiles } from '../systems/profiles.js';
 
 const MAX_STEP = 1 / 60;
 // Icons that only exist as PixelLab art (no code-drawn version)
-const EXTRA_ICONS = ['mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots'];
+const EXTRA_ICONS = ['mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
 const GATHER_TIME = 1.6;  // seconds standing at a gathering spot
 const GATHER = { wood: 3, stone: 3, clay: 2, iron: 1 };
 const SETTINGS_KEY = 'survivelmon.settings';

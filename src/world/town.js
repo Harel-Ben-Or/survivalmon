@@ -3,7 +3,8 @@
 import { Input } from '../core/input.js';
 import { Audio } from '../core/audio.js';
 import { SPR, PC } from '../gfx/assets.js';
-import { CREATURE, ICON_ART, creatureMotion, drawCreature, snap } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, snap, WS } from '../gfx/art.js';
+import { eggCanvas, EGG_SIZE } from '../gfx/eggs.js';
 import { UNLOCK_TEXT } from '../content/buildings.js';
 import { Shrine } from '../systems/shrine.js';
 import { TileGround } from './tileground.js';
@@ -278,9 +279,10 @@ export const TownMode = {
         ctx.globalAlpha = 1;
         drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, this.realTime, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: this.realTime + m.seed });
       } else if (it.egg) {
-        const art = ICON_ART.egg, x = snap(it.n.x - cam.x), y = snap(it.n.y - cam.y);
+        // the egg's own patterned shell (32px art at 16 logical px; its bottom row is 30)
+        const art = eggCanvas(it.egg.species), x = snap(it.n.x - cam.x), y = snap(it.n.y - cam.y), n = EGG_SIZE / WS;
         const wob = it.egg.progress >= it.egg.need ? Math.sin(this.realTime * 12) * 0.6 : 0;
-        if (art) ctx.drawImage(art.img, x - art.w / 2 + wob, y - art.h, art.w, art.h);
+        if (art) ctx.drawImage(art, x - n / 2 + wob, y - 30 / WS, n, n);
         ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 6, y + 1, 12, 3);
         ctx.fillStyle = '#ffd84a'; ctx.fillRect(x - 5, y + 2, Math.round(10 * it.egg.progress / it.egg.need), 1);
       } else if (it.pet) it.pet.draw(ctx, cam);

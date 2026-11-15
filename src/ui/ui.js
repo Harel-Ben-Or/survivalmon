@@ -10,6 +10,7 @@ import { ShopUI } from './shop_ui.js';
 import { MATERIALS } from '../content/buildings.js';
 import { Box } from '../systems/collection.js';
 import { HERO_ART, artURL } from '../gfx/art.js';
+import { playEvolve as playEvolveScene } from './cutscene.js';
 import { CAT_LABEL, itemDef, levelDiff, combosForItem, nameOf, iconOf } from '../systems/loot.js';
 import { SLOTS } from '../entities/player.js';
 import { formatTime } from '../core/util.js';
@@ -486,7 +487,7 @@ export class UI {
           <h2>${esc(this.lootTitle)}</h2>
           <div class="card loot-card">
             <span class="rar" style="background:#9af08a">Egg</span>
-            <img class="px" src="${icon('egg', 5)}" style="width:80px;height:80px">
+            <img class="px" src="${icon('egg', 4)}" style="width:64px;height:64px">
             <div class="title">Survivalmon Egg</div>
             <div class="small">It's wiggling! It will hatch in your Hatchery after some time in the wild.</div>
           </div>
@@ -574,19 +575,24 @@ export class UI {
   playEvolve() {
     const g = this.g, mon = this.evoMon;
     const from = SPECIES[mon.species], into = SPECIES[from.evo];
+    const isNew = !Box.known(into.id);
     this.modalKind = 'evolving';
-    this.el.modal.querySelector('.modal-box').innerHTML = `
+    const box = this.el.modal.querySelector('.modal-box');
+    box.classList.add('cut-box');
+    box.innerHTML = `
       <h2>What? ${esc(from.name)} is evolving!</h2>
-      <div class="evo-flash"><img class="px creature-big a" src="${artURL('creature', from.id)}"><img class="px creature-big b" src="${artURL('creature', into.id)}"></div>`;
-    Audio.play('combo');
-    setTimeout(() => {
+      <canvas class="cut" aria-label="${esc(from.name)} evolving"></canvas>
+      <div class="cut-skip">Tap to skip</div>`;
+    playEvolveScene(box.querySelector('canvas'), from.id, into.id).then(() => {
+      if (this.modalKind !== 'evolving') return;
       g.doEvolve(mon);
-      Audio.play('victory');
       this.modalKind = 'evolved';
+      box.classList.remove('cut-box');
       const sig = into.unique;
-      this.el.modal.querySelector('.modal-box').innerHTML = `
+      box.innerHTML = `
         <h2>${esc(from.name)} evolved into ${esc(into.name)}!</h2>
         <div class="card loot-card pet-reveal">
+          ${isNew ? '<span class="new-badge">New!</span>' : ''}
           ${typePill(into.type)}
           <img class="px creature-big" src="${artURL('creature', into.id)}">
           <div class="title">${esc(into.name)}</div>
@@ -595,7 +601,7 @@ export class UI {
         </div>
         <div class="loot-actions"><button class="btn" data-act="evolve-close">Amazing! <span class="key">E</span></button></div>`;
       g.particles.burst(g.player?.x ?? 0, g.player?.y ?? 0, { n: 30, colors: ['#ffe07a', '#ffffff', '#c88aff'], speed: 120, life: 0.7 });
-    }, 2400);
+    });
   }
   closeEvolve() {
     this.closeModal();
@@ -808,7 +814,7 @@ export class UI {
     const ok = k === 'KeyE' || k === 'Enter' || k === 'Space';
     if (this.modalKind === 'hatched' && ok) { e.preventDefault(); this.nextLoot(); Input.endFrame(); return; }
     if (this.modalKind === 'hatched-mon' && ok) { e.preventDefault(); this.hatchNext(); Input.endFrame(); return; }
-    if (this.modalKind === 'evolving') { e.preventDefault(); Input.endFrame(); return; }
+    if (this.modalKind === 'evolving' || this.modalKind === 'hatching') { e.preventDefault(); Input.endFrame(); return; }
     if (this.modalKind === 'evolve' && ok) { e.preventDefault(); this.playEvolve(); Input.endFrame(); return; }
     if (this.modalKind === 'evolved' && ok) { e.preventDefault(); this.closeEvolve(); Input.endFrame(); return; }
     if (this.modalKind === 'end' && k === 'Enter') { this.g.toTown(true); return; }

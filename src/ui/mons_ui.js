@@ -8,6 +8,8 @@ import { Box, STARTER_HATCH, EGG_SLOTS } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { Shrine, SHRINE_NODES, RESEARCH_ODDS } from '../systems/shrine.js';
 import { Audio } from '../core/audio.js';
+import { playHatch } from './cutscene.js';
+import { eggURL } from '../gfx/eggs.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
@@ -44,7 +46,7 @@ export const MonsUI = {
         ${STARTERS.map((id) => {
           const sp = SPECIES[id];
           return `<div class="starter-card panel clickable" data-starter="${id}">
-            <img class="px egg-pick" src="${icon('egg', 4)}" style="filter:hue-rotate(${{ fire: -20, grass: 70, water: 170, storm: 20, rock: -60 }[sp.type]}deg)" alt="">
+            <img class="px egg-pick" src="${eggURL(sp.id, 3)}" alt="">
             <div class="name">${sp.name} egg</div>${types(sp)}
             <div class="desc">${esc(sp.desc)}</div>
           </div>`;
@@ -66,22 +68,33 @@ export const MonsUI = {
     if (!mons.length) { done?.(); return; }
     const mon = mons[0], sp = SPECIES[mon.species];
     this.g.modal = 'hatched';
-    this.modalKind = 'hatched-mon';
+    this.modalKind = 'hatching';
     this.hatchQueue = mons.slice(1); this.hatchDone = done;
-    Audio.play('hatch');
+    const isNew = Box.hatchedNew?.has(mon.id);
     this.openModal(`
-      <div class="modal-box panel">
+      <div class="modal-box panel cut-box">
+        <h2>Oh? Your egg is moving!</h2>
+        <canvas class="cut" aria-label="Your egg hatching"></canvas>
+        <div class="cut-skip">Tap to skip</div>
+      </div>`);
+    const box = this.el.modal.querySelector('.modal-box');
+    playHatch(box.querySelector('canvas'), mon.species).then(() => {
+      if (this.modalKind !== 'hatching') return;
+      this.modalKind = 'hatched-mon';
+      box.classList.remove('cut-box');
+      box.innerHTML = `
         <h2>Your egg hatched!</h2>
         <div class="card loot-card pet-reveal">
+          ${isNew ? '<span class="new-badge">New!</span>' : ''}
           ${types(sp)}
           <img class="px creature-big" src="${pic(mon.species)}" alt="">
           <div class="title">${esc(sp.name)}</div>
           <div class="small">${esc(sp.desc)}</div>
           <div class="sk-row">${skillChips(mon)}</div>
-          <div class="small">${Box.inTeam(mon.id) ? 'It joined your team.' : 'It waits at your Ranch.'}</div>
+          <div class="small">${isNew ? 'A new survivalmon for your Journal! ' : ''}${Box.inTeam(mon.id) ? 'It joined your team.' : 'It waits at your Ranch.'}</div>
         </div>
-        <div class="loot-actions"><button class="btn" data-mact="hatch-next">Welcome, ${esc(sp.name)}! <span class="key">E</span></button></div>
-      </div>`);
+        <div class="loot-actions"><button class="btn" data-mact="hatch-next">Welcome, ${esc(sp.name)}! <span class="key">E</span></button></div>`;
+    });
   },
   hatchNext() {
     this.closeModal();
@@ -130,9 +143,10 @@ export const MonsUI = {
     const pick = this.breedPick = (this.breedPick || []).filter((id) => Box.get(id)?.level >= BREED_LEVEL);
     const nests = Array.from({ length: EGG_SLOTS }, (_, i) => {
       const e = Box.eggs[i];
-      if (!e) return '<div class="nest panel"><img class="px" src="' + icon('egg', 3) + '" style="opacity:.25" alt=""><span>Empty nest</span></div>';
+      if (!e) return '<div class="nest panel"><img class="px" src="' + eggURL(null, 2) + '" style="opacity:.25" alt=""><span>Empty nest</span></div>';
       const known = Box.known(e.species) || e.kind !== 'bred';
-      return `<div class="nest panel"><img class="px" src="${icon('egg', 3)}" alt=""><b>${known ? `${SPECIES[e.species].name} egg` : 'Mystery egg'}</b>
+      const close = e.progress >= e.need * 0.75; // wobbles when it is nearly ready to hatch
+      return `<div class="nest panel"><img class="px ${close ? 'egg-ready' : ''}" src="${eggURL(e.species, 2)}" alt=""><b>${known ? `${SPECIES[e.species].name} egg` : 'Mystery egg'}</b>
         <div class="hp-bar warm"><div style="width:${Math.round((e.progress / e.need) * 100)}%"></div></div><span>${mmss(e.progress)} / ${mmss(e.need / 1)} in the wild</span></div>`;
     }).join('');
     const ready = Box.mons.filter((m) => m.level >= BREED_LEVEL);
