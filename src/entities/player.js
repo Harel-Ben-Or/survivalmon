@@ -174,6 +174,11 @@ export class Player {
       Audio.play('dash');
     }
     let vx = mv.x * S.speed, vy = mv.y * S.speed;
+    if (this.netT > 0) {
+      this.netT = Math.max(0, this.netT - dt);
+      vx *= 0.45; vy *= 0.45;
+      if (Math.random() < 12 * dt) g.particles.add({ x: this.x + rand(-5, 5), y: this.y - rand(2, 14), vx: 0, vy: 8, life: 0.3, color: '#d8c8a0', size: 1 });
+    }
     if (this.dashT > 0) {
       this.dashT -= dt;
       vx = this.dashVx; vy = this.dashVy;

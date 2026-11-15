@@ -3,8 +3,16 @@
 A cozy pixel-art survival roguelite with a creature-collector twist. Runs start just **20 seconds**
 long: every monster you defeat pays coins, and when the timer runs out you're back in **town**.
 Spend the coins in the **Training Hall** (run time, HP, damage, speed…) and head out again for a
-longer, stronger run, up to the full **8 minutes**: King Slime around 2:00, the Treant around 4:00,
-the Colossus around 6:00, and the Night Lord for the last 30 seconds.
+longer, stronger run, up to the full **8 minutes**: the Ink King around 2:00, the Blighted Elder around
+4:00, Snare Boss Grimjaw around 6:00, and the Night Lord for the last 30 seconds.
+
+**The enemies.** The Blight, living black ink, has crept over the land: Ink Blobs (they split), Inkwings,
+Shade Hounds, Ink Spitters, Shard Oozes and Bloaters (they burst). Each zone also has its own monster the
+Blight made of the locals: Thornlings in Leafy Meadow, Bog Crabs in the Lakelands, Saw Beetles in the Stony
+Quarry, Cinder Imps in the Ember Fields, Snow Golems in the Windy Highlands and Wilted Sprites in the Blossom
+Glades. And the **Snare gang** raids now and then: netters whose nets slow you, slingers, Cage Drones that
+carry off fainted survivalmons (defeat the drone and your mon gets back up), and a survivalmon they control
+with the Blight: defeat it to free it, and it joins you.
 
 Runs are **mons-first**: your hero fights with their two weapons (main hand and off hand from their
 gear), and your **survivalmons** do the rest with their own skills. Level-up cards boost either the
@@ -56,8 +64,8 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 - Each one has its species' unique skill (an attack) and a random passive skill, each with a tier
   (D 65%, C 20%, B 10%, A 4%, S 1%). They fight with their own HP; fainted ones stay home until healed.
 - 10 species in 10 types: Emberpup (fire), Leafkit (grass), Puddlit (water), Voltowl (storm), Pebblet (rock),
-  Glimmoth (fairy), Duskit (shadow), Snowpip (ice), Venewt (toxic) and Ferrit (metal). Each type has its own
-  zone in the wild, where its species turns up most.
+  Glimmoth (fairy), Duskit (shadow), Snowpip (ice), Venewt (toxic) and Ferrit (metal). The wild has 6 zones,
+  each home to one or two of them (they turn up most there).
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
 - Every species and breed hatches from its own egg, and has walk, attack and faint animations.
 

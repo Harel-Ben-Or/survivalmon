@@ -8,7 +8,7 @@ import { PC } from '../gfx/assets.js';
 export const TILE = 16;
 export const T = { GRASS: 0, DIRT: 1, FARM: 2, WATER: 3, DARK: 4, STONE: 5, SAND: 6, ASH: 7, GRAVEL: 8, FROST: 9, BLOSSOM: 10 };
 // each zone's own ground, laid in patches over the grass
-const ZONE_GROUND = { water: T.SAND, fire: T.ASH, rock: T.GRAVEL, storm: T.FROST, fairy: T.BLOSSOM, ice: T.FROST, toxic: T.ASH, metal: T.GRAVEL };
+const ZONE_GROUND = { water: T.SAND, fire: T.ASH, rock: T.GRAVEL, storm: T.FROST, fairy: T.BLOSSOM };
 export const SOLID = { NONE: 0, WALL: 1, WATER: 2, BORDER: 3 };
 export const CHUNK = 32;            // tiles per chunk side
 const ACTIVE_R = 2;                // chunks kept live around the hero (5 x 5)
@@ -21,18 +21,16 @@ export const BUILDINGS = {
   shrine: { solid: [0, 3, 2, 4], door: [36, 88], sortY: 80, tw: 5, th: 6, sw: 72, sh: 80 },
 };
 
-// One zone per survivalmon type. `mon` is the species that mostly lives there.
+// Six zones. `mons` are the species that mostly live there (a zone can hold more than one, and a
+// species doesn't have to belong to any zone: those turn up anywhere, just more rarely).
+// `native` is the zone's own monster, which joins the Blight everywhere else spawns.
 export const ZONES = {
-  grass: { name: 'Leafy Meadow', mon: 'leafkit', color: '#74c44c', note: 'Grass survivalmons live here' },
-  water: { name: 'Lakelands', mon: 'puddlit', color: '#4aa3df', note: 'Water survivalmons live here' },
-  rock: { name: 'Stony Quarry', mon: 'pebblet', color: '#b8b0a0', note: 'Rock survivalmons live here' },
-  fire: { name: 'Ember Fields', mon: 'emberpup', color: '#e0a060', note: 'Fire survivalmons live here' },
-  storm: { name: 'Windy Highlands', mon: 'voltowl', color: '#9ac0d8', note: 'Storm survivalmons live here' },
-  fairy: { name: 'Blossom Glades', mon: 'glimmoth', color: '#f0a8d8', note: 'Fairy survivalmons live here' },
-  shadow: { name: 'Gloomwood', mon: 'duskit', color: '#9a7ae0', note: 'Shadow survivalmons live here' },
-  ice: { name: 'Frostfell', mon: 'snowpip', color: '#bfeaf6', note: 'Ice survivalmons live here' },
-  toxic: { name: 'Murkmire', mon: 'venewt', color: '#b0d050', note: 'Toxic survivalmons live here' },
-  metal: { name: 'Iron Hills', mon: 'ferrit', color: '#a8b4c8', note: 'Metal survivalmons live here' },
+  grass: { name: 'Leafy Meadow', mons: ['leafkit'], native: 'thornling', color: '#74c44c', note: 'Leafkit lives here' },
+  water: { name: 'Lakelands', mons: ['puddlit', 'venewt'], native: 'bogcrab', color: '#4aa3df', note: 'Puddlit and Venewt live here' },
+  rock: { name: 'Stony Quarry', mons: ['pebblet', 'ferrit'], native: 'sawbeetle', color: '#b8b0a0', note: 'Pebblet and Ferrit live here' },
+  fire: { name: 'Ember Fields', mons: ['emberpup', 'duskit'], native: 'cinderimp', color: '#e0a060', note: 'Emberpup and Duskit live here' },
+  storm: { name: 'Windy Highlands', mons: ['voltowl', 'snowpip'], native: 'snowgolem', color: '#9ac0d8', note: 'Voltowl and Snowpip live here' },
+  fairy: { name: 'Blossom Glades', mons: ['glimmoth'], native: 'wiltsprite', color: '#f0a8d8', note: 'Glimmoth lives here' },
 };
 const ZONE_IDS = Object.keys(ZONES);
 
@@ -44,10 +42,6 @@ const LOOK = {
   fire: { forest: 0.74, trees: 0.015, ponds: 0.05, house: 0.3, flowers: 3, rocks: 16, nodes: { iron: 1, stone: 1, wood: 1 } },
   storm: { forest: 0.58, trees: 0.02, ponds: 0.15, house: 0.25, flowers: 4, rocks: 14, nodes: { stone: 1, iron: 1, wood: 1 } },
   fairy: { forest: 0.66, trees: 0.04, ponds: 0.3, house: 0.4, flowers: 34, rocks: 4, nodes: { wood: 1, clay: 1 } },
-  shadow: { forest: 0.5, trees: 0.04, ponds: 0.1, house: 0.3, flowers: 2, rocks: 10, nodes: { wood: 2, iron: 1 } },
-  ice: { forest: 0.7, trees: 0.015, ponds: 0.35, house: 0.25, flowers: 2, rocks: 16, nodes: { stone: 1, clay: 1, iron: 1 } },
-  toxic: { forest: 0.56, trees: 0.03, ponds: 0.8, house: 0.25, flowers: 4, rocks: 8, nodes: { clay: 2, wood: 1 } },
-  metal: { forest: 0.74, trees: 0.008, ponds: 0.05, house: 0.25, flowers: 1, rocks: 30, nodes: { iron: 2, stone: 1 } },
 };
 
 const key = (cx, cy) => (cx + 32768) * 65536 + (cy + 32768);
@@ -277,7 +271,7 @@ class Chunk {
       const forest = fbm(tx * 0.07, ty * 0.07, s + 5);
       const patch = fbm(tx * 0.09, ty * 0.09, s + 11);
       // the zone's own ground covers much of it (the lakes get theirs as beaches round the water)
-      const own = { rock: 0.44, storm: 0.48, fire: 0.42, fairy: 0.5, water: 0.6, ice: 0.34, toxic: 0.52, metal: 0.42 }[z];
+      const own = { rock: 0.44, storm: 0.48, fire: 0.42, fairy: 0.5, water: 0.6 }[z];
       if (own !== undefined && patch > own) t = ZONE_GROUND[z];
       if (forest > L.forest) t = T.DARK;
       // winding trails across the land
@@ -452,10 +446,6 @@ class Chunk {
     if (z === 'storm') return r < 0.75 ? `pine_${this.ri(0, 1)}` : `tree_dark_${this.ri(0, 3)}`;
     if (z === 'fairy') return r < 0.65 ? `tree_pink_${this.ri(0, 1)}` : `tree_green_${this.ri(0, 3)}`;
     if (z === 'rock') return r < 0.6 ? `pine_${this.ri(0, 1)}` : `tree_dark_${this.ri(0, 3)}`;
-    if (z === 'shadow') return r < 0.8 ? `tree_dark_${this.ri(0, 3)}` : `tree_big_${this.ri(0, 1)}`;
-    if (z === 'ice') return r < 0.85 ? `pine_${this.ri(0, 1)}` : `tree_dark_${this.ri(0, 3)}`;
-    if (z === 'toxic') return r < 0.5 ? `tree_dark_${this.ri(0, 3)}` : r < 0.75 ? `tree_big_${this.ri(0, 1)}` : `tree_autumn_${this.ri(0, 1)}`;
-    if (z === 'metal') return r < 0.5 ? `pine_${this.ri(0, 1)}` : `tree_dark_${this.ri(0, 3)}`;
     if (dark) return r < 0.25 ? `pine_${this.ri(0, 1)}` : r < 0.35 ? `tree_big_${this.ri(0, 1)}` : `tree_dark_${this.ri(0, 3)}`;
     if (r < 0.08) return `tree_autumn_${this.ri(0, 1)}`;
     if (r < 0.14) return `tree_pink_${this.ri(0, 1)}`;

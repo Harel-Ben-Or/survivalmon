@@ -35,12 +35,21 @@ export const MOTION = {
   anchorfin: 'hop', dreadnaut: 'walk', ironclod: 'hop', titanclad: 'walk', chromoth: 'fly', mirrorwing: 'fly',
   frostshade: 'walk', rimeshade: 'walk', gloomnewt: 'walk', gloomdrake: 'walk', shurikat: 'walk', phantomblade: 'walk',
   slushling: 'walk', frostbite: 'walk', steelpeng: 'walk', ironberg: 'walk', rustail: 'walk', scrapdrake: 'walk',
+  // monsters: the Blight, the zone monsters, the Snare gang and the bosses
+  blob: 'hop', inkwing: 'fly', hound: 'walk', spitter: 'hop', shardooze: 'hop', bloater: 'walk',
+  thornling: 'walk', bogcrab: 'walk', sawbeetle: 'walk', cinderimp: 'fly', snowgolem: 'walk', wiltsprite: 'fly',
+  poacher: 'walk', slinger: 'walk', drone: 'fly', inkking: 'hop', elder: 'walk', snareboss: 'walk',
 };
+// Monsters that have drawn animation sheets (creatures/anim/<id>.png) like the survivalmons
+export const ENEMY_ANIM = ['blob', 'inkwing', 'hound', 'spitter', 'shardooze', 'bloater', 'thornling', 'bogcrab', 'sawbeetle',
+  'cinderimp', 'snowgolem', 'wiltsprite', 'poacher', 'slinger', 'drone', 'inkking', 'elder', 'snareboss', 'night_lord'];
+const HAS_SHEET = new Set(ENEMY_ANIM);
 
 const CREATURE_IDS = [
   ...BASE_IDS, ...PURE_IDS,
   'slime', 'bat', 'shroom', 'wisp', 'wolf', 'spore', 'beetle', 'imp', 'golem',
   'king_slime', 'treant', 'colossus', 'alpha_wolf', 'night_lord',
+  ...ENEMY_ANIM.filter((id) => id !== 'night_lord'),
   ...MIXED_IDS, ...EVOLVED_IDS,
 ];
 // Enemy colour variants made by shifting the hue of an existing sprite
@@ -154,7 +163,7 @@ function blank(c) {
 // ---------------------------------------------------------------- loading
 export async function loadArt(base = 'assets/sprites') {
   await Promise.all(CREATURE_IDS.map(async (id) => {
-    const sheet = SPECIES[id] ? await loadImage(`${base}/creatures/anim/${id}.png`) : null;
+    const sheet = SPECIES[id] || HAS_SHEET.has(id) ? await loadImage(`${base}/creatures/anim/${id}.png`) : null;
     if (sheet) { CREATURE[id] = animatedCreature(id, sheet); return; }
     const img = await loadImage(`${base}/creatures/${id}.png`);
     if (img) CREATURE[id] = makeCreature(id, fromImage(img));
@@ -238,6 +247,7 @@ export function drawCreature(ctx, s, x, y, o = {}) {
     const f = fr[i];
     img = left ? f.L : f.R;
   }
+  if (o.blight) img = blightTint(img); // a survivalmon under the Blight's control
   const pad = (img.width - s.w) / 2;
   const sx = o.sx ?? 1, sy = o.sy ?? 1;
   const ax = (left ? s.w - s.ax : s.ax) + pad, ay = s.ay + pad;
@@ -272,6 +282,21 @@ export function artURL(kind, id) {
   return url;
 }
 export const hasArt = (id) => !!CREATURE[id];
+// The Blight's dark tint, cached per frame
+const blightCache = new WeakMap();
+function blightTint(src) {
+  let c = blightCache.get(src);
+  if (!c) {
+    c = canvasOf(src.width, src.height);
+    const g = c.getContext('2d');
+    g.drawImage(src, 0, 0);
+    g.globalCompositeOperation = 'source-atop';
+    g.fillStyle = 'rgba(34, 8, 46, 0.58)';
+    g.fillRect(0, 0, c.width, c.height);
+    blightCache.set(src, c);
+  }
+  return c;
+}
 // A creature's picture cropped to its content, as a canvas (for the hatch and evolve animations)
 const cropCache = new Map();
 export function creatureArt(id) {

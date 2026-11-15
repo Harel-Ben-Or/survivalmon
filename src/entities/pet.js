@@ -123,6 +123,8 @@ export class Pet {
   update(dt, index, inRoom) {
     const g = this.g, P = g.player;
     this.flash = Math.max(0, this.flash - dt);
+    // carried off by a Cage Drone: it moves us; we just hang there
+    if (this.carriedBy) { if (!this.carriedBy.dead) { if (this.fainted) this.faintT += dt; return; } this.carriedBy = null; }
     if (this.atkT >= 0) { this.atkT += dt; if (this.atkT * ANIM_FPS.attack >= 6) this.atkT = -1; }
     if (this.fainted) this.faintT += dt;
     // out of the fight for a few seconds, a survivalmon slowly gets its breath back

@@ -75,6 +75,10 @@ export const Combat = {
       if (p.hostile) {
         if (dist2(p.x, p.y, P.x, P.y) < (p.r + P.r) ** 2) {
           P.hurt(p.dmg, p);
+          if (p.slow) {
+            if (!P.netT && !this.netTold) { this.netTold = true; this.toast('Caught in a net! It slows you down for a moment.'); }
+            P.netT = Math.max(P.netT || 0, p.slow);
+          }
           p.dead = true;
           continue;
         }
@@ -250,10 +254,16 @@ export const Combat = {
           break;
         }
         case 'monfaint': {
-          const t = e.age, n = e.art.anim.faint.length, landed = n / ANIM_FPS.faint;
+          const t = e.age, n = e.art.anim.faint.length, landed = n / ANIM_FPS.faint, f = Math.floor(t * ANIM_FPS.faint);
+          if (e.death) {
+            // a defeated monster: plays its death, then fades out where it fell
+            const fade = Math.max(0, Math.min(1, (e.maxLife - t) / 0.25)), s = e.scale || 1;
+            drawCreature(ctx, e.art, x, y, { left: e.left, anim: 'faint', frame: f, alpha: fade, sx: s, sy: s });
+            break;
+          }
           const fade = t > landed + 0.35 ? Math.max(0, 1 - (t - landed - 0.35) / 0.3) : 1;
           const sc = 0.35 + 0.65 * fade;
-          drawCreature(ctx, e.art, x, y, { left: e.left, anim: 'faint', frame: Math.floor(t * ANIM_FPS.faint), alpha: fade, sx: sc, sy: sc });
+          drawCreature(ctx, e.art, x, y, { left: e.left, anim: 'faint', frame: f, alpha: fade, sx: sc, sy: sc, blight: e.blight && t < landed });
           if (fade < 1) { ctx.globalAlpha = 1 - fade; ctx.fillStyle = '#bff8ff'; ctx.beginPath(); ctx.arc(x, y - 6, 3 + 9 * (1 - fade), 0, TAU); ctx.fill(); }
           break;
         }
@@ -345,6 +355,11 @@ export const Combat = {
     P.kills++;
     const cx = e.x, cy = e.y - 4;
     this.particles.burst(cx, cy - 4, { n: e.boss ? 60 : 8, colors: e.colors, speed: e.boss ? 140 : 70, life: 0.45, size: e.boss ? 2 : 1 });
+    if (e.art?.anim?.faint && (e.boss || this.effects.length < 160)) {
+      this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: e.boss ? 1.6 : 1.0, death: true, scale: e.scale || 1 });
+    }
+    if (e.def.splits && !e.burst && Math.random() < (e.def.splitChance ?? 1)) for (let i = 0; i < 2; i++) this.spawnEnemy(e.def.splits, e.x + rand(-7, 7), e.y + rand(-5, 5));
+    if (e.carry) this.rescuePet(e.carry);
     // drops
     this.dropXp(cx, cy, e.xp);
     this.gainCoins(e.boss ? 50 : e.elite ? 10 : 1, cx, cy - 10, e.boss || e.elite);
@@ -365,6 +380,17 @@ export const Combat = {
     Audio.play('kill');
   },
 
+  // A Cage Drone went down: the survivalmon it was carrying gets back on its feet
+  rescuePet(pet) {
+    pet.carriedBy = null;
+    if (!pet.fainted) return;
+    pet.fainted = false; pet.hp = pet.maxHp * 0.35; pet.faintT = 0;
+    this.player.recompute(); this.applyTeamPassives?.();
+    this.banner(`You rescued ${pet.name}!`, '#9af08a', false, 'It got back on its feet');
+    this.particles.burst(pet.x, pet.y - 8, { n: 20, colors: ['#9af08a', '#ffffff'], speed: 60, life: 0.6, up: 20 });
+    Audio.play('heal');
+  },
+
   // Every defeated monster pays straight into the run's purse (banked when the run ends).
   gainCoins(n, x, y, show) {
     const v = n * (this.coinMult || 1);
@@ -383,14 +409,15 @@ export const Combat = {
     this.gainCoins(10, e.x, e.y - 14, true);
     this.particles.burst(e.x, e.y - 8, { n: 30, colors: ['#7af0ff', '#ffe07a', '#ffffff'], speed: 90, life: 0.6 });
     // it faints where it stood, then shrinks away in a flash of light as it's caught
-    if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4 });
+    if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
     // wild ones met later in a run are further grown
     const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level: 1 + Math.floor(this.time / 60) });
     P.caught.push(species);
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
     const skills = mon.skills.map((k) => `${k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name} ${TIERS[k.t]}`).join(' · ');
-    this.banner(`Caught a wild ${SPECIES[species].name}!`, '#7af0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
+    if (e.corrupted) this.banner(`You freed ${SPECIES[species].name} from the Snare!`, '#c8a0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
+    else this.banner(`Caught a wild ${SPECIES[species].name}!`, '#7af0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     if (Math.random() < 0.08) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
