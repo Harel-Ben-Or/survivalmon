@@ -3,6 +3,7 @@ import { WAVES, EVENTS, ENEMIES } from '../content/creatures.js';
 import { weightedChoice, rand, TAU, dist2 } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { SPECIES } from '../content/species.js';
+import { ZONES } from '../world/world.js';
 
 // The longest run. Waves, bosses and monster scaling were written for a 25 minute run; PACE
 // plays them faster (Game.stage = time * PACE), so the longest run covers their first 20 minutes:
@@ -37,9 +38,8 @@ export class Director {
     for (let i = 0; i < 14; i++) {
       const a = rand(0, TAU);
       const x = P.x + Math.cos(a) * rad, y = P.y + Math.sin(a) * rad;
-      if (x < 90 || y < 90 || x > g.world.pw - 90 || y > g.world.ph - 90) continue;
       if (!flyer && !g.world.walkable(x, y)) continue;
-      if (!flyer && g.world.flowDist[Math.floor(y / 16) * g.world.w + Math.floor(x / 16)] > 200) continue;
+      if (!flyer && g.world.flowAt(x, y) > 200) continue;
       return { x, y };
     }
     return null;
@@ -79,7 +79,9 @@ export class Director {
     if (this.catchT <= 0 && g.canCatch) {
       this.catchT = rand(120, 180) / (g.wildMult || 1);
       if (!g.enemies.some((e) => e.wild && !e.dead)) {
-        const sp = weightedChoice(WILD_POOL).type;
+        // most wild survivalmons belong to the zone you're in
+        const zone = ZONES[g.world.zoneAtPx(g.player.x, g.player.y)];
+        const sp = Math.random() < 0.65 ? zone.mon : weightedChoice(WILD_POOL).type;
         if (this.spawn('wild', { wild: sp })) {
           g.banner(`A wild ${SPECIES[sp].name} appeared!`, '#7af0ff', false, 'Defeat it within 25 seconds to catch it');
           Audio.play('combo');

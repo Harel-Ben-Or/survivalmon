@@ -19,6 +19,7 @@ import { TouchControls } from './touch.js';
 import { TownUI } from './town_ui.js';
 import { ProfilesUI } from './profiles_ui.js';
 import { Profiles } from '../systems/profiles.js';
+import { T, ZONES } from '../world/world.js';
 import { Meta } from '../systems/meta.js';
 import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
 
@@ -310,22 +311,48 @@ export class UI {
     H.combos.innerHTML = [...g.activeCombos].map((id) => `<div>★ ${COMBOS.find((c) => c.id === id).name}</div>`).join('');
   }
 
+  // Radar of the land around you (one pixel per tile): zones, water, houses, gathering spots,
+  // chests, bosses and wild survivalmons. The ground is repainted every few tiles you move.
   drawMinimap() {
-    const g = this.g, ctx = this.h.mini.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(g.minimap, 0, 0);
-    for (const hs of g.world.houses) {
-      const x = hs.tx + Math.floor(hs.B.tw / 2) - 1, y = hs.ty + 2;
-      ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 1, y - 1, 5, 5);
-      ctx.fillStyle = hs.looted ? '#8a8a8a' : hs.visited ? '#f4f1e4' : '#ffd84a';
-      ctx.fillRect(x, y, 3, 3);
-    }
-    for (const k of g.pickups) if (k.kind === 'chest' || k.kind === 'egg') { ctx.fillStyle = '#ffb030'; ctx.fillRect((k.x / 16) | 0, (k.y / 16) | 0, 2, 2); }
-    for (const e of g.enemies) if (e.boss || e.elite) { ctx.fillStyle = e.boss ? '#ff3a3a' : '#ff9a3a'; ctx.fillRect(((e.x / 16) | 0) - 1, ((e.y / 16) | 0) - 1, e.boss ? 4 : 2, e.boss ? 4 : 2); }
+    const g = this.g, W = g.world, ctx = this.h.mini.getContext('2d');
     const P = g.mode === 'house' ? { x: g.house.doorX, y: g.house.doorY } : g.player;
-    ctx.fillStyle = '#2b1d24'; ctx.fillRect(((P.x / 16) | 0) - 2, ((P.y / 16) | 0) - 2, 5, 5);
+    const R = 56, ptx = Math.floor(P.x / 16), pty = Math.floor(P.y / 16);
+    if (!this.radar || this.radarWorld !== W || Math.abs(ptx - this.radarX) >= 3 || Math.abs(pty - this.radarY) >= 3) {
+      const cv = this.radar || (this.radar = Object.assign(document.createElement('canvas'), { width: R * 2, height: R * 2 }));
+      const rc = cv.getContext('2d'), img = rc.createImageData(R * 2, R * 2), d = img.data;
+      const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+      const zc = {}; for (const [k, z] of Object.entries(ZONES)) zc[k] = hex(z.color);
+      const fixed = { [T.DIRT]: hex('#e3c48c'), [T.FARM]: hex('#8a5a36'), [T.WATER]: hex('#3d8fd0'), [T.STONE]: hex('#cfc8b8') };
+      for (let y = 0; y < R * 2; y++) for (let x = 0; x < R * 2; x++) {
+        const tx = ptx - R + x, ty = pty - R + y, t = W.tileAt(tx, ty);
+        let c = fixed[t];
+        if (!c) { const z = zc[W.zoneAt(tx, ty)]; c = t === T.DARK ? [z[0] * 0.62, z[1] * 0.62, z[2] * 0.62] : z; }
+        const i = (y * R * 2 + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255;
+      }
+      rc.putImageData(img, 0, 0);
+      this.radarX = ptx; this.radarY = pty; this.radarWorld = W;
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = '#245f2b'; ctx.fillRect(0, 0, R * 2, R * 2);
+    ctx.drawImage(this.radar, this.radarX - ptx, this.radarY - pty);
+    const at = (px, py) => [Math.floor(px / 16) - ptx + R, Math.floor(py / 16) - pty + R];
+    for (const o of W.nodes) { const [x, y] = at(o.x, o.y); ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 1, y - 1, 3, 3); ctx.fillStyle = '#c8a46a'; ctx.fillRect(x, y, 1, 1); }
+    for (const hs of W.houses) {
+      const [x, y] = at(hs.px + hs.B.tw * 8, hs.py + 32);
+      ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 2, y - 2, 5, 5);
+      ctx.fillStyle = hs.looted ? '#8a8a8a' : hs.visited ? '#f4f1e4' : '#ffd84a';
+      ctx.fillRect(x - 1, y - 1, 3, 3);
+    }
+    for (const k of g.pickups) if (k.kind === 'chest' || k.kind === 'egg') { const [x, y] = at(k.x, k.y); ctx.fillStyle = '#ffb030'; ctx.fillRect(x, y, 2, 2); }
+    for (const e of g.enemies) {
+      if (!(e.boss || e.elite || e.wild) || e.dead) continue;
+      const [x, y] = at(e.x, e.y), s = e.boss ? 4 : 3;
+      ctx.fillStyle = e.wild ? '#5ae8ff' : e.boss ? '#ff3a3a' : '#ff9a3a';
+      ctx.fillRect(x - 1, y - 1, s, s);
+    }
+    ctx.fillStyle = '#2b1d24'; ctx.fillRect(R - 2, R - 2, 5, 5);
     ctx.fillStyle = Math.floor(g.realTime * 4) % 2 ? '#ffffff' : '#5ae8ff';
-    ctx.fillRect(((P.x / 16) | 0) - 1, ((P.y / 16) | 0) - 1, 3, 3);
+    ctx.fillRect(R - 1, R - 1, 3, 3);
   }
 
   setPaused(on) { this.h?.paused.classList.toggle('hidden', !on); }
@@ -417,7 +444,7 @@ export class UI {
         <h2>Level up! Lv ${P.level - P.pendingLevels + 1}</h2>
         <div class="cards">${cards}</div>
         <div class="reroll"><button class="btn small secondary" data-act="reroll" ${P.coins < cost ? 'disabled' : ''}>Reroll — ${cost} coins</button>
-        <span style="font-size:14px;color:var(--muted)">You have ${P.coins} coins<span class="hint-keys"> · press <span class="key">1</span><span class="key">2</span><span class="key">3</span></span></span></div>
+        <span style="font-size:14px;color:var(--muted)">You have ${Math.floor(P.coins)} coins<span class="hint-keys"> · press <span class="key">1</span><span class="key">2</span><span class="key">3</span></span></span></div>
       </div>`);
     this.modalKind = 'levelup';
   }
@@ -646,7 +673,7 @@ export class UI {
     const color = won || kind === 'timeup' ? '#9af08a' : quit ? 'var(--gold)' : '#ff8a7a';
     const tiles = [
       ['Survived', formatTime(rec.time)], ['Level', rec.level], ['Defeated', rec.kills.toLocaleString()],
-      ['Damage', Math.round(R.damage).toLocaleString()], ['Coins', earned.toLocaleString()], ['Houses', `${R.houses}/${g.world.houses.length}`],
+      ['Damage', Math.round(R.damage).toLocaleString()], ['Coins', earned.toLocaleString()], ['Houses', R.houses],
       ['Caught', P.caught.length], ['Team', P.pets.length],
     ].map(([k, v]) => `<div class="end-tile"><span>${k}</span><b>${esc(v)}</b></div>`).join('');
     const startLv = g.runStart?.petLv || new Map();

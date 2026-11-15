@@ -77,8 +77,11 @@ export class TileGround {
     g.scale(WS, WS);
     const ox = tx0 * TILE, oy = ty0 * TILE, span = CH * TILE;
     const near = (x, y, m) => x > ox - m && x < ox + span + m && y > oy - m && y < oy + span + m;
+    // the endless world keeps decals per chunk: read the chunks this piece of ground overlaps
+    const parts = w.infinite ? w.chunksIn(ox - 70, oy - 70, ox + span + 70, oy + span + 70) : [w];
+    const baked = parts.flatMap((p) => p.baked), shadows = parts.flatMap((p) => p.shadows), tall = parts.flatMap((p) => p.bakedTall);
     // 3) decals (flowers, tufts, crops, lily pads, pebbles)
-    for (const d of w.baked) {
+    for (const d of baked) {
       if (!near(d.x, d.y, 24)) continue;
       const art = d.name && DECAL_ART[d.name];
       if (art) g.drawImage(art.img, Math.round(d.x - ox), Math.round(d.y - oy), art.w, art.h);
@@ -86,12 +89,12 @@ export class TileGround {
     }
     // 4) soft shadows under trees and buildings
     g.fillStyle = 'rgba(20,40,10,0.22)';
-    for (const s of w.shadows) {
+    for (const s of shadows) {
       if (!near(s.x, s.y, s.rx + 2)) continue;
       g.beginPath(); g.ellipse(s.x - ox, s.y - oy, s.rx, s.ry, 0, 0, Math.PI * 2); g.fill();
     }
     // 5) the border forest is baked in (it can never be walked behind)
-    for (const it of w.bakedTall) {
+    for (const it of tall) {
       const s = SPR[it.spr];
       if (!s || !near(it.x, it.y, 70)) continue;
       g.fillStyle = 'rgba(20,40,10,0.22)';
@@ -105,9 +108,11 @@ export class TileGround {
     const span = CH * TILE;
     const c0 = Math.floor(cam.x / span), c1 = Math.floor((cam.x + view.w) / span);
     const r0 = Math.floor(cam.y / span), r1 = Math.floor((cam.y + view.h) / span);
-    const maxC = Math.ceil(this.world.w / CH) - 1, maxR = Math.ceil(this.world.h / CH) - 1;
-    for (let cy = Math.max(0, r0); cy <= Math.min(maxR, r1); cy++) {
-      for (let cx = Math.max(0, c0); cx <= Math.min(maxC, c1); cx++) {
+    // a fixed map (the town) is clipped to its size; the endless world goes on in every direction
+    const inf = this.world.infinite;
+    const maxC = inf ? Infinity : Math.ceil(this.world.w / CH) - 1, maxR = inf ? Infinity : Math.ceil(this.world.h / CH) - 1;
+    for (let cy = inf ? r0 : Math.max(0, r0); cy <= Math.min(maxR, r1); cy++) {
+      for (let cx = inf ? c0 : Math.max(0, c0); cx <= Math.min(maxC, c1); cx++) {
         ctx.drawImage(this.chunk(cx, cy), cx * span - cam.x, cy * span - cam.y, span, span);
       }
     }

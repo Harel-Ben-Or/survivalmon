@@ -6,8 +6,7 @@ import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
 import { loadArt, loadWorldArt, loadProjArt, loadIconArt, WS, snap, ICON_ART } from '../gfx/art.js';
 import { TileGround } from '../world/tileground.js';
-import { World, TILE } from '../world/world.js';
-import { paintGround, paintMinimap } from '../world/ground.js';
+import { World, TILE, ZONES } from '../world/world.js';
 import { buildInterior } from '../world/interior.js';
 import { Player } from '../entities/player.js';
 import { Enemy } from '../entities/enemy.js';
@@ -173,12 +172,11 @@ export class Game {
     this.ctx.imageSmoothingEnabled = false;
   }
 
+  // Each run gets a new endless world (generated around you as you walk).
   newWorld() {
     this.world = new World();
-    // PixelLab tiles when available, otherwise the code-painted ground
-    if (this.tileGround) { this.tileGround.attach(this.world); this.ground = null; }
-    else this.ground = paintGround(this.world);
-    this.minimap = paintMinimap(this.world);
+    this.tileGround?.attach(this.world);
+    this.zoneNow = null; this.zoneT = 0;
   }
 
   saveSettings() { save(SETTINGS_KEY, this.settings); }
@@ -345,6 +343,8 @@ export class Game {
     for (const e of this.enemies) if (!e.dead && !e.hidden && !e.fainted) this.enemyHash.insert(e);
     P.update(dt);
     if (this.mode !== 'world') return;
+    this.world.activate(P.x, P.y);
+    this.updateZone(dt);
     this.world.updateFlow(P.x, P.y);
     for (const e of this.enemies) if (!e.dead) e.update(this, dt);
     this.enemies = this.enemies.filter((e) => !e.dead);
@@ -465,6 +465,17 @@ export class Game {
     Audio.play('chest');
     this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood' }), P.x, P.y - 14);
   }
+  // Entering a new zone shows its name (checked twice a second).
+  updateZone(dt) {
+    this.zoneT -= dt;
+    if (this.zoneT > 0) return;
+    this.zoneT = 0.5;
+    const z = this.world.zoneAtPx(this.player.x, this.player.y);
+    if (z === this.zoneNow) return;
+    const first = !this.zoneNow;
+    this.zoneNow = z;
+    if (!first) this.banner(ZONES[z].name, ZONES[z].color, false, ZONES[z].note);
+  }
   applyDrops(res, cx, cy) {
     const P = this.player;
     for (const d of res.drops) {
@@ -503,8 +514,7 @@ export class Game {
     const P = this.player, k = o.node.kind;
     const n = Math.max(1, Math.round(GATHER[k] * (this.matMult || 1)));
     P.mats[k] += n;
-    this.world.nodes = this.world.nodes.filter((x) => x !== o);
-    this.world.objects = this.world.objects.filter((x) => x !== o);
+    this.world.removeObject(o);
     this.particles.burst(o.x, o.y - 6, { n: 14, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 60, life: 0.5, up: 20 });
     this.toast(`+${n} ${MATERIALS[k].name}`);
     Audio.play('coin');
@@ -692,6 +702,7 @@ export class Game {
   }
   clampCamera() {
     const map = this.mode === 'town' ? this.town : this.world;
+    if (map.infinite) return; // the wild goes on in every direction
     this.cam.x = clamp(this.cam.x, 0, Math.max(0, map.pw - this.view.w));
     this.cam.y = clamp(this.cam.y, 0, Math.max(0, map.ph - this.view.h));
   }
@@ -725,10 +736,7 @@ export class Game {
     const cam = this.renderCam();
     const playing = this.mode === 'world' || (this.mode === 'end' && this.player);
     ctx.fillStyle = '#245f2b'; ctx.fillRect(0, 0, V.w, V.h);
-    const sx = clamp(cam.x, 0, this.world.pw), sy = clamp(cam.y, 0, this.world.ph);
-    const sw = Math.min(V.w, this.world.pw - sx), sh = Math.min(V.h, this.world.ph - sy);
-    if (this.tileGround) this.tileGround.draw(ctx, cam, V);
-    else if (sw > 0 && sh > 0) ctx.drawImage(this.ground, sx, sy, sw, sh, sx - cam.x, sy - cam.y, sw, sh);
+    this.tileGround?.draw(ctx, cam, V);
 
     if (playing) {
       this.drawZones(ctx, cam);

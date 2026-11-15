@@ -12,6 +12,12 @@ hero (HP, damage, speed…) or your team (team damage, attack speed, defense, ma
 one of a survivalmon's skills going up a tier for that run). Houses (the clock stops inside!) and
 chests give coins, berries, materials, eggs, evolution stones and gear.
 
+The wild is **endless**: it is generated around you as you walk (a new world every run, starting at
+the village plaza), in big zones, one per survivalmon type: Leafy Meadow, Lakelands, Stony Quarry,
+Ember Fields, Windy Highlands and Blossom Glades. Most wild survivalmons you meet belong to the zone
+you're in. Difficulty still rises with time only, not with distance. The minimap is a radar of the
+land around you.
+
 The full design (buildings, breeding, skill tiers, gear) is in the design doc;
 `PLAN.md` covers the original build.
 
