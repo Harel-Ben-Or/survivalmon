@@ -8,8 +8,20 @@ the Colossus around 6:00, and the Night Lord for the last 30 seconds. During a r
 level up, duck into houses (the clock stops inside!) for **weapons, spells, artifacts and eggs**,
 discover **combos**, and fight beside a team of survivalmons.
 
-The full design (buildings still to come, breeding, skill tiers, gear) is in the design doc;
+The full design (buildings, breeding, skill tiers, gear) is in the design doc;
 `PLAN.md` covers the original build.
+
+## Play
+
+**https://harel-ben-or.github.io/survivalmon/**
+
+On an Android phone, open it in Chrome and choose **Install app** (or ⋮ → *Add to Home screen*).
+It installs like a normal app: its own icon, full screen and landscape, and it updates itself
+whenever new code is pushed here. After one full load it also starts with no connection.
+
+Run it locally with `npm run dev` (http://localhost:5173). There's no build step.
+
+![All 42 survivalmons](mockups/snapshots/survivalmons.png)
 
 ## Town
 
