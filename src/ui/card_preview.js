@@ -1,6 +1,7 @@
 // What a level-up card would change, as short "now → after" rows: [label, now, after].
 // Shown under each card, e.g. "Crit chance 9% → 13%" or, for a skill, "Hit 21 → 25".
 import { SPECIES } from '../content/species.js';
+import { TYPE_PERK } from '../entities/pet.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { armorCut } from '../systems/armor.js';
 import { levelRows } from '../systems/loot.js';
@@ -56,6 +57,14 @@ export function cardRows(g, c) {
     if (c.up.id === 't_heal') {
       const hp = P.pets.reduce((a, p) => a + (p.fainted ? 0 : p.hp / p.maxHp), 0) / Math.max(1, P.pets.length);
       return [['Team HP', pct(hp), '100%']];
+    }
+    if (c.up.atk && c.up.atk !== 'all') {
+      const t = c.up.atk, u = g.typeUp?.[t] || { dmg: 0, n: 0 }, n = u.n;
+      const rows = [['Damage', pct(1 + u.dmg), pct(1 + u.dmg + v)]];
+      if (t === 'chain') rows.push(['Jumps', `+${n}`, `+${n + 1}`]);
+      else if (t === 'area') rows.push(['Size', pct(1 + TYPE_PERK.area * n), pct(1 + TYPE_PERK.area * (n + 1))]);
+      else rows.push([t === 'shot' ? 'Attack speed' : 'Charges', pct(Math.pow(TYPE_PERK[t], -n)), pct(Math.pow(TYPE_PERK[t], -(n + 1)))]);
+      return rows;
     }
     const base = 1 + T.dmg + (g.cry || 0);
     const rows = {

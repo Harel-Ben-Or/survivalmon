@@ -74,6 +74,13 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 - 10 species in 10 types: Emberpup (fire), Leafkit (grass), Puddlit (water), Voltowl (storm), Pebblet (rock),
   Glimmoth (fairy), Duskit (shadow), Snowpip (ice), Venewt (toxic) and Ferrit (metal). The wild has 6 zones,
   each home to one or two of them (they turn up most there).
+- Every attack skill has one of 4 **attack types**, shown as a tag with its icon wherever the skill is:
+  **Projectile** (shots), **Chain** (lightning that jumps from foe to foe, a bit softer each jump), **Area**
+  (slams, auras and lobbed pools that hit everything in a circle) and **Charge** (rushes through foes).
+  Upgrades say which type they work on: Team Power, Haste and Focus (and the Shrine's Power branch) work
+  on all attacks; the type cards on even levels (Sharp Shots, Chain Surge, Wide Blast, Stampede) add
+  damage and a perk for one type (faster shots, +1 jump, bigger areas, more charges), up to 4 each per run.
+  They only show up for types your team has, so a team of one type grows stronger with them.
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
 - Every species and breed hatches from its own egg, and has walk, attack and faint animations.
 - Species and breeds fire basic attacks of their own (a projectile, coloured lightning, a lobbed blob that
@@ -142,7 +149,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;
   `src/ui/card_preview.js` — the "now → after" rows on each card;
   `src/systems/armor.js` — how armor cuts damage.
-- `assets/sprites/icons/up_*.png` and `team_*.png` — the upgrade icons (hero upgrades and team upgrades).
+- `assets/sprites/icons/up_*.png`, `team_*.png` and `atk_*.png` — the upgrade icons (hero upgrades, team upgrades) and the 4 attack type icons.
 - `icons/app-*.png` — the app icon (Rowan hugging Emberpup; `app-art.png` is the 128px original, the rest are sizes of it).
 - `index.html` — also holds the loading screen (shown until all the art has loaded; `src/gfx/art.js` counts the images).
 - `tools/bot.js` plays whole careers from a fresh save; `tools/sim.js` plays one run with a chosen loadout

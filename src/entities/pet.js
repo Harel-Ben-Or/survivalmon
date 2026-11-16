@@ -3,7 +3,7 @@
 // HP it ends the run with is saved, and the Clinic heals it.
 import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
 import { attackFx } from '../content/attack_fx.js';
-import { SPECIES } from '../content/species.js';
+import { SPECIES, archType } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { Box } from '../systems/collection.js';
 import { rand, TAU } from '../core/util.js';
@@ -24,6 +24,19 @@ function tiered(sp, t) {
     else if (sp.arch === 'aura') q.radius = (q.radius || 30) + 8;
     else if (sp.arch === 'slam') q.radius = (q.radius || 36) + 10;
   }
+  return q;
+}
+
+// Type cards picked this run (g.typeUp): more damage for that attack type, plus the type's perk.
+export const TYPE_PERK = { shot: 0.92, charge: 0.9, area: 0.12 }; // cooldown factor per card, or size per card
+const AREA_R = { aura: 30, slam: 36, lobber: 22 };
+function typedUp(q, arch, type, ups) {
+  const u = ups?.[type];
+  if (!u?.n) return q;
+  q.dmg *= 1 + u.dmg;
+  if (type === 'shot' || type === 'charge') q.cd = (q.cd || 1) * Math.pow(TYPE_PERK[type], u.n);
+  else if (type === 'chain') q.chains = (q.chains || 3) + u.n;
+  else if (type === 'area') q.radius = (q.radius || AREA_R[arch] || 30) * (1 + TYPE_PERK.area * u.n);
   return q;
 }
 
@@ -52,10 +65,12 @@ export class Pet {
     this.art = CREATURE[sp.id];
     this.pass = {};
     for (const s of this.mon.skills) if (s.k === 'p') this.pass[s.id] = Math.max(this.pass[s.id] || 0, PASSIVES[s.id].vals[this.tierOf(s)]);
-    this.attacks = this.mon.skills.filter((s) => s.k === 'u' && SPECIES[s.sp]).map((s) => ({
-      s, arch: SPECIES[s.sp].arch, q: tiered(SPECIES[s.sp], this.tierOf(s)), fx: attackFx(s.sp), cd: rand(0.5, 1.5), healT: rand(2, 5),
-    }));
+    this.attacks = this.mon.skills.filter((s) => s.k === 'u' && SPECIES[s.sp]).map((s) => {
+      const arch = SPECIES[s.sp].arch, type = archType(arch);
+      return { s, arch, type, q: typedUp(tiered(SPECIES[s.sp], this.tierOf(s)), arch, type, this.g.typeUp), fx: attackFx(s.sp), cd: rand(0.5, 1.5), healT: rand(2, 5) };
+    });
     this.q = this.attacks[0]?.q || {};
+    this.guard = this.attacks.some((a) => a.arch === 'aura');
     const prev = this.maxHp;
     this.maxHp = Math.round(sp.hp * (1 + 0.12 * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * (1 + this.team.hp));
     if (prev && this.hp > 0) this.hp = Math.min(this.maxHp, this.hp * (this.maxHp / prev));
@@ -136,8 +151,10 @@ export class Pet {
     const trail = P.trail;
     const need = (index + 1) * 10;
     const side = P.faceAngle + (index % 2 ? -0.8 : 0.8);
-    const tp = trail.length > need ? trail[need]
+    let tp = trail.length > need ? trail[need]
       : { x: P.x - Math.cos(side) * 22 * (index + 1), y: P.y - Math.sin(side) * 9 * (index + 1) };
+    // an aura survivalmon steps into foes that come close to the hero, so its aura has something to hit
+    if (this.guard && !this.fainted && !inRoom) { const e = g.nearestEnemy(P.x, P.y, 80); if (e) tp = e; }
     this.hopT = Math.max(0, this.hopT - dt);
     if (this.state === 'roll' && !this.fainted) { this.updateRoll(dt); return; }
     const dx = tp.x - this.x, dy = tp.y - this.y;
@@ -174,7 +191,7 @@ export class Pet {
     this.x += this.vx * dt; this.y += this.vy * dt;
     this.anim += dt * 12;
     this.moving = true;
-    g.enemiesInRadius(this.x, this.y, 8, (e) => {
+    if (!q.leap) g.enemiesInRadius(this.x, this.y, 12, (e) => {
       if (this.hits.has(e.id)) return;
       this.hits.add(e.id);
       const sp = Math.hypot(this.vx, this.vy) || 1;
@@ -229,7 +246,7 @@ export class Pet {
     m.anim = a.motion === 'fly' || this.moving || this.state === 'roll' ? 'move' : 'idle';
     m.at = this.g.realTime + this.seed;
     if (this.atkT >= 0 && a.anim?.attack) { m.anim = 'attack'; m.frame = Math.floor(this.atkT * ANIM_FPS.attack); }
-    if (this.state === 'roll' && this.rollQ?.hop) m.bob += Math.sin(Math.max(0, this.rollT) / 0.55 * Math.PI) * 10;
+    if (this.state === 'roll' && this.rollQ?.hop) m.bob += Math.sin(Math.max(0, this.rollT) / (this.rollQ.time || 0.6) * Math.PI) * (this.rollQ.leap ? 14 : 10);
     if (this.hopT > 0) m.bob += Math.sin(this.hopT / 0.3 * Math.PI) * 8;
     if (this.state === 'roll' && this.rollQ?.spin) {
       ctx.save(); ctx.translate(x, Math.round(y - a.ch / 2)); ctx.rotate(this.anim);
@@ -333,7 +350,16 @@ const ARCH = {
   },
   slam(pet, g, q, fx) {
     const R = q.radius || 36;
-    if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) return 0.3;
+    if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) {
+      // nobody close: leap onto a foe a little further off; the slam follows right after it lands
+      const t = g.nearestEnemy(pet.x, pet.y, 120);
+      if (!t) return 0.3;
+      const T = 0.5, a = Math.atan2(t.y - pet.y, t.x - pet.x), d = Math.hypot(t.x - pet.x, t.y - pet.y);
+      pet.state = 'roll'; pet.rollT = T; pet.hits.clear(); pet.rollQ = { ...q, hop: true, leap: true, time: T }; pet.rollFx = fx; pet.crashed = true;
+      pet.vx = (Math.cos(a) * d) / T; pet.vy = (Math.sin(a) * d) / T;
+      pet.face = pet.vx >= 0 ? 1 : -1;
+      return 0.15;
+    }
     if (pet.art?.anim?.attack) pet.swing(); else pet.hopT = 0.3;
     if (fx.sig) {
       landSig(pet, g, fx.sig, pet.x, pet.y, R * 1.2, q.dmg * pet.power * 1.1, { ...q, knock: q.knock || 200 });

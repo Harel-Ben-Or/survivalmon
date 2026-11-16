@@ -4,8 +4,8 @@ import { HEROES } from '../content/heroes.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SPELLS } from '../content/spells.js';
 import { ARTIFACTS, COMBOS } from '../content/artifacts.js';
-import { SPECIES, STONES, TYPES, petXpFor } from '../content/species.js';
-import { MonsUI } from './mons_ui.js';
+import { SPECIES, STONES, TYPES, petXpFor, ATK_TYPES, atkType } from '../content/species.js';
+import { MonsUI, atkTag } from './mons_ui.js';
 import { ShopUI } from './shop_ui.js';
 import { MATERIALS } from '../content/buildings.js';
 import { Box } from '../systems/collection.js';
@@ -436,6 +436,7 @@ export class UI {
           <span class="rar" style="background:${TIER_COLOR[c.from + 1]}">Skill up</span>
           <img class="px" src="${artURL('creature', c.pet.species)}">
           <div class="title">${esc(c.pet.name)}</div><div class="cat">${esc(name)}</div>
+          ${s.k === 'u' ? `<div class="tags">${atkTag(atkType(s.sp))}</div>` : ''}
           <div class="val"><b class="tier t${c.from}">${TIERS[c.from]}</b> → <b class="tier t${c.from + 1}">${TIERS[c.from + 1]}</b> for this run</div>
           ${cardRowsHTML(g, c)}
           <span class="key kb">${i + 1}</span></div>`;
@@ -445,6 +446,7 @@ export class UI {
         <span class="rar" style="background:${c.rarity.color}">${team ? (c.up.noRarity ? 'Survivalmons' : `${c.rarity.name} · Team`) : c.rarity.name}</span>
         <img class="px" src="${icon(c.up.icon, 4)}">
         <div class="title">${c.up.name}</div>
+        ${c.up.atk ? `<div class="tags">${atkTag(c.up.atk)}</div>` : ''}
         <div class="val">${esc(c.up.fmt(c.value))}</div>
         ${cardRowsHTML(g, c)}
         <span class="key kb">${i + 1}</span></div>`;
@@ -638,7 +640,7 @@ export class UI {
     const pets = P.pets.length ? P.pets.map((p) => {
       const need = petXpFor(p.mon.level);
       const ready = Box.canEvolve(p.mon);
-      const skills = p.mon.skills.map((k) => { const t = p.tierOf(k); return `${esc(k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name)} <b style="color:${TIER_COLOR[t]}">${TIERS[t]}</b>`; }).join(' · ');
+      const skills = p.mon.skills.map((k) => { const t = p.tierOf(k); return `${esc(k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name)} <b style="color:${TIER_COLOR[t]}">${TIERS[t]}</b>${k.k === 'u' ? ` <small style="color:${ATK_TYPES[atkType(k.sp)].color}">${ATK_TYPES[atkType(k.sp)].name}</small>` : ''}`; }).join(' · ');
       return `<div class="inv-item pet-item ${p.fainted ? 'fainted' : ''}"><img class="px" src="${artURL('creature', p.species)}"><div><b>${esc(p.name)}</b> Lv ${p.mon.level}${p.fainted ? ' · fainted' : ''}<div class="pet-skills">${skills}</div><div class="xp"><div style="width:${Math.min(100, (p.mon.xp / need) * 100).toFixed(0)}%"></div></div></div>${ready ? `<button class="btn small" data-evolve="${p.mon.id}">Evolve</button>` : ''}</div>`;
     }).join('') : '<span style="color:var(--muted);font-size:14px">— hatch your egg or catch wild survivalmons —</span>';
     const pct = (v) => `${Math.round(v * 100)}%`;

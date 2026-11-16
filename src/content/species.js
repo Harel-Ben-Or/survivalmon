@@ -15,6 +15,19 @@ export const TYPES = {
   metal: { name: 'Metal', color: '#9aa8bc' },
 };
 
+// Attack types: how a survivalmon's attack skill hits. Skills, survivalmons and upgrade cards say
+// which type they are or work on. `perk` is what a type card adds besides damage.
+export const ATK_TYPES = {
+  shot: { name: 'Projectile', icon: 'atk_shot', color: '#ffb46a', desc: 'Shots that fly at foes', perk: 'attacks 8% faster' },
+  chain: { name: 'Chain', icon: 'atk_chain', color: '#ffe36a', desc: 'Lightning that jumps from foe to foe', perk: '+1 jump' },
+  area: { name: 'Area', icon: 'atk_area', color: '#8fe08a', desc: 'Hits every foe in a circle: slams, auras and pools', perk: '12% bigger' },
+  charge: { name: 'Charge', icon: 'atk_charge', color: '#ff8a7a', desc: 'Rushes through foes', perk: 'charges 10% more often' },
+};
+export const ATK_TYPE_IDS = Object.keys(ATK_TYPES);
+const ARCH_TYPE = { shooter: 'shot', zapper: 'chain', slam: 'area', aura: 'area', lobber: 'area', roller: 'charge' };
+export const archType = (arch) => ARCH_TYPE[arch];
+export const atkType = (speciesId) => ARCH_TYPE[SPECIES[speciesId]?.arch];
+
 // Evolution stones: a mixed breed evolves with a stone of either parent's type. Rare boss and wild drops.
 export const STONES = {
   ember_stone: { name: 'Ember Stone', type: 'fire', icon: 'stone_fire' },
@@ -322,6 +335,17 @@ for (const [id, m] of Object.entries(MIXED)) {
   if (q.count) q.count += 1; else if (q.chains) q.chains += 1; else if (q.radius) q.radius += 8;
   SPECIES[m.evo.id] = { id: m.evo.id, stage: 3, kind: 'evolved', name: m.evo.name, desc: m.evo.desc, arch: m.arch, q, hp: Math.round(hp * 1.4),
     unique: { name: `Great ${m.unique.name}`, desc: `${m.unique.desc} Stronger and wider.` }, types, type: types[0], lines: [a, b], line: a, pair: [a, b], from: id };
+}
+
+// Close-range attacks (slams, auras, charges) only hit what comes near, so they hit harder to keep up
+// with shots and lightning (measured with tools/sim.js: they dealt a quarter to a half as much).
+const ARCH_BOOST = { slam: { dmg: 1.8, cd: 0.85 }, aura: { dmg: 2.0, radius: 1.2 }, roller: { dmg: 1.4 } };
+for (const sp of Object.values(SPECIES)) {
+  const k = ARCH_BOOST[sp.arch];
+  if (!k) continue;
+  sp.q = { ...sp.q, dmg: Math.round(sp.q.dmg * k.dmg) };
+  if (k.cd && sp.q.cd) sp.q.cd = +(sp.q.cd * k.cd).toFixed(2);
+  if (k.radius) sp.q.radius = Math.round((sp.q.radius || 30) * k.radius);
 }
 
 export const BASE_IDS = Object.keys(BASE);

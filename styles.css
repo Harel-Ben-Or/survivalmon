@@ -517,10 +517,19 @@ body.in-town .dash-btn { display: none; }
 .pool-mon span { font-size: 11px; color: #9af08a; }
 .pool-mon.in { opacity: .45; }
 .pool-mon.dragging { opacity: .25; }
+/* attack type tags: Projectile, Chain, Area, Charge (or All attacks) */
+.atk-tag { --c: #e8e0d0; display: inline-flex; align-items: center; gap: 3px; padding: 0 5px 0 2px; font-weight: 800; font-size: 10px; line-height: 1.5; letter-spacing: .3px; text-transform: uppercase; color: var(--c); background: #2b1d24; border: 1px solid var(--c); border-radius: 7px; white-space: nowrap; vertical-align: middle; }
+.atk-tag img { width: 14px !important; height: 14px !important; margin: 0 !important; flex: none; image-rendering: pixelated; } /* beats the picture sizes of cards and lists */
+.atk-tag.all { --c: #f4e6b8; padding-left: 5px; }
+.sk .atk-tag { margin-left: 2px; }
+.card .tags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: -4px; }
+.card .tags .atk-tag { font-size: 11px; }
 /* Choose your team: every card lists its skills with their grades */
 .team-screen .mon-pool { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }
 .pm-skills { display: flex; flex-direction: column; align-items: stretch; gap: 2px; width: 100%; margin-top: 3px; }
 .pool-mon .pm-skills .sk, .team-slot.filled .sk { padding: 1px 5px 1px 1px; font-size: 11px; line-height: 1.15; color: var(--text); text-align: left; border-radius: 8px; }
+.pool-mon .pm-skills .sk { flex-wrap: wrap; row-gap: 1px; }
+.pool-mon .atk-tag, .team-slot .atk-tag { font-size: 9px; }
 .pool-mon .sk .tier, .team-slot .sk .tier { display: inline-grid; flex: none; min-width: 16px; height: 16px; font-size: 11px; line-height: 1; }
 .team-slot .sk-row { margin-top: 3px; gap: 3px; }
 .drag-ghost { position: fixed; z-index: 50; width: 64px; height: 64px; margin: -32px 0 0 -32px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); }

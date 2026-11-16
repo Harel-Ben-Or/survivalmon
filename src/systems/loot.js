@@ -2,7 +2,7 @@
 import { WEAPONS, WEAPON_IDS } from '../content/weapons.js';
 import { SPELLS, SPELL_IDS } from '../content/spells.js';
 import { ARTIFACTS, ARTIFACT_IDS, COMBOS } from '../content/artifacts.js';
-import { SPECIES, STONES, STONE_OF } from '../content/species.js';
+import { SPECIES, STONES, STONE_OF, ATK_TYPES, ATK_TYPE_IDS } from '../content/species.js';
 import { UPGRADES, RARITIES } from '../content/heroes.js';
 import { weightedChoice, randInt, chance, shuffle } from '../core/util.js';
 import { SLOTS } from '../entities/player.js';
@@ -122,13 +122,23 @@ const HERO_CARDS = UPGRADES.filter((u) => !['luck', 'velocity', 'endurance', 'bo
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
-  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.08, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
-  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.06, key: 'haste', w: 8, cap: 0.4, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
+  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.08, key: 'dmg', w: 10, atk: 'all', fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
+  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.06, key: 'haste', w: 8, cap: 0.4, atk: 'all', fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
   { id: 't_guard', name: 'Team Guard', icon: 'team_guard', base: 0.06, key: 'def', w: 7, cap: 0.5, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
   { id: 't_vigor', name: 'Team Vigor', icon: 'team_vigor', base: 0.12, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
-  { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.04, key: 'crit', w: 5, cap: 0.4, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
+  { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.04, key: 'crit', w: 5, cap: 0.4, atk: 'all', fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
   { id: 't_heal', name: 'Second Breath', icon: 'team_heal', w: 6, noRarity: true, fmt: () => 'Heal your survivalmons fully. Fainted ones get back up.' },
 ];
+// Attack type cards: more damage for one attack type, plus that type's perk (see ATK_TYPES and
+// typedUp in pet.js). Only offered for types someone on the team has; up to 4 of each per run.
+const TYPE_NAMES = { shot: 'Sharp Shots', chain: 'Chain Surge', area: 'Wide Blast', charge: 'Stampede' };
+export const TYPE_CARDS = ATK_TYPE_IDS.map((t) => ({
+  id: `t_${t}`, name: TYPE_NAMES[t], icon: ATK_TYPES[t].icon, base: 0.15, atk: t, w: 7,
+  fmt: (v) => `${ATK_TYPES[t].name} attacks: +${pct(v)} damage, ${ATK_TYPES[t].perk}`,
+}));
+const TYPE_MAX = 4;
+const teamTypes = (P) => new Set(P.pets.filter((p) => !p.fainted).flatMap((p) => p.attacks.map((a) => a.type)));
+
 // Rare and epic cards come more often with luck, and much more often in a chest's bonus pick.
 const rollRarity = (used) => weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? (used.lucky ? 0.3 : 1) : used.P.stats.luck));
 const hurtTeam = (P) => P.pets.some((p) => p.fainted || p.hp < p.maxHp * 0.6);
@@ -144,7 +154,9 @@ function heroCard(used) {
 }
 function monCard(used) {
   const P = used.P, g = P.g;
-  const pool = TEAM_CARDS.filter((u) => !used.has(u.id) && (u.id !== 't_heal' || hurtTeam(P)) && !(u.cap !== undefined && (g.team?.[u.key] || 0) >= u.cap));
+  const types = teamTypes(P);
+  const pool = TEAM_CARDS.filter((u) => !used.has(u.id) && (u.id !== 't_heal' || hurtTeam(P)) && !(u.cap !== undefined && (g.team?.[u.key] || 0) >= u.cap))
+    .concat(TYPE_CARDS.filter((u) => !used.has(u.id) && types.has(u.atk) && (g.typeUp?.[u.atk]?.n || 0) < TYPE_MAX));
   const u = weightedChoice(pool, (x) => x.w);
   if (!u) return null;
   used.add(u.id);
@@ -211,6 +223,12 @@ export function applyLevelCard(P, card) {
     return;
   }
   if (card.kind === 'team') {
+    if (card.up.atk && card.up.atk !== 'all') {
+      const u = g.typeUp[card.up.atk];
+      u.dmg += card.value; u.n++;
+      for (const p of P.pets) p.refresh();
+      return;
+    }
     if (card.up.id === 't_heal') {
       for (const p of P.pets) { p.fainted = false; p.hp = p.maxHp; }
       P.recompute(); g.applyTeamPassives?.();

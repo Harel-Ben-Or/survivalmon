@@ -2,7 +2,7 @@
 // breeding), the Clinic, the Survidex and the Spirit Shrine.
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
-import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult } from '../content/species.js';
+import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
 import { TIERS, PASSIVES } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
@@ -18,7 +18,15 @@ const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart
 const types = (sp) => sp.types.map((t) => `<span class="rar type-pill" style="background:${TYPES[t].color}">${TYPES[t].name}</span>`).join(' ');
 export const skillName = (k) => (k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name);
 const skillDesc = (k) => (k.k === 'u' ? SPECIES[k.sp].unique.desc : PASSIVES[k.id].desc(PASSIVES[k.id].vals[k.t]));
-export const skillChips = (mon) => mon.skills.map((k) => `<span class="sk" title="${esc(skillDesc(k))}"><b class="tier t${k.t}">${TIERS[k.t]}</b>${esc(skillName(k))}</span>`).join('');
+// An attack type tag: its icon and name ('all' for upgrades that work on every type)
+export const atkTag = (t, short = false) => {
+  if (t === 'all') return '<span class="atk-tag all">All attacks</span>';
+  const T = ATK_TYPES[t];
+  if (!T) return '';
+  return `<span class="atk-tag" style="--c:${T.color}" title="${esc(`${T.name}: ${T.desc}`)}"><img class="px" src="${icon(T.icon, 1)}" alt="">${short ? '' : esc(T.name)}</span>`;
+};
+// Skill chips: grade, name and, for attack skills, the attack type
+export const skillChips = (mon) => mon.skills.map((k) => `<span class="sk" title="${esc(skillDesc(k))}"><b class="tier t${k.t}">${TIERS[k.t]}</b>${esc(skillName(k))}${k.k === 'u' ? atkTag(atkType(k.sp)) : ''}</span>`).join('');
 const hpBar = (mon) => `<div class="hp-bar ${mon.hp <= 0 ? 'out' : mon.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(mon.hp * 100)}%"></div></div>`;
 const healCost = (mon) => Math.ceil((1 - mon.hp) * (6 + mon.level * 2) * (1 - Meta.buildingBonus('clinic', 'discount')));
 
@@ -190,7 +198,7 @@ export const MonsUI = {
     const detail = !sp ? '<p class="sub-note">Tap an entry.</p>' : !known && !Box.data.seen[sel] ? '<p class="sub-note">Not found yet.</p>' : `
       <div class="mon-head"><img class="px" src="${pic(sel)}" alt=""><div><div class="name">${esc(sp.name)}</div>${types(sp)}</div></div>
       <div class="small">${esc(sp.desc)}</div>
-      <div class="small"><b>${esc(sp.unique.name)}</b> · ${esc(sp.unique.desc)}</div>
+      <div class="small"><b>${esc(sp.unique.name)}</b> ${atkTag(atkType(sel))} · ${esc(sp.unique.desc)}</div>
       ${sp.stage === 2 ? `<div class="small">Bred from ${known ? esc(recipe) : '???'}</div>` : ''}
       ${sp.stage === 3 ? `<div class="small">Evolves from ${esc(SPECIES[sp.from].name)}</div>` : ''}
       <div class="small">You own ${Box.ownedCount(sel)}</div>`;
@@ -210,7 +218,7 @@ export const MonsUI = {
     if (done) this.toast(`Research done: tier odds improved (level ${done})!`);
     const branches = ['Power', 'Guard', 'Wild'].map((b) => `<div class="panel shrine-branch"><div class="team-label">${b}</div>${SHRINE_NODES.filter((n) => n.branch === b).map((n) => {
       const L = Shrine.level(n.id), c = Shrine.cost(n.id);
-      return `<div class="train-row"><img class="px" src="${icon(n.icon, 3)}" alt=""><div class="train-info"><b>${n.name}</b> <span class="lvl">Lv ${L}</span><div class="now">${L ? esc(n.desc(Shrine.value(n.id))) : 'Not started'}</div><div class="next">Next: ${esc(n.desc(Shrine.value(n.id, L + 1)))}</div></div>
+      return `<div class="train-row"><img class="px" src="${icon(n.icon, 3)}" alt=""><div class="train-info"><b>${n.name}</b> <span class="lvl">Lv ${L}</span>${n.branch === 'Power' ? ` ${atkTag('all')}` : ''}<div class="now">${L ? esc(n.desc(Shrine.value(n.id))) : 'Not started'}</div><div class="next">Next: ${esc(n.desc(Shrine.value(n.id, L + 1)))}</div></div>
         ${c === null ? '<span class="lvl">MAX</span>' : `<button class="btn small buy-btn" data-mact="shrine-buy" data-node="${n.id}" ${c <= Meta.coins ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${c}</button>`}</div>`;
     }).join('')}</div>`).join('');
     const odds = (o) => o.map((v, i) => `<span><b class="tier t${i}">${TIERS[i]}</b>${v}%</span>`).join('');

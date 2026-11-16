@@ -23,7 +23,7 @@ import { TownMode } from '../world/town.js';
 import { HEROES } from '../content/heroes.js';
 import { WEAPONS } from '../content/weapons.js';
 import { COMBOS } from '../content/artifacts.js';
-import { SPECIES, BASE_IDS, STONES, BERRY_XP } from '../content/species.js';
+import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS } from '../content/species.js';
 import { BASE_ODDS } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
@@ -37,7 +37,7 @@ const MAX_STEP = 1 / 60;
 // the upgrade icons (Training Hall, level-up cards, Spirit Shrine)
 const UP_ICONS = ['hp', 'damage', 'speed', 'haste', 'magnet', 'armor', 'crit', 'critdmg', 'regen', 'area', 'multi', 'luck', 'exp', 'runtime', 'coins', 'wild'].map((k) => `up_${k}`)
   .concat(['power', 'haste', 'guard', 'vigor', 'focus', 'heal'].map((k) => `team_${k}`));
-const EXTRA_ICONS = [...UP_ICONS, 'mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
+const EXTRA_ICONS = [...UP_ICONS, ...Object.values(ATK_TYPES).map((t) => t.icon), 'mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
 const GATHER_TIME = 1.6;  // seconds standing at a gathering spot
 const GATHER = { wood: 3, stone: 3, clay: 2, iron: 1 };
 const SETTINGS_KEY = 'survivelmon.settings';
@@ -223,6 +223,7 @@ export class Game {
     const off = Meta.offWeapon(heroId);
     if (off) P.addItem('weapon', off, offWeaponLevel(Meta.slotLevel(heroId, 'off')));
     this.team = this.teamBonus();
+    this.typeUp = Object.fromEntries(ATK_TYPE_IDS.map((t) => [t, { dmg: 0, n: 0 }])); // type cards picked this run
     this.tierOdds = Shrine.odds();
     this.canCatch = Box.data.firstHatch;
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
