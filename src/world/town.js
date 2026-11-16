@@ -1,11 +1,15 @@
 // The town hub: the Village Square map (no combat), its collision and doors, plus the Game
 // methods for walking it. Buildings that aren't built yet show "opens later".
+// Every building stands on its own yard (dirt, gravel, cobbles or petals) with bushes and flowers
+// along its base and trees in the gaps behind it, so it sits in the land instead of on top of it.
 import { Input } from '../core/input.js';
 import { Audio } from '../core/audio.js';
 import { SPR, PC } from '../gfx/assets.js';
-import { CREATURE, creatureMotion, drawCreature, snap, WS } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, drawVfx, vfxHitTime, ANIM_FPS, snap, WS } from '../gfx/art.js';
 import { eggCanvas, EGG_SIZE } from '../gfx/eggs.js';
 import { UNLOCK_TEXT } from '../content/buildings.js';
+import { SPECIES } from '../content/species.js';
+import { attackFx } from '../content/attack_fx.js';
 import { Shrine } from '../systems/shrine.js';
 import { TileGround } from './tileground.js';
 import { T, TILE } from './world.js';
@@ -15,35 +19,67 @@ import { Pet } from '../entities/pet.js';
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 
-// door = the tile the building's door opens onto; always = open from the start, others unlock
+const GX = 20; // the gate's column: the road to the wild runs north from it
+// door = the tile the building's door opens onto; yard = the ground it stands on;
+// always = open from the start, the others unlock as you play
 const BUILDINGS = [
-  { id: 'gate', name: 'Enter the Wild', spr: 'town_gate', door: [23, 7], always: true },
-  { id: 'training', name: 'Training Hall', spr: 'town_training', door: [12, 9], always: true },
-  { id: 'workshop', name: 'Workshop', spr: 'town_workshop', door: [34, 9] },
-  { id: 'clinic', name: 'Clinic', spr: 'town_clinic', door: [8, 18] },
-  { id: 'survidex', name: 'Survidex', spr: 'town_library', door: [38, 18] },
-  { id: 'hatchery', name: 'Hatchery', spr: 'town_hatchery', door: [13, 27], always: true },
-  { id: 'shrine', name: 'Spirit Shrine', spr: 'shrine', door: [5, 9] },
-  { id: 'merchant', name: 'Merchant', spr: 'town_merchant', door: [32, 15] },
+  { id: 'gate', name: 'Enter the Wild', spr: 'town_gate', door: [GX, 7], always: true },
+  { id: 'training', name: 'Training Hall', spr: 'town_training', door: [13, 8], always: true, yard: T.DIRT },
+  { id: 'workshop', name: 'Workshop', spr: 'town_workshop', door: [27, 8], yard: T.GRAVEL },
+  { id: 'shrine', name: 'Spirit Shrine', spr: 'shrine', door: [6, 9], yard: T.STONE },
+  { id: 'clinic', name: 'Clinic', spr: 'town_clinic', door: [7, 16], yard: T.DIRT },
+  { id: 'merchant', name: 'Merchant', spr: 'town_merchant', door: [28, 14], yard: T.STONE },
+  { id: 'survidex', name: 'Survidex', spr: 'town_library', door: [34, 15], yard: T.STONE },
+  { id: 'hatchery', name: 'Hatchery', spr: 'town_hatchery', door: [11, 23], always: true, yard: T.DIRT },
 ];
+// Props around each building, as [sprite, dx, dy] from the middle of its base (logical px)
+const DECOR = {
+  training: [['town_dummy', 54, 12], ['town_dummy', 66, 22], ['barrel', -52, 6]],
+  workshop: [['node_wood', 58, -2], ['barrel_open', 52, 10], ['barrel', 64, 12], ['node_iron', 76, 4]],
+  shrine: [['rock_big', -38, 8], ['rock', 40, 10], ['pot', 26, 6]],
+  clinic: [['pot', -22, 6], ['pot', 22, 6]],
+  merchant: [['barrel', -46, 0], ['barrel_open', -37, 8], ['pot', 44, 6], ['pot_broken', 52, 2]],
+  survidex: [['pot', -20, 6], ['rock', 38, 6]],
+  hatchery: [['hay', -58, 2]],
+};
+const FLOWERS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b'];
 const RANCH_MAX = 16; // survivalmons shown roaming the pasture
+const SPOTS_MAX = 6;  // training dummies the Ranch can hold
+// How far from its dummy each kind of attacker stands
+const STAND = { shooter: 38, zapper: 42, lobber: 42, slam: 22, aura: 15, roller: 36 };
 
 export class Town {
   constructor() {
-    this.w = 46; this.h = 33;
+    this.w = 40; this.h = 30;
     this.pw = this.w * TILE; this.ph = this.h * TILE;
     this.tiles = new Uint8Array(this.w * this.h);
     this.baked = []; this.bakedTall = []; this.shadows = [];
-    this.objects = []; this.solids = []; this.doors = []; this.ranch = [];
+    this.objects = []; this.solids = []; this.doors = []; this.ranch = []; this.dummies = []; this.trainees = [];
     this.rng = mulberry32(11);
+    this.noiseGrid = Array.from({ length: 64 * 64 }, () => this.rng());
     this.build();
   }
   r() { return this.rng(); }
+  pick(list) { return list[Math.floor(this.r() * list.length)]; }
   tileAt(x, y) { return x >= 0 && y >= 0 && x < this.w && y < this.h ? this.tiles[y * this.w + x] : T.DARK; }
   set(x, y, t) { if (x >= 0 && y >= 0 && x < this.w && y < this.h) this.tiles[y * this.w + x] = t; }
   rect(t, x0, y0, x1, y1) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) this.set(x, y, t); }
   disc(t, cx, cy, r) {
     for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) if (Math.hypot(x - cx, y - cy) <= r) this.set(x, y, t);
+  }
+  // A winding path through the given tile points; half-tile points give a 2-tile-wide path
+  road(t, pts, r = 0.75) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [ax, ay] = pts[i], [bx, by] = pts[i + 1], n = Math.ceil(Math.hypot(bx - ax, by - ay) * 3);
+      for (let k = 0; k <= n; k++) this.disc(t, ax + ((bx - ax) * k) / n, ay + ((by - ay) * k) / n, r);
+    }
+  }
+  // Smooth value noise in 0..1, about 4 tiles per bump
+  noise(x, y) {
+    const fx = x / 4, fy = y / 4, ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+    const v = (a, b) => this.noiseGrid[(b & 63) * 64 + (a & 63)];
+    const s = (t) => t * t * (3 - 2 * t), u = s(tx), w = s(ty);
+    return (v(ix, iy) * (1 - u) + v(ix + 1, iy) * u) * (1 - w) + (v(ix, iy + 1) * (1 - u) + v(ix + 1, iy + 1) * u) * w;
   }
   solid(x, y, w, h) { this.solids.push({ x, y, w, h }); }
   // A prop standing on (x, y) with a small footprint at its base
@@ -52,12 +88,15 @@ export class Town {
     this.objects.push({ spr, x, y, sortY: y, fade });
     if (fw) this.solid(x - fw / 2, y - fh, fw, fh);
   }
-  tree(spr, x, y) { this.prop(spr, x, y, 10, 5, true); this.shadows.push({ x, y: y - 1, rx: 11, ry: 4 }); }
+  tree(spr, x, y) { this.prop(spr, x, y, 10, 5, true); this.shadows.push({ x, y: y - 1, rx: 13, ry: 5 }); }
+  decal(name, x, y) { this.baked.push({ name, pc: PC[name], x: Math.round(x), y: Math.round(y) }); }
 
   building(b) {
     const s = SPR[b.spr], x = b.door[0] * TILE + 8, y = b.door[1] * TILE + 4;
-    this.objects.push({ spr: b.spr, x, y, sortY: y, fade: true });
-    this.shadows.push({ x, y: y - 2, rx: s.w * 0.42, ry: 5 });
+    this.objects.push({ spr: b.spr, img: grounded(s), x, y, sortY: y, fade: true });
+    // a soft shadow round the base, darkest right where the walls meet the ground
+    this.shadows.push({ x, y: y - 2, rx: s.w * 0.52, ry: 8, a: 0.7 });
+    this.shadows.push({ x, y: y - 1, rx: s.w * 0.46, ry: 3, a: 1.1 });
     if (b.id === 'gate') {
       // only the two posts block; past the arch the road runs into the forest
       this.solid(x - s.w / 2 + 2, y - 12, 18, 10);
@@ -69,6 +108,26 @@ export class Town {
     // walls: the lower half of the sprite; the roof above it can hide the hero walking behind
     this.solid(x - s.w * 0.42, y - s.h * 0.5, s.w * 0.84, s.h * 0.5 - 5);
     this.doors.push({ ...b, x, y: y + 4, py: y - 30 });
+    this.skirt(b, x, y, s);
+  }
+  // Ground the building: its yard under it, bushes on its front corners, flowers and tufts along
+  // its base (clear of the door) and its own props round it.
+  skirt(b, x, y, s) {
+    const hw = s.w / 2, [tx, ty] = b.door, th = Math.floor(hw / TILE);
+    if (b.yard !== undefined) { this.rect(b.yard, tx - th, ty - 2, tx + th, ty); this.rect(b.yard, tx - 1, ty + 1, tx + 1, ty + 1); }
+    for (const side of [-1, 1]) {
+      const bx = x + side * (hw - 6 - this.r() * 4);
+      this.prop(this.r() < 0.5 ? 'bush_0' : 'bush_1', bx, y + 3, 0);
+      this.shadows.push({ x: bx, y: y + 2, rx: 8, ry: 3 });
+    }
+    for (let px = x - hw + 4; px < x + hw - 4; px += 4 + this.r() * 6) {
+      if (Math.abs(px - x) < 18) continue;
+      this.decal(this.r() < 0.55 ? this.pick(FLOWERS) : this.pick(['tuft', 'tuft', 'tuft_d']), px - 3, y - 2 + this.r() * 5);
+    }
+    for (const [spr, dx, dy] of DECOR[b.id] || []) {
+      this.prop(spr, x + dx, y + dy, spr === 'town_dummy' || spr === 'hay' ? 10 : 8, 4);
+      this.shadows.push({ x: x + dx, y: y + dy - 1, rx: Math.max(5, (SPR[spr]?.w || 10) * 0.4), ry: 2.5 });
+    }
   }
   fenceRect(x0, y0, x1, y1, gaps = []) {
     const gap = (x, y) => gaps.some(([gx, gy]) => gx === x && gy === y);
@@ -83,14 +142,16 @@ export class Town {
       this.solid(x * TILE + 5, y * TILE, 6, TILE);
     }
   }
-  // Thick forest on every edge; the gap at the gate is left open.
+  // Thick forest on every edge (the gap at the gate is left open). Its shade spills into the town
+  // in ragged patches, so the woods fade into the grass instead of ending in a straight line.
   forest() {
     const kinds = ['tree_dark_0', 'tree_dark_1', 'tree_green_0', 'tree_green_1', 'pine_0', 'pine_1', 'tree_dark_2'];
-    const gateGap = (side, t) => side === 'n' && t >= 20 && t <= 25;
+    const gateGap = (side, t) => side === 'n' && t >= GX - 3 && t <= GX + 2;
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       const e = Math.min(x, y, this.w - 1 - x, this.h - 1 - y);
       const side = y <= 1 ? 'n' : y >= this.h - 2 ? 's' : x <= 1 ? 'w' : 'e';
       if (e <= 1 && !gateGap(side, side === 'n' || side === 's' ? x : y)) this.set(x, y, T.DARK);
+      else if (e <= 3 && this.noise(x, y) > (e === 2 ? 0.42 : 0.66)) this.set(x, y, T.DARK);
     }
     for (let y = -1; y <= this.h + 1; y += 1.15) for (let x = -1; x <= this.w + 1; x += 1.4) {
       const e = Math.min(x, y, this.w - 1 - x, this.h - 1 - y);
@@ -99,74 +160,262 @@ export class Town {
       const t = Math.round(side === 'n' || side === 's' ? x : y);
       if (gateGap(side, t) || gateGap(side, t - 1) || gateGap(side, t + 1)) continue;
       const jx = (x + (this.r() - 0.5) * 0.6) * TILE + 8, jy = (y + (this.r() - 0.5) * 0.4) * TILE + 14;
-      this.objects.push({ spr: kinds[Math.floor(this.r() * kinds.length)], x: jx, y: jy, sortY: jy });
+      this.objects.push({ spr: this.pick(kinds), x: jx, y: jy, sortY: jy });
     }
     const band = 2 * TILE + 6;
-    this.solid(0, 0, 20 * TILE, band); this.solid(26 * TILE, 0, this.pw - 26 * TILE, band);
+    this.solid(0, 0, (GX - 3) * TILE, band); this.solid((GX + 3) * TILE, 0, this.pw - (GX + 3) * TILE, band);
     this.solid(0, 0, band, this.ph); this.solid(this.pw - band, 0, band, this.ph);
     this.solid(0, this.ph - band - 4, this.pw, band + 4);
   }
   flowers(n, x0, y0, x1, y1) {
-    const names = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b', 'tuft', 'tuft', 'tuft_d'];
+    const names = [...FLOWERS, 'tuft', 'tuft', 'tuft', 'tuft_d', 'tuft_d'];
     for (let i = 0; i < n; i++) {
       const tx = x0 + Math.floor(this.r() * (x1 - x0 + 1)), ty = y0 + Math.floor(this.r() * (y1 - y0 + 1));
-      if (this.tileAt(tx, ty) !== T.GRASS) continue;
-      const name = names[Math.floor(this.r() * names.length)];
-      this.baked.push({ name, pc: PC[name], x: tx * TILE + Math.floor(this.r() * 10), y: ty * TILE + Math.floor(this.r() * 10) });
+      const t = this.tileAt(tx, ty);
+      if (t !== T.GRASS && t !== T.BLOSSOM && t !== T.DARK) continue;
+      this.decal(this.pick(names), tx * TILE + Math.floor(this.r() * 10), ty * TILE + Math.floor(this.r() * 10));
     }
   }
 
   build() {
     const at = (tx, ty, dy = 14) => [tx * TILE + 8, ty * TILE + dy];
-    this.disc(T.STONE, 23, 16, 4.7);
-    this.rect(T.DIRT, 22, 0, 23, 12);                                     // north road through the gate
-    this.rect(T.DIRT, 11, 9, 12, 11); this.rect(T.DIRT, 11, 10, 20, 11);  // training hall
-    this.rect(T.DIRT, 4, 9, 5, 11); this.rect(T.DIRT, 4, 10, 11, 11);    // spirit shrine
-    this.rect(T.DIRT, 33, 9, 34, 11); this.rect(T.DIRT, 26, 10, 34, 11);  // workshop
-    this.rect(T.DIRT, 7, 18, 19, 19);                                     // clinic
-    this.rect(T.DIRT, 27, 18, 38, 19);                                    // survidex
-    this.rect(T.DIRT, 27, 15, 32, 16);                                    // merchant
-    this.rect(T.DIRT, 22, 20, 23, 29); this.rect(T.DIRT, 12, 28, 23, 29); this.rect(T.DIRT, 12, 27, 13, 28); // hatchery
-    this.rect(T.DIRT, 24, 24, 28, 25);                                    // ranch gate
     this.forest();
-    this.flowers(170, 2, 2, 43, 30);
-    const [wx, wy] = at(23, 16); this.prop('well', wx, wy, 26, 9);
-    for (const [x, y] of [[19, 12], [28, 12], [18, 20], [29, 20]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 6, 4); }
+    // the roads: north out of the gate, round the square, and a path to every door
+    this.road(T.DIRT, [[GX, 0], [GX, 9]], 1);
+    this.road(T.DIRT, [[16.5, 10.5], [14.5, 9.5], [13, 9]]);                      // Training Hall
+    this.road(T.DIRT, [[13, 10.5], [9.5, 10.5], [6.5, 10]]);                       // on to the Spirit Shrine
+    this.road(T.DIRT, [[23.5, 10.5], [25.5, 9.5], [27, 9]]);                       // Workshop
+    this.road(T.DIRT, [[16.5, 15.5], [12.5, 16.5], [7.5, 17]]);                    // Clinic
+    this.road(T.DIRT, [[24, 15.5], [30, 16.5], [34, 16]]);                         // Survidex
+    this.road(T.DIRT, [[GX + 0.5, 17], [GX, 20.5], [17, 22], [14, 23.5], [11, 24]]); // Hatchery
+    this.road(T.DIRT, [[GX, 20.5], [22.5, 21.5]]);                                 // Ranch gate
+    this.disc(T.STONE, GX, 13, 4.2);                                                // the square
+    this.rect(T.STONE, 25, 14, 30, 15);                                             // the market stall's paving
+    // a pond in the south with lily pads on it
+    this.disc(T.WATER, 20.5, 25, 1.7);
+    for (const [x, y] of [[19.5, 24.3], [21.2, 25.1], [20.1, 25.8]]) this.decal(this.pick(['lily_0', 'lily_1', 'lily_2']), x * TILE, y * TILE);
+    this.solid(19 * TILE + 2, 23.6 * TILE + 4, 4 * TILE - 4, 3 * TILE - 4);
     for (const b of BUILDINGS) if (SPR[b.spr]) this.building(b);
-    this.prop('town_dummy', 17 * TILE, 8 * TILE + 12, 10, 5);
-    this.prop('town_dummy', 18 * TILE + 8, 9 * TILE + 6, 10, 5);
-    for (const [s, x, y] of [['crate', 38, 9], ['barrel', 39, 10], ['crate', 39, 8]]) { const [px, py] = at(x, y); this.prop(s, px, py, 12, 6); }
-    // Ranch: the pasture where every survivalmon you own roams
-    this.fenceRect(28, 21, 42, 28, [[28, 24], [28, 25]]);
-    this.pasture = { x0: 29 * TILE + 4, y0: 22 * TILE + 8, x1: 42 * TILE - 4, y1: 28 * TILE + 2 };
-    this.prop('sign', 27 * TILE + 4, 23 * TILE + 14, 8, 4);
-    this.doors.push({ id: 'ranch', name: 'Ranch', always: true, x: 28 * TILE, y: 25 * TILE, py: 23 * TILE });
-    this.nests = [[16, 27.6], [17.2, 28], [18.4, 27.6]].map(([x, y]) => ({ x: x * TILE, y: y * TILE }));
-    this.prop('hay', 40 * TILE + 8, 22 * TILE + 14, 16, 6); this.prop('hay', 41 * TILE, 26 * TILE + 14, 16, 6);
-    for (const [s, x, y] of [['tree_autumn_0', 41, 5], ['tree_pink_1', 4, 26], ['tree_green_1', 20, 30.4]]) { const [px, py] = at(x, y); this.tree(s, px, py); }
-    this.spawn = { x: 23 * TILE + 8, y: 21 * TILE };
-    this.gateSpawn = { x: 23 * TILE + 8, y: 9 * TILE + 4 };
+    // the square: the well in the middle and a lamp at each corner
+    const [wx, wy] = at(GX, 13); this.prop('well', wx, wy, 26, 9);
+    this.shadows.push({ x: wx, y: wy - 2, rx: 16, ry: 5 });
+    for (const [x, y] of [[16, 9.6], [24.6, 9.6], [15.6, 17], [25, 17]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 6, 4); }
+    // Ranch: the pasture where every survivalmon you own roams, with the training dummies on its east side
+    this.fenceRect(23, 18, 36, 26, [[23, 21], [23, 22]]);
+    this.pasture = { x0: 24 * TILE + 4, y0: 19 * TILE + 8, x1: 36 * TILE - 4, y1: 26 * TILE + 2 };
+    this.prop('sign', 22 * TILE + 4, 20 * TILE + 14, 8, 4);
+    this.doors.push({ id: 'ranch', name: 'Ranch', always: true, x: 23 * TILE, y: 22 * TILE, py: 20 * TILE });
+    for (const [x, y] of [[24.9, 25.6], [26, 25.8]]) this.prop('hay', x * TILE, y * TILE, 16, 6);
+    this.nests = [[15.4, 23.3], [16.6, 23.7], [17.8, 23.3]].map(([x, y]) => ({ x: x * TILE, y: y * TILE }));
+    // trees in the gaps behind the buildings, and a few in the open
+    for (const [s, x, y] of [
+      ['tree_green_0', 9.6, 6.6], ['tree_dark_0', 16.9, 6.1], ['tree_green_1', 24.1, 6.1], ['tree_autumn_0', 31.6, 5.6],
+      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 37, 15.6],
+      ['tree_pink_0', 17.2, 27], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 6.4, 26.6],
+    ]) this.tree(s, x * TILE, y * TILE);
+    for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19]]) {
+      this.prop(s, x * TILE, y * TILE, 8, 4); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 });
+    }
+    this.flowers(150, 2, 2, this.w - 3, this.h - 3);
+    // a flower meadow round the Hatchery
+    for (let i = 0; i < 26; i++) {
+      const a = this.r() * TAU, d = 52 + this.r() * 26, x = 11 * TILE + 8 + Math.cos(a) * d, y = 22 * TILE + Math.sin(a) * d * 0.6;
+      const t = this.tileAt(Math.floor(x / TILE), Math.floor(y / TILE));
+      if (t === T.GRASS || t === T.DARK) this.decal(this.pick(['flower_p', 'flower_w', 'flower_p', 'flower_y', 'flower_b']), x, y);
+    }
+    this.spawn = { x: GX * TILE + 8, y: 18.5 * TILE };
+    this.gateSpawn = { x: GX * TILE + 8, y: 9 * TILE + 4 };
   }
 
-  // Survivalmons that aren't in the team wander the pasture.
-  fillRanch(mons) {
-    const R = this.pasture;
-    this.ranch = mons.slice(0, RANCH_MAX).map((m) => ({
-      species: m.species, x: rand(R.x0, R.x1), y: rand(R.y0, R.y1), tx: rand(R.x0, R.x1), ty: rand(R.y0, R.y1),
-      wait: rand(0, 3), left: Math.random() < 0.5, seed: rand(0, 10), moving: false,
-    }));
+  // ---------------------------------------------------------------- the Ranch
+  // Where training spot i is: two dummies back to back on each row, with their trainees facing
+  // them from either side (face: which way the trainee looks)
+  dummyAt(i) {
+    const col = i % 2, row = i >> 1;
+    return { x: (col ? 31.4 : 28.4) * TILE, y: 20.2 * TILE + row * 28, face: col ? -1 : 1, hitT: 0 };
   }
-  updateRanch(dt) {
+  // Survivalmons that aren't in the team live at the Ranch: those in training hit a dummy each,
+  // the rest wander the pasture. Returns true when the ground under the dummies changed.
+  fillRanch(mons) {
+    const spots = Math.min(SPOTS_MAX, Box.trainSpots());
+    const dirt = spots !== this.yardSpots;
+    if (dirt) {
+      // a patch of worn dirt under each dummy and its trainee
+      this.yardSpots = spots;
+      for (let i = 0; i < SPOTS_MAX; i++) {
+        const d = this.dummyAt(i), tx = Math.floor(d.x / TILE), ty = Math.floor(d.y / TILE);
+        this.rect(i < spots ? T.DIRT : T.GRASS, d.face > 0 ? tx - 2 : tx, ty, d.face > 0 ? tx : tx + 2, ty);
+      }
+    }
+    this.dummies = Array.from({ length: spots }, (_, i) => this.dummyAt(i));
+    const training = mons.filter((m) => Box.isTraining(m.id)).slice(0, spots);
+    this.trainees = training.map((m, i) => trainee(m, this.dummies[i]));
+    // each roaming survivalmon keeps to one stretch of free grass, so it never walks through the dummies
+    const free = this.freeGround(), area = (r) => (r.x1 - r.x0) * (r.y1 - r.y0), total = free.reduce((n, r) => n + area(r), 0);
+    const home = () => { let k = Math.random() * total; for (const r of free) if ((k -= area(r)) <= 0) return r; return free[0]; };
+    this.ranch = mons.filter((m) => !training.includes(m)).slice(0, RANCH_MAX).map((m) => {
+      const r = home(), spot = () => [rand(r.x0, r.x1), rand(r.y0, r.y1)];
+      const [x, y] = spot(), [tx, ty] = spot();
+      return { species: m.species, x, y, tx, ty, spot, wait: rand(0, 3), left: Math.random() < 0.5, seed: rand(0, 10), moving: false };
+    });
+    return dirt;
+  }
+  // The pasture's grass round the training dummies, as rectangles: below them, west and east of them
+  freeGround() {
     const R = this.pasture;
+    if (!this.dummies.length) return [R];
+    const xs = this.dummies.map((d) => d.x), ys = this.dummies.map((d) => d.y);
+    const Y = { x0: Math.min(...xs) - 58, x1: Math.max(...xs) + 58, y1: Math.max(...ys) + 12 };
+    const out = [{ x0: R.x0, y0: Y.y1, x1: R.x1, y1: R.y1 }, { x0: R.x0, y0: R.y0, x1: Y.x0, y1: R.y1 }, { x0: Y.x1, y0: R.y0, x1: R.x1, y1: R.y1 }]
+      .filter((r) => r.x1 - r.x0 >= 14 && r.y1 - r.y0 >= 14);
+    return out.length ? out : [R];
+  }
+  updateRanch(dt, g) {
     for (const m of this.ranch) {
       if (m.wait > 0) { m.wait -= dt; m.moving = false; continue; }
       const dx = m.tx - m.x, dy = m.ty - m.y, d = Math.hypot(dx, dy);
-      if (d < 2) { m.wait = rand(1.5, 5); m.tx = rand(R.x0, R.x1); m.ty = rand(R.y0, R.y1); m.moving = false; continue; }
+      if (d < 2) { m.wait = rand(1.5, 5); [m.tx, m.ty] = m.spot(); m.moving = false; continue; }
       m.x += (dx / d) * 18 * dt; m.y += (dy / d) * 18 * dt;
       m.moving = true;
       if (Math.abs(dx) > 1) m.left = dx < 0;
     }
+    for (const d of this.dummies) d.hitT = Math.max(0, d.hitT - dt);
+    for (const t of this.trainees) trainStep(t, dt, g);
   }
+}
+
+// ---------------------------------------------------------------- training at the dummies
+// A survivalmon in training stands by its dummy and hits it with its own attack, over and over.
+function trainee(mon, d) {
+  const skill = mon.skills.find((s) => s.k === 'u' && SPECIES[s.sp]);
+  const sp = SPECIES[skill?.sp] || SPECIES[mon.species], arch = sp.arch || 'shooter';
+  return {
+    mon, species: mon.species, arch, fx: attackFx(sp.id || skill?.sp || mon.species), q: sp.q || {}, d,
+    x: d.x - d.face * (STAND[arch] || 36), y: d.y + 1, cd: rand(0.4, 1.6), n: 0, seed: rand(0, 10),
+    atkT: -1, shot: null, dash: 0,
+  };
+}
+function hitDummy(t, g) {
+  const d = t.d;
+  d.hitT = 0.4;
+  g.particles.burst(d.x, d.y - 14, { n: 7, colors: [t.fx.color || '#ffffff', '#ffffff'], speed: 45, life: 0.35, up: 10 });
+}
+function trainStep(t, dt, g) {
+  const d = t.d, fx = t.fx;
+  if (t.atkT >= 0) { t.atkT += dt; if (t.atkT * ANIM_FPS.attack >= 8) t.atkT = -1; }
+  if (t.hop > 0) t.hop = Math.max(0, t.hop - dt);
+  if (t.shot) {
+    t.shot.t += dt;
+    if (t.shot.t >= t.shot.dur) {
+      if (t.shot.zone) g.playFx(t.shot.zone, d.x, d.y, { life: 0.7 });
+      t.shot = null; hitDummy(t, g);
+    }
+  }
+  if (t.dash > 0) {
+    const was = t.dash;
+    t.dash = Math.max(0, t.dash - dt);
+    if (was > 0.4 && t.dash <= 0.4) hitDummy(t, g); // the charge reaches the dummy
+  }
+  t.cd -= dt;
+  if (t.cd > 0) return;
+  t.cd = rand(1.7, 2.6); t.n++;
+  if (CREATURE[t.species]?.anim?.attack) t.atkT = 0;
+  const f = d.face, mx = t.x + 6 * f, my = t.y - 6;
+  // an evolution shows off its signature move now and then
+  if (fx.sig && t.n % 3 === 0) {
+    g.playFx(fx.sig, d.x, d.y, { scale: 0.7 });
+    g.after(vfxHitTime(fx.sig), () => hitDummy(t, g));
+    return;
+  }
+  switch (t.arch) {
+    case 'shooter':
+      t.shot = { t: 0, dur: Math.abs(d.x - mx) / Math.max(120, t.q.speed || 150), proj: fx.proj, spr: t.q.proj, scale: fx.scale };
+      break;
+    case 'zapper':
+      g.zap([[mx, my + 4], [d.x, d.y - 4]], 0.22, fx.bolt);
+      if (fx.hit) g.playFx(fx.hit, d.x, d.y - 12);
+      hitDummy(t, g);
+      break;
+    case 'lobber':
+      t.shot = { t: 0, dur: 0.5, arc: 18, glob: fx.glob, zone: fx.zone, color: fx.color };
+      break;
+    case 'slam':
+      if (fx.slam) g.playFx(fx.slam, d.x - 6 * f, d.y, { scale: 0.8 });
+      else g.addEffect({ type: 'ring', x: d.x - 6 * f, y: d.y, R: 16, life: 0.35, color: fx.color || '#ffffff' });
+      t.hop = 0.25;
+      hitDummy(t, g);
+      break;
+    case 'aura':
+      g.addEffect({ type: 'ring', x: t.x, y: t.y, R: STAND.aura + 8, life: 0.45, color: fx.color || '#ffffff' });
+      hitDummy(t, g);
+      break;
+    case 'roller':
+      t.dash = 0.6;
+      break;
+  }
+}
+// Where a trainee stands right now (a charger rushes at its dummy and back)
+function traineePos(t) {
+  if (t.dash > 0) {
+    const reach = t.d.x - 10 * t.d.face - t.x, k = t.dash > 0.4 ? 1 - (t.dash - 0.4) / 0.2 : t.dash / 0.4;
+    return [t.x + reach * k, t.y];
+  }
+  return [t.x, t.y];
+}
+function drawTrainee(ctx, t, cam, now) {
+  const a = CREATURE[t.species];
+  if (!a) return;
+  const [px, py] = traineePos(t), x = snap(px) - cam.x, y = snap(py) - cam.y;
+  ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
+  ctx.beginPath(); ctx.ellipse(x, y, Math.max(5, a.cw * 0.34), Math.max(2, a.cw * 0.12), 0, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+  const o = { left: t.d.face < 0, ...creatureMotion(a.motion, now, t.dash > 0, t.seed, !!a.anim), at: now + t.seed };
+  if (t.atkT >= 0 && a.anim?.attack) { o.anim = 'attack'; o.frame = Math.floor(t.atkT * ANIM_FPS.attack); }
+  else o.anim = a.motion === 'fly' || t.dash > 0 ? 'move' : 'idle';
+  if (t.hop > 0) o.bob = (o.bob || 0) + Math.sin((t.hop / 0.25) * Math.PI) * 5;
+  drawCreature(ctx, a, x, y, o);
+}
+// The shot (or lobbed blob) on its way to the dummy
+function drawShot(ctx, t, cam, now) {
+  const s = t.shot;
+  if (!s) return;
+  const k = Math.min(1, s.t / s.dur), x0 = t.x + 6 * t.d.face, y0 = t.y - 8, x1 = t.d.x - 2 * t.d.face, y1 = t.d.y - 14;
+  const x = x0 + (x1 - x0) * k - cam.x, y = y0 + (y1 - y0) * k - Math.sin(k * Math.PI) * (s.arc || 0) - cam.y;
+  if (s.proj) drawVfx(ctx, s.proj, now, x, y, { scale: s.scale, rot: t.d.face < 0 ? Math.PI : 0 });
+  else if (s.glob) drawVfx(ctx, s.glob, now, x, y);
+  else if (s.spr && SPR[s.spr]) { const p = SPR[s.spr]; ctx.drawImage(p.frames[0], snap(x - p.ax), snap(y - p.ay), p.w, p.h); }
+  else { ctx.fillStyle = s.color || t.fx.color || '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, TAU); ctx.fill(); }
+}
+function drawDummy(ctx, d, cam) {
+  const s = SPR.town_dummy;
+  if (!s) return;
+  const x = snap(d.x - cam.x), y = snap(d.y - cam.y);
+  ctx.globalAlpha = 0.25; ctx.fillStyle = '#1a2a10';
+  ctx.beginPath(); ctx.ellipse(x, y - 1, 7, 2.5, 0, 0, TAU); ctx.fill();
+  ctx.globalAlpha = 1;
+  // a hit rocks it on its post
+  const tilt = d.hitT > 0 ? Math.sin(d.hitT * 34) * 0.22 * (d.hitT / 0.4) : 0;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+  ctx.drawImage(s.frames[0], -s.ax, -s.ay, s.w, s.h);
+  ctx.restore();
+}
+
+// A building drawn a little darker towards its base, as if the ground and grass round it shade it
+const groundedCache = new Map();
+function grounded(s) {
+  const src = s.frames[0];
+  if (groundedCache.has(src)) return groundedCache.get(src);
+  const c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  const g = c.getContext('2d');
+  g.drawImage(src, 0, 0);
+  g.globalCompositeOperation = 'source-atop';
+  const grad = g.createLinearGradient(0, c.height * 0.72, 0, c.height);
+  grad.addColorStop(0, 'rgba(26,40,18,0)');
+  grad.addColorStop(1, 'rgba(26,40,18,0.32)');
+  g.fillStyle = grad; g.fillRect(0, 0, c.width, c.height);
+  groundedCache.set(src, c);
+  return c;
 }
 
 // ---------------------------------------------------------------- Game methods for town mode
@@ -176,7 +425,6 @@ export const TownMode = {
       this.town = new Town();
       const tg = this.tileGround;
       this.townGround = tg ? new TileGround(tg.cfg, tg.sheets, tg.grass) : null;
-      this.townGround?.attach(this.town);
     }
     Audio.stopMusic();
     this.resetRunState();
@@ -186,10 +434,18 @@ export const TownMode = {
     P.x = at.x; P.y = at.y; P.dir = 'down'; P.faceAngle = Math.PI / 2;
     for (const mon of Box.team()) P.pets.push(new Pet(this, mon));
     P.pets.forEach((pet, i) => { pet.x = P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)); pet.y = P.y + 6; });
-    this.town.fillRanch(Box.mons.filter((m) => !Box.inTeam(m.id)));
+    this.fillTownRanch();
+    this.townGround?.attach(this.town);
     this.snapCamera();
     this.ui.showTown();
     this.townArrival();
+  },
+  // The Ranch shows every survivalmon that isn't walking with you; redraws the ground when the
+  // number of training dummies changed.
+  fillTownRanch() {
+    const resting = Box.mons.filter((m) => !Box.inTeam(m.id));
+    this.ranchKey = ranchKey(resting);
+    if (this.town.fillRanch(resting)) this.townGround?.attach(this.town);
   },
   // Bring the survivalmons walking with you in line with the box, every time the town view comes
   // back: healed at the Clinic, trained, evolved or swapped in the team, they show it right away.
@@ -211,8 +467,7 @@ export const TownMode = {
     });
     P.pets.length = 0; P.pets.push(...pets);
     const resting = Box.mons.filter((m) => !Box.inTeam(m.id));
-    const key = resting.map((m) => `${m.id}:${m.species}`).join();
-    if (key !== this.ranchKey) { this.ranchKey = key; this.town.fillRanch(resting); }
+    if (ranchKey(resting) !== this.ranchKey) this.fillTownRanch();
   },
   // "Run again" from the end screen: hatches, unlocks and research are checked first.
   runAgain() {
@@ -235,7 +490,7 @@ export const TownMode = {
     for (const [h, ok] of Object.entries(heroUnlocks)) if (ok && Meta.unlockHero(h)) notes.push(`New hero: ${h[0].toUpperCase() + h.slice(1)}! Pick them at Enter the Wild.`);
     const show = () => { for (const n of notes) this.toast(n); this.ui.showTown(); };
     if (hatched.length) {
-      this.town.fillRanch(Box.mons.filter((m) => !Box.inTeam(m.id)));
+      this.fillTownRanch();
       const P = this.player;
       for (const mon of hatched) if (Box.inTeam(mon.id) && !P.pets.some((p) => p.mon === mon)) { const pet = new Pet(this, mon); pet.x = P.x; pet.y = P.y + 8; P.pets.push(pet); }
       this.ui.showHatched(hatched, show);
@@ -246,7 +501,8 @@ export const TownMode = {
     const P = this.player, town = this.town;
     P.update(dt, town.solids);
     P.pets.forEach((p, i) => p.update(dt, i, true));
-    town.updateRanch(dt);
+    town.updateRanch(dt, this);
+    this.updateEffects(dt);
     this.particles.update(dt);
     this.followCamera(dt);
     let near = null, bd = 22 * 22;
@@ -270,7 +526,7 @@ export const TownMode = {
   },
 
   renderTown() {
-    const ctx = this.ctx, V = this.view, town = this.town, P = this.player;
+    const ctx = this.ctx, V = this.view, town = this.town, P = this.player, now = this.realTime;
     const cam = this.renderCam();
     ctx.fillStyle = '#245f2b'; ctx.fillRect(0, 0, V.w, V.h);
     this.townGround?.draw(ctx, cam, V);
@@ -282,6 +538,8 @@ export const TownMode = {
       list.push({ y: o.sortY, o, s, left, top });
     }
     for (const m of town.ranch) list.push({ y: m.y, m });
+    for (const d of town.dummies) list.push({ y: d.y, dummy: d });
+    for (const t of town.trainees) list.push({ y: t.y, trainee: t });
     Box.eggs.forEach((e, i) => { const n = town.nests[i]; if (n) list.push({ y: n.y, egg: e, n }); });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
     list.push({ y: P.y, hero: P });
@@ -291,7 +549,7 @@ export const TownMode = {
         // see the hero through a roof or tree he walks behind
         const behind = it.o.fade && P.y < it.o.sortY - 1 && P.y > it.top + 6 && P.x > it.left + 3 && P.x < it.left + it.s.w - 3;
         ctx.globalAlpha = behind ? 0.55 : 1;
-        ctx.drawImage(it.s.frames[0], snap(it.left - cam.x), snap(it.top - cam.y), it.s.w, it.s.h);
+        ctx.drawImage(it.o.img || it.s.frames[0], snap(it.left - cam.x), snap(it.top - cam.y), it.s.w, it.s.h);
         ctx.globalAlpha = 1;
       } else if (it.m) {
         const m = it.m, a = CREATURE[m.species];
@@ -300,17 +558,23 @@ export const TownMode = {
         ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
         ctx.beginPath(); ctx.ellipse(x, y, Math.max(5, a.cw * 0.34), Math.max(2, a.cw * 0.12), 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
-        drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, this.realTime, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: this.realTime + m.seed });
-      } else if (it.egg) {
+        drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, now, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: now + m.seed });
+      } else if (it.dummy) drawDummy(ctx, it.dummy, cam);
+      else if (it.trainee) drawTrainee(ctx, it.trainee, cam, now);
+      else if (it.egg) {
         // the egg's own patterned shell (32px art at 16 logical px; its bottom row is 30)
         const art = eggCanvas(it.egg.species), x = snap(it.n.x - cam.x), y = snap(it.n.y - cam.y), n = EGG_SIZE / WS;
-        const wob = it.egg.progress >= it.egg.need ? Math.sin(this.realTime * 12) * 0.6 : 0;
+        const wob = it.egg.progress >= it.egg.need ? Math.sin(now * 12) * 0.6 : 0;
         if (art) ctx.drawImage(art, x - n / 2 + wob, y - 30 / WS, n, n);
         ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 6, y + 1, 12, 3);
         ctx.fillStyle = '#ffd84a'; ctx.fillRect(x - 5, y + 2, Math.round(10 * it.egg.progress / it.egg.need), 1);
       } else if (it.pet) it.pet.draw(ctx, cam);
       else it.hero.draw(ctx, cam);
     }
+    for (const t of town.trainees) drawShot(ctx, t, cam, now);
+    this.drawEffects(ctx, cam);
     this.particles.draw(ctx, cam);
   },
 };
+// What the Ranch shows depends on who rests there, who trains and how many dummies there are
+const ranchKey = (resting) => `${resting.map((m) => `${m.id}:${m.species}${Box.isTraining(m.id) ? 't' : ''}`).join()}|${Box.trainSpots()}`;

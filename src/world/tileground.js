@@ -90,12 +90,16 @@ export class TileGround {
       if (art) g.drawImage(art.img, Math.round(d.x - ox), Math.round(d.y - oy), art.w, art.h);
       else { d.cv = d.cv || d.pc.toCanvas(); g.drawImage(d.cv, Math.round(d.x - ox), Math.round(d.y - oy)); }
     }
-    // 4) soft shadows under trees and buildings
+    // 4) soft shadows under trees and buildings (a: how dark, 1 = normal)
     g.fillStyle = 'rgba(20,40,10,0.22)';
     for (const s of shadows) {
       if (!near(s.x, s.y, s.rx + 2)) continue;
+      g.globalAlpha = Math.min(1, s.a ?? 1);
+      if (s.a > 1) g.fillStyle = `rgba(20,40,10,${(0.22 * s.a).toFixed(3)})`;
       g.beginPath(); g.ellipse(s.x - ox, s.y - oy, s.rx, s.ry, 0, 0, Math.PI * 2); g.fill();
+      g.fillStyle = 'rgba(20,40,10,0.22)';
     }
+    g.globalAlpha = 1;
     // 5) the border forest is baked in (it can never be walked behind)
     for (const it of tall) {
       const s = SPR[it.spr];

@@ -51,11 +51,16 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 
 ## Town
 
+- A small village in a forest clearing: the buildings stand close round the square, each on its own
+  yard (dirt, gravel or cobbles) with bushes and flowers along its base and trees in the gaps behind it.
+  A pond sits in the south and the woods' shade spills into the edges of the town.
 - Walk with WASD / arrows or the joystick; stand at a door and press **E** (or tap **!**).
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
 - **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00).
-- **Ranch**: every survivalmon you own roams the pasture. Train them (they gain EXP while you're away),
-  free copies for species coins, and spend those on species upgrades.
+- **Ranch**: every survivalmon you own roams the pasture. Train them (they gain EXP while you're away):
+  each training spot has a dummy on the pasture's east side, and a survivalmon in training stands by it
+  and hits it with its own attack (shots, lightning, lobbed blobs, slams, auras, charges; evolutions use
+  their signature move now and then). Free copies for species coins, and spend those on species upgrades.
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
   used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
@@ -140,7 +145,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/world/tileground.js` — draws the ground from the tilesets (autotiled terrain edges, cached in chunks).
 - `src/gfx/` (other files) — the original code-drawn sprites, used only if a PNG is missing, plus effects.
 - `src/content/species.js` — every critter: stats, skills, catch rate, evolution; `src/systems/collection.js` — the saved Ranch (all your survivalmons and the team).
-- `src/world/town.js` — the town map, its doors and collision; `src/ui/town_ui.js`, `mons_ui.js`, `shop_ui.js` — the town screens.
+- `src/world/town.js` — the town map (layout, yards, decor), its doors and collision, and the Ranch (roaming and
+  training at the dummies); `src/ui/town_ui.js`, `mons_ui.js`, `shop_ui.js` — the town screens.
 - `src/systems/meta.js` — coins, materials, Training Hall, building levels, heroes and gear; `src/systems/shrine.js` — the Spirit Shrine.
 - `src/content/skills.js` — skill tiers and passives; `gear.js` — hero boosts, unlocks and gear; `buildings.js` — building levels and Merchant items.
 - `src/world/` — map generation, ground painter, house interiors, collision, monster pathing.
