@@ -150,7 +150,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   `src/ui/card_preview.js` — the "now → after" rows on each card;
   `src/systems/armor.js` — how armor cuts damage.
 - `assets/sprites/icons/up_*.png`, `team_*.png` and `atk_*.png` — the upgrade icons (hero upgrades, team upgrades) and the 4 attack type icons.
-- `icons/app-*.png` — the app icon (Rowan hugging Emberpup; `app-art.png` is the 128px original, the rest are sizes of it).
+- `icons/trio-*.png` — the app icon (Emberpup, Leafkit and Puddlit together; `trio-art.png` is the 128px original, the rest are sizes of it). The file names change with each new icon, so installed apps notice it.
 - `index.html` — also holds the loading screen (shown until all the art has loaded; `src/gfx/art.js` counts the images).
 - `tools/bot.js` plays whole careers from a fresh save; `tools/sim.js` plays one run with a chosen loadout
   (Training levels, team) and reports survival, damage by hero and by survivalmons, and faints. Use them
