@@ -191,6 +191,29 @@ export const TownMode = {
     this.ui.showTown();
     this.townArrival();
   },
+  // Bring the survivalmons walking with you in line with the box, every time the town view comes
+  // back: healed at the Clinic, trained, evolved or swapped in the team, they show it right away.
+  syncTownPets() {
+    const P = this.player;
+    if (this.mode !== 'town' || !P) return;
+    const old = new Map(P.pets.map((p) => [p.mon, p]));
+    const pets = Box.team().map((mon) => {
+      let pet = old.get(mon);
+      if (!pet) { pet = new Pet(this, mon); pet.x = P.x; pet.y = P.y + 8; return pet; }
+      pet.refresh();
+      const hp = pet.maxHp * (mon.hp ?? 1);
+      if (hp > 0 && pet.fainted) {
+        pet.fainted = false; pet.faintT = 0; pet.state = 'follow';
+        this.particles.burst(pet.x, pet.y - 8, { n: 14, colors: ['#9af08a', '#ffffff'], speed: 50, life: 0.5, up: 20 });
+      } else if (hp <= 0 && !pet.fainted) { pet.fainted = true; pet.faintT = 99; pet.atkT = -1; }
+      pet.hp = hp;
+      return pet;
+    });
+    P.pets.length = 0; P.pets.push(...pets);
+    const resting = Box.mons.filter((m) => !Box.inTeam(m.id));
+    const key = resting.map((m) => `${m.id}:${m.species}`).join();
+    if (key !== this.ranchKey) { this.ranchKey = key; this.town.fillRanch(resting); }
+  },
   // "Run again" from the end screen: hatches, unlocks and research are checked first.
   runAgain() {
     const hatching = Box.eggs.some((e) => e.progress >= e.need);

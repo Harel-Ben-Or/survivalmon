@@ -22,6 +22,7 @@ export const TownUI = {
     this.hideScreens();
     this.screen = 'town';
     this.g.modal = null;
+    this.g.syncTownPets?.();
     document.body.classList.add('in-town');
     const team = Box.team().map((m) => `<span class="t-mon ${m.hp <= 0 ? 'fainted' : ''}" title="${esc(SPECIES[m.species].name)}"><img class="px" src="${artURL('creature', m.species) || icon('egg', 2)}" alt=""><b>${m.level}</b></span>`).join('');
     this.el.hud.innerHTML = `
