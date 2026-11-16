@@ -114,6 +114,7 @@ export class Game {
 
   resetRunState() {
     this.enemies = []; this.projectiles = []; this.zones = []; this.effects = []; this.timers = [];
+    this.shakeT = 0; this.shakeAmt = 0;
     this.pickups = []; this.pickupCount = { xp: 0 };
     this.particles.clear();
     this.boss = null;
@@ -258,6 +259,7 @@ export class Game {
     const P = this.player, won = kind === 'won';
     if (this.mode === 'house') { P.x = P.worldX; P.y = P.worldY; this.ui.setPaused(false); this.snapCamera(); }
     this.mode = 'end'; this.modal = null; this.endWon = won;
+    this.timers = []; this.shakeT = 0; // attacks still on their way don't land (or shake) after the run
     const hurt = Box.afterRun(P.pets, 0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest'));
     if (hurt && Meta.unlock('clinic')) this.unlockNote = 'The Clinic is open: heal your hurt survivalmons there.';
     Box.warmEggs(this.time * this.hatchMult());
@@ -308,6 +310,7 @@ export class Game {
   // ------------------------------------------------------------ update
   update(dt) {
     this.realTime += dt;
+    this.shakeT = Math.max(0, this.shakeT - dt); // in every mode, so a shake can never get stuck on
     this.checkOrientation();
     if (Input.wasPressed('KeyM')) { const m = Audio.toggleMute(); this.toast(m ? 'Sound off' : 'Sound on'); }
     if (this.mode === 'world' || this.mode === 'house') {
@@ -357,7 +360,6 @@ export class Game {
     this.particles.update(dt);
     if (this.boss && this.boss.dead) this.boss = null;
     this.followCamera(dt);
-    this.shakeT = Math.max(0, this.shakeT - dt);
     if (this.mode !== 'world') return;
 
     // berry bushes drop berries the first time you brush past them
