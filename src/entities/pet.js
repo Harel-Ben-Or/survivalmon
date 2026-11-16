@@ -65,7 +65,7 @@ export class Pet {
   get team() { return this.g.team || TEAM0; }
   get name() { return this.sp.name; }
   get power() {
-    return (1 + 0.1 * (this.mon.level - 1)) * (1 + 0.04 * (this.g.player.level - 1)) * Box.speciesMul(this.species) * (1 + this.team.dmg + (this.g.cry || 0));
+    return (1 + 0.08 * (this.mon.level - 1)) * (1 + 0.02 * (this.g.player.level - 1)) * Box.speciesMul(this.species) * (1 + this.team.dmg + (this.g.cry || 0));
   }
   // Added to the hero's stats while this survivalmon is on the team
   passives() {
@@ -409,11 +409,13 @@ export function landSig(pet, g, id, x, y, R, dmg, q, then) {
 }
 
 // Lightning that jumps from one foe to the next nearest it hasn't hit yet, in the breed's colours.
+// Each jump hits 15% softer than the one before.
 function chain(g, pet, first, n, dmg, extra, fx = {}, pts = [[first.x, first.y]], seen = new Set()) {
   let cur = first;
   while (cur && n-- > 0) {
     seen.add(cur.id); pts.push([cur.x, cur.y]);
     g.damageEnemy(cur, dmg, { pet: true, petRef: pet, element: 'light', ...extra });
+    dmg *= 0.85;
     if (fx.hit) g.playFx(fx.hit, cur.x, cur.y - 6);
     const from = cur;
     cur = g.nearestEnemy(from.x, from.y, 80, (o) => !seen.has(o.id));

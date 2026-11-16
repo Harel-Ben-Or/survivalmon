@@ -14,7 +14,7 @@ const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unl
 export const TRAINING = [
   { id: 'runtime', name: 'Run time', icon: 'up_runtime', max: 18, base: 5, desc: (L) => `${fmtTime(runLengthAt(L))} per run` },
   { id: 'maxHp', name: 'Max HP', icon: 'up_hp', max: 30, base: 6, desc: (L) => `+${L * 10} max HP`, mods: (L) => ({ maxHp: L * 10 }) },
-  { id: 'might', name: 'Damage', icon: 'up_damage', max: 30, base: 8, desc: (L) => `+${L * 5}% damage for your hero and survivalmons`, mods: (L) => ({ might: L * 0.05, petPower: L * 0.05 }) },
+  { id: 'might', name: 'Damage', icon: 'up_damage', max: 30, base: 8, desc: (L) => `+${L * 5}% damage for your hero, +${L * 3}% for your survivalmons`, mods: (L) => ({ might: L * 0.05, petPower: L * 0.03 }) },
   { id: 'speed', name: 'Move speed', icon: 'up_speed', max: 15, base: 8, desc: (L) => `+${L * 3}% move speed`, mods: (L) => ({ speed: L * 0.03 }) },
   { id: 'haste', name: 'Attack speed', icon: 'up_haste', max: 15, base: 10, desc: (L) => `-${L * 3}% weapon cooldowns`, mods: (L) => ({ haste: L * 0.03 }) },
   { id: 'magnet', name: 'Pickup range', icon: 'up_magnet', max: 15, base: 6, desc: (L) => `+${L * 10}% pickup range`, mods: (L) => ({ magnet: L * 0.1 }) },

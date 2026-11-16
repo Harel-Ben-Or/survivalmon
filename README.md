@@ -16,15 +16,17 @@ with the Blight: defeat it to free it, and it joins you.
 
 Runs are **mons-first**: your hero fights with their two weapons (main hand and off hand from their
 gear), and your **survivalmons** do the rest with their own skills. Level-ups take turns: even
-levels (2, 4, 6…) upgrade your **team** (team damage, attack speed, defense, max HP, a full heal, or
-one of a survivalmon's skills going up a tier for that run) and odd levels upgrade your **hero** (HP,
-damage, speed, armor…, or a weapon). The EXP bar's colour and label show which comes next. Houses
-(the clock stops inside!) and chests give coins, berries, materials, eggs, evolution stones, gear and
-**bonus picks** (an extra upgrade for either side; always in gold chests and from bosses).
+levels (2, 4, 6…) upgrade your **team** (team damage, attack speed, defense, max HP or a full heal) and
+odd levels upgrade your **hero** (HP, damage, speed, armor…, or a weapon). Every card shows the stat
+now and after you pick it ("Crit chance 9% → 13%", or "Hit 21 → 25" for a skill). The EXP bar's colour
+and label show which comes next. Beating a **boss** gives a **skill pick**: one of your survivalmons'
+skills goes up a grade (D, C, B, A, S) for the rest of the run, and each skill can go up only once per
+run. Houses (the clock stops inside!) and chests give coins, berries, materials, eggs, evolution
+stones, gear and **bonus picks** (an extra upgrade for either side; always in gold chests).
 
 **Armor** takes a share off every hit, with diminishing returns: 10 armor cuts damage by a third, 20
 by half. Your armor also shields your survivalmons at half strength. The Training Hall's Damage
-upgrade makes both your hero and your survivalmons hit harder.
+upgrade makes your hero hit harder (+5% a level) and your survivalmons too (+3% a level).
 
 The wild is **endless**: it is generated around you as you walk (a new world every run, starting at
 the village plaza), in big zones, one per survivalmon type: Leafy Meadow, Lakelands, Stony Quarry,
@@ -137,7 +139,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/world/` — map generation, ground painter, house interiors, collision, monster pathing.
 - `src/entities/`, `src/systems/` — player, monsters, pets, combat, loot, spawning.
 - `src/ui/` — HUD, menus and all modal screens (DOM overlay).
-- `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks) and container loot;
+- `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;
+  `src/ui/card_preview.js` — the "now → after" rows on each card;
   `src/systems/armor.js` — how armor cuts damage.
 - `assets/sprites/icons/up_*.png` and `team_*.png` — the upgrade icons (hero upgrades and team upgrades).
 - `icons/app-*.png` — the app icon (Rowan hugging Emberpup; `app-art.png` is the 128px original, the rest are sizes of it).

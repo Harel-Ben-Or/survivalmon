@@ -24,6 +24,7 @@ import { T, ZONES } from '../world/world.js';
 import { Meta } from '../systems/meta.js';
 import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
 import { armorPct } from '../systems/armor.js';
+import { cardRowsHTML } from './card_preview.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const CONTROL_NAMES = { auto: 'Auto', touch: 'Touch', keys: 'Keyboard' };
@@ -426,7 +427,7 @@ export class UI {
           <span class="rar" style="background:#ffd84a">Training</span>
           <img class="px" src="${icon(def.icon, 4)}">
           <div class="title">${def.name}</div><div class="cat">${CAT_LABEL[c.cat]} · Lv ${cur.level} → ${cur.level + 1}</div>
-          <div class="small">${esc(levelDiff(c.cat, c.id, cur.level, cur.level + 1))}</div>
+          ${cardRowsHTML(g, c)}
           <span class="key kb">${i + 1}</span></div>`;
       }
       if (c.kind === 'skill') {
@@ -435,7 +436,8 @@ export class UI {
           <span class="rar" style="background:${TIER_COLOR[c.from + 1]}">Skill up</span>
           <img class="px" src="${artURL('creature', c.pet.species)}">
           <div class="title">${esc(c.pet.name)}</div><div class="cat">${esc(name)}</div>
-          <div class="val"><b style="color:${TIER_COLOR[c.from]}">${TIERS[c.from]}</b> → <b style="color:${TIER_COLOR[c.from + 1]}">${TIERS[c.from + 1]}</b> for this run</div>
+          <div class="val"><b class="tier t${c.from}">${TIERS[c.from]}</b> → <b class="tier t${c.from + 1}">${TIERS[c.from + 1]}</b> for this run</div>
+          ${cardRowsHTML(g, c)}
           <span class="key kb">${i + 1}</span></div>`;
       }
       const team = c.kind === 'team';
@@ -444,14 +446,17 @@ export class UI {
         <img class="px" src="${icon(c.up.icon, 4)}">
         <div class="title">${c.up.name}</div>
         <div class="val">${esc(c.up.fmt(c.value))}</div>
+        ${cardRowsHTML(g, c)}
         <span class="key kb">${i + 1}</span></div>`;
     }).join('');
     const kind = this.levelKind || 'hero';
     const head = kind === 'team' ? `Survivalmons level up! <small>Lv ${this.levelNum}</small>`
       : kind === 'bonus' ? 'Treasure! <small>Bonus pick</small>'
+      : kind === 'skill' ? 'Boss defeated! <small>Skill up</small>'
       : `${esc(P.hero.name)} levels up! <small>Lv ${this.levelNum}</small>`;
     const sub = kind === 'team' ? 'Pick an upgrade for your team. Next level: your hero.'
       : kind === 'bonus' ? 'From the chest: pick one, for your hero or your team.'
+      : kind === 'skill' ? 'Pick one skill to go up a grade for the rest of this run. Each skill can go up once per run.'
       : P.pets.length ? 'Pick an upgrade for your hero. Next level: your survivalmons.' : 'Pick an upgrade for your hero.';
     this.openModal(`
       <div class="modal-box panel lvl-${kind}">

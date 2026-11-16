@@ -60,10 +60,15 @@ export const TownUI = {
       const m = team[i];
       if (!m) return `<div class="team-slot" data-slot="${i}"><span>Drag a survivalmon here</span></div>`;
       return `<div class="team-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}"><img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="">
-        <div><b>${esc(SPECIES[m.species].name)}</b><span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}</div><i>Tap to remove</i></div>`;
+        <div><b>${esc(SPECIES[m.species].name)}</b><span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<div class="sk-row">${skillChips(m)}</div></div><i>Tap to remove</i></div>`;
     };
+    // each card shows the survivalmon's skills and their grades, so two of the same species can be told apart
     const card = (m) => `<div class="pool-mon ${Box.inTeam(m.id) ? 'in' : ''} ${m.hp <= 0 ? 'fainted' : ''}" data-mon="${m.id}" title="${esc(SPECIES[m.species].name)}">
-      <img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="" draggable="false"><b>${esc(SPECIES[m.species].name)}</b><span>Lv ${m.level}</span>${hp(m)}</div>`;
+      <img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="" draggable="false"><b>${esc(SPECIES[m.species].name)}</b><span>Lv ${m.level}</span>${hp(m)}
+      <div class="pm-skills">${skillChips(m)}</div></div>`;
+    // the same species side by side, best skills and highest level first
+    const grade = (m) => m.skills.reduce((s, k) => s + k.t, 0);
+    const pool = [...Box.mons].sort((a, b) => SPECIES[a.species].name.localeCompare(SPECIES[b.species].name) || grade(b) - grade(a) || b.level - a.level);
     this.el.select.innerHTML = `
       <div class="team-screen">
         <h2>Choose your team</h2>
@@ -79,7 +84,7 @@ export const TownUI = {
           </div>
           <div class="team-right panel">
             <div class="team-label">Your survivalmons: drag one onto a slot, or tap it</div>
-            <div class="mon-pool">${Box.mons.map(card).join('') || `<em>${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
+            <div class="mon-pool">${pool.map(card).join('') || `<em>${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
           </div>
         </div>
         ${this.buildingPanel('gate')}

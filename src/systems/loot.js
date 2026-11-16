@@ -122,11 +122,11 @@ const HERO_CARDS = UPGRADES.filter((u) => !['luck', 'velocity', 'endurance', 'bo
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
-  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.12, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
-  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.08, key: 'haste', w: 8, cap: 0.5, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
-  { id: 't_guard', name: 'Team Guard', icon: 'team_guard', base: 0.08, key: 'def', w: 7, cap: 0.6, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
-  { id: 't_vigor', name: 'Team Vigor', icon: 'team_vigor', base: 0.15, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
-  { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.05, key: 'crit', w: 5, cap: 0.5, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
+  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.08, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
+  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.06, key: 'haste', w: 8, cap: 0.4, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
+  { id: 't_guard', name: 'Team Guard', icon: 'team_guard', base: 0.06, key: 'def', w: 7, cap: 0.5, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
+  { id: 't_vigor', name: 'Team Vigor', icon: 'team_vigor', base: 0.12, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
+  { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.04, key: 'crit', w: 5, cap: 0.4, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
   { id: 't_heal', name: 'Second Breath', icon: 'team_heal', w: 6, noRarity: true, fmt: () => 'Heal your survivalmons fully. Fainted ones get back up.' },
 ];
 // Rare and epic cards come more often with luck, and much more often in a chest's bonus pick.
@@ -144,15 +144,6 @@ function heroCard(used) {
 }
 function monCard(used) {
   const P = used.P, g = P.g;
-  // sometimes: one of your survivalmon's skills goes up a tier for this run
-  // (up to two per level-up, never the same skill twice)
-  used.skills ||= new Set();
-  const boostable = P.pets.filter((p) => !p.fainted).flatMap((p) => p.mon.skills.filter((s) => p.tierOf(s) < 4 && !used.skills.has(s)).map((s) => ({ pet: p, skill: s })));
-  if (boostable.length && used.skills.size < 2 && chance(0.4)) {
-    const { pet, skill } = boostable[(Math.random() * boostable.length) | 0];
-    used.skills.add(skill);
-    return { kind: 'skill', pet, skill, from: pet.tierOf(skill) };
-  }
   const pool = TEAM_CARDS.filter((u) => !used.has(u.id) && (u.id !== 't_heal' || hurtTeam(P)) && !(u.cap !== undefined && (g.team?.[u.key] || 0) >= u.cap));
   const u = weightedChoice(pool, (x) => x.w);
   if (!u) return null;
@@ -161,15 +152,35 @@ function monCard(used) {
   return { kind: 'team', up: u, rarity: rar, value: u.base ? +(u.base * rar.mult).toFixed(3) : 0 };
 }
 
+// Skill-up cards: a survivalmon's skill goes up one grade (D, C, B, A, S) for this run. They only
+// come when you beat a boss, and each skill can go up just once per run.
+export function skillCards(P, n = 3) {
+  const boostable = P.pets.filter((p) => !p.fainted).flatMap((p) => p.mon.skills
+    .filter((s) => p.tierOf(s) < 4 && !p.boost.get(s)).map((s) => ({ pet: p, skill: s })));
+  // spread the choice over different survivalmons first
+  const picks = [], byPet = new Map();
+  for (const b of shuffle(boostable)) { if (!byPet.has(b.pet)) byPet.set(b.pet, []); byPet.get(b.pet).push(b); }
+  while (picks.length < n && byPet.size) {
+    for (const [pet, list] of byPet) {
+      if (picks.length >= n) break;
+      picks.push(list.shift());
+      if (!list.length) byPet.delete(pet);
+    }
+  }
+  return picks.map(({ pet, skill }) => ({ kind: 'skill', pet, skill, from: pet.tierOf(skill) }));
+}
+
 // What a level-up upgrades: levels alternate between your survivalmons (even levels: 2, 4, 6...)
 // and your hero (odd levels: 3, 5, 7...). With no survivalmons in the run, every level is the hero's.
 export function levelKind(P, level) { return P.pets.length && level % 2 === 0 ? 'team' : 'hero'; }
 
 // Three cards of one kind:
 //   hero:  hero stat cards, and sometimes a training card for one of the hero's weapons
-//   team:  survivalmon cards (team boosts, a skill going up a tier, a heal when someone's hurt)
+//   team:  survivalmon cards (team boosts, a heal when someone's hurt)
 //   bonus: (from chests) one hero card, one team card, and one of either, at better rarity
+//   skill: (from bosses) up to three of your survivalmons' skills, one grade up each
 export function levelUpOptions(P, kind = 'hero') {
+  if (kind === 'skill') { const s = skillCards(P); if (s.length) return s; kind = 'bonus'; }
   const picks = [];
   const used = new Set();
   used.P = P;
@@ -219,13 +230,18 @@ export function applyLevelCard(P, card) {
 export function levelDiff(cat, id, from, to) {
   const def = CAT_DEFS[cat][id];
   if (cat === 'artifact') return def.desc(to);
+  return levelRows(cat, id, from, to).map(([label, a, b]) => (a === '' ? `${label} ${b}` : `${label} ${a} → ${b}`)).join(' · ');
+}
+// The same as rows of [label, before, after] (before is '' for a new item)
+export function levelRows(cat, id, from, to) {
+  const def = CAT_DEFS[cat][id];
   const a = from ? def.stats(from) : null, b = def.stats(to);
-  const parts = [];
+  const rows = [];
   for (const [k, label] of Object.entries(def.labels)) {
-    if (!a) parts.push(`${label} ${fmt(k, b[k])}`);
-    else if (a[k] !== b[k]) parts.push(`${label} ${fmt(k, a[k])} → ${fmt(k, b[k])}`);
+    if (!a) rows.push([label, '', fmt(k, b[k])]);
+    else if (a[k] !== b[k]) rows.push([label, fmt(k, a[k]), fmt(k, b[k])]);
   }
-  return parts.join(' · ');
+  return rows;
 }
 function fmt(k, v) {
   if (k === 'cd' || k === 'tick') return `${v}s`;

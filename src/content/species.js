@@ -318,8 +318,8 @@ for (const [id, m] of Object.entries(MIXED)) {
   const types = [BASE[a].type, BASE[b].type];
   SPECIES[id] = { id, stage: 2, kind: 'mixed', name: m.name, desc: m.desc, arch: m.arch, q: m.q, hp, unique: m.unique,
     types, type: types[0], lines: [a, b], line: a, pair: [a, b], evo: m.evo.id, fly: !!m.q.fly };
-  const q = { ...m.q, dmg: Math.round(m.q.dmg * 1.5) };
-  if (q.count) q.count += 1; else if (q.chains) q.chains += 2; else if (q.radius) q.radius += 8;
+  const q = { ...m.q, dmg: Math.round(m.q.dmg * 1.2) };
+  if (q.count) q.count += 1; else if (q.chains) q.chains += 1; else if (q.radius) q.radius += 8;
   SPECIES[m.evo.id] = { id: m.evo.id, stage: 3, kind: 'evolved', name: m.evo.name, desc: m.evo.desc, arch: m.arch, q, hp: Math.round(hp * 1.4),
     unique: { name: `Great ${m.unique.name}`, desc: `${m.unique.desc} Stronger and wider.` }, types, type: types[0], lines: [a, b], line: a, pair: [a, b], from: id };
 }

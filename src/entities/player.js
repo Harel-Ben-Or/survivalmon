@@ -20,7 +20,7 @@ export class Player {
     this.spr = HERO[heroId];
     this.x = 0; this.y = 0; this.r = 5;
     this.dir = 'down'; this.faceAngle = Math.PI / 2; this.anim = 0; this.moving = false;
-    this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0; this.bonusPicks = 0;
+    this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0; this.bonusPicks = 0; this.skillPicks = 0;
     this.bonus = {};
     this.weapons = []; this.spells = []; this.artifacts = []; this.pets = [];
     this.coins = 0; this.kills = 0;
@@ -64,15 +64,23 @@ export class Player {
 
   // ------------------------------------------------------------ stats
   recompute() {
+    const prevMax = this.stats?.maxHp;
+    this.stats = this.statsWith();
+    if (prevMax && this.stats.maxHp > prevMax) this.hp += this.stats.maxHp - prevMax;
+    if (this.hp > this.stats.maxHp) this.hp = this.stats.maxHp;
+    this.g.refreshCombos?.();
+  }
+  // The hero's stats, with extra mods added on top (the level-up cards use it to show what a card would do)
+  statsWith(extra) {
     const m = {};
     const add = (mods) => { for (const [k, v] of Object.entries(mods)) m[k] = (m[k] || 0) + v; };
     add(this.hero.mods);
     add(this.bonus);
     for (const a of this.artifacts) add(ARTIFACTS[a.id].mods(a.level));
     for (const p of this.pets) if (!p.fainted) add(p.passives());
-    const prevMax = this.stats?.maxHp;
+    if (extra) add(extra);
     const g = (k) => m[k] || 0;
-    this.stats = {
+    return {
       maxHp: Math.max(20, Math.round(100 + g('maxHp'))),
       speed: 64 * Math.min(1.9, 1 + g('speed')),
       haste: g('haste'),
@@ -100,9 +108,6 @@ export class Player {
       heartMult: 1 + g('heart'),
       reviveHp: g('reviveHp'),
     };
-    if (prevMax && this.stats.maxHp > prevMax) this.hp += this.stats.maxHp - prevMax;
-    if (this.hp > this.stats.maxHp) this.hp = this.stats.maxHp;
-    this.g.refreshCombos?.();
   }
 
   addXp(n) {

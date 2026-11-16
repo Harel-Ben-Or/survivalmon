@@ -4,6 +4,7 @@
 //   await sim({ training: { armor: 10 }, team: [['voltowl', 6], ['emberpup', 6]], seconds: 300 })
 // cfg: training (Training Hall levels), team ([species, level] pairs), hero, seconds (run length),
 //      pick ('random' | 'hero' | 'mons': which level-up card the bot takes), seed (repeat runs).
+//      idle (true: the hero stands still the whole run), lazy (true: walks to EXP and coins, never dodges), skills ([[k, id|sp, tier]] extra skills per mon).
 // The bot dodges like tools/bot.js: away from nearby monsters, harder from bosses.
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -19,15 +20,15 @@ export async function sim(cfg = {}) {
   Meta.data.unlocked.clinic = true;
   if (Shrine.data) Shrine.data.nodes = {};
   Box.data.mons = []; Box.data.team = []; Box.data.upgrades = {}; Box.data.firstHatch = false;
-  for (const [sp, lv] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }] });
+  for (const [sp, lv, extra] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }, ...(extra || [])] });
   g.startRun(cfg.hero || 'rowan');
   if (cfg.seconds) g.runLength = cfg.seconds;
   g.director.catchT = 1e9; // no wild survivalmons: they'd change the numbers
   const P = g.player;
-  const out = { hero: P.hero.id, heroDmg: 0, monDmg: 0, rawIn: 0, taken: 0, hits: 0, faints: [], minHp: 1, cards: {}, by: {} };
+  const out = { hero: P.hero.id, heroDmg: 0, monDmg: 0, rawIn: 0, taken: 0, hits: 0, faints: [], minHp: 1, cards: {}, by: {}, perMon: {}, crowd: 0, near: 0, samples: 0 };
   // count damage by who dealt it, and damage taken before and after armor
   const dmgFn = g.damageEnemy;
-  g.damageEnemy = function (e, base, o = {}) { const hp0 = Math.max(0, e.hp); const r = dmgFn.call(this, e, base, o); out[o.pet ? 'monDmg' : 'heroDmg'] += Math.min(r.dmg, hp0); return r; };
+  g.damageEnemy = function (e, base, o = {}) { const hp0 = Math.max(0, e.hp); const r = dmgFn.call(this, e, base, o); const d = Math.min(r.dmg, hp0); out[o.pet ? 'monDmg' : 'heroDmg'] += d; if (o.petRef) out.perMon[o.petRef.species] = (out.perMon[o.petRef.species] || 0) + d; return r; };
   const hurtFn = P.hurt.bind(P);
   P.hurt = (dmg, src) => { const before = P.hp; const hit = hurtFn(dmg, src); if (hit) { out.rawIn += dmg; out.taken += before - Math.max(0, P.hp); out.hits++; const k = src?.type || '?'; out.by[k] = (out.by[k] || 0) + Math.round(before - Math.max(0, P.hp)); } return hit; };
   const fainted = new Set();
@@ -39,7 +40,7 @@ export async function sim(cfg = {}) {
       if (e.dead) continue;
       const dx = P.x - e.x, dy = P.y - e.y, d2 = dx * dx + dy * dy;
       close = Math.min(close, d2);
-      if (d2 < 160 * 160) { const w = (e.boss ? 4 : 1) / Math.max(64, d2); fx += dx * w; fy += dy * w; }
+      if (d2 < 160 * 160 && !cfg.lazy) { const w = (e.boss ? 4 : 1) / Math.max(64, d2); fx += dx * w; fy += dy * w; }
     }
     // step out of telegraphed attacks (target circles, hazard zones) the way a player would
     for (const fx2 of g.effects) {
@@ -61,7 +62,7 @@ export async function sim(cfg = {}) {
         if (d2 < bd) { bd = d2; best = k; }
       }
       if (best) {
-        const d = Math.sqrt(bd) || 1, pull = close > 50 * 50 ? 0.03 : 0.008;
+        const d = Math.sqrt(bd) || 1, pull = cfg.lazy ? 1 : close > 50 * 50 ? 0.03 : 0.008;
         fx += ((best.x - P.x) / d) * pull; fy += ((best.y - P.y) / d) * pull;
       }
     }
@@ -89,10 +90,12 @@ export async function sim(cfg = {}) {
       else if (g.modal === 'loot') g.ui.nextLoot();
       else if (g.modal === 'evolve') document.querySelector('[data-act="evolve-later"],[data-act="evolve-close"]')?.click();
       else if (g.modal) { g.ui.closeModal(); g.modal = null; }
+      else if (cfg.idle) Input.setStick(0, 0); // stands still and lets the team fight
       else steer();
       if (g.mode === 'house' && !g.modal) g.exitHouse?.();
       g.update(1 / 30); steps++;
       out.minHp = Math.min(out.minHp, P.hp / P.stats.maxHp);
+      if (steps % 30 === 0) { let n = 0, near = 0; for (const e of g.enemies) { if (e.dead) continue; n++; if ((e.x - P.x) ** 2 + (e.y - P.y) ** 2 < 80 * 80) near++; } out.crowd += n; out.near += near; out.samples++; }
       for (const p of P.pets) if (p.fainted && !fainted.has(p)) { fainted.add(p); out.faints.push(`${p.species}@${Math.round(g.time)}s`); }
     }
     await sleep(0);
@@ -105,6 +108,8 @@ export async function sim(cfg = {}) {
     heroDmg: Math.round(out.heroDmg), monDmg: Math.round(out.monDmg), rawIn: Math.round(out.rawIn), taken: Math.round(out.taken),
     armor: P.stats.armor, maxHp: P.stats.maxHp, might: +P.stats.might.toFixed(2),
     petHp: P.pets.map((p) => `${p.species}:${Math.round(p.maxHp)}`).join(' '),
+    crowd: Math.round(out.crowd / Math.max(1, out.samples)), near: +(out.near / Math.max(1, out.samples)).toFixed(1),
+    perMon: Object.fromEntries(Object.entries(out.perMon).map(([k, v]) => [k, Math.round(v)])),
   });
   return out;
 }

@@ -389,7 +389,8 @@ export class Game {
     Audio.setNight(this.dayMinute > 17);
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
-    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp(true);
+    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
+    if (P.skillPicks > 0 && !this.modal) this.openLevelUp('skill');
     Box.saveIfDirty();
   }
 
@@ -417,7 +418,8 @@ export class Game {
     if (P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
-    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp(true);
+    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
+    if (P.skillPicks > 0 && !this.modal) this.openLevelUp('skill');
   }
 
   // ------------------------------------------------------------ houses
@@ -656,17 +658,19 @@ export class Game {
   combo(id) { return this.activeCombos.has(id); }
 
   // Level-ups alternate between your survivalmons and your hero (see levelKind); bonus picks from
-  // chests offer both. The level shown is the one this pick is for.
-  openLevelUp(bonus = false) {
+  // chests offer both; a beaten boss gives a skill pick. The level shown is the one this pick is for.
+  openLevelUp(extra = null) {
     const P = this.player;
     const level = P.level - P.pendingLevels + 1;
-    const kind = this.levelKindNow = bonus ? 'bonus' : levelKind(P, level);
+    const cards = levelUpOptions(P, extra || levelKind(P, level));
+    // a skill pick with no skill left to raise turns into a bonus pick
+    const kind = this.levelKindNow = extra === 'skill' && cards[0]?.kind !== 'skill' ? 'bonus' : extra || levelKind(P, level);
     this.modal = 'levelup';
     this.ui.prompt(null);
     Audio.play('levelup');
-    this.ui.showLevelUp(levelUpOptions(P, kind), (card) => {
+    this.ui.showLevelUp(cards, (card) => {
       applyLevelCard(P, card);
-      if (bonus) P.bonusPicks--; else P.pendingLevels--;
+      if (extra === 'bonus') P.bonusPicks--; else if (extra === 'skill') P.skillPicks--; else P.pendingLevels--;
       this.modal = null;
     }, kind, level);
   }
@@ -675,7 +679,10 @@ export class Game {
   nextLevelKind() { return levelKind(this.player, this.player.level + 1); }
 
   onBossDeath(e) {
-    this.banner(`${e.def.name} defeated!`, '#7af08a', true);
+    // a skill pick for your team (not after the last boss: the run is won then)
+    const skillUp = this.player.pets.length && e.type !== 'night_lord';
+    this.banner(`${e.def.name} defeated!`, '#7af08a', true, skillUp ? 'Pick a survivalmon skill to power up' : '');
+    if (skillUp) this.player.skillPicks++;
     this.spawnPickup('chest', e.x - 10, e.y, 2);
     if (Math.random() < 0.35) this.spawnPickup('egg', e.x + 10, e.y);
     this.dropGear(e.x - 14, e.y + 6);

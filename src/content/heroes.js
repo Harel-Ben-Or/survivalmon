@@ -28,15 +28,15 @@ export const HEROES = [
 
 // Level-up cards. `v` is the rolled value (scaled by rarity).
 export const UPGRADES = [
-  { id: 'vitality', name: 'Vitality', icon: 'up_hp', base: 20, fmt: (v) => `+${v} Max HP`, key: 'maxHp', round: true, w: 10 },
-  { id: 'power', name: 'Power', icon: 'up_damage', base: 0.10, fmt: (v) => `+${pct(v)} damage`, key: 'might', w: 12 },
-  { id: 'swift', name: 'Swiftness', icon: 'up_speed', base: 0.07, fmt: (v) => `+${pct(v)} move speed`, key: 'speed', w: 8, cap: 0.7 },
-  { id: 'haste', name: 'Haste', icon: 'up_haste', base: 0.06, fmt: (v) => `-${pct(v)} cooldowns`, key: 'haste', w: 9, cap: 0.55 },
-  { id: 'reach', name: 'Reach', icon: 'up_area', base: 0.10, fmt: (v) => `+${pct(v)} area`, key: 'area', w: 8 },
-  { id: 'multi', name: 'Multishot', icon: 'up_multi', base: 1, fmt: (v) => `+${v} projectile`, key: 'amount', round: true, w: 2, cap: 3, noRarity: true },
-  { id: 'precision', name: 'Precision', icon: 'up_crit', base: 0.05, fmt: (v) => `+${pct(v)} crit chance`, key: 'crit', w: 7, cap: 0.6 },
-  { id: 'ferocity', name: 'Ferocity', icon: 'up_critdmg', base: 0.25, fmt: (v) => `+${pct(v)} crit damage`, key: 'critMult', w: 6 },
-  { id: 'regen', name: 'Regrowth', icon: 'up_regen', base: 0.3, fmt: (v) => `+${v.toFixed(1)} HP/sec`, key: 'regen', w: 7 },
+  { id: 'vitality', name: 'Vitality', icon: 'up_hp', base: 16, fmt: (v) => `+${v} Max HP`, key: 'maxHp', round: true, w: 10 },
+  { id: 'power', name: 'Power', icon: 'up_damage', base: 0.08, fmt: (v) => `+${pct(v)} damage`, key: 'might', w: 12 },
+  { id: 'swift', name: 'Swiftness', icon: 'up_speed', base: 0.06, fmt: (v) => `+${pct(v)} move speed`, key: 'speed', w: 8, cap: 0.7 },
+  { id: 'haste', name: 'Haste', icon: 'up_haste', base: 0.05, fmt: (v) => `-${pct(v)} cooldowns`, key: 'haste', w: 9, cap: 0.45 },
+  { id: 'reach', name: 'Reach', icon: 'up_area', base: 0.08, fmt: (v) => `+${pct(v)} area`, key: 'area', w: 8 },
+  { id: 'multi', name: 'Multishot', icon: 'up_multi', base: 1, fmt: (v) => `+${v} projectile`, key: 'amount', round: true, w: 2, cap: 2, noRarity: true },
+  { id: 'precision', name: 'Precision', icon: 'up_crit', base: 0.04, fmt: (v) => `+${pct(v)} crit chance`, key: 'crit', w: 7, cap: 0.4 },
+  { id: 'ferocity', name: 'Ferocity', icon: 'up_critdmg', base: 0.15, fmt: (v) => `+${pct(v)} crit damage`, key: 'critMult', w: 6 },
+  { id: 'regen', name: 'Regrowth', icon: 'up_regen', base: 0.25, fmt: (v) => `+${+v.toFixed(2)} HP/sec`, key: 'regen', w: 7 },
   { id: 'armor', name: 'Toughness', icon: 'up_armor', base: 2, fmt: (v) => `+${v} armor`, key: 'armor', round: true, w: 7, cap: 16 },
   { id: 'magnet', name: 'Magnetism', icon: 'up_magnet', base: 0.25, fmt: (v) => `+${pct(v)} pickup range`, key: 'magnet', w: 6 },
   { id: 'luck', name: 'Fortune', icon: 'up_luck', base: 0.10, fmt: (v) => `+${pct(v)} luck`, key: 'luck', w: 5 },
@@ -48,8 +48,8 @@ export const UPGRADES = [
 
 export const RARITIES = [
   { id: 'common', name: 'Common', mult: 1, color: '#e8e8e8', w: 70 },
-  { id: 'rare', name: 'Rare', mult: 1.5, color: '#5ab0f0', w: 23 },
-  { id: 'epic', name: 'Epic', mult: 2.2, color: '#c88aff', w: 7 },
+  { id: 'rare', name: 'Rare', mult: 1.4, color: '#5ab0f0', w: 23 },
+  { id: 'epic', name: 'Epic', mult: 1.8, color: '#c88aff', w: 7 },
 ];
 
 function pct(v) { return `${Math.round(v * 100)}%`; }

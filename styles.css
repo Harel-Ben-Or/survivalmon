@@ -517,6 +517,12 @@ body.in-town .dash-btn { display: none; }
 .pool-mon span { font-size: 11px; color: #9af08a; }
 .pool-mon.in { opacity: .45; }
 .pool-mon.dragging { opacity: .25; }
+/* Choose your team: every card lists its skills with their grades */
+.team-screen .mon-pool { grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }
+.pm-skills { display: flex; flex-direction: column; align-items: stretch; gap: 2px; width: 100%; margin-top: 3px; }
+.pool-mon .pm-skills .sk, .team-slot.filled .sk { padding: 1px 5px 1px 1px; font-size: 11px; line-height: 1.15; color: var(--text); text-align: left; border-radius: 8px; }
+.pool-mon .sk .tier, .team-slot .sk .tier { display: inline-grid; flex: none; min-width: 16px; height: 16px; font-size: 11px; line-height: 1; }
+.team-slot .sk-row { margin-top: 3px; gap: 3px; }
 .drag-ghost { position: fixed; z-index: 50; width: 64px; height: 64px; margin: -32px 0 0 -32px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 4px 0 rgba(0,0,0,.35)); }
 .team-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; flex-shrink: 0; position: sticky; bottom: -16px; z-index: 3; margin: 0 -16px -16px; padding: 8px 16px 12px;
   background: linear-gradient(rgba(20,12,16,0), rgba(20,12,16,.92) 30%); }
@@ -562,6 +568,9 @@ body.in-town .dash-btn { display: none; }
   .team-slot b { font-size: 13px; }
   .mon-pool { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
   .pool-mon img { width: 38px; height: 38px; }
+  .team-screen .mon-pool { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); }
+  .pool-mon .pm-skills .sk, .team-slot.filled .sk { font-size: 10px; }
+  .pool-mon .sk .tier, .team-slot .sk .tier { min-width: 14px; height: 14px; font-size: 10px; }
   .train-row { gap: 8px; padding: 4px 8px; }
   .train-row > img { width: 28px; height: 28px; }
   .train-info { font-size: 12px; }
@@ -692,3 +701,14 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
 .lvl-bonus .lvl-head { color: #ffb0f0; }
 .lvl-bonus { box-shadow: 0 0 0 3px var(--ink), 0 0 24px rgba(255,176,240,.45); }
 @media (max-height: 500px) { .lvl-sub { font-size: 12px; margin: -4px 0 6px; } }
+.lvl-skill .lvl-head { color: #ffd84a; }
+.lvl-skill { box-shadow: 0 0 0 3px var(--ink), 0 0 24px rgba(255,216,74,.45); }
+.card .val .tier { font-size: 14px; height: 22px; min-width: 22px; vertical-align: 2px; }
+/* "now → after" rows on level-up cards */
+.card .deltas { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 4px 6px; background: rgba(43,29,36,.08); border-radius: 6px; }
+.card .delta { display: flex; align-items: baseline; justify-content: center; gap: 5px; flex-wrap: wrap; font-size: 15px; line-height: 1.25; color: #4a3a3a; }
+.card .delta span { color: #6a5a4a; font-size: .85em; }
+.card .delta em { font-style: normal; }
+.card .delta i { font-style: normal; color: #b0701c; font-weight: 900; }
+.card .delta b { color: #2e7a33; font-weight: 900; }
+@media (max-height: 500px) { .card .delta { font-size: 12px; gap: 3px; } .card .deltas { padding: 2px 4px; } .card .val .tier { font-size: 11px; height: 17px; min-width: 17px; } }
