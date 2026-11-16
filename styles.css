@@ -677,3 +677,7 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
   canvas.cut { width: 200px; height: 170px; }
   .cut-box { gap: 4px; }
 }
+
+/* New version of the installed app ready (src/core/update.js) */
+.update-btn { position: fixed; z-index: 60; left: 50%; top: calc(8px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); white-space: nowrap; }
+.app-version { color: var(--muted); font-size: 12px; text-align: center; }

@@ -11,6 +11,7 @@ import { MERCHANT_ITEMS } from '../content/buildings.js';
 import { Meta, TRAINING } from '../systems/meta.js';
 import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
+import { Update } from '../core/update.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
@@ -197,6 +198,7 @@ export const TownUI = {
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>
+        ${Update.label() ? `<div class="app-version">Version: ${Update.label()}</div>` : ''}
       </div>`);
     this.modalKind = 'townmenu';
   },
