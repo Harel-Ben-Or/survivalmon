@@ -64,11 +64,14 @@ const ANIM_ROWS = [['move', 0], ['idle', 1], ['attack', 2], ['faint', 3]];
 export const ANIM_FPS = { move: 10, fly: 12, idle: 7, attack: 14, faint: 10 };
 
 // ---------------------------------------------------------------- canvas helpers
+// Every image the game loads is counted, so the loading screen (index.html) can show real progress.
+const loadProgress = (window.__loadProgress ||= { total: 0, done: 0 });
 function loadImage(src) {
+  loadProgress.total++;
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
+    img.onload = () => { loadProgress.done++; resolve(img); };
+    img.onerror = () => { loadProgress.done++; resolve(null); };
     img.src = src;
   });
 }

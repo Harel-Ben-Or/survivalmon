@@ -140,6 +140,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks) and container loot;
   `src/systems/armor.js` — how armor cuts damage.
 - `assets/sprites/icons/up_*.png` and `team_*.png` — the upgrade icons (hero upgrades and team upgrades).
+- `icons/app-*.png` — the app icon (Rowan hugging Emberpup; `app-art.png` is the 128px original, the rest are sizes of it).
+- `index.html` — also holds the loading screen (shown until all the art has loaded; `src/gfx/art.js` counts the images).
 - `tools/bot.js` plays whole careers from a fresh save; `tools/sim.js` plays one run with a chosen loadout
   (Training levels, team) and reports survival, damage by hero and by survivalmons, and faints. Use them
   in the dev page console on a throwaway player profile; usage is at the top of each file.

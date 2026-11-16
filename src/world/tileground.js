@@ -11,10 +11,12 @@ const MAX_CHUNKS = 36;
 const ORDER = [['dark', T.DARK], ['farm', T.FARM], ['sand', T.SAND], ['ash', T.ASH], ['gravel', T.GRAVEL], ['frost', T.FROST], ['blossom', T.BLOSSOM], ['dirt', T.DIRT], ['stone', T.STONE], ['water', T.WATER]];
 
 function loadImage(src) {
+  const lp = (window.__loadProgress ||= { total: 0, done: 0 }); // counted for the loading screen
+  lp.total++;
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
+    img.onload = () => { lp.done++; resolve(img); };
+    img.onerror = () => { lp.done++; resolve(null); };
     img.src = src;
   });
 }

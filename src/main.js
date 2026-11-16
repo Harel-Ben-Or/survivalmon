@@ -9,7 +9,7 @@ window.addEventListener('keydown', unlock);
 
 const game = new Game();
 window.game = game; // handy for debugging in the console
-game.boot();
+game.boot().catch((err) => { console.error(err); window.dispatchEvent(new Event('survivalmon-error')); });
 Update.init(game);
 
 // One-tap install: Chrome offers it when the game isn't installed yet; the title screen shows the button.

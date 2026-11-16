@@ -140,6 +140,7 @@ export class Game {
     this.freshWorld = true;
     this.toTitle();
     this.ui.askProfileOnStart();
+    window.dispatchEvent(new Event('survivalmon-ready')); // hides the loading screen
     // One update per displayed frame (split into pieces of at most 1/60 s), so motion advances
     // every frame on 60, 90 and 120 Hz screens instead of a fixed step that sometimes ran 0 or 2 times.
     let last = performance.now();

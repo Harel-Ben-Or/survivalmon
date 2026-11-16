@@ -10,16 +10,96 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Survivalmon">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/app-48.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/app-192.png">
+  <link rel="apple-touch-icon" href="icons/app-apple-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <!-- loading screen: shown the moment the page opens, until the game has loaded all its art -->
+  <style>
+    #loading { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+      background: radial-gradient(ellipse at 50% 40%, #2c5a52 0%, #1f3a40 45%, #140c10 100%); color: #f4f1e4;
+      font-family: 'Nunito', system-ui, sans-serif; font-weight: 800; transition: opacity .45s ease; }
+    #loading.done { opacity: 0; pointer-events: none; }
+    .ld-logo { font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; font-weight: 700; font-size: clamp(34px, 8vw, 84px); color: #ffe07a; letter-spacing: 3px; line-height: 1;
+      text-shadow: 4px 0 #2b1d24, -4px 0 #2b1d24, 0 4px #2b1d24, 0 -4px #2b1d24, 4px 4px #2b1d24, -4px 4px #2b1d24, 4px -4px #2b1d24, -4px -4px #2b1d24, 0 9px 0 #c8453a, 4px 9px #2b1d24, -4px 9px #2b1d24, 0 13px #2b1d24; }
+    .ld-stage { position: relative; width: min(560px, 100%); height: 84px; margin-top: 6px; }
+    .ld-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; border-radius: 7px; background: linear-gradient(#5fae4a, #3f8a3a); box-shadow: inset 0 -4px 0 #2f6a2c, 0 3px 0 #2b1d24; }
+    .ld-parade { position: absolute; bottom: 8px; left: 0; display: flex; align-items: flex-end; gap: 0; will-change: transform; }
+    .ld-sp { display: block; image-rendering: pixelated; background-repeat: no-repeat; animation: ld-walk .8s steps(8) infinite; }
+    .ld-hero { width: 64px; height: 64px; background-image: url('assets/sprites/heroes/rowan/walk.png'); background-size: 512px 512px; margin-left: -6px; }
+    .ld-ember { width: 64px; height: 64px; background-image: url('assets/sprites/creatures/anim/emberpup.png'); background-size: 512px 256px; transform: scaleX(-1); margin-left: -8px; }
+    .ld-leaf { width: 48px; height: 48px; background-image: url('assets/sprites/creatures/anim/leafkit.png'); background-size: 384px 192px; transform: scaleX(-1); margin-left: -6px; animation-delay: -.3s; }
+    .ld-pud { width: 48px; height: 48px; background-image: url('assets/sprites/creatures/anim/puddlit.png'); background-size: 384px 192px; transform: scaleX(-1); animation-delay: -.55s; }
+    .ld-hero, .ld-ember { --w: -512px; } .ld-leaf, .ld-pud { --w: -384px; }
+    @keyframes ld-walk { from { background-position: 0 0; } to { background-position: var(--w) 0; } }
+    .ld-bar { width: min(560px, 100%); height: 16px; border: 3px solid #2b1d24; border-radius: 10px; background: #102428; overflow: hidden; box-shadow: 0 3px 0 #2b1d24; }
+    .ld-fill { height: 100%; width: 0; background: linear-gradient(#fff0a8, #f0b030); border-radius: 6px 0 0 6px; }
+    .ld-text { display: flex; gap: 10px; align-items: baseline; font-size: 15px; color: #a9c2bd; min-height: 1.4em; text-align: center; }
+    .ld-text b { color: #ffe07a; }
+    .ld-retry { display: none; font: inherit; font-size: 16px; color: #2b1d24; background: #f4d35e; border: 3px solid #2b1d24; border-radius: 6px; padding: 6px 16px; box-shadow: 0 3px 0 #2b1d24; }
+    #loading.failed .ld-retry { display: block; }
+    @media (min-height: 560px) and (min-width: 700px) { .ld-stage { height: 116px; } .ld-parade { zoom: 1.5; } }
+    @media (max-height: 420px) { #loading { gap: 8px; } .ld-logo { font-size: clamp(28px, 7vw, 56px); } .ld-stage { height: 72px; } .ld-text { font-size: 13px; } }
+  </style>
 </head>
 <body>
   <canvas id="game"></canvas>
   <div id="ui"></div>
+  <div id="loading" role="status" aria-live="polite">
+    <div class="ld-logo">SURVIVALMON</div>
+    <div class="ld-stage">
+      <div class="ld-ground"></div>
+      <div class="ld-parade" id="ldParade"><i class="ld-sp ld-pud"></i><i class="ld-sp ld-leaf"></i><i class="ld-sp ld-ember"></i><i class="ld-sp ld-hero"></i></div>
+    </div>
+    <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+    <div class="ld-text"><span id="ldTip">Waking up the survivalmons…</span><b id="ldPct"></b></div>
+    <button class="ld-retry" id="ldRetry" type="button">Try again</button>
+  </div>
+  <script>
+    // Loading screen: the bar follows the art the game loads (src/gfx/art.js counts every image in
+    // window.__loadProgress); the hero and the starters walk along it. 'survivalmon-ready' hides it.
+    (function () {
+      var el = document.getElementById('loading'), fill = document.getElementById('ldFill'), pct = document.getElementById('ldPct');
+      var tip = document.getElementById('ldTip'), parade = document.getElementById('ldParade'), stage = parade.parentNode;
+      var KEY = 'survivelmon.loadCount', est = 450, shown = 0, ready = false, start = Date.now();
+      try { est = +localStorage.getItem(KEY) || est; } catch (e) { /* no storage */ }
+      var tips = ['Waking up the survivalmons…', 'Warming the eggs…', 'Sweeping the Training Hall…', 'Packing berries for the road…',
+        'Shooing the Blight off the path…', 'Tip: even levels upgrade your team, odd levels your hero', 'Tip: chests can hold a bonus upgrade',
+        'Tip: your armor protects your survivalmons too'];
+      var ti = 0, tipT = setInterval(function () { ti = (ti + 1) % tips.length; tip.textContent = tips[ti]; }, 2600);
+      function frame() {
+        var p = window.__loadProgress, target;
+        if (ready) target = 1;
+        else if (p && p.total) target = Math.min(0.97, 0.1 + 0.9 * p.done / Math.max(p.total, est));
+        else target = Math.min(0.1, (Date.now() - start) / 20000); // the game's code is still arriving
+        shown += (target - shown) * 0.12;
+        fill.style.width = (shown * 100).toFixed(1) + '%';
+        pct.textContent = Math.floor(shown * 100) + '%';
+        var room = stage.clientWidth - parade.offsetWidth;
+        parade.style.transform = 'translateX(' + Math.max(0, room * shown).toFixed(1) + 'px)';
+        if (!ready || shown < 0.995) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      function fail(msg) {
+        if (ready) return;
+        el.classList.add('failed'); clearInterval(tipT);
+        tip.textContent = msg || 'Something went wrong while loading.';
+      }
+      document.getElementById('ldRetry').addEventListener('click', function () { location.reload(); });
+      window.addEventListener('survivalmon-error', function () { fail(); });
+      setTimeout(function () { if (!ready) fail('Still loading… a slow connection? Tap to try again.'); }, 45000);
+      window.addEventListener('survivalmon-ready', function () {
+        ready = true; clearInterval(tipT); tip.textContent = 'Ready!';
+        var p = window.__loadProgress;
+        try { if (p && p.total) localStorage.setItem(KEY, String(p.total)); } catch (e) { /* no storage */ }
+        setTimeout(function () { el.classList.add('done'); setTimeout(function () { el.remove(); }, 500); }, 250);
+      });
+    })();
+  </script>
   <script type="module" src="src/main.js"></script>
 </body>
 </html>
