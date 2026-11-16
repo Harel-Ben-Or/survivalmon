@@ -8,9 +8,10 @@ import { WEAPONS } from '../content/weapons.js';
 import { SPELLS } from '../content/spells.js';
 import { ARTIFACTS } from '../content/artifacts.js';
 import { TAU, rand } from '../core/util.js';
+import { armorCut } from '../systems/armor.js';
 
 export const SLOTS = { weapon: 4, spell: 3, artifact: 6, pet: 3 };
-export const xpFor = (L) => Math.floor(5 + L * 5 + Math.pow(L, 1.8));
+export const xpFor = (L) => Math.floor(4 + L * 4 + Math.pow(L, 1.75));
 
 export class Player {
   constructor(g, heroId) {
@@ -19,7 +20,7 @@ export class Player {
     this.spr = HERO[heroId];
     this.x = 0; this.y = 0; this.r = 5;
     this.dir = 'down'; this.faceAngle = Math.PI / 2; this.anim = 0; this.moving = false;
-    this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0;
+    this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0; this.bonusPicks = 0;
     this.bonus = {};
     this.weapons = []; this.spells = []; this.artifacts = []; this.pets = [];
     this.coins = 0; this.kills = 0;
@@ -124,7 +125,7 @@ export class Player {
 
   hurt(dmg, src) {
     if (this.iframes > 0 || this.dashT > 0 || this.g.mode !== 'world') return false;
-    const d = Math.max(1, Math.round(dmg - this.stats.armor));
+    const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor)));
     this.hp -= d;
     this.iframes = 0.6; this.flash = 0.15;
     this.g.particles.number(this.x, this.y - 4, d, 'hurt');

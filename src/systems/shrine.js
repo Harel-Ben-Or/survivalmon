@@ -7,13 +7,13 @@ import { Profiles } from './profiles.js';
 const KEY = Profiles.key('shrine'); // this player's save
 const pct = (v) => `${Math.round(v * 100)}%`;
 export const SHRINE_NODES = [
-  { id: 'dmg', branch: 'Power', name: 'Team damage', icon: 'fang', per: 0.03, max: 25, base: 20, desc: (v) => `+${pct(v)} damage for every survivalmon` },
-  { id: 'haste', branch: 'Power', name: 'Team attack speed', icon: 'stormcharm', per: 0.02, max: 25, base: 25, desc: (v) => `Every survivalmon attacks ${pct(v)} faster` },
-  { id: 'crit', branch: 'Power', name: 'Team crits', icon: 'clover', per: 0.01, max: 20, base: 30, desc: (v) => `+${pct(v)} crit chance for every survivalmon` },
-  { id: 'hp', branch: 'Guard', name: 'Team HP', icon: 'heart', per: 0.05, max: 25, base: 20, desc: (v) => `+${pct(v)} max HP for every survivalmon` },
-  { id: 'def', branch: 'Guard', name: 'Team defense', icon: 'shell', per: 0.02, max: 20, base: 25, desc: (v) => `Survivalmons take ${pct(v)} less damage` },
+  { id: 'dmg', branch: 'Power', name: 'Team damage', icon: 'team_power', per: 0.03, max: 25, base: 20, desc: (v) => `+${pct(v)} damage for every survivalmon` },
+  { id: 'haste', branch: 'Power', name: 'Team attack speed', icon: 'team_haste', per: 0.02, max: 25, base: 25, desc: (v) => `Every survivalmon attacks ${pct(v)} faster` },
+  { id: 'crit', branch: 'Power', name: 'Team crits', icon: 'team_focus', per: 0.01, max: 20, base: 30, desc: (v) => `+${pct(v)} crit chance for every survivalmon` },
+  { id: 'hp', branch: 'Guard', name: 'Team HP', icon: 'team_vigor', per: 0.05, max: 25, base: 20, desc: (v) => `+${pct(v)} max HP for every survivalmon` },
+  { id: 'def', branch: 'Guard', name: 'Team defense', icon: 'team_guard', per: 0.02, max: 20, base: 25, desc: (v) => `Survivalmons take ${pct(v)} less damage` },
   { id: 'rest', branch: 'Guard', name: 'Restful Ranch', icon: 'berry', per: 0.05, max: 10, base: 30, desc: (v) => `Resting survivalmons heal ${pct(v)} more per run` },
-  { id: 'wild', branch: 'Wild', name: 'Call of the wild', icon: 'orb_star', per: 0.05, max: 20, base: 30, desc: (v) => `Wild survivalmons appear ${pct(v)} more often` },
+  { id: 'wild', branch: 'Wild', name: 'Call of the wild', icon: 'up_wild', per: 0.05, max: 20, base: 30, desc: (v) => `Wild survivalmons appear ${pct(v)} more often` },
   { id: 'hatch', branch: 'Wild', name: 'Warm nests', icon: 'egg', per: 0.05, max: 20, base: 25, desc: (v) => `Eggs hatch ${pct(v)} faster` },
 ];
 // Skill tier odds (% for D, C, B, A, S) at each research level

@@ -23,6 +23,7 @@ import { Profiles } from '../systems/profiles.js';
 import { T, ZONES } from '../world/world.js';
 import { Meta } from '../systems/meta.js';
 import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
+import { armorPct } from '../systems/armor.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const CONTROL_NAMES = { auto: 'Auto', touch: 'Touch', keys: 'Keyboard' };
@@ -237,7 +238,7 @@ export class UI {
     this.el.hud.classList.remove('hidden');
     const q = (s) => this.el.hud.querySelector(s);
     this.h = {
-      xp: q('.xpbar .fill'), lv: q('.xpbar .lv'), hpbar: q('.hpbar'), hp: q('.hpbar .fill'), hpText: q('.hpbar span'),
+      xp: q('.xpbar .fill'), lv: q('.xpbar .lv'), xpbar: q('.xpbar'), hpbar: q('.hpbar'), hp: q('.hpbar .fill'), hpText: q('.hpbar span'),
       coins: q('.coins'), kills: q('.kills'), mats: q('.mats'), pets: q('.pets-row'), weapons: q('.weapons'),
       time: q('.timer .t'), phase: q('.phase'), paused: q('.paused-chip'), boss: q('.bossbar'), bossName: q('.bossbar .name'), bossFill: q('.bossbar .bar div'),
       mini: q('.minimap canvas'), spells: [...this.el.hud.querySelectorAll('.spell')], dash: q('.dash .pip div'),
@@ -252,14 +253,17 @@ export class UI {
   set(key, el, prop, val) {
     if (this.last[key] === val) return;
     this.last[key] = val;
-    if (prop === 'text') el.textContent = val; else el.style[prop] = val;
+    if (prop === 'text') el.textContent = val; else if (prop === 'class') el.className = val; else el.style[prop] = val;
   }
 
   updateHUD() {
     const g = this.g, P = g.player, S = P.stats, H = this.h;
     if (!H) return;
     this.set('xp', H.xp, 'width', `${Math.min(100, (P.xp / P.xpNext) * 100).toFixed(1)}%`);
-    this.set('lv', H.lv, 'text', `Lv ${P.level}`);
+    // the bar's colour and label say what the next level-up upgrades
+    const next = g.nextLevelKind?.() || 'hero';
+    this.set('lv', H.lv, 'text', P.pets.length ? `Lv ${P.level} · next: ${next === 'team' ? 'team' : 'hero'}` : `Lv ${P.level}`);
+    this.set('xpk', H.xpbar, 'class', `xpbar next-${next}`);
     this.set('hp', H.hp, 'width', `${Math.max(0, (P.hp / S.maxHp) * 100).toFixed(1)}%`);
     this.set('hpt', H.hpText, 'text', `${Math.ceil(P.hp)} / ${S.maxHp}`);
     H.hpbar.classList.toggle('low', P.hp / S.maxHp < 0.3);
@@ -406,9 +410,10 @@ export class UI {
     Input.endFrame();
   }
 
-  showLevelUp(cards, onPick) {
+  showLevelUp(cards, onPick, kind = 'hero', level = 0) {
     this.modalKind = 'levelup';
     this.levelCards = cards; this.onPick = onPick;
+    this.levelKind = kind; this.levelNum = level;
     this.renderLevelUp();
   }
   renderLevelUp() {
@@ -441,9 +446,17 @@ export class UI {
         <div class="val">${esc(c.up.fmt(c.value))}</div>
         <span class="key kb">${i + 1}</span></div>`;
     }).join('');
+    const kind = this.levelKind || 'hero';
+    const head = kind === 'team' ? `Survivalmons level up! <small>Lv ${this.levelNum}</small>`
+      : kind === 'bonus' ? 'Treasure! <small>Bonus pick</small>'
+      : `${esc(P.hero.name)} levels up! <small>Lv ${this.levelNum}</small>`;
+    const sub = kind === 'team' ? 'Pick an upgrade for your team. Next level: your hero.'
+      : kind === 'bonus' ? 'From the chest: pick one, for your hero or your team.'
+      : P.pets.length ? 'Pick an upgrade for your hero. Next level: your survivalmons.' : 'Pick an upgrade for your hero.';
     this.openModal(`
-      <div class="modal-box panel">
-        <h2>Level up! Lv ${P.level - P.pendingLevels + 1}</h2>
+      <div class="modal-box panel lvl-${kind}">
+        <h2 class="lvl-head">${head}</h2>
+        <div class="lvl-sub">${sub}</div>
         <div class="cards">${cards}</div>
         <div class="reroll"><button class="btn small secondary" data-act="reroll" ${P.coins < cost ? 'disabled' : ''}>Reroll — ${cost} coins</button>
         <span style="font-size:14px;color:var(--muted)">You have ${Math.floor(P.coins)} coins<span class="hint-keys"> · press <span class="key">1</span><span class="key">2</span><span class="key">3</span></span></span></div>
@@ -625,10 +638,10 @@ export class UI {
     }).join('') : '<span style="color:var(--muted);font-size:14px">— hatch your egg or catch wild survivalmons —</span>';
     const pct = (v) => `${Math.round(v * 100)}%`;
     const stats = [
-      ['Max HP', S.maxHp], ['Regen', `${S.regen.toFixed(1)}/s`], ['Armor', S.armor], ['Move speed', pct(S.speed / 64)],
+      ['Max HP', S.maxHp], ['Regen', `${S.regen.toFixed(1)}/s`], ['Armor', `${Math.round(S.armor)} (-${armorPct(S.armor)}% damage)`], ['Move speed', pct(S.speed / 64)],
       ['Damage', pct(S.might)], ['Cooldowns', pct(S.cooldown)], ['Area', pct(S.area)], ['Projectiles', `+${S.amount}`],
       ['Crit chance', pct(S.crit)], ['Crit damage', pct(S.critMult)], ['Pickup range', pct(S.magnet / 30)],
-      ['EXP gain', pct(S.growth)], ['Team damage', `+${pct(T.dmg)}`], ['Team attack speed', `+${pct(T.haste)}`],
+      ['EXP gain', pct(S.growth)], ['Team damage', `+${pct(T.dmg + S.petPower - 1)}`], ['Team attack speed', `+${pct(T.haste)}`],
       ['Team defense', `+${pct(T.def)}`], ['Team max HP', `+${pct(T.hp)}`],
     ].map(([a, b]) => `<span>${a}</span><span>${b}</span>`).join('');
     const st = g.settings;

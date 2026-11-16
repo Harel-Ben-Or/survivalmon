@@ -16,7 +16,7 @@ import { Particles } from '../systems/particles.js';
 import { Combat } from '../systems/combat.js';
 import { Pickups } from '../systems/pickups.js';
 import { Director, RUN_LENGTH, PACE } from '../systems/director.js';
-import { rollContainer, levelUpOptions, applyLevelCard, rollStone } from '../systems/loot.js';
+import { rollContainer, levelUpOptions, levelKind, applyLevelCard, rollStone } from '../systems/loot.js';
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
@@ -34,7 +34,10 @@ import { Profiles } from '../systems/profiles.js';
 
 const MAX_STEP = 1 / 60;
 // Icons that only exist as PixelLab art (no code-drawn version)
-const EXTRA_ICONS = ['mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
+// the upgrade icons (Training Hall, level-up cards, Spirit Shrine)
+const UP_ICONS = ['hp', 'damage', 'speed', 'haste', 'magnet', 'armor', 'crit', 'critdmg', 'regen', 'area', 'multi', 'luck', 'exp', 'runtime', 'coins', 'wild'].map((k) => `up_${k}`)
+  .concat(['power', 'haste', 'guard', 'vigor', 'focus', 'heal'].map((k) => `team_${k}`));
+const EXTRA_ICONS = [...UP_ICONS, 'mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
 const GATHER_TIME = 1.6;  // seconds standing at a gathering spot
 const GATHER = { wood: 3, stone: 3, clay: 2, iron: 1 };
 const SETTINGS_KEY = 'survivelmon.settings';
@@ -385,6 +388,7 @@ export class Game {
     Audio.setNight(this.dayMinute > 17);
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
+    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp(true);
     Box.saveIfDirty();
   }
 
@@ -412,6 +416,7 @@ export class Game {
     if (P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
+    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp(true);
   }
 
   // ------------------------------------------------------------ houses
@@ -487,6 +492,7 @@ export class Game {
       else if (d.kind === 'xp') { P.addXp(d.value); this.particles.number(cx, cy + 18, d.value, 'xp'); }
       else if (d.kind === 'berry') this.feedTeam(d.value);
       else if (d.kind === 'stone') this.gainStone(d.value);
+      else if (d.kind === 'card') { P.bonusPicks = (P.bonusPicks || 0) + d.value; this.toast('Treasure! A bonus upgrade to pick'); }
       else if (d.kind === 'mats') {
         this.addMats(d.value);
         this.toast(Object.entries(d.value).map(([k, v]) => `+${Math.max(1, Math.round(v * (this.matMult || 1)))} ${MATERIALS[k].name}`).join(' · '));
@@ -648,18 +654,24 @@ export class Game {
   }
   combo(id) { return this.activeCombos.has(id); }
 
-  openLevelUp() {
+  // Level-ups alternate between your survivalmons and your hero (see levelKind); bonus picks from
+  // chests offer both. The level shown is the one this pick is for.
+  openLevelUp(bonus = false) {
     const P = this.player;
+    const level = P.level - P.pendingLevels + 1;
+    const kind = this.levelKindNow = bonus ? 'bonus' : levelKind(P, level);
     this.modal = 'levelup';
     this.ui.prompt(null);
     Audio.play('levelup');
-    this.ui.showLevelUp(levelUpOptions(P), (card) => {
+    this.ui.showLevelUp(levelUpOptions(P, kind), (card) => {
       applyLevelCard(P, card);
-      P.pendingLevels--;
+      if (bonus) P.bonusPicks--; else P.pendingLevels--;
       this.modal = null;
-    });
+    }, kind, level);
   }
-  rerollLevelUp() { return levelUpOptions(this.player); }
+  rerollLevelUp() { return levelUpOptions(this.player, this.levelKindNow); }
+  // which kind the next level-up will be (for the EXP bar)
+  nextLevelKind() { return levelKind(this.player, this.player.level + 1); }
 
   onBossDeath(e) {
     this.banner(`${e.def.name} defeated!`, '#7af08a', true);

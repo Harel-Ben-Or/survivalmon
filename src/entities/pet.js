@@ -8,6 +8,7 @@ import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { Box } from '../systems/collection.js';
 import { rand, TAU } from '../core/util.js';
 import { Audio } from '../core/audio.js';
+import { armorCut } from '../systems/armor.js';
 
 const TEAM0 = { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 };
 
@@ -75,7 +76,8 @@ export class Pet {
 
   hurt(dmg) {
     if (this.fainted || this.g.mode !== 'world') return;
-    const d = dmg * (1 - (this.pass.hide || 0)) * (1 - this.team.def);
+    // the hero's armor shields the team too, at half strength
+    const d = dmg * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * armorCut((this.g.player?.stats.armor || 0) * 0.5);
     this.hp -= d;
     this.flash = 0.12;
     this.calmT = 0;
@@ -130,7 +132,7 @@ export class Pet {
     if (this.fainted) this.faintT += dt;
     // out of the fight for a few seconds, a survivalmon slowly gets its breath back
     this.calmT = (this.calmT || 0) + dt;
-    if (!this.fainted && g.mode === 'world' && this.calmT > 4 && this.hp < this.maxHp) this.hp = Math.min(this.maxHp, this.hp + this.maxHp * 0.02 * dt);
+    if (!this.fainted && g.mode === 'world' && this.calmT > 3 && this.hp < this.maxHp) this.hp = Math.min(this.maxHp, this.hp + this.maxHp * 0.03 * dt);
     const trail = P.trail;
     const need = (index + 1) * 10;
     const side = P.faceAngle + (index % 2 ? -0.8 : 0.8);

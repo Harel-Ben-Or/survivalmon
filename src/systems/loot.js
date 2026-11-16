@@ -48,6 +48,7 @@ export function rollContainer(P, c) {
   const stone = () => out.drops.push({ kind: 'stone', value: rollStone(P) });
   const egg = () => out.drops.push({ kind: 'egg', value: 1 });
   const gear = () => out.drops.push({ kind: 'gear', value: 1 });
+  const card = () => out.drops.push({ kind: 'card', value: 1 }); // a bonus level-up pick
   const mats = (n, kinds = ['wood', 'stone', 'clay']) => {
     const m = {};
     for (let i = 0; i < n; i++) { const k = kinds[(Math.random() * kinds.length) | 0]; m[k] = (m[k] || 0) + 1; }
@@ -56,18 +57,20 @@ export function rollContainer(P, c) {
   switch (c.type) {
     case 'chest':
       if (c.tier === 'gold') {
-        coins(15, 30); berries(2, 3); mats(6, ['wood', 'stone', 'clay', 'iron']);
+        coins(15, 30); berries(2, 3); mats(6, ['wood', 'stone', 'clay', 'iron']); card();
         if (chance(0.35 * luck)) gear();
         if (chance(0.25 * luck)) stone();
         if (chance(0.1 * luck)) egg();
       } else if (c.tier === 'silver') {
         coins(8, 16); berries(1, 2);
+        if (chance(0.5)) card();
         if (chance(0.5)) mats(4, ['wood', 'stone', 'clay', 'iron']);
         if (chance(0.12 * luck)) gear();
         if (chance(0.08 * luck)) stone();
         if (chance(0.05 * luck)) egg();
       } else {
         coins(4, 10);
+        if (chance(0.25)) card();
         if (chance(0.4)) berries(1, 2);
         if (chance(0.25)) mats(2);
         if (chance(0.05 * luck)) gear();
@@ -78,6 +81,7 @@ export function rollContainer(P, c) {
       if (chance(0.35 * luck)) stone();
       if (chance(0.15 * luck)) egg();
       if (!out.drops.length) { berries(3, 4); xp(20, 40); out.text = 'The altar hums. Your survivalmons feel stronger.'; }
+      if (chance(0.5)) card();
       break;
     case 'bookshelf':
       xp(10, 25);
@@ -118,13 +122,15 @@ const HERO_CARDS = UPGRADES.filter((u) => !['luck', 'velocity', 'endurance', 'bo
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
-  { id: 't_power', name: 'Team Power', icon: 'fang', base: 0.12, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
-  { id: 't_haste', name: 'Team Haste', icon: 'hourglass', base: 0.08, key: 'haste', w: 8, cap: 0.5, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
-  { id: 't_guard', name: 'Team Guard', icon: 'shell', base: 0.08, key: 'def', w: 7, cap: 0.6, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
-  { id: 't_vigor', name: 'Team Vigor', icon: 'heart', base: 0.15, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
-  { id: 't_focus', name: 'Team Focus', icon: 'clover', base: 0.05, key: 'crit', w: 5, cap: 0.5, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
-  { id: 't_heal', name: 'Second Breath', icon: 'heart', w: 6, noRarity: true, fmt: () => 'Heal your survivalmons fully. Fainted ones get back up.' },
+  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.12, key: 'dmg', w: 10, fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
+  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.08, key: 'haste', w: 8, cap: 0.5, fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
+  { id: 't_guard', name: 'Team Guard', icon: 'team_guard', base: 0.08, key: 'def', w: 7, cap: 0.6, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
+  { id: 't_vigor', name: 'Team Vigor', icon: 'team_vigor', base: 0.15, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
+  { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.05, key: 'crit', w: 5, cap: 0.5, fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
+  { id: 't_heal', name: 'Second Breath', icon: 'team_heal', w: 6, noRarity: true, fmt: () => 'Heal your survivalmons fully. Fainted ones get back up.' },
 ];
+// Rare and epic cards come more often with luck, and much more often in a chest's bonus pick.
+const rollRarity = (used) => weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? (used.lucky ? 0.3 : 1) : used.P.stats.luck));
 const hurtTeam = (P) => P.pets.some((p) => p.fainted || p.hp < p.maxHp * 0.6);
 
 function heroCard(used) {
@@ -132,37 +138,54 @@ function heroCard(used) {
   const u = weightedChoice(pool, (x) => x.w);
   if (!u) return null;
   used.add(u.id);
-  const rar = u.noRarity ? RARITIES[0] : weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? 1 : used.P.stats.luck));
+  const rar = u.noRarity ? RARITIES[0] : rollRarity(used);
   const v = u.round ? Math.max(1, Math.round(u.base * rar.mult)) : +(u.base * rar.mult).toFixed(3);
   return { kind: 'stat', up: u, rarity: rar, value: v };
 }
 function monCard(used) {
   const P = used.P, g = P.g;
   // sometimes: one of your survivalmon's skills goes up a tier for this run
-  const boostable = P.pets.filter((p) => !p.fainted).flatMap((p) => p.mon.skills.filter((s) => p.tierOf(s) < 4).map((s) => ({ pet: p, skill: s })));
-  if (boostable.length && !used.has('skill') && chance(0.35)) {
-    used.add('skill');
+  // (up to two per level-up, never the same skill twice)
+  used.skills ||= new Set();
+  const boostable = P.pets.filter((p) => !p.fainted).flatMap((p) => p.mon.skills.filter((s) => p.tierOf(s) < 4 && !used.skills.has(s)).map((s) => ({ pet: p, skill: s })));
+  if (boostable.length && used.skills.size < 2 && chance(0.4)) {
     const { pet, skill } = boostable[(Math.random() * boostable.length) | 0];
+    used.skills.add(skill);
     return { kind: 'skill', pet, skill, from: pet.tierOf(skill) };
   }
   const pool = TEAM_CARDS.filter((u) => !used.has(u.id) && (u.id !== 't_heal' || hurtTeam(P)) && !(u.cap !== undefined && (g.team?.[u.key] || 0) >= u.cap));
   const u = weightedChoice(pool, (x) => x.w);
   if (!u) return null;
   used.add(u.id);
-  const rar = u.noRarity ? RARITIES[0] : weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? 1 : P.stats.luck));
+  const rar = u.noRarity ? RARITIES[0] : rollRarity(used);
   return { kind: 'team', up: u, rarity: rar, value: u.base ? +(u.base * rar.mult).toFixed(3) : 0 };
 }
 
-// Three level-up cards: sometimes a training card for one of your hero's weapons, one or two cards
-// for your survivalmons (when you have any), and hero stat cards for the rest.
-export function levelUpOptions(P) {
+// What a level-up upgrades: levels alternate between your survivalmons (even levels: 2, 4, 6...)
+// and your hero (odd levels: 3, 5, 7...). With no survivalmons in the run, every level is the hero's.
+export function levelKind(P, level) { return P.pets.length && level % 2 === 0 ? 'team' : 'hero'; }
+
+// Three cards of one kind:
+//   hero:  hero stat cards, and sometimes a training card for one of the hero's weapons
+//   team:  survivalmon cards (team boosts, a skill going up a tier, a heal when someone's hurt)
+//   bonus: (from chests) one hero card, one team card, and one of either, at better rarity
+export function levelUpOptions(P, kind = 'hero') {
   const picks = [];
   const used = new Set();
   used.P = P;
-  const trainable = P.weapons.filter((w) => w.level < WEAPONS[w.id].max);
-  if (trainable.length && chance(0.4)) picks.push({ kind: 'train', cat: 'weapon', id: trainable[(Math.random() * trainable.length) | 0].id });
-  let mons = P.pets.length ? (chance(0.5) ? 2 : 1) : 0;
-  while (mons-- > 0 && picks.length < 3) { const c = monCard(used); if (c) picks.push(c); }
+  used.lucky = kind === 'bonus';
+  const train = () => {
+    const trainable = P.weapons.filter((w) => w.level < WEAPONS[w.id].max);
+    return trainable.length ? { kind: 'train', cat: 'weapon', id: trainable[(Math.random() * trainable.length) | 0].id } : null;
+  };
+  const add = (c) => { if (c) picks.push(c); };
+  if (kind === 'team' && P.pets.length) {
+    for (let i = 0; i < 6 && picks.length < 3; i++) add(monCard(used));
+  } else if (kind === 'bonus') {
+    add(heroCard(used));
+    if (P.pets.length) add(monCard(used));
+    add(P.pets.length && chance(0.5) ? monCard(used) : heroCard(used));
+  } else if (chance(0.45)) add(train());
   while (picks.length < 3) { const c = heroCard(used); if (!c) break; picks.push(c); }
   return shuffle(picks);
 }

@@ -18,6 +18,8 @@ const COLORS = {
   snowgolem: ['#e8f4ff', '#2a1a30'], sawbeetle: ['#b08a50', '#c0304a'], cinderimp: ['#ff7a3a', '#2a1a20'], wiltsprite: ['#7a5a8a', '#c0304a'],
   thornling: ['#4a3a30', '#c0304a'], bogcrab: ['#3a3a4a', '#c0304a'], poacher: ['#8a6a4a', '#d8c8a0'], slinger: ['#4a6a3a', '#d8c8a0'], drone: ['#9aa0aa', '#ff4a4a'],
 };
+// Survivalmons take this share of a monster's damage (they fight up close; the hero can dodge)
+const PET_HIT = 0.5;
 // Blight creatures splatter black ink and red sparks
 const BLIGHT_COLORS = ['#1e1424', '#3a2448', '#c0304a'];
 
@@ -171,7 +173,7 @@ export class Enemy {
       for (const pet of P.pets) {
         if (pet.fainted) continue;
         const rr = this.r + 5;
-        if (dist2(this.x, this.y, pet.x, pet.y) < rr * rr) { pet.hurt(this.dmg * 0.7); this.petCd = 0.7; this.swing(); break; }
+        if (dist2(this.x, this.y, pet.x, pet.y) < rr * rr) { pet.hurt(this.dmg * PET_HIT); this.petCd = 0.7; this.swing(); break; }
       }
     }
   }
@@ -542,7 +544,7 @@ function burst(e, g) {
   g.particles.burst(e.x, e.y - 4, { n: 22, colors: BLIGHT_COLORS, speed: 120, life: 0.5, size: 2 });
   g.shake(2, 0.2); Audio.play('explode');
   if (dist2(e.x, e.y, P.x, P.y) < R * R) P.hurt(dmg, e);
-  for (const pet of P.pets) if (!pet.fainted && dist2(e.x, e.y, pet.x, pet.y) < R * R) pet.hurt(dmg * 0.7);
+  for (const pet of P.pets) if (!pet.fainted && dist2(e.x, e.y, pet.x, pet.y) < R * R) pet.hurt(dmg * PET_HIT);
   e.burst = true;
   g.killEnemy(e, {});
 }

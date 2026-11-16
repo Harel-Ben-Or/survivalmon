@@ -39,8 +39,8 @@ export const UNLOCK_TEXT = {
 // The Merchant's goods: each lasts for your next run. The stall shows as many as its level allows.
 export const MERCHANT_ITEMS = [
   { id: 'snack', name: 'Power Snack', icon: 'berry', price: 40, text: 'Survivalmons deal 20% more damage next run' },
-  { id: 'tonic', name: 'Iron Tonic', icon: 'shell', price: 40, text: 'Survivalmons take 20% less damage next run' },
-  { id: 'horn', name: 'Lure Horn', icon: 'orb_star', price: 60, text: 'Wild survivalmons appear 50% more often next run' },
+  { id: 'tonic', name: 'Iron Tonic', icon: 'team_guard', price: 40, text: 'Survivalmons take 20% less damage next run' },
+  { id: 'horn', name: 'Lure Horn', icon: 'up_wild', price: 60, text: 'Wild survivalmons appear 50% more often next run' },
   { id: 'pick', name: 'Lucky Pick', icon: 'mat_iron', price: 50, text: 'Double materials next run' },
   { id: 'candle', name: 'Time Candle', icon: 'hourglass', price: 30, text: '+10 seconds on your next run' },
   { id: 'feather', name: 'Revive Feather', icon: 'phoenix', price: 50, text: 'The first survivalmon to faint gets back up once' },

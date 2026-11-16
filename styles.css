@@ -681,3 +681,14 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
 /* New version of the installed app ready (src/core/update.js) */
 .update-btn { position: fixed; z-index: 60; left: 50%; top: calc(8px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); white-space: nowrap; }
 .app-version { color: var(--muted); font-size: 12px; text-align: center; }
+
+/* Level-ups alternate: survivalmons (teal) on even levels, the hero (gold) on odd ones */
+.xpbar.next-hero .fill { background: linear-gradient(#ffe9a0, #f0b030); }
+.xpbar.next-team .fill { background: linear-gradient(#b4fff4, #3ac8b8); }
+.lvl-head small { font-size: .6em; color: var(--muted); margin-left: 6px; }
+.lvl-sub { color: var(--muted); font-size: 14px; text-align: center; margin: -6px 0 10px; }
+.lvl-hero .lvl-head { color: #ffd84a; }
+.lvl-team .lvl-head { color: #7af0ff; }
+.lvl-bonus .lvl-head { color: #ffb0f0; }
+.lvl-bonus { box-shadow: 0 0 0 3px var(--ink), 0 0 24px rgba(255,176,240,.45); }
+@media (max-height: 500px) { .lvl-sub { font-size: 12px; margin: -4px 0 6px; } }

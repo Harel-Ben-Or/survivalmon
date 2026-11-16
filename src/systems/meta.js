@@ -4,6 +4,7 @@ import { RUN_LENGTH } from './director.js';
 import { BUILDINGS, buildingCost } from '../content/buildings.js';
 import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, SET_BONUS, MILESTONES, slotCost } from '../content/gear.js';
 import { Profiles } from './profiles.js';
+import { armorPct } from './armor.js';
 
 const KEY = Profiles.key('meta'); // this player's save
 const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
@@ -11,15 +12,15 @@ const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unl
 
 // Training Hall upgrades. `mods` turns a level into hero stat mods (same keys as Player.recompute).
 export const TRAINING = [
-  { id: 'runtime', name: 'Run time', icon: 'hourglass', max: 18, base: 5, desc: (L) => `${fmtTime(runLengthAt(L))} per run` },
-  { id: 'maxHp', name: 'Max HP', icon: 'heart', max: 30, base: 6, desc: (L) => `+${L * 10} max HP`, mods: (L) => ({ maxHp: L * 10 }) },
-  { id: 'might', name: 'Damage', icon: 'fang', max: 30, base: 8, desc: (L) => `+${L * 5}% damage`, mods: (L) => ({ might: L * 0.05 }) },
-  { id: 'speed', name: 'Move speed', icon: 'feather', max: 15, base: 8, desc: (L) => `+${L * 3}% move speed`, mods: (L) => ({ speed: L * 0.03 }) },
-  { id: 'haste', name: 'Attack speed', icon: 'stormcharm', max: 15, base: 10, desc: (L) => `-${L * 3}% weapon cooldowns`, mods: (L) => ({ haste: L * 0.03 }) },
-  { id: 'magnet', name: 'Pickup range', icon: 'magnet', max: 15, base: 6, desc: (L) => `+${L * 10}% pickup range`, mods: (L) => ({ magnet: L * 0.1 }) },
-  { id: 'armor', name: 'Armor', icon: 'shell', max: 10, base: 12, desc: (L) => `-${L} damage from every hit`, mods: (L) => ({ armor: L }) },
-  { id: 'coins', name: 'Coin gain', icon: 'coin', max: 20, base: 10, desc: (L) => `+${L * 10}% coins per kill` },
-  { id: 'wild', name: 'Wild survivalmons', icon: 'orb_star', max: 10, base: 15, desc: (L) => `Wild survivalmons appear ${L * 10}% more often` },
+  { id: 'runtime', name: 'Run time', icon: 'up_runtime', max: 18, base: 5, desc: (L) => `${fmtTime(runLengthAt(L))} per run` },
+  { id: 'maxHp', name: 'Max HP', icon: 'up_hp', max: 30, base: 6, desc: (L) => `+${L * 10} max HP`, mods: (L) => ({ maxHp: L * 10 }) },
+  { id: 'might', name: 'Damage', icon: 'up_damage', max: 30, base: 8, desc: (L) => `+${L * 5}% damage for your hero and survivalmons`, mods: (L) => ({ might: L * 0.05, petPower: L * 0.05 }) },
+  { id: 'speed', name: 'Move speed', icon: 'up_speed', max: 15, base: 8, desc: (L) => `+${L * 3}% move speed`, mods: (L) => ({ speed: L * 0.03 }) },
+  { id: 'haste', name: 'Attack speed', icon: 'up_haste', max: 15, base: 10, desc: (L) => `-${L * 3}% weapon cooldowns`, mods: (L) => ({ haste: L * 0.03 }) },
+  { id: 'magnet', name: 'Pickup range', icon: 'up_magnet', max: 15, base: 6, desc: (L) => `+${L * 10}% pickup range`, mods: (L) => ({ magnet: L * 0.1 }) },
+  { id: 'armor', name: 'Armor', icon: 'up_armor', max: 10, base: 12, desc: (L) => `+${L * 2} armor: ${armorPct(L * 2)}% less damage (half that for survivalmons)`, mods: (L) => ({ armor: L * 2 }) },
+  { id: 'coins', name: 'Coin gain', icon: 'up_coins', max: 20, base: 10, desc: (L) => `+${L * 10}% coins per kill` },
+  { id: 'wild', name: 'Wild survivalmons', icon: 'up_wild', max: 10, base: 15, desc: (L) => `Wild survivalmons appear ${L * 10}% more often` },
 ];
 
 // 20 s at first, growing a little faster each level, up to the longest run (8 minutes at level 18).
