@@ -393,3 +393,39 @@ export async function loadIconArt(ids, base = 'assets/sprites/icons') {
     if (img) { const full = fromImage(img), c = cropped(full); ICON_ART[id] = { img: c, full, w: c.width / WS, h: c.height / WS }; }
   }));
 }
+
+// ---------------------------------------------------------------- attack effects
+// Animated effects drawn with PixelLab's effects tool, packed into atlas pages (see content/vfx_data.js).
+export const VFX = {};       // id -> { fps, loop, ax, ay, hit, f: frames, dur }
+const VFX_IMG = [];
+export async function loadVfxArt(base = 'assets/sprites/vfx') {
+  const { VFX_PAGES, VFX_DATA } = await import('../content/vfx_data.js').catch(() => ({ VFX_PAGES: 0, VFX_DATA: {} }));
+  const imgs = await Promise.all(Array.from({ length: VFX_PAGES }, (_, i) => loadImage(`${base}/vfx_${i}.png`)));
+  imgs.forEach((im, i) => { VFX_IMG[i] = im; });
+  for (const [id, d] of Object.entries(VFX_DATA)) VFX[id] = { ...d, dur: d.f.length / d.fps };
+}
+export const hasVfx = (id) => !!(id && VFX[id]);
+// Seconds into an effect when its attack lands
+export const vfxHitTime = (id) => { const v = VFX[id]; return v ? (v.hit ?? Math.floor(v.f.length / 3)) / v.fps : 0; };
+// Draws an effect t seconds in, its origin at (x, y). o: rot, scale, alpha, flip. Returns false once a one-shot is over.
+export function drawVfx(ctx, id, t, x, y, o = {}) {
+  const v = VFX[id];
+  if (!v) return false;
+  let i = Math.floor(t * v.fps);
+  if (v.loop) i %= v.f.length; else if (i >= v.f.length) return false;
+  const f = v.f[Math.max(0, i)];
+  if (!f) return true;
+  const img = VFX_IMG[f[0]];
+  if (!img) return true;
+  const s = (o.scale || 1) / WS;
+  if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
+  if (o.rot || o.flip) {
+    ctx.save(); ctx.translate(x, y);
+    if (o.rot) ctx.rotate(o.rot);
+    if (o.flip) ctx.scale(-1, 1);
+    ctx.drawImage(img, f[1], f[2], f[3], f[4], (f[5] - v.ax) * s, (f[6] - v.ay) * s, f[3] * s, f[4] * s);
+    ctx.restore();
+  } else ctx.drawImage(img, f[1], f[2], f[3], f[4], snap(x + (f[5] - v.ax) * s), snap(y + (f[6] - v.ay) * s), f[3] * s, f[4] * s);
+  if (o.alpha !== undefined) ctx.globalAlpha = 1;
+  return true;
+}

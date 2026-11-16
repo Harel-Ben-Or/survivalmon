@@ -2,7 +2,7 @@
 import { TAU, rand, dist2, chance, choice } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { SPR } from '../gfx/assets.js';
-import { snap, drawCreature, ANIM_FPS } from '../gfx/art.js';
+import { snap, drawCreature, ANIM_FPS, VFX, drawVfx } from '../gfx/art.js';
 import { SPECIES, STONE_OF } from '../content/species.js';
 import { TIERS, PASSIVES } from '../content/skills.js';
 import { Box, rollSkills } from './collection.js';
@@ -122,6 +122,12 @@ export const Combat = {
   drawProjectiles(ctx, cam) {
     for (const p of this.projectiles) {
       if (p.draw) { p.draw(ctx, p, cam); continue; }
+      if (p.fx && VFX[p.fx]) {
+        const x = snap(p.x - cam.x), y = snap(p.y - cam.y - p.z);
+        if (p.z > 10) { ctx.globalAlpha = 0.25; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(x, snap(p.y - cam.y), 4, 2, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+        drawVfx(ctx, p.fx, p.age + (p.seed || 0), x, y, { rot: p.fxSpin ? 0 : Math.atan2(p.vy, p.vx), scale: p.scale });
+        continue;
+      }
       if (!p.spr) continue;
       const s = SPR[p.spr] || SPR.p_bubble; // a shot whose picture is missing borrows the bubble's
       if (!s) continue;
@@ -130,9 +136,10 @@ export const Combat = {
         ctx.globalAlpha = 0.25; ctx.fillStyle = '#000';
         ctx.beginPath(); ctx.ellipse(x, snap(p.y - cam.y), 4, 2, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
       }
-      if (p.rot) {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(p.rot);
-        ctx.drawImage(s.frames[0], -s.ax, -s.ay, s.w, s.h);
+      if (p.rot || p.scale) {
+        const k = p.scale || 1;
+        ctx.save(); ctx.translate(x, y); if (p.rot) ctx.rotate(p.rot);
+        ctx.drawImage(s.frames[0], -s.ax * k, -s.ay * k, s.w * k, s.h * k);
         ctx.restore();
       } else ctx.drawImage(s.frames[0], x - s.ax, y - s.ay, s.w, s.h);
     }
@@ -165,6 +172,11 @@ export const Combat = {
       if (z.invisible) continue;
       const x = Math.round(z.x - cam.x), y = Math.round(z.y - cam.y);
       const fade = Math.min(1, (z.life - z.age) * 3);
+      if (z.fx && VFX[z.fx]) {
+        // the pool art is drawn for a 24 px radius; it fades in and out
+        drawVfx(ctx, z.fx, z.age + (z.seed || 0), x, y, { scale: z.r / 24, alpha: Math.min(1, z.age * 5, fade) * 0.9 });
+        continue;
+      }
       if (z.kind === 'fire') {
         ctx.globalAlpha = 0.25 * fade; ctx.fillStyle = '#f6702a';
         ctx.beginPath(); ctx.ellipse(x, y, z.r, z.r * 0.75, 0, 0, TAU); ctx.fill();
@@ -209,7 +221,15 @@ export const Combat = {
 
   // ------------------------------------------------------------ visual effects
   addEffect(o) { const e = { ...o, age: 0, maxLife: o.life }; this.effects.push(e); return e; },
-  zap(points, life = 0.22) {
+  // Plays an effects-tool animation with its origin at (x, y); returns the effect (or null without art)
+  playFx(id, x, y, o = {}) {
+    const v = VFX[id];
+    if (!v) return null;
+    return this.addEffect({ type: 'vfx', fx: id, x, y, life: v.loop ? o.life || 1 : v.dur, ...o });
+  },
+  // Runs fn after t seconds of game time (skipped if the run ends first)
+  after(t, fn) { (this.timers ||= []).push({ t, fn }); },
+  zap(points, life = 0.22, colors) {
     const jag = [];
     for (let i = 0; i < points.length - 1; i++) {
       const [ax, ay] = points[i], [bx, by] = points[i + 1];
@@ -220,7 +240,7 @@ export const Combat = {
         jag.push([ax + (bx - ax) * k + rand(-j, j), ay + (by - ay) * k + rand(-j, j) - 8]);
       }
     }
-    this.addEffect({ type: 'zap', pts: jag, life });
+    this.addEffect({ type: 'zap', pts: jag, life, colors });
   },
   strike(x, y) {
     const pts = [];
@@ -231,6 +251,11 @@ export const Combat = {
     this.addEffect({ type: 'flashring', x, y, R: 14, life: 0.18, color: '#fff6c8' });
   },
   updateEffects(dt) {
+    if (this.timers?.length) {
+      const due = [];
+      for (const tm of this.timers) { tm.t -= dt; if (tm.t <= 0) due.push(tm); }
+      if (due.length) { this.timers = this.timers.filter((tm) => tm.t > 0); for (const tm of due) tm.fn(this); }
+    }
     for (const e of this.effects) {
       e.age += dt;
       if (e.follow) { e.x = this.player.x; e.y = this.player.y; }
@@ -283,11 +308,15 @@ export const Combat = {
           ctx.beginPath(); ctx.ellipse(x, y, e.R, e.R * 0.75, 0, 0, TAU); ctx.stroke();
           break;
         }
+        case 'vfx': {
+          drawVfx(ctx, e.fx, e.age, x, y, { scale: e.scale, flip: e.flip, alpha: e.alpha });
+          break;
+        }
         case 'zap': {
           ctx.globalAlpha = 1 - k;
-          ctx.strokeStyle = '#7ad8ff'; ctx.lineWidth = e.wide ? 3 : 2;
+          ctx.strokeStyle = e.colors?.[0] || '#7ad8ff'; ctx.lineWidth = e.wide ? 3 : 2;
           ctx.beginPath(); e.pts.forEach(([px, py], i) => (i ? ctx.lineTo(px - cam.x, py - cam.y) : ctx.moveTo(px - cam.x, py - cam.y))); ctx.stroke();
-          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+          ctx.strokeStyle = e.colors?.[1] || '#ffffff'; ctx.lineWidth = 1;
           ctx.beginPath(); e.pts.forEach(([px, py], i) => (i ? ctx.lineTo(px - cam.x, py - cam.y) : ctx.moveTo(px - cam.x, py - cam.y))); ctx.stroke();
           break;
         }
@@ -440,7 +469,7 @@ export const Combat = {
       this.damageEnemy(e, dmg, { ...o, fromX: x, fromY: y, knock: o.knock ?? 90, silent: true });
     });
     const color = o.element === 'light' ? '#bfeaff' : o.element === 'ice' ? '#bfeaff' : '#f6702a';
-    this.addEffect({ type: 'explosion', x, y, R: r, life: o.small ? 0.2 : 0.35, color, glow: true });
+    if (!o.noFx) this.addEffect({ type: 'explosion', x, y, R: r, life: o.small ? 0.2 : 0.35, color, glow: true });
     if (!o.small) {
       this.particles.burst(x, y - 4, { n: Math.min(30, Math.floor(r / 2)), colors: ['#ffe07a', '#f6a03a', '#e0483e', '#5a4a4a'], speed: r * 3, life: 0.5, size: 2 });
       if (!o.noShake) this.shake(o.big ? 4 : 2, 0.2);

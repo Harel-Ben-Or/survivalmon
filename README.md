@@ -68,6 +68,9 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
   each home to one or two of them (they turn up most there).
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
 - Every species and breed hatches from its own egg, and has walk, attack and faint animations.
+- Species and breeds fire basic attacks of their own (a projectile, coloured lightning, a lobbed blob that
+  leaves a pool, a ground ring). An evolution's own skill is one big animated signature move: a missile that
+  bursts, a strike from the sky, an eruption, a ground quake, a burst around it, or a crash after its roll.
 
 ## Run it
 
@@ -116,6 +119,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   - `world/` — trees, houses, barn, shrine, props; `decals/` — flowers, tufts, crops, lily pads
   - `town/` — the town buildings: gate, Training Hall, Clinic, Workshop, Hatchery, Survidex library
   - `interior/` — floors, walls, furniture, chests; `icons/` — items, orbs, stones, pickups; `projectiles/`
+  - `vfx/vfx_<n>.png` — every attack effect (made with PixelLab's effects tool), packed into atlas pages;
+    `src/content/vfx_data.js` says where each frame is. `src/content/attack_fx.js` picks each skill's effects.
 - `src/gfx/art.js` — loads that art, draws it at 2× resolution and animates single images in code (hop / walk / fly).
 - `src/world/tileground.js` — draws the ground from the tilesets (autotiled terrain edges, cached in chunks).
 - `src/gfx/` (other files) — the original code-drawn sprites, used only if a PNG is missing, plus effects.

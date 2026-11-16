@@ -1,7 +1,8 @@
 // A survivalmon in a run: trails the hero, fights with every attack skill it has (its own unique
 // skill plus any it inherited), carries its passive skills, and has its own HP. It can faint; the
 // HP it ends the run with is saved, and the Clinic heals it.
-import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
+import { attackFx } from '../content/attack_fx.js';
 import { SPECIES } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { Box } from '../systems/collection.js';
@@ -51,7 +52,7 @@ export class Pet {
     this.pass = {};
     for (const s of this.mon.skills) if (s.k === 'p') this.pass[s.id] = Math.max(this.pass[s.id] || 0, PASSIVES[s.id].vals[this.tierOf(s)]);
     this.attacks = this.mon.skills.filter((s) => s.k === 'u' && SPECIES[s.sp]).map((s) => ({
-      s, arch: SPECIES[s.sp].arch, q: tiered(SPECIES[s.sp], this.tierOf(s)), cd: rand(0.5, 1.5), healT: rand(2, 5),
+      s, arch: SPECIES[s.sp].arch, q: tiered(SPECIES[s.sp], this.tierOf(s)), fx: attackFx(s.sp), cd: rand(0.5, 1.5), healT: rand(2, 5),
     }));
     this.q = this.attacks[0]?.q || {};
     const prev = this.maxHp;
@@ -151,7 +152,7 @@ export class Pet {
     const rate = (g.combo('bestfriends') ? 1.5 : 1) / ((1 - (this.pass.swift || 0)) * (1 - this.team.haste));
     for (const a of this.attacks) {
       a.cd -= dt * rate;
-      if (a.cd <= 0) a.cd = ARCH[a.arch](this, g, a.q) ?? 0.4;
+      if (a.cd <= 0) a.cd = ARCH[a.arch](this, g, a.q, a.fx || {}) ?? 0.4;
       if (a.q.heal) {
         a.healT -= dt;
         if (a.healT <= 0) {
@@ -181,6 +182,11 @@ export class Pet {
         stun: Math.max(q.stun || 0, rockslide ? 0.6 : 0), chill: q.chill, burn: q.burn,
       });
       if (q.leech) g.player.heal(q.leech);
+      // an evolution's charge ends in a big crash on the first foe it smashes into
+      if (this.rollFx?.sig && !this.crashed) {
+        this.crashed = true;
+        landSig(this, g, this.rollFx.sig, e.x, e.y, 40, q.dmg * this.power * 0.5, { ...q, knock: 30 });
+      }
     });
     if (this.rollT <= 0) {
       this.state = 'follow';
@@ -239,11 +245,13 @@ export class Pet {
 }
 
 // ---------------------------------------------------------------- fighting styles
-// Each takes the skill's numbers (q) and returns the cooldown until the next attack.
+// Each takes the skill's numbers (q) and its pictures (fx, see content/attack_fx.js) and returns the
+// cooldown until the next attack. An evolution's own skill (fx.sig) is one big animated signature move.
 const ARCH = {
-  shooter(pet, g, q) {
+  shooter(pet, g, q, fx) {
     const t = g.nearestEnemy(pet.x, pet.y, q.range || 150);
     if (!t) return 0.3;
+    if (fx.sig) return sigShot(pet, g, q, fx, t);
     let n = q.count || 1;
     if (pet.id === 'emberpup' && g.combo('kindred')) n += 2;
     const freeze = Math.max(q.freeze || 0, pet.id === 'puddlit' && g.combo('tidepool') ? 1.2 : 0);
@@ -254,11 +262,12 @@ const ARCH = {
       const zap = q.zapOnHit, boom = q.explode;
       g.spawnProjectile({
         x: pet.x, y: pet.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: q.r || 4, dmg: q.dmg * pet.power,
-        life: q.life || 1.6, spr: q.proj, element: q.element || 'phys', burn: q.burn, chill: q.chill, freeze, stun: q.stun,
+        life: q.life || 1.6, spr: fx.proj ? undefined : q.proj, fx: fx.proj, fxSpin: fx.spin, scale: fx.scale, seed: Math.random(),
+        element: q.element || 'phys', burn: q.burn, chill: q.chill, freeze, stun: q.stun,
         homing: q.homing, target: t, pierce: q.pierce || 0, knock: q.knock || 30, pet: true, petRef: pet, z: 6, glow: q.glow,
         onHit: boom || zap ? (g2, p, e) => {
           if (boom) g2.explode(p.x, p.y, 16, q.dmg * pet.power * 0.5, { element: q.element, pet: true, petRef: pet, small: true, exclude: e });
-          if (zap) chain(g2, pet, e, zap, q.dmg * pet.power * 0.4, {});
+          if (zap) chain(g2, pet, e, zap, q.dmg * pet.power * 0.4, {}, BOLT_FX);
         } : undefined,
       });
     }
@@ -266,81 +275,146 @@ const ARCH = {
     pet.swing();
     return q.cd;
   },
-  zapper(pet, g, q) {
+  zapper(pet, g, q, fx) {
     const first = g.nearestEnemy(pet.x, pet.y, q.range || 150);
     if (!first) return 0.3;
     const n = (q.chains || 3) + (pet.id === 'voltowl' && g.combo('stormwings') ? 4 : 0);
-    const pts = [[pet.x, pet.y - 4]];
-    chain(g, pet, first, n, q.dmg * pet.power, { burn: q.burn, chill: q.chill, stun: q.stun }, pts);
-    Audio.play('zap');
+    const extra = { burn: q.burn, chill: q.chill, stun: q.stun };
     pet.swing();
+    Audio.play('zap');
+    if (fx.sig) {
+      // the strike lands on the first foe, then the lightning jumps on from there
+      const x = first.x, y = first.y;
+      landSig(pet, g, fx.sig, x, y, 34, q.dmg * pet.power * 1.6, { ...q, element: 'light' }, (g2) => {
+        const seen = new Set([first.id]);
+        const next = g2.nearestEnemy(x, y, 80, (o) => !seen.has(o.id));
+        if (next) chain(g2, pet, next, n, q.dmg * pet.power, extra, fx, [[x, y]], seen);
+      });
+      return q.cd * 1.25;
+    }
+    chain(g, pet, first, n, q.dmg * pet.power, extra, fx, [[pet.x, pet.y - 4]]);
     return q.cd;
   },
-  roller(pet, g, q) {
+  roller(pet, g, q, fx) {
     const t = g.nearestEnemy(pet.x, pet.y, q.range || 140);
     if (!t) return 0.3;
     const a = Math.atan2(t.y - pet.y, t.x - pet.x);
-    pet.state = 'roll'; pet.rollT = q.time || 0.6; pet.hits.clear(); pet.rollQ = q;
+    pet.state = 'roll'; pet.rollT = q.time || 0.6; pet.hits.clear(); pet.rollQ = q; pet.rollFx = fx; pet.crashed = false;
     pet.vx = Math.cos(a) * (q.speed || 220); pet.vy = Math.sin(a) * (q.speed || 220);
     pet.face = pet.vx >= 0 ? 1 : -1;
     return pet.id === 'pebblet' && g.combo('rockslide') ? q.cd / 2 : q.cd;
   },
-  aura(pet, g, q) {
+  aura(pet, g, q, fx) {
     let hit = false;
-    g.enemiesInRadius(pet.x, pet.y, q.radius || 30, (e) => {
+    const R = q.radius || 30;
+    g.enemiesInRadius(pet.x, pet.y, R, (e) => {
       hit = true;
       const frz = q.freezeChance && Math.random() < q.freezeChance ? 1.2 : 0;
       g.damageEnemy(e, q.dmg * pet.power, { pet: true, petRef: pet, small: true, silent: true, chill: q.chill, burn: q.burn, freeze: frz });
     });
     for (let i = 0; i < 3; i++) {
-      const ang = rand(0, TAU), d = rand(0, q.radius || 30);
+      const ang = rand(0, TAU), d = rand(0, R);
       g.particles.add({ x: pet.x + Math.cos(ang) * d, y: pet.y - 4 + Math.sin(ang) * d * 0.7, vx: rand(-6, 6), vy: rand(4, 14), life: 0.6, color: Math.random() < 0.5 ? q.color || '#ffffff' : '#ffffff' });
     }
     // the dust is always on; every few seconds of fighting it gives a visible pulse
     pet.auraT = (pet.auraT || 0) + (q.tick || 0.5);
     if (hit && pet.auraT >= 2.5) { pet.auraT = 0; pet.swing(); }
+    // an evolution also bursts out in its big signature move every few seconds
+    if (fx.sig) {
+      pet.novaT = (pet.novaT || 0) + (q.tick || 0.5);
+      if (pet.novaT >= 3.2 && g.nearestEnemy(pet.x, pet.y, R * 1.6)) {
+        pet.novaT = 0; pet.swing();
+        landSig(pet, g, fx.sig, pet.x, pet.y, R * 1.7, q.dmg * pet.power * 3, { ...q, knock: 30 });
+      }
+    }
     return q.tick || 0.5;
   },
-  slam(pet, g, q) {
+  slam(pet, g, q, fx) {
     const R = q.radius || 36;
     if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) return 0.3;
     if (pet.art?.anim?.attack) pet.swing(); else pet.hopT = 0.3;
-    g.explode(pet.x, pet.y, R, q.dmg * pet.power, { pet: true, petRef: pet, knock: q.knock || 200, stun: q.stun, root: q.root, chill: q.chill, burn: q.burn, small: true });
-    g.addEffect({ type: 'ring', x: pet.x, y: pet.y, R, life: 0.35, color: q.root ? '#6cc24e' : q.chill ? '#8fe0ff' : '#c4beb4' });
+    if (fx.sig) {
+      landSig(pet, g, fx.sig, pet.x, pet.y, R * 1.2, q.dmg * pet.power * 1.1, { ...q, knock: q.knock || 200 });
+      return q.cd;
+    }
+    g.explode(pet.x, pet.y, R, q.dmg * pet.power, { pet: true, petRef: pet, knock: q.knock || 200, stun: q.stun, root: q.root, chill: q.chill, burn: q.burn, small: true, noFx: !!fx.slam });
+    if (fx.slam) g.playFx(fx.slam, pet.x, pet.y);
+    else g.addEffect({ type: 'ring', x: pet.x, y: pet.y, R, life: 0.35, color: q.root ? '#6cc24e' : q.chill ? '#8fe0ff' : '#c4beb4' });
     g.shake(1.5, 0.12);
     return q.cd;
   },
-  lobber(pet, g, q) {
-    const n = q.count || 1;
+  lobber(pet, g, q, fx) {
+    // an evolution's eruption bursts under some of the foes; the rest still get a lobbed blob
+    const n = q.count || 1, big = fx.sig ? Math.max(1, Math.ceil(n / 2)) : 0;
     const targets = g.randomEnemies(pet.x, pet.y, q.range || 140, n);
     if (!targets.length) return 0.3;
     pet.swing();
-    for (const t of targets) {
+    const pool = (g3, x, y) => g3.spawnZone({
+      kind: 'spores', fx: fx.zone, seed: Math.random(), x, y, r: q.radius || 22, life: q.dur || 3, tick: q.tick || 0.5,
+      onTick: (g4, z) => g4.enemiesInRadius(z.x, z.y, z.r, (e) => g4.damageEnemy(e, q.dmg * pet.power, { pet: true, petRef: pet, small: true, silent: true, stun: q.stun, burn: q.burn, chill: q.chill })),
+    });
+    targets.forEach((t, i) => {
       const sx = pet.x, sy = pet.y, tx = t.x, ty = t.y, T = 0.5;
+      if (i < big) {
+        // the eruption bursts out under the foe, then its pool lingers there
+        landSig(pet, g, fx.sig, tx, ty, (q.radius || 22) * 1.5, q.dmg * pet.power * 2.5, { ...q, knock: 15 }, (g2) => pool(g2, tx, ty));
+        return;
+      }
       g.spawnProjectile({
-        x: sx, y: sy, r: 0, dmg: 0, pierce: Infinity, life: T, spr: 'p_spore', noHit: true,
+        x: sx, y: sy, r: 0, dmg: 0, pierce: Infinity, life: T, spr: fx.glob ? undefined : 'p_spore', fx: fx.glob, fxSpin: true, seed: Math.random(), noHit: true,
         update(g2, p) { const k = Math.min(1, p.age / T); p.x = sx + (tx - sx) * k; p.y = sy + (ty - sy) * k; p.z = 6 + Math.sin(k * Math.PI) * 26; return true; },
-        onExpire(g2) {
-          g2.spawnZone({
-            kind: 'spores', x: tx, y: ty, r: q.radius || 22, life: q.dur || 3, tick: q.tick || 0.5,
-            onTick: (g3, z) => g3.enemiesInRadius(z.x, z.y, z.r, (e) => g3.damageEnemy(e, q.dmg * pet.power, { pet: true, petRef: pet, small: true, silent: true, stun: q.stun, burn: q.burn, chill: q.chill })),
-          });
-        },
+        onExpire(g2) { pool(g2, tx, ty); },
       });
-    }
-    return q.cd;
+    });
+    return big ? q.cd * 1.2 : q.cd;
   },
 };
+const BOLT_FX = { bolt: ['#ffe680', '#ffffff'] };
 
-// Lightning that jumps from one foe to the next nearest it hasn't hit yet.
-function chain(g, pet, first, n, dmg, extra, pts = [[first.x, first.y]]) {
+// Evolved shooters: one or two big animated missiles that burst where they land
+function sigShot(pet, g, q, fx, t) {
+  const count = q.count || 1, n = count >= 3 ? 2 : 1;
+  const dmg = (q.dmg * pet.power * count) / n;
+  const base = Math.atan2(t.y - pet.y, t.x - pet.x), sp = (q.speed || 150) * 0.85;
+  for (let i = 0; i < n; i++) {
+    const a = base + (i - (n - 1) / 2) * 0.25;
+    g.spawnProjectile({
+      x: pet.x, y: pet.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 7, dmg: dmg * 0.45, life: (q.range || 150) / sp + 0.25,
+      fx: fx.missile, spr: fx.missile ? undefined : q.proj, scale: fx.missile ? undefined : 2, seed: Math.random(),
+      element: q.element || 'phys', homing: Math.max(q.homing || 0, 6), target: t, pierce: 0, knock: 40, pet: true, petRef: pet, z: 8, glow: q.glow,
+      onExpire: (g2, p) => landSig(pet, g2, fx.sig, p.x, p.y, 34, dmg * 0.45, { ...q, knock: 35 }),
+    });
+  }
+  if (q.element === 'fire') Audio.play('fire'); else Audio.play('shoot');
+  pet.swing();
+  return q.cd * 1.15;
+}
+
+// An evolution's big move: plays its animation at (x, y) and deals the damage the moment it lands
+export function landSig(pet, g, id, x, y, R, dmg, q, then) {
+  if (!g.playFx(id, x, y)) {
+    g.addEffect({ type: 'ring', x, y, R, life: 0.4, color: '#ffffff' });
+  }
+  g.after(vfxHitTime(id), (g2) => {
+    g2.explode(x, y, R, dmg, {
+      pet: true, petRef: pet, small: true, noFx: true, element: q.element, burn: q.burn, chill: q.chill, stun: q.stun,
+      root: q.root, freeze: q.freeze || (q.freezeChance && Math.random() < q.freezeChance ? 1.2 : 0), knock: q.knock || 70,
+    });
+    g2.shake(1.5, 0.12);
+    Audio.play('explode');
+    then?.(g2);
+  });
+}
+
+// Lightning that jumps from one foe to the next nearest it hasn't hit yet, in the breed's colours.
+function chain(g, pet, first, n, dmg, extra, fx = {}, pts = [[first.x, first.y]], seen = new Set()) {
   let cur = first;
-  const seen = new Set();
   while (cur && n-- > 0) {
     seen.add(cur.id); pts.push([cur.x, cur.y]);
     g.damageEnemy(cur, dmg, { pet: true, petRef: pet, element: 'light', ...extra });
+    if (fx.hit) g.playFx(fx.hit, cur.x, cur.y - 6);
     const from = cur;
     cur = g.nearestEnemy(from.x, from.y, 80, (o) => !seen.has(o.id));
   }
-  if (pts.length > 1) g.zap(pts, 0.2);
+  if (pts.length > 1) g.zap(pts, 0.2, fx.bolt);
 }

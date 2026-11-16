@@ -4,7 +4,7 @@ import { Audio } from './audio.js';
 import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
-import { loadArt, loadWorldArt, loadProjArt, loadIconArt, WS, snap, ICON_ART } from '../gfx/art.js';
+import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, WS, snap, ICON_ART } from '../gfx/art.js';
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
 import { World, TILE, ZONES } from '../world/world.js';
@@ -113,7 +113,7 @@ export class Game {
   }
 
   resetRunState() {
-    this.enemies = []; this.projectiles = []; this.zones = []; this.effects = [];
+    this.enemies = []; this.projectiles = []; this.zones = []; this.effects = []; this.timers = [];
     this.pickups = []; this.pickupCount = { xp: 0 };
     this.particles.clear();
     this.boss = null;
@@ -124,7 +124,7 @@ export class Game {
     buildAssets();
     await loadArt();
     await loadWorldArt(SPR);
-    await Promise.all([loadProjArt(SPR), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
+    await Promise.all([loadProjArt(SPR), loadVfxArt(), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
     this.tileGround = await TileGround.load();
     Meta.load();
     Shrine.load();
