@@ -57,8 +57,9 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 - Walk with WASD / arrows or the joystick; stand at a door and press **E** (or tap **!**).
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
 - **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00).
-- **Ranch**: every survivalmon you own roams the pasture. Train them (they gain EXP while you're away):
-  each training spot has a dummy on the pasture's east side, and a survivalmon in training stands by it
+- **Ranch**: a red barn with the fenced pasture right beside it, where every survivalmon you own roams
+  (walk in through the barn's door). Train them (they gain EXP while you're away): each training spot
+  has a dummy in the pasture, and a survivalmon in training stands by it
   and hits it with its own attack (shots, lightning, lobbed blobs, slams, auras, charges; evolutions use
   their signature move now and then). Free copies for species coins, and spend those on species upgrades.
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
@@ -156,6 +157,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   `src/ui/card_preview.js` — the "now → after" rows on each card;
   `src/systems/armor.js` — how armor cuts damage.
 - `assets/sprites/icons/up_*.png`, `team_*.png` and `atk_*.png` — the upgrade icons (hero upgrades, team upgrades) and the 4 attack type icons.
+- `assets/sprites/town/` — the town buildings (`ranch.png` is the Ranch barn).
 - `icons/trio-*.png` — the app icon (Emberpup, Leafkit and Puddlit together; `trio-art.png` is the 128px original, the rest are sizes of it). The file names change with each new icon, so installed apps notice it.
 - `index.html` — also holds the loading screen (shown until all the art has loaded; `src/gfx/art.js` counts the images).
 - `tools/bot.js` plays whole careers from a fresh save; `tools/sim.js` plays one run with a chosen loadout

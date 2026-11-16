@@ -329,7 +329,7 @@ const WORLD_ART = {
   pot: ['world/pot'], pot_broken: ['world/pot_broken'], rock: ['world/rock'], rock_big: ['world/rock_big'], stump: ['world/stump'],
   fence_h: ['world/fence_h'], fence_v: ['world/fence_v'],
   town_gate: ['town/gate'], town_dummy: ['town/dummy'], town_clinic: ['town/clinic'], town_workshop: ['town/workshop'],
-  town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'],
+  town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'], town_ranch: ['town/ranch'],
   node_wood: ['world/node_wood'], node_clay: ['world/node_clay'], node_iron: ['world/node_iron'],
   bed_r: ['interior/bed_r'], bed_b: ['interior/bed_b'], bed_g: ['interior/bed_g'], table: ['interior/table'], chair: ['interior/chair'],
   bookshelf: ['interior/bookshelf'], bookshelf2: ['interior/bookshelf', true], fireplace: ['interior/fireplace'], stove: ['interior/stove'],

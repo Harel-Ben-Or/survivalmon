@@ -31,6 +31,7 @@ const BUILDINGS = [
   { id: 'merchant', name: 'Merchant', spr: 'town_merchant', door: [28, 14], yard: T.STONE },
   { id: 'survidex', name: 'Survidex', spr: 'town_library', door: [34, 15], yard: T.STONE },
   { id: 'hatchery', name: 'Hatchery', spr: 'town_hatchery', door: [11, 23], always: true, yard: T.DIRT },
+  { id: 'ranch', name: 'Ranch', spr: 'town_ranch', door: [25, 23], always: true, yard: T.DIRT }, // the pasture is beside it
 ];
 // Props around each building, as [sprite, dx, dy] from the middle of its base (logical px)
 const DECOR = {
@@ -41,16 +42,17 @@ const DECOR = {
   merchant: [['barrel', -46, 0], ['barrel_open', -37, 8], ['pot', 44, 6], ['pot_broken', 52, 2]],
   survidex: [['pot', -20, 6], ['rock', 38, 6]],
   hatchery: [['hay', -58, 2]],
+  ranch: [['hay', -50, 3]],
 };
 const FLOWERS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b'];
 const RANCH_MAX = 16; // survivalmons shown roaming the pasture
 const SPOTS_MAX = 6;  // training dummies the Ranch can hold
 // How far from its dummy each kind of attacker stands
-const STAND = { shooter: 38, zapper: 42, lobber: 42, slam: 22, aura: 15, roller: 36 };
+const STAND = { shooter: 32, zapper: 34, lobber: 34, slam: 20, aura: 14, roller: 30 };
 
 export class Town {
   constructor() {
-    this.w = 40; this.h = 30;
+    this.w = 42; this.h = 30;
     this.pw = this.w * TILE; this.ph = this.h * TILE;
     this.tiles = new Uint8Array(this.w * this.h);
     this.baked = []; this.bakedTall = []; this.shadows = [];
@@ -188,30 +190,32 @@ export class Town {
     this.road(T.DIRT, [[16.5, 15.5], [12.5, 16.5], [7.5, 17]]);                    // Clinic
     this.road(T.DIRT, [[24, 15.5], [30, 16.5], [34, 16]]);                         // Survidex
     this.road(T.DIRT, [[GX + 0.5, 17], [GX, 20.5], [17, 22], [14, 23.5], [11, 24]]); // Hatchery
-    this.road(T.DIRT, [[GX, 20.5], [22.5, 21.5]]);                                 // Ranch gate
+    this.road(T.DIRT, [[22.5, 17.5], [22.5, 21.5], [24.5, 24]]);                  // Ranch
     this.disc(T.STONE, GX, 13, 4.2);                                                // the square
     this.rect(T.STONE, 25, 14, 30, 15);                                             // the market stall's paving
     // a pond in the south with lily pads on it
     this.disc(T.WATER, 20.5, 25, 1.7);
     for (const [x, y] of [[19.5, 24.3], [21.2, 25.1], [20.1, 25.8]]) this.decal(this.pick(['lily_0', 'lily_1', 'lily_2']), x * TILE, y * TILE);
     this.solid(19 * TILE + 2, 23.6 * TILE + 4, 4 * TILE - 4, 3 * TILE - 4);
-    for (const b of BUILDINGS) if (SPR[b.spr]) this.building(b);
+    for (const b of BUILDINGS) {
+      if (SPR[b.spr]) this.building(b);
+      else this.doors.push({ ...b, x: b.door[0] * TILE + 8, y: b.door[1] * TILE + 8, py: b.door[1] * TILE - 26 }); // art missing: the door still works
+    }
     // the square: the well in the middle and a lamp at each corner
     const [wx, wy] = at(GX, 13); this.prop('well', wx, wy, 26, 9);
     this.shadows.push({ x: wx, y: wy - 2, rx: 16, ry: 5 });
-    for (const [x, y] of [[16, 9.6], [24.6, 9.6], [15.6, 17], [25, 17]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 6, 4); }
-    // Ranch: the pasture where every survivalmon you own roams, with the training dummies on its east side
-    this.fenceRect(23, 18, 36, 26, [[23, 21], [23, 22]]);
-    this.pasture = { x0: 24 * TILE + 4, y0: 19 * TILE + 8, x1: 36 * TILE - 4, y1: 26 * TILE + 2 };
-    this.prop('sign', 22 * TILE + 4, 20 * TILE + 14, 8, 4);
-    this.doors.push({ id: 'ranch', name: 'Ranch', always: true, x: 23 * TILE, y: 22 * TILE, py: 20 * TILE });
-    for (const [x, y] of [[24.9, 25.6], [26, 25.8]]) this.prop('hay', x * TILE, y * TILE, 16, 6);
+    for (const [x, y] of [[16, 9.6], [24.6, 9.6], [15.6, 17], [21.4, 19.6]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 6, 4); }
+    // Ranch: the pasture beside the Ranch house, where every survivalmon you own roams, with the
+    // training dummies in it (you go in through the house)
+    this.fenceRect(27, 18, 38, 26); // its west side runs into the house's wall
+    this.pasture = { x0: 28 * TILE + 4, y0: 19 * TILE + 8, x1: 38 * TILE - 4, y1: 26 * TILE + 2 };
+    for (const [x, y] of [[28.8, 25.6], [29.9, 25.8]]) this.prop('hay', x * TILE, y * TILE, 16, 6);
     this.nests = [[15.4, 23.3], [16.6, 23.7], [17.8, 23.3]].map(([x, y]) => ({ x: x * TILE, y: y * TILE }));
     // trees in the gaps behind the buildings, and a few in the open
     for (const [s, x, y] of [
       ['tree_green_0', 9.6, 6.6], ['tree_dark_0', 16.9, 6.1], ['tree_green_1', 24.1, 6.1], ['tree_autumn_0', 31.6, 5.6],
-      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 37, 15.6],
-      ['tree_pink_0', 17.2, 27], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 6.4, 26.6],
+      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 38.2, 15.8],
+      ['tree_pink_0', 17.2, 27], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 6.4, 26.6], ['pine_1', 36.4, 4.8], ['tree_green_1', 37.6, 9.4],
     ]) this.tree(s, x * TILE, y * TILE);
     for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19]]) {
       this.prop(s, x * TILE, y * TILE, 8, 4); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 });
@@ -232,7 +236,7 @@ export class Town {
   // them from either side (face: which way the trainee looks)
   dummyAt(i) {
     const col = i % 2, row = i >> 1;
-    return { x: (col ? 31.4 : 28.4) * TILE, y: 20.2 * TILE + row * 28, face: col ? -1 : 1, hitT: 0 };
+    return { x: col ? 548 : 508, y: 20.2 * TILE + row * 28, face: col ? -1 : 1, hitT: 0 };
   }
   // Survivalmons that aren't in the team live at the Ranch: those in training hit a dummy each,
   // the rest wander the pasture. Returns true when the ground under the dummies changed.
@@ -265,7 +269,7 @@ export class Town {
     const R = this.pasture;
     if (!this.dummies.length) return [R];
     const xs = this.dummies.map((d) => d.x), ys = this.dummies.map((d) => d.y);
-    const Y = { x0: Math.min(...xs) - 58, x1: Math.max(...xs) + 58, y1: Math.max(...ys) + 12 };
+    const Y = { x0: Math.min(...xs) - 58, x1: Math.max(...xs) + 58, y1: Math.max(...ys) + 22 };
     const out = [{ x0: R.x0, y0: Y.y1, x1: R.x1, y1: R.y1 }, { x0: R.x0, y0: R.y0, x1: Y.x0, y1: R.y1 }, { x0: Y.x1, y0: R.y0, x1: R.x1, y1: R.y1 }]
       .filter((r) => r.x1 - r.x0 >= 14 && r.y1 - r.y0 >= 14);
     return out.length ? out : [R];
