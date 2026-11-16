@@ -22,7 +22,12 @@ now and after you pick it ("Crit chance 9% → 13%", or "Hit 21 → 25" for a sk
 and label show which comes next. Beating a **boss** gives a **skill pick**: one of your survivalmons'
 skills goes up a grade (D, C, B, A, S) for the rest of the run, and each skill can go up only once per
 run. Houses (the clock stops inside!) and chests give coins, berries, materials, eggs, evolution
-stones, gear and **bonus picks** (an extra upgrade for either side; always in gold chests).
+stones, gear and **bonus picks** (an extra upgrade for either side; always in gold chests). Every house
+is made fresh when you first walk in: its size, where the door is, the floor and walls, sometimes a side
+room behind an inner wall, and a theme that decides what's inside (a home, bedroom, library, kitchen or
+storeroom; a hayloft, stable or storehouse in barns; an altar hall or crypt in shrines). Rarely (about
+1 house in 14) there's a **trapdoor**: it leads down to a dark basement with heaps of gold, about 200–300
+coins in all, and a gold chest.
 
 **Armor** takes a share off every hit, with diminishing returns: 10 armor cuts damage by a third, 20
 by half. Your armor also shields your survivalmons at half strength. The Training Hall's Damage
@@ -139,7 +144,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   - `tiles/` — ground tilesets (grass, dirt, stone, farm, water, dark grass) with `tiles.json`
   - `world/` — trees, houses, barn, shrine, props; `decals/` — flowers, tufts, crops, lily pads
   - `town/` — the town buildings: gate, Training Hall, Clinic, Workshop, Hatchery, Survidex library
-  - `interior/` — floors, walls, furniture, chests; `icons/` — items, orbs, stones, pickups; `projectiles/`
+  - `interior/` — floors, walls, furniture, chests (`cellar.png` holds the basement props in one sheet: trapdoor,
+    ladder, gold piles, candles, pillar, wine rack…); `icons/` — items, orbs, stones, pickups; `projectiles/`
   - `vfx/vfx_<n>.png` — every attack effect (made with PixelLab's effects tool), packed into atlas pages;
     `src/content/vfx_data.js` says where each frame is. `src/content/attack_fx.js` picks each skill's effects.
 - `src/gfx/art.js` — loads that art, draws it at 2× resolution and animates single images in code (hop / walk / fly).
@@ -150,7 +156,8 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   training at the dummies); `src/ui/town_ui.js`, `mons_ui.js`, `shop_ui.js` — the town screens.
 - `src/systems/meta.js` — coins, materials, Training Hall, building levels, heroes and gear; `src/systems/shrine.js` — the Spirit Shrine.
 - `src/content/skills.js` — skill tiers and passives; `gear.js` — hero boosts, unlocks and gear; `buildings.js` — building levels and Merchant items.
-- `src/world/` — map generation, ground painter, house interiors, collision, monster pathing.
+- `src/world/` — map generation, ground painter, house interiors (`interior.js`: the random rooms and the
+  basements), collision, monster pathing.
 - `src/entities/`, `src/systems/` — player, monsters, pets, combat, loot, spawning.
 - `src/ui/` — HUD, menus and all modal screens (DOM overlay).
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;

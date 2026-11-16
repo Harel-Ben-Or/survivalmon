@@ -99,6 +99,13 @@ export function rollContainer(P, c) {
       if (chance(0.25)) berries(1, 2);
       if (chance(0.2)) mats(2, ['wood']);
       break;
+    case 'gold': {
+      // a basement's treasure: a big heap pays the most
+      const [lo, hi] = { big: [45, 70], mid: [30, 45], small: [18, 28] }[c.size] || [25, 40];
+      coins(lo, hi);
+      if (c.size === 'big' && chance(0.3)) coins(10, 20);
+      break;
+    }
     case 'pot':
       if (chance(0.6)) coins(1, 6);
       else if (chance(0.4)) heart();

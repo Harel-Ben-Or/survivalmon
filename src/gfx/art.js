@@ -338,6 +338,9 @@ const WORLD_ART = {
   chest_wood: ['interior/chest_wood'], chest_wood_open: ['interior/chest_wood_open'], chest_silver: ['interior/chest_silver'],
   chest_silver_open: ['interior/chest_silver_open'], chest_gold: ['interior/chest_gold'], chest_gold_open: ['interior/chest_gold_open'],
 };
+// Basement props (interior/cellar.png): trapdoor, ladder, gold of every kind and cellar things
+const CELLAR = ['trapdoor', 'hatch', 'ladder', 'gold_heap', 'gold_gems', 'gold_small', 'gold_sack', 'gold_jar', 'gold_crate',
+  'gold_bars', 'gold_goblet', 'barrel_side', 'cobweb', 'candles', 'pillar', 'wine_rack'];
 // Ground decals baked into the map
 export const DECAL_ART = {};
 const DECALS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b', 'tuft', 'tuft_d', 'crop_carrot', 'crop_cabbage',
@@ -368,6 +371,15 @@ export async function loadWorldArt(SPR, base = 'assets/sprites') {
     const c = cropped(fromImage(img), flipped);
     SPR[name] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
   }));
+  // the basement props share one sheet, 52px cells in this order
+  const cellar = await get('interior/cellar');
+  if (cellar) CELLAR.forEach((name, i) => {
+    const cell = canvasOf(52, 52);
+    cell.getContext('2d').drawImage(cellar, i * 52, 0, 52, 52, 0, 0, 52, 52);
+    if (blank(cell)) return;
+    const c = cropped(cell);
+    SPR[name] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
+  });
   await Promise.all(DECALS.map(async (name) => {
     const img = await get(`decals/${name}`);
     if (img) { const c = cropped(fromImage(img)); DECAL_ART[name] = { img: c, w: c.width / WS, h: c.height / WS }; }

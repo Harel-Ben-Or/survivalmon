@@ -8,7 +8,7 @@ import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, WS, snap, 
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
 import { World, TILE, ZONES } from '../world/world.js';
-import { buildInterior } from '../world/interior.js';
+import { buildInterior, buildBasement } from '../world/interior.js';
 import { Player } from '../entities/player.js';
 import { Enemy } from '../entities/enemy.js';
 import { Pet } from '../entities/pet.js';
@@ -409,14 +409,23 @@ export class Game {
       const d = dist2(P.x, P.y, cx, cy);
       if (d < bd) { bd = d; near = c; }
     }
-    if (near) {
-      const names = { chest: 'Open Chest', crate: 'Search Crate', barrel: 'Search Barrel', pot: 'Search Pot', bookshelf: 'Search Shelf', cupboard: 'Search Cupboard', altar: 'Pray at Altar' };
+    // the trapdoor down to a basement, or the basement's ladder back up
+    const act = Input.wasPressed('KeyE') || Input.wasPressed('Enter');
+    const hatch = room.hatch, ladder = room.ladder;
+    const way = hatch && dist2(P.x, P.y, hatch.cx, hatch.cy + 4) < 18 * 18 ? 'down' : ladder && dist2(P.x, P.y, ladder.x, ladder.y) < 20 * 20 ? 'up' : null;
+    const wayD = way === 'down' ? dist2(P.x, P.y, hatch.cx, hatch.cy + 4) : way ? dist2(P.x, P.y, ladder.x, ladder.y) : Infinity;
+    if (way && wayD <= bd) {
+      if (way === 'down') this.ui.prompt('Climb down', hatch.cx, hatch.item.y - 4);
+      else this.ui.prompt('Climb up', ladder.x, ladder.y - 30);
+      if (act) { if (way === 'down') this.enterBasement(); else this.leaveBasement(); }
+    } else if (near) {
+      const names = { chest: 'Open Chest', crate: 'Search Crate', barrel: 'Search Barrel', pot: 'Search Pot', bookshelf: 'Search Shelf', cupboard: 'Search Cupboard', altar: 'Pray at Altar', gold: 'Take the Gold' };
       this.ui.prompt(names[near.type] || 'Search', near.x + near.w / 2, near.y - 4);
-      if (Input.wasPressed('KeyE') || Input.wasPressed('Enter')) this.openContainer(near);
-    } else if (P.y > room.ph - 30 && Math.abs(P.x - room.doorX) < 16) {
+      if (act) this.openContainer(near);
+    } else if (room.doorX != null && P.y > room.ph - 30 && Math.abs(P.x - room.doorX) < 16) {
       this.ui.prompt('Leave', room.doorX, room.ph + 16);
     } else this.ui.prompt(null);
-    if (P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
+    if (room.doorX != null && P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
     if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
@@ -434,12 +443,40 @@ export class Game {
     P.worldX = P.x; P.worldY = P.y;
     P.x = this.room.spawn.x; P.y = this.room.spawn.y - 6; P.dir = 'up'; P.faceAngle = -Math.PI / 2; P.d8 = null;
     P.trail = []; P.dashT = 0;
-    P.pets.forEach((pet, i) => { pet.x = P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)); pet.y = P.y + 4; pet.state = 'follow'; });
+    const pw = this.room.pw;
+    P.pets.forEach((pet, i) => { pet.x = clamp(P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)), 16, pw - 16); pet.y = P.y + 4; pet.state = 'follow'; });
     this.ui.prompt(null);
     this.ui.setPaused(true);
     Audio.play('door');
-    const name = h.kind === 'shrine' ? 'Old Shrine' : h.kind === 'barn' ? 'Barn' : 'Cottage';
+    const NAMES = { home: 'Cottage', bedroom: 'Cottage', library: 'Library', kitchen: 'Kitchen', storeroom: 'Storeroom', hayloft: 'Hayloft', stable: 'Stable', storehouse: 'Storehouse', altar: 'Old Shrine', crypt: 'Crypt' };
+    const name = NAMES[this.room.theme] || (h.kind === 'shrine' ? 'Old Shrine' : h.kind === 'barn' ? 'Barn' : 'Cottage');
     this.banner(`${name} — the clock is paused`, '#bfeaff');
+  }
+  // Down the trapdoor into the house's basement (made the first time), and back up the ladder
+  enterBasement() {
+    const P = this.player, h = this.house, up = h.interior;
+    if (!up.cellar) up.cellar = buildBasement(h, this.world.seed + h.id * 977 + 1);
+    this.room = up.cellar;
+    this.placeInRoom(up.cellar.spawn.x, up.cellar.spawn.y, 'down');
+    Audio.play('door');
+    if (!up.cellar.seen) {
+      up.cellar.seen = true;
+      this.banner('A hidden basement!', '#ffd84a', false, 'Gold glitters in the dark');
+    }
+  }
+  leaveBasement() {
+    const hatch = this.house.interior.hatch;
+    this.room = this.house.interior;
+    this.placeInRoom(hatch.cx, hatch.item.y + hatch.item.h + 8, 'down');
+    Audio.play('door');
+  }
+  placeInRoom(x, y, dir) {
+    const P = this.player;
+    P.x = x; P.y = y; P.dir = dir; P.faceAngle = dir === 'up' ? -Math.PI / 2 : Math.PI / 2; P.d8 = null;
+    P.trail = []; P.dashT = 0;
+    const pw = this.room.pw;
+    P.pets.forEach((pet, i) => { pet.x = clamp(P.x + (i % 2 ? -1 : 1) * 16 * (1 + (i >> 1)), 16, pw - 16); pet.y = P.y + 4; pet.state = 'follow'; });
+    this.ui.prompt(null);
   }
   exitHouse() {
     const P = this.player, h = this.house;
@@ -465,8 +502,11 @@ export class Game {
     const cx = c.x + c.w / 2, cy = c.y + 4;
     Audio.play(c.type === 'chest' || c.type === 'altar' ? 'chest' : 'open');
     this.particles.burst(cx, cy + 6, { n: 12, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 50, life: 0.5, up: 20 });
+    if (c.type === 'gold') this.particles.burst(cx, cy + 8, { n: 26, colors: ['#ffe07a', '#ffd23a', '#fff6c8'], speed: 80, life: 0.7, up: 40, gravity: 120 });
     this.applyDrops(res, cx, cy);
-    if (this.room.containers.every((k) => k.opened)) {
+    // searched out once everything is open, the basement too (once it has been found)
+    const up = this.house.interior, all = [...up.containers, ...(up.cellar?.containers || [])];
+    if (all.every((k) => k.opened) && (!up.hatch || up.cellar)) {
       this.house.looted = true;
       this.toast('Everything here has been searched.');
     }
@@ -885,7 +925,7 @@ export class Game {
     this.roomOff = { x: ox, y: oy };
     const cam = { x: -ox, y: -oy };
     ctx.drawImage(room.canvas, ox, oy, room.pw, room.ph);
-    const list = room.furniture.map((f) => ({ y: f.y + f.h, f }));
+    const list = room.furniture.filter((f) => !(f.type === 'gold' && f.opened)).map((f) => ({ y: f.flat ? -1e4 : f.y + f.h, f }));
     list.push({ y: P.y, player: P });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
     list.sort((a, b) => a.y - b.y);
@@ -914,7 +954,30 @@ export class Game {
     }
     this.drawEffects(ctx, cam);
     this.particles.draw(ctx, cam);
+    if (room.dark) this.drawCellarDark(ctx, room, ox, oy);
     this.particles.drawNumbers(ctx, cam);
+  }
+  // A basement is dark: light round the hero, the torches on the wall and the candles
+  drawCellarDark(ctx, room, ox, oy) {
+    const V = this.view, P = this.player;
+    const c = this.darkCv || (this.darkCv = document.createElement('canvas'));
+    const w = Math.ceil(V.w), h = Math.ceil(V.h);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    const g = c.getContext('2d');
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, w, h);
+    g.fillStyle = 'rgba(8,4,14,0.78)'; g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = 'destination-out';
+    const hole = (x, y, r, a) => {
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, `rgba(0,0,0,${a})`); gr.addColorStop(0.55, `rgba(0,0,0,${a * 0.7})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    };
+    const flick = 1 + Math.sin(this.realTime * 9) * 0.04;
+    hole(P.x + ox, P.y - 8 + oy, 84, 1);
+    for (const x of room.torches) hole(x + ox, 18 + oy, 58 * flick, 0.95);
+    for (const f of room.furniture) if (f.spr === 'candles') hole(f.x + f.w / 2 + ox, f.y + oy, 40 * flick, 0.85);
+    ctx.drawImage(c, 0, 0, w, h);
   }
 }
 
