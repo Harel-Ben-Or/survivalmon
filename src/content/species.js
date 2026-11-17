@@ -1,6 +1,6 @@
 // Survivalmons: the 10 species, their same-species breeds (Voltowl + Voltowl = Tempestowl), the 45
 // mixed breeds and the mixed breeds' evolutions. Monsters live in creatures.js and are never caught.
-// stage 1 = species (wild, starter eggs) · 2 = breeds · 3 = first evolutions (Lv 30) · 4 = final evolutions (Lv 55).
+// stage 1 = species (wild, starter eggs; they never evolve) · 2 = breeds · 3 = first evolutions (Lv 30) · 4 = final evolutions (Lv 55).
 
 export const TYPES = {
   fire: { name: 'Fire', color: '#f08a3c' },
@@ -57,7 +57,7 @@ export const STONES = {
 export const STONE_OF = { fire: 'ember_stone', water: 'tide_stone', grass: 'leaf_stone', storm: 'thunder_stone', rock: 'earth_stone', fairy: 'moon_stone',
   shadow: 'dusk_stone', ice: 'frost_stone', toxic: 'venom_stone', metal: 'steel_stone' };
 
-// Every species and breed evolves twice: at Lv 30, then at Lv 55, each time with a stone of its type
+// Every breed evolves twice: at Lv 30, then at Lv 55, each time with a stone of its type (species never evolve)
 export const EVO_LEVELS = [30, 55];
 export const EVO_LEVEL = EVO_LEVELS[0];
 export const evoLevel = (sp) => (sp.stage >= 3 ? EVO_LEVELS[1] : EVO_LEVELS[0]);
@@ -355,20 +355,10 @@ for (const [id, m] of Object.entries(MIXED)) {
 }
 
 // ---------------------------------------------------------------- evolutions
-// Every species and breed evolves twice, at Lv 30 and Lv 55 (EVO_LEVELS), each time with an evolution
-// stone of its type. A mixed breed's first evolution is above (its evo); these are all the rest:
-// [first evolution, final evolution] of each species and same-species breed...
+// Every breed evolves twice, at Lv 30 and Lv 55 (EVO_LEVELS), each time with an evolution stone of its
+// type; the 10 species never evolve. A mixed breed's first evolution is above (its evo); these are the rest:
+// [first evolution, final evolution] of each same-species breed...
 const LINE_EVOS = {
-  emberpup: [['scorchpaw', 'Scorchpaw', 'Its paws leave burning prints wherever it runs.'], ['blazefang', 'Blazefang', 'A great fire wolf with a mane of roaring flame.']],
-  leafkit: [['fernlynx', 'Fernlynx', 'A lynx of living ferns that heals the meadow it walks.'], ['elderlynx', 'Elderlynx', 'An ancient forest lynx crowned with leafy antlers.']],
-  voltowl: [['sparkhawk', 'Sparkhawk', 'A sharp-eyed hawk crackling with sparks.'], ['thunderroc', 'Thunderroc', 'A giant thunderbird whose wings carry the storm.']],
-  puddlit: [['rippletoad', 'Rippletoad', 'Every hop sends ripples across the pond.'], ['tsunamaw', 'Tsunamaw', 'A huge frog with a breaking wave on its back.']],
-  pebblet: [['cobblecurl', 'Cobblecurl', 'A tough round stone critter that curls up tight to roll.'], ['megalith', 'Megalith', 'An ancient standing stone that rolls like an avalanche.']],
-  glimmoth: [['shimmerwing', 'Shimmerwing', 'Its wings scatter clouds of glittering dust.'], ['starweaver', 'Starweaver', 'A great moth that weaves starlight into its wings.']],
-  duskit: [['shadecat', 'Shadecat', 'A sleek cat that slips between the shadows.'], ['voidtiger', 'Voidtiger', 'A tiger made of starless night.']],
-  snowpip: [['frostpeng', 'Frostpeng', 'A brave young penguin in a coat of frost.'], ['blizzarch', 'Blizzarch', 'A towering penguin knight of the blizzard.']],
-  venewt: [['venomtail', 'Venomtail', 'A newt whose tail drips with glowing poison.'], ['miasmaw', 'Miasmaw', 'A huge newt whose jaws breathe poison fog.']],
-  ferrit: [['razorstoat', 'Razorstoat', 'A steel stoat with blades along its back.'], ['sawtooth', 'Sawtooth', 'A steel beast with a buzzsaw tail.']],
   cinderhound: [['azureblaze', 'Azureblaze', 'Its blue fire burns hotter than the sun.'], ['cerberix', 'Cerberix', 'A three-headed hound of blue fire.']],
   thornhare: [['briarhare', 'Briarhare', 'A tall hare guarded by a thicket of rose briars.'], ['bloomjack', 'Bloomjack', 'A giant jackalope whose antlers bloom with roses.']],
   tempestowl: [['typhowl', 'Typhowl', 'It carries a typhoon in its wings.'], ['skyrend', 'Skyrend', 'Its wingbeat splits the sky with lightning.']],

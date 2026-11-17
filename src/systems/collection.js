@@ -228,8 +228,8 @@ export const Box = {
   },
 
   // ---------------------------------------------------------- evolving
-  // Every species and breed evolves at Lv 30 and again at Lv 55, each time with a stone of its type
-  // (a mixed breed and its evolutions: a stone of either parent's type).
+  // Every breed evolves at Lv 30 and again at Lv 55, each time with a stone of its type (a mixed breed and
+  // its evolutions: a stone of either parent's type). The 10 species never evolve.
   evoInfo(mon) {
     const sp = SPECIES[mon.species];
     if (!sp?.evo) return null;

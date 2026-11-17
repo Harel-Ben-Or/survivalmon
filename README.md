@@ -89,7 +89,7 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
   used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
-- **Survidex**: all 195 survivalmons (species, breeds, first and final evolutions), and breeding recipes you've found.
+- **Survidex**: all 175 survivalmons (10 species, 55 breeds, 55 first and 55 final evolutions), and breeding recipes you've found.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
 - **Merchant**: items for your next run.
@@ -120,11 +120,10 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Picking**: the team picker and the Hatchery use small tiles (level, attack type, every skill with its
   grade); the i button opens the full sheet. Breeding first shows a preview: the breed, its own attack's
   tier odds and every skill pair it can inherit, with the chances.
-- **Evolving**: every survivalmon evolves twice, at **Lv 30** and **Lv 55** (the level cap is 70), each time
-  with an evolution stone of its type (a mixed breed and its evolutions: either parent's type). Species and
-  same-species breeds get two new forms each (Emberpup -> Scorchpaw -> Blazefang), mixed breeds a final form
-  after their first evolution (Ashbloom -> Infernobloom -> Pyregrove). Each evolution gives 40% more HP, more
-  damage, one more shot, jump or size step, a higher skill grade, and the line's big signature move.
+- **Evolving**: the 10 species never evolve. Every breed evolves twice, at **Lv 30** and **Lv 55** (the level
+  cap is 70), each time with an evolution stone of its type (a mixed breed and its evolutions: either parent's
+  type): Cinderhound -> Azureblaze -> Cerberix, Ashbloom -> Infernobloom -> Pyregrove. Each evolution gives 40%
+  more HP, more damage, one more shot, jump or size step, a higher skill grade, and the line's big signature move.
 - Every species and breed hatches from its own egg, and has walk, attack and faint animations. Rollers
   (Pebblet and its breeds and evolutions) tuck into a ball, roll at their foe turning like a real ball and
   kicking up dust, then unroll.
