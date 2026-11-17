@@ -143,6 +143,8 @@ export class Director {
   }
   trigger(ev) {
     const g = this.g, P = g.player;
+    if (ev.type === 'boss' && this.finalBoss && ev.enemy !== 'night_lord') return; // the Night Lord is the run's last boss
+    if (ev.type === 'boss' && ev.enemy === 'night_lord' && g.enemies.some((e) => e.type === 'night_lord')) return; // only one at a time
     if (ev.type === 'boss') {
       const p = this.spawnPos(!!ENEMIES[ev.enemy].flying) || { x: P.x + 150, y: P.y };
       const boss = g.spawnEnemy(ev.enemy, p.x, p.y);

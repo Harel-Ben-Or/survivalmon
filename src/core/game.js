@@ -245,9 +245,11 @@ export class Game {
     this.snapCamera();
     this.mode = 'world'; this.modal = null;
     this.ui.showHUD();
-    this.darkStep = 0; this.dark = this.darkness();
-    if (this.tier) this.banner(`${gateName(this.tier)}: survive ${formatTime(this.runLength)}!`, gateColor(this.tier), true, gateBlurb(this.tier));
-    else this.banner(`Survive ${formatTime(this.runLength)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
+    this.darkStep = 0; this.dark = this.darkness(); this.finalStand = false;
+    // a full run is won by defeating the Night Lord; a shorter one by lasting until its time is up
+    const goal = this.runLength >= RUN_LENGTH ? 'defeat the Night Lord' : `survive ${formatTime(this.runLength)}`;
+    if (this.tier) this.banner(`${gateName(this.tier)}: ${goal}!`, gateColor(this.tier), true, gateBlurb(this.tier));
+    else this.banner(`${goal[0].toUpperCase()}${goal.slice(1)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
     if (this.settings.music) Audio.startMusic();
   }
   gameOver() {
@@ -374,7 +376,16 @@ export class Game {
       const who = [P, ...P.pets.filter((p) => !p.fainted)], o = who[Math.floor(Math.random() * who.length)];
       this.particles.add({ x: o.x + rand(-6, 6), y: o.y - rand(2, 14), vx: 0, vy: -14, life: 0.6, color: Math.random() < 0.5 ? '#ffffff' : '#ffe9a0' });
     }
-    if (this.time >= this.runLength) { if (this.runLength >= RUN_LENGTH) this.victory(); else this.timeUp(); return; }
+    // A short run ends when its time is up. A full run is only won by defeating the Night Lord: past
+    // 8:00 the night goes on until it falls (a win), you fall, or you end the run.
+    if (this.time >= this.runLength) {
+      if (this.runLength < RUN_LENGTH) { this.timeUp(); return; }
+      if (!this.finalStand) {
+        this.finalStand = true;
+        this.banner('The Night Lord blocks the dawn!', '#c49aff', true, 'Defeat it to win the run');
+        Audio.play('boss');
+      }
+    }
     this.director.update(dt);
     this.enemyHash.clear();
     for (const e of this.enemies) if (!e.dead && !e.hidden && !e.fainted) this.enemyHash.insert(e);

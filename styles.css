@@ -105,6 +105,8 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .timer small { font-family: var(--font); font-size: 14px; color: var(--muted); margin-left: 6px; }
 .phase { font-size: 14px; color: var(--muted); text-shadow: 1px 1px 0 var(--ink); }
 .phase.dark { color: #ff9a8a; }
+.timer.final .t { color: #c49aff; }
+.timer.final small { color: #c49aff; }
 /* the gate picker on the team screen */
 .gate-pick { width: min(100%, 980px); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; }
 .gate-chips { display: flex; flex-wrap: wrap; gap: 6px; }

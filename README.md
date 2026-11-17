@@ -4,7 +4,8 @@ A cozy pixel-art survival roguelite with a creature-collector twist. Runs start 
 long: every monster you defeat pays coins, and when the timer runs out you're back in **town**.
 Spend the coins in the **Training Hall** (run time, HP, damage, speed…) and head out again for a
 longer, stronger run, up to the full **8 minutes**: the Ink King around 2:00, the Blighted Elder around
-4:00, Snare Boss Grimjaw around 6:00, and the Night Lord for the last 30 seconds.
+4:00, Snare Boss Grimjaw around 6:00, and the Night Lord at 7:30. A full run is won only by defeating the
+Night Lord: if it's still standing at 8:00, the night goes on until it falls (or you do).
 
 **The enemies.** The Blight, living black ink, has crept over the land: Ink Blobs (they split), Inkwings,
 Shade Hounds, Ink Spitters, Shard Oozes and Bloaters (they burst). Each zone also has its own monster the

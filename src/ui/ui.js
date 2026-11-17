@@ -203,7 +203,7 @@ export class UI {
           • Stand at a tree, rock or clay spot to gather materials for upgrading buildings.<br>
           • A rare <b>wild survivalmon</b> may appear: defeat it within 25 seconds to catch it.<br>
           • Runs start short. When the timer runs out you're back in town to upgrade, heal, breed and get ready.<br>
-          • Bosses arrive around 2:00, 4:00 and 6:00. Last the full <b>8:00</b>, through the Night Lord's final 30 seconds, to win!
+          • Bosses arrive around 2:00, 4:00 and 6:00, and the Night Lord at 7:30. <b>Defeat the Night Lord</b> to win: the night doesn't end until it falls.
         </div>
         <button class="btn" data-act="close">Got it</button>
       </div>`);
@@ -279,7 +279,9 @@ export class UI {
     if (this.last.mats !== mats) { this.last.mats = mats; H.mats.innerHTML = mats; }
     const left = Math.max(0, g.runLength - g.time);
     this.set('time', H.time, 'text', formatTime(Math.ceil(left)));
-    H.time.parentElement.classList.toggle('ending', left < 5.5);
+    H.time.parentElement.classList.toggle('ending', left < 5.5 && !g.finalStand);
+    H.time.parentElement.classList.toggle('final', !!g.finalStand);
+    this.set('timeLbl', H.time.parentElement.querySelector('small'), 'text', g.finalStand ? 'defeat the Night Lord' : 'left');
     const m = g.dayMinute;
     const blight = Math.round(((g.dark?.dmg ?? 1) - 1) * 10) * 10; // how much harder monsters hit, to the nearest 10%
     this.set('phase', H.phase, 'text', `${m < 6 ? '☀ Morning' : m < 11 ? '☀ Afternoon' : m < 16 ? '🌅 Sunset' : m < 21 ? '☾ Dusk' : '☾ Night'} · ${blight === 0 ? 'Blight' : `Blight ${blight > 0 ? '+' : '−'}${Math.abs(blight)}%`}`);
@@ -704,7 +706,7 @@ export class UI {
     this.touch.setVisible(false);
     this.h?.paused.classList.add('hidden');
     const won = kind === 'won', quit = kind === 'quit';
-    const title = { won: 'You survived the night!', timeup: 'Time\'s up!', quit: 'Run ended', died: 'You were overwhelmed...' }[kind];
+    const title = { won: 'You defeated the Night Lord!', timeup: 'Time\'s up!', quit: 'Run ended', died: 'You were overwhelmed...' }[kind];
     const color = won || kind === 'timeup' ? '#9af08a' : quit ? 'var(--gold)' : '#ff8a7a';
     const tiles = [
       ['Survived', formatTime(rec.time)], ['Level', rec.level], ['Defeated', rec.kills.toLocaleString()],
