@@ -70,7 +70,7 @@ export function cardRows(g, c) {
       const rows = [['Damage', pct(1 + u.dmg), pct(1 + u.dmg + v)]];
       if (t === 'chain') rows.push(['Jumps', `+${n}`, `+${n + 1}`]);
       else if (t === 'area') rows.push(['Size', pct(1 + TYPE_PERK.area * n), pct(1 + TYPE_PERK.area * (n + 1))]);
-      else rows.push([t === 'shot' ? 'Attack speed' : 'Charges', pct(Math.pow(TYPE_PERK[t], -n)), pct(Math.pow(TYPE_PERK[t], -(n + 1)))]);
+      else rows.push([t === 'shot' ? 'Attack speed' : t === 'support' ? 'Blessings' : 'Charges', pct(Math.pow(TYPE_PERK[t], -n)), pct(Math.pow(TYPE_PERK[t], -(n + 1)))]);
       return rows;
     }
     const base = 1 + T.dmg + (g.cry || 0);
