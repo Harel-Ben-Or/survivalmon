@@ -38,8 +38,8 @@ export const pickTile = (m, cls = '', attrs = '') => `<div class="pick-tile ${cl
   </div>`;
 // What each attack type's stats look like, in a few words
 const STAT_BLURB = { shot: 'hit hard but are a little fragile', chain: 'attack fast but have the least HP', charge: 'are tough and hit steadily', area: 'have the most HP and good defense', support: 'hit softly and keep everyone going' };
-// Stat bars. The bars are scaled to a strong Lv 60 final evolution, so they fill up as it grows.
-const STAT_TOP = { hp: 2000, atk: 650, spd: 160, def: 50, crit: 25 };
+// Stat bars. The bars are scaled to a strong Lv 70 final evolution, so they fill up as it grows.
+const STAT_TOP = { hp: 2300, atk: 750, spd: 160, def: 50, crit: 25 };
 export const statBlock = (m) => {
   const s = monStats(m);
   const row = (k, label, v, txt) => `<div class="st-row st-${k}"><span>${label}</span><div class="st-bar"><i style="width:${Math.max(3, Math.min(100, (v / STAT_TOP[k]) * 100)).toFixed(0)}%"></i></div><b>${txt}</b></div>`;

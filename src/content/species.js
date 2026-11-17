@@ -62,7 +62,7 @@ export const EVO_LEVELS = [30, 55];
 export const EVO_LEVEL = EVO_LEVELS[0];
 export const evoLevel = (sp) => (sp.stage >= 3 ? EVO_LEVELS[1] : EVO_LEVELS[0]);
 export const BREED_LEVEL = 3;     // both parents need this level to breed
-export const MAX_PET_LEVEL = 60;
+export const MAX_PET_LEVEL = 70;
 export const petXpFor = (L) => Math.floor(14 + L * 8 + L * L);
 export const BERRY_XP = 6;
 

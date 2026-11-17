@@ -120,7 +120,7 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Picking**: the team picker and the Hatchery use small tiles (level, attack type, every skill with its
   grade); the i button opens the full sheet. Breeding first shows a preview: the breed, its own attack's
   tier odds and every skill pair it can inherit, with the chances.
-- **Evolving**: every survivalmon evolves twice, at **Lv 30** and **Lv 55** (the level cap is 60), each time
+- **Evolving**: every survivalmon evolves twice, at **Lv 30** and **Lv 55** (the level cap is 70), each time
   with an evolution stone of its type (a mixed breed and its evolutions: either parent's type). Species and
   same-species breeds get two new forms each (Emberpup -> Scorchpaw -> Blazefang), mixed breeds a final form
   after their first evolution (Ashbloom -> Infernobloom -> Pyregrove). Each evolution gives 40% more HP, more
