@@ -3,7 +3,8 @@
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
 import { SPECIES, TYPES, STONES, STONE_OF, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType,
-  SIZE, SZ_MIN, SZ_MAX, sizeLabel, monSize, fmtH, fmtW } from '../content/species.js';
+  SIZE, sizeLabel, weightLabel, weightOf, monSize, fmtH, fmtW, H5, H95, W5, W95 } from '../content/species.js';
+import { MEDALS, MEDAL_IDS, ACHIEVEMENTS, tierName, tiersReached } from '../systems/achievements.js';
 import { ZONES } from '../world/world.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
@@ -263,7 +264,7 @@ export const MonsUI = {
             <div class="ms-sub">${m.nick ? `${esc(sp.name)} · ` : ''}<b class="lv">Lv ${m.level}</b> ${types(sp)} ${atkTag(atkType(m.species))}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div>
             <div class="bar-row"><span>HP</span>${hpBar(m)}<span class="num">${Math.round(m.hp * maxHp)}/${maxHp}</span></div>
             <div class="bar-row"><span>EXP</span><div class="xp"><div style="width:${Math.min(100, (m.xp / need) * 100).toFixed(0)}%"></div></div><span class="num">${Math.floor(m.xp)}/${need}</span></div>
-            <div class="small ms-size">${(() => { const z = monSize(m.species, m.sz || 1); return `<b>${sizeLabel(m.sz || 1)}</b> · ${fmtH(z.h)} · ${fmtW(z.w)}`; })()}</div>
+            <div class="small ms-size">${(() => { const z = monSize(m.species, m.sz || 1, m.wz || 1); return `<b>${sizeLabel(m.sz || 1)}</b> ${fmtH(z.h)} · <b>${weightLabel(weightOf(m))}</b> ${fmtW(z.w)}`; })()}</div>
             <div class="small">${esc(sp.desc)}</div>
           </div>
         </div>
@@ -396,14 +397,28 @@ export const MonsUI = {
   showSurvidex(sel) {
     const cell = (id) => {
       const known = Box.known(id), seen = Box.data.seen[id];
-      return `<span class="j-cell ${known ? 'caught' : seen ? 'seen' : ''} ${id === sel ? 'pick' : ''}" data-mact="dex" data-sp="${id}" title="${known || seen ? esc(SPECIES[id].name) : '???'}"><img class="px" src="${pic(id)}" alt=""></span>`;
+      const md = Object.keys(Box.data.dex[id]?.medals || {}).length;
+      return `<span class="j-cell ${known ? 'caught' : seen ? 'seen' : ''} ${id === sel ? 'pick' : ''}" data-mact="dex" data-sp="${id}" title="${known || seen ? esc(SPECIES[id].name) : '???'}"><img class="px" src="${pic(id)}" alt="">${md ? `<b class="j-medals" title="${md} medal${md === 1 ? '' : 's'}">${md}</b>` : ''}</span>`;
     };
     const group = (title, ids) => `<div class="j-title">${title} <span class="j-n">${ids.filter((id) => Box.known(id)).length}/${ids.length}</span></div><div class="j-row">${ids.map(cell).join('')}</div>`;
     const found = DEX_IDS.filter((id) => Box.known(id)).length;
+    const medalsWon = Object.values(Box.data.dex).reduce((n, r) => n + Object.keys(r.medals || {}).length, 0);
+    const tiersAll = ACHIEVEMENTS.reduce((n, a) => n + a.tiers.length, 0), tiersGot = ACHIEVEMENTS.reduce((n, a) => n + tiersReached(a), 0);
+    const tab = this.dexTab || 'mons';
+    // achievements: each goal with its tiers (reached ones lit), progress to the next and its reward
+    const achv = ACHIEVEMENTS.map((a) => {
+      const t = tiersReached(a), have = a.have(), done = t >= a.tiers.length, goal = a.tiers[Math.min(t, a.tiers.length - 1)];
+      return `<div class="achv ${done ? 'done' : ''}"><div class="achv-top"><b>${esc(done ? tierName(a, t - 1) : tierName(a, t))}</b><span class="achv-pips">${a.tiers.map((_, i) => `<i class="${i < t ? 'on' : ''}"></i>`).join('')}</span></div>
+        <div class="small">${esc(a.desc(goal))}</div>
+        ${done ? '<div class="small achv-done">Done!</div>' : `<div class="achv-bar"><i style="width:${Math.min(100, (have / goal) * 100).toFixed(0)}%"></i></div><div class="small achv-prog"><span>${Math.min(have, goal)} / ${goal}</span><span>Reward: ${a.pay[t]} <img class="px inline-ic" src="${icon('coin', 2)}" alt="coins"></span></div>`}</div>`;
+    }).join('');
+    const medalKey = MEDAL_IDS.map((k) => `<span class="medal on" style="--c:${MEDALS[k].color}" title="${esc(MEDALS[k].desc)}">${esc(MEDALS[k].name)}</span>`).join('');
     this.page('survidex', `
       <h2>Survidex</h2>
-      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span><span class="small">Tap one for everything you know about it</span></div>
-      <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>`);
+      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span><span>${medalsWon} medals</span><span>${tiersGot} / ${tiersAll} achievements</span></div>
+      <div class="dex-tabs"><button class="btn small ${tab === 'mons' ? '' : 'secondary'}" data-mact="dex-tab" data-t="mons">Survivalmons</button><button class="btn small ${tab === 'achv' ? '' : 'secondary'}" data-mact="dex-tab" data-t="achv">Achievements</button></div>
+      ${tab === 'mons' ? `<div class="journal panel"><div class="small">Tap one for everything you know about it. The number on an entry is its medals.</div>${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>`
+        : `<div class="journal panel"><div class="small">Each tier you reach pays gold coins. Medals are won per survivalmon: ${medalKey}</div><div class="achv-grid">${achv}</div></div>`}`);
     if (sel) this.showDexSheet(sel);
   },
   // One survivalmon's Survidex page
@@ -436,10 +451,14 @@ export const MonsUI = {
         ${Object.keys(r.seenIn).length ? `<div class="dex-sec"><b>Seen in</b> ${zoneList(r.seenIn)}</div>` : ''}
         <p class="sub-note">You have seen it but never had one. Catch one to learn more.</p>`;
     } else {
-      // size: the species' usual range, then the smallest and biggest you've had
-      const S = SIZE[id], sizeOf = (sz) => { const m = monSize(id, sz); return `${fmtH(m.h)}, ${fmtW(m.w)} <span class="small">(${sizeLabel(sz)})</span>`; };
-      const size = `<div class="dex-sec"><b>Size</b><div>Usually ${fmtH(S.h * SZ_MIN)} to ${fmtH(S.h * SZ_MAX)}, ${fmtW(S.w * SZ_MIN ** 3)} to ${fmtW(S.w * SZ_MAX ** 3)}</div>
-          ${r.min != null ? `<div class="dex-rows"><span>Smallest you've had</span><span>${sizeOf(r.min)}</span><span>Biggest you've had</span><span>${sizeOf(r.max)}</span></div>` : ''}</div>`;
+      // size: what most of them measure (9 in 10), then the extremes you've had
+      const S = SIZE[id], hTxt = (sz) => `${fmtH(S.h * sz)} <span class="small">(${sizeLabel(sz)})</span>`, wTxt = (wf) => `${fmtW(S.w * wf)} <span class="small">(${weightLabel(wf)})</span>`;
+      const size = `<div class="dex-sec"><b>Size</b><div>Most are ${fmtH(S.h * H5)} to ${fmtH(S.h * H95)} tall and weigh ${fmtW(S.w * W5)} to ${fmtW(S.w * W95)}</div>
+          ${r.min != null ? `<div class="dex-rows"><span>Tallest you've had</span><span>${hTxt(r.max)}</span><span>Shortest</span><span>${hTxt(r.min)}</span>
+            ${r.maxW != null ? `<span>Heaviest</span><span>${wTxt(r.maxW)}</span><span>Lightest</span><span>${wTxt(r.minW)}</span>` : ''}</div>` : ''}</div>`;
+      const won = r.medals || {};
+      const medals = `<div class="dex-sec"><b>Medals</b> <span class="small">${Object.keys(won).length} of ${MEDAL_IDS.length}</span><div class="medals">${MEDAL_IDS.map((k) => `<span class="medal ${won[k] ? 'on' : ''}" style="--c:${MEDALS[k].color}" title="${esc(won[k] ? `Won on ${new Date(won[k]).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : `To win: ${MEDALS[k].desc}`)}">${esc(MEDALS[k].name)}</span>`).join('')}</div>
+          <div class="small">Win one when you have one that is among the tallest, shortest, heaviest or lightest 5% of its kind, has an S-grade attack, or reaches Lv 70.</div></div>`;
       const total = r.n || Box.data.caught[id] || 0, parts = [['wild', 'caught'], ['egg', 'hatched'], ['bred', 'bred'], ['evolved', 'evolved']].filter(([k]) => r.how[k]);
       const rest = total - parts.reduce((t, [k]) => t + r.how[k], 0); // ones from before the Survidex kept records
       const how = [...parts.map(([k, w]) => `${r.how[k]} ${w}`), ...(rest > 0 ? [`${rest} more`] : [])].join(', ');
@@ -480,7 +499,7 @@ export const MonsUI = {
       }
       const atk = `<div class="dex-sec"><b>Attack</b><div><b>${esc(sp.unique.name)}</b> ${atkTag(atkType(id))}</div><div class="small">${esc(sp.unique.desc)}</div>
           <div class="small">${esc(ATK_TYPES[atkType(id)]?.name || '')} survivalmons ${STAT_BLURB[atkType(id)] || ''}.</div></div>`;
-      body = `${head(true)}${atk}${size}${records}${origin}${line}`;
+      body = `${head(true)}${atk}${size}${medals}${records}${origin}${line}`;
     }
     this.openModal(`<div class="modal-box panel mon-sheet dex-sheet">${body}${nav}</div>`);
     this.modalKind = 'dexsheet';
@@ -594,6 +613,7 @@ export const MonsUI = {
       case 'dex-open': this.showDexSheet(el.dataset.sp); break;
       case 'dex-step': this.stepDex(+el.dataset.d); break;
       case 'dex-close': this.closeDexSheet(); break;
+      case 'dex-tab': this.dexTab = el.dataset.t; this.showSurvidex(); break;
       case 'shrine-buy': if (Shrine.buy(el.dataset.node)) Audio.play('levelup'); this.showShrine(); break;
       case 'research': if (Shrine.startResearch()) this.toast('Research started. It keeps going while the game is closed.'); this.showShrine(); break;
     }

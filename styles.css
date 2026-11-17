@@ -985,3 +985,27 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
   .dex-node { width: 70px; } .dex-node img { width: 40px; height: 40px; }
   .dex-sec { padding: 5px 8px; font-size: 12px; }
 }
+
+/* medals and achievements in the Survidex */
+.j-cell { position: relative; }
+.j-medals { position: absolute; right: -4px; bottom: -4px; min-width: 16px; height: 16px; padding: 0 3px; font: 800 10px/14px var(--font);
+  text-align: center; color: var(--ink); background: var(--gold); border: 1.5px solid var(--ink); border-radius: 8px; }
+.dex-tabs { display: flex; gap: 6px; }
+.medals { display: flex; flex-wrap: wrap; gap: 5px; }
+.medal { display: inline-block; padding: 2px 8px; font: 800 11px var(--font); color: var(--muted); background: rgba(0,0,0,.25);
+  border: 1.5px dashed var(--muted); border-radius: 10px; }
+.medal.on { color: var(--ink); background: var(--c); border: 1.5px solid var(--ink); }
+.journal .medal { margin: 0 2px; }
+.achv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.achv { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; background: rgba(0,0,0,.2); border: 1px solid var(--ink); border-radius: 8px; }
+.achv.done { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.achv-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.achv-top b { font: 600 15px var(--font-title); }
+.achv-pips { display: flex; gap: 3px; }
+.achv-pips i { width: 10px; height: 10px; border: 1.5px solid var(--ink); border-radius: 50%; background: rgba(0,0,0,.3); }
+.achv-pips i.on { background: var(--gold); }
+.achv-bar { height: 8px; background: #2b1d24; border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.achv-bar i { display: block; height: 100%; background: linear-gradient(#ffe99a, #f0b030); }
+.achv-prog { display: flex; justify-content: space-between; align-items: center; }
+.achv-done { color: var(--gold); font-weight: 800; }
+@media (max-height: 520px), (max-width: 640px) { .achv-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }

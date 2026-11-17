@@ -1,6 +1,6 @@
 // The Ranch: every survivalmon you own (copies too), the team, Hatchery eggs, species coins and
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
-import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, rollSize, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
+import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, rollSize, rollBuild, weightOf, H5, H95, W5, W95, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
 import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
@@ -62,9 +62,16 @@ export const Box = {
   // species' record starts from the ones you have (and how many you'd found).
   fillDex() {
     const d = this.data;
-    if (d.dexFilled) return;
+    if (d.dexFilled && (d.dexV || 0) >= 2) return;
+    if (d.dexFilled) { // version 2 adds builds (weight), weight records and medals
+      for (const m of d.mons) { if (!m.sz) m.sz = rollSize(); if (!m.wz) m.wz = rollBuild(); this.noteSize(this.dexRec(m.species), m); }
+      d.dexV = 2;
+      this.save();
+      return;
+    }
     for (const m of d.mons) {
       if (!m.sz) m.sz = rollSize();
+      if (!m.wz) m.wz = rollBuild();
       const r = this.dexRec(m.species);
       r.n = Math.max(r.n, d.caught[m.species] || 0);
       r.how[m.origin === 'bred' ? 'bred' : m.origin === 'wild' ? 'wild' : 'egg'] = (r.how[m.origin === 'bred' ? 'bred' : m.origin === 'wild' ? 'wild' : 'egg'] || 0) + 1;
@@ -73,17 +80,32 @@ export const Box = {
     }
     for (const [sp, n] of Object.entries(d.caught)) if (SPECIES[sp]) { const r = this.dexRec(sp); r.n = Math.max(r.n, n); }
     d.dexFilled = true;
+    d.dexV = 2;
     this.save();
   },
   // ---------------------------------------------------------- Survidex records
   // For each species, only what you've done: how many you've had (and how: caught, hatched, bred,
   // evolved), the smallest and biggest, the highest level, when you first had one, where you caught
   // them and where you've seen them.
-  dexRec(sp) { return (this.data.dex[sp] ||= { n: 0, how: {}, first: 0, min: null, max: null, maxLv: 0, where: {}, seenIn: {} }); },
+  // min/max: shortest and tallest (height factor sz); minW/maxW: lightest and heaviest (weight factor);
+  // medals: see systems/achievements.js
+  dexRec(sp) { return (this.data.dex[sp] ||= { n: 0, how: {}, first: 0, min: null, max: null, minW: null, maxW: null, maxLv: 0, where: {}, seenIn: {}, medals: {} }); },
+  news: [], // medals just won, for the game to announce
   noteSize(r, m) {
+    const wf = weightOf(m);
     if (r.min == null || m.sz < r.min) r.min = m.sz;
     if (r.max == null || m.sz > r.max) r.max = m.sz;
+    if (r.minW == null || wf < r.minW) r.minW = wf;
+    if (r.maxW == null || wf > r.maxW) r.maxW = wf;
     r.maxLv = Math.max(r.maxLv, m.level);
+    const med = (r.medals ||= {});
+    const win = (k) => { if (!med[k]) { med[k] = Date.now(); this.news.push({ medal: k, species: m.species }); } };
+    if (m.sz >= H95) win('giant');
+    if (m.sz <= H5) win('mini');
+    if (wf >= W95) win('heavy');
+    if (wf <= W5) win('feather');
+    if (m.skills.some((k) => k.k === 'u' && k.t === 4)) win('star');
+    if (m.level >= MAX_PET_LEVEL) win('master');
   },
   note(m, how, where) {
     const r = this.dexRec(m.species);
@@ -142,8 +164,8 @@ export const Box = {
   },
 
   // where: the zone a wild one was caught in; sz: its size (rolled if not given)
-  add(species, { skills = rollSkills(species), joinTeam = true, origin = 'wild', level = 1, where = null, sz = rollSize() } = {}) {
-    const mon = { id: this.data.nextId++, species, level, xp: 0, hp: 1, skills, caughtAt: Date.now(), origin, sz };
+  add(species, { skills = rollSkills(species), joinTeam = true, origin = 'wild', level = 1, where = null, sz = rollSize(), wz = rollBuild() } = {}) {
+    const mon = { id: this.data.nextId++, species, level, xp: 0, hp: 1, skills, caughtAt: Date.now(), origin, sz, wz };
     this.note(mon, origin === 'bred' ? 'bred' : origin === 'wild' ? 'wild' : 'egg', where);
     this.data.mons.push(mon);
     this.data.caught[species] = (this.data.caught[species] || 0) + 1;
@@ -184,7 +206,7 @@ export const Box = {
       mon.level++;
       levels.push(mon.level);
     }
-    if (levels.length) { const r = this.dexRec(mon.species); r.maxLv = Math.max(r.maxLv, mon.level); }
+    if (levels.length) this.noteSize(this.dexRec(mon.species), mon); // its highest level, and maybe the Master medal
     if (levels.length) this.save(); else this.dirty = true;
     return levels;
   },

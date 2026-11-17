@@ -22,6 +22,7 @@ import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
 import { HEROES } from '../content/heroes.js';
+import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { WEAPONS } from '../content/weapons.js';
 import { COMBOS } from '../content/artifacts.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS } from '../content/species.js';
@@ -320,6 +321,8 @@ export class Game {
     this.realTime += dt;
     this.shakeT = Math.max(0, this.shakeT - dt); // in every mode, so a shake can never get stuck on
     this.checkOrientation();
+    // once a second: medals and achievements to announce (in a run, a house or the town)
+    if (['world', 'house', 'town'].includes(this.mode) && (this.newsT = (this.newsT || 0) - dt) <= 0) { this.newsT = 1; this.checkNews(); }
     if (Input.wasPressed('KeyM')) { const m = Audio.toggleMute(); this.toast(m ? 'Sound off' : 'Sound on'); }
     if (this.mode === 'world' || this.mode === 'house') {
       if (Input.anyPressed('Escape', 'KeyP')) {
@@ -764,6 +767,16 @@ export class Game {
   sprite(name) { return SPR[name].frames[0]; }
   shake(a, t) { if (!this.settings.shake) return; this.shakeAmt = Math.max(this.shakeT > 0 ? this.shakeAmt : 0, a); this.shakeT = Math.max(this.shakeT, t); }
   banner(text, color, big = false, sub = '') { this.ui.banner(text, color, big, sub); }
+  // Medals just won and achievement tiers just reached: a banner for the first, toasts for the rest
+  // (just toasts over a town page, where banners don't show)
+  checkNews() {
+    const out = [...Box.news.splice(0).map((n) => ({ title: `${MEDALS[n.medal].name} medal: ${SPECIES[n.species].name}!`, sub: `You ${MEDALS[n.medal].desc}`, color: MEDALS[n.medal].color })),
+      ...checkAchievements().map((a) => ({ title: `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} coins`, color: '#ffd84a' }))];
+    if (!out.length) return;
+    const page = this.mode !== 'world' || this.modal;
+    out.forEach((n, i) => (i === 0 && !page ? this.banner(n.title, n.color, false, n.sub) : this.toast(`${n.title} ${n.sub}`)));
+    Audio.play('levelup');
+  }
   toast(text) { this.ui.toast(text); }
   bossBar(e) { this.boss = e; this.ui.bossBar(e); }
 

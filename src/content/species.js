@@ -469,8 +469,20 @@ export function rollSize(parentsSz) {
   if (parentsSz) s = s * 0.6 + parentsSz * 0.4;
   return Math.round(Math.min(SZ_MAX, Math.max(SZ_MIN, s)) * 100) / 100;
 }
-export const sizeLabel = (sz) => (sz < 0.82 ? 'Tiny' : sz < 0.94 ? 'Small' : sz <= 1.06 ? 'Average size' : sz <= 1.18 ? 'Big' : 'Huge');
-export const monSize = (species, sz = 1) => ({ h: SIZE[species].h * sz, w: SIZE[species].w * sz ** 3 });
+// Build: some are slim, some stout, so weight varies on its own as well as with height (wz, about 1)
+export const WZ_MIN = 0.85, WZ_MAX = 1.15;
+export function rollBuild() {
+  return Math.round((WZ_MIN + (WZ_MAX - WZ_MIN) * ((Math.random() + Math.random() + Math.random()) / 3)) * 100) / 100;
+}
+// A survivalmon's weight compared with its species' average (height³ x build)
+export const weightOf = (m) => (m.sz || 1) ** 3 * (m.wz || 1);
+// Where the shortest and tallest 5% start, and the lightest and heaviest 5% (with 25% and 75% for the
+// words in between), worked out from the rolls above
+export const H5 = 0.834, H25 = 0.929, H75 = 1.071, H95 = 1.166;
+export const W5 = 0.576, W25 = 0.8, W75 = 1.228, W95 = 1.595;
+export const sizeLabel = (sz) => (sz <= H5 ? 'Tiny' : sz < H25 ? 'Small' : sz <= H75 ? 'Average height' : sz < H95 ? 'Tall' : 'Huge');
+export const weightLabel = (wf) => (wf <= W5 ? 'Featherweight' : wf < W25 ? 'Light' : wf <= W75 ? 'Average weight' : wf < W95 ? 'Heavy' : 'Heavyweight');
+export const monSize = (species, sz = 1, wz = 1) => ({ h: SIZE[species].h * sz, w: SIZE[species].w * sz ** 3 * wz });
 export const fmtH = (cm) => (cm >= 100 ? `${(cm / 100).toFixed(2)} m` : `${Math.round(cm)} cm`);
 export const fmtW = (kg) => (kg >= 1000 ? `${(kg / 1000).toFixed(2)} t` : kg >= 10 ? `${Math.round(kg)} kg` : `${kg.toFixed(1)} kg`);
 

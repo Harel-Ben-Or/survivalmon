@@ -94,9 +94,14 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   have had (caught, hatched, bred, evolved), the smallest and biggest, the highest level and the first date;
   for a species where it lives, where you caught and saw it and which of its breeds you've found; for a breed
   its parents; and the evolution line, with forms you haven't had yet left as ???.
-- **Sizes**: every survivalmon has its own height and weight (Tiny, Small, Average, Big, Huge), rolled when it's
-  caught or hatched (a bred one leans toward its parents'); evolving keeps it. It shows on its sheet and in the
-  Survidex and doesn't change play.
+- **Sizes**: every survivalmon has its own height and its own build (so weight varies too), rolled when it's
+  caught or hatched (a bred one leans toward its parents' height); evolving keeps both. Its sheet shows them
+  (Tiny, Small, Average height, Tall, Huge; Featherweight, Light, Average weight, Heavy, Heavyweight); they
+  don't change play. The Survidex keeps the tallest, shortest, heaviest and lightest you've had of each.
+- **Medals and achievements** (systems/achievements.js): each species has 6 medals, won the first time you have
+  one among the tallest, shortest, heaviest or lightest 5% of its kind, with an S-grade attack, or at Lv 70.
+  Achievements (Survidex, Achievements tab) are goals in tiers (find, catch, breed, evolve, win medals, raise to
+  Lv 70, a perfect all-S survivalmon); each tier pays gold coins. Both pop up as you earn them.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
 - **Merchant**: items for your next run.
