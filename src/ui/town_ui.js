@@ -3,6 +3,7 @@
 import { iconURL } from '../gfx/assets.js';
 import { artURL, npcFaceURL } from '../gfx/art.js';
 import { NPCS, npcLines, npcStage } from '../content/npcs.js';
+import { playOpening } from './story.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
@@ -249,7 +250,7 @@ export const TownUI = {
         <img class="px talk-face" src="${npcFaceURL('ollie')}" alt="">
         <div class="talk-main">
           <div class="talk-name"><b>Ollie</b><span>Gate guard</span></div>
-          <p class="talk-text">${fromMenu ? 'A new name? Go on, tell me.' : 'Halt! A new face. What do they call you, traveller? Rowan, is it?'}</p>
+          <p class="talk-text">${fromMenu ? 'A new name? Go on, tell me.' : (Meta.data.runs || 0) <= 1 ? 'Halt! You came up the crater road? Then you have seen it: the wild is not safe any more. What do they call you, traveller? Rowan, is it?' : 'Halt! A new face. What do they call you, traveller? Rowan, is it?'}</p>
           <div class="talk-actions name-row">
             <input class="name-input" maxlength="14" value="${esc(Meta.playerName)}" aria-label="Your name" autocomplete="off" spellcheck="false" enterkeyhint="done">
             <button class="btn small" data-talk="name-ok">That's me</button>
@@ -282,6 +283,28 @@ export const TownUI = {
     Input.endFrame();
   },
 
+  // ------------------------------------------------------------ the opening story
+  // A new game: the opening plays, the egg is picked inside it, and its escape is the first run
+  // (which ends at the village gate, where Ollie asks your name).
+  async startOpening() {
+    this.hideScreens();
+    this.screen = 'story';
+    await playOpening({ root: this.root, onPick: (id) => this.chooseStarter(id, true) });
+    if (Box.isEmpty && !Box.eggs.length) { this.showStarter(); return; } // no egg picked: the old way
+    Meta.data.sawOpening = true; Meta.save();
+    Box.save();
+    this.g.startRun(Meta.hero);
+  },
+  // Watch it again from the town menu
+  async replayOpening() {
+    this.closeModal();
+    this.g.modal = 'story';
+    this.el.hud.classList.add('hidden');
+    await playOpening({ root: this.root, replay: true });
+    this.g.modal = null;
+    this.showTown();
+  },
+
   // ------------------------------------------------------------ town menu (pause button / Esc)
   openTownMenu() {
     this.g.modal = 'townmenu';
@@ -296,6 +319,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>
           <button class="btn secondary" data-act="help">How to play</button>
+          <button class="btn secondary" data-act="opening">▶ Watch the opening</button>
           <button class="btn secondary" data-act="rename-player">✎ Your name: ${esc(Meta.playerName)}</button>
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>

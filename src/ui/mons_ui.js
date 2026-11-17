@@ -63,8 +63,9 @@ export const MonsUI = {
       <button class="btn secondary" data-act="back">Back</button>`;
     this.el.select.classList.remove('hidden');
   },
-  chooseStarter(id) {
+  chooseStarter(id, story = false) {
     Box.addEgg({ species: id, skills: [{ k: 'u', sp: id, t: 0 }, { k: 'p', id: Object.keys(PASSIVES)[Math.floor(Math.random() * 9)], t: 0 }], need: STARTER_HATCH, kind: 'starter' });
+    if (story) return; // picked inside the opening: its run comes next
     Audio.play('hatch');
     this.g.toTown();
     this.g.banner(`Your ${SPECIES[id].name} egg is in the Hatchery`, '#ffe07a', false, 'Run in the wild to warm it: it hatches after 1:00 in the wild');

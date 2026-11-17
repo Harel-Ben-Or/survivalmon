@@ -775,6 +775,7 @@ export class UI {
     switch (t.dataset.act) {
       case 'profiles': this.closeModal(); this.showProfiles(); break;
       case 'rename-player': this.closeModal(); this.openNaming(true); break;
+      case 'opening': this.replayOpening(); break;
       case 'install': {
         const p = window.__install;
         if (p) { p.prompt(); p.userChoice.finally(() => { window.__install = null; if (this.screen === 'title') this.showTitle(); }); }
@@ -782,7 +783,7 @@ export class UI {
       }
       case 'play':
         if (g.touchMode) this.enterFullscreen();
-        if (Box.isEmpty && !Box.eggs.length) this.showStarter(); else g.toTown();
+        if (Box.isEmpty && !Box.eggs.length) this.startOpening(); else g.toTown();
         break;
       case 'box': this.showRanch(); break;
       case 'town': g.toTown(true); break;
@@ -864,7 +865,7 @@ export class UI {
     }
     if (this.screen === 'team' && !this.modalKind && k === 'Escape') { this.showTown(); return; }
     if (this.screen === 'team' && !this.modalKind && k === 'Enter') { Box.save(); this.g.startRun(Meta.hero); return; }
-    if (this.screen === 'title' && !this.modalKind && k === 'Enter' && this.g.mode === 'title') { Audio.unlock(); if (Box.isEmpty && !Box.eggs.length) this.showStarter(); else this.g.toTown(); return; }
+    if (this.screen === 'title' && !this.modalKind && k === 'Enter' && this.g.mode === 'title') { Audio.unlock(); if (Box.isEmpty && !Box.eggs.length) this.startOpening(); else this.g.toTown(); return; }
     if (['ranch', 'starter', 'hatchery', 'clinic', 'survidex', 'shrine', 'workshop', 'merchant'].includes(this.screen) && k === 'Escape' && !this.modalKind) { this.back(); return; }
     if (this.screen === 'select' && this.g.mode !== 'world') {
       const i = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(k);

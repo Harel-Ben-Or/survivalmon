@@ -54,6 +54,14 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
 
 ![All 42 survivalmons](mockups/snapshots/survivalmons.png)
 
+## The story
+
+A new game opens with the Starfall: a young ranger carrying eggs to the village at night sees a star fall
+and come down, wakes in the morning by its smoking crater, picks the one egg to carry, and runs as ink
+blobs crawl out of the smoke. That escape is the first run, and it ends at the village gate, where Ollie
+asks your name. Watch it again from the town menu (▶ Watch the opening). The rest of the story is
+planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Night Lord).
+
 ## Town
 
 - A small village in a forest clearing: the buildings stand close round the square, each on its own
@@ -154,6 +162,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   - `creatures/<id>.png` — critters, monsters, evolved forms, bosses
   - `tiles/` — ground tilesets (grass, dirt, stone, farm, water, dark grass) with `tiles.json`
   - `world/` — trees, houses, barn, shrine, props; `decals/decals.png` — flowers, tufts, crops, lily pads (one sheet)
+  - `story/` — the opening: `valley.png` and `crash.png` (256x144 scenes) and `props.png` (64px cells: egg cart, tipped cart, crater, star shard and props for later chapters), drawn by `src/ui/story.js`
   - `npcs.png` — the village's 14 people: 4 rows of 88px cells each (8 turns, then an idle or walk cycles), order in `src/content/npcs.js`
   - `town/` — the town buildings: gate, Training Hall, Clinic, Workshop, Hatchery, Survidex library
   - `interior/` — floors, walls, furniture, chests (`cellar.png` holds the basement props in one sheet: trapdoor,

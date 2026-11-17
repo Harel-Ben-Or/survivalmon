@@ -67,6 +67,9 @@ const SFX = {
   combo: () => [659, 784, 988, 1318, 1568].forEach((f, i) => tone({ type: 'square', f0: f, dur: 0.1, vol: 0.12, delay: i * 0.06 })),
   hatch: () => [784, 988, 1175, 1568].forEach((f, i) => tone({ type: 'sine', f0: f, dur: 0.18, vol: 0.18, delay: i * 0.1 })),
   click: () => tone({ type: 'square', f0: 660, dur: 0.04, vol: 0.08 }),
+  // the opening: a star's long falling whoosh, and the boom when it lands
+  starfall: () => { tone({ noiseMix: true, f0: 5000, f1: 300, dur: 2.0, vol: 0.12 }); tone({ type: 'sine', f0: 900, f1: 120, dur: 2.0, vol: 0.06 }); },
+  impact: () => { tone({ noiseMix: true, f0: 900, f1: 40, dur: 1.2, vol: 0.4 }); tone({ type: 'sine', f0: 90, f1: 30, dur: 1.4, vol: 0.35 }); tone({ type: 'triangle', f0: 60, f1: 25, dur: 1.0, vol: 0.25, delay: 0.1 }); },
   gameover: () => [392, 330, 262, 196].forEach((f, i) => tone({ type: 'triangle', f0: f, dur: 0.4, vol: 0.2, delay: i * 0.25 })),
   victory: () => [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => tone({ type: 'square', f0: f, dur: 0.18, vol: 0.12, delay: i * 0.12 })),
 };
