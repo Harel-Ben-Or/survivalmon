@@ -4,7 +4,8 @@ import { Audio } from '../core/audio.js';
 import { SPR } from '../gfx/assets.js';
 import { snap, drawCreature, ANIM_FPS, VFX, drawVfx } from '../gfx/art.js';
 import { SPECIES, STONE_OF, MAX_PET_LEVEL } from '../content/species.js';
-import { TIERS, PASSIVES } from '../content/skills.js';
+import { TIERS, PASSIVES, tierOdds } from '../content/skills.js';
+import { SHARD_DROP } from '../content/shop.js';
 import { Box, rollSkills } from './collection.js';
 import { Meta } from './meta.js';
 import { LANTERN } from '../entities/enemy.js';
@@ -416,10 +417,22 @@ export const Combat = {
       for (let i = 0; i < 3; i++) this.spawnPickup('berry', cx + rand(-10, 10), cy + rand(-6, 6));
       if (chance(0.03 * S.luck)) this.spawnPickup('stone', cx - 8, cy, this.rollStone());
     }
+    if (this.tier >= 4) this.dropShards(e, cx, cy);
     if (e.boss) this.onBossDeath(e);
     if (S.healOnKill && chance(S.healOnKill)) P.heal(2);
     if (o.petRef) o.petRef.gainXp(this.tierMult?.petXp || 1);
     Audio.play('kill');
+  },
+
+  // Skyfall Shards, from the Lv 2 gates on (more at Lv 3 and 4): a boss drops some for sure, the
+  // Night Lord more, an elite now and then and any other monster very rarely. Gear sets with shard
+  // luck make all of it more likely.
+  dropShards(e, x, y) {
+    const lv = Math.floor(this.tier / 4), luck = 1 + (this.heroBonus?.shards || 0);
+    let n = 0;
+    if (e.boss) n = Math.floor((e.type === 'night_lord' ? SHARD_DROP.nightLord : SHARD_DROP.boss) * lv * luck + Math.random());
+    else if (chance((e.elite ? SHARD_DROP.elite : SHARD_DROP.kill) * lv * luck)) n = 1;
+    for (let i = 0; i < n; i++) this.spawnPickup('shard', x + rand(-10, 10), y + rand(-6, 6), 1);
   },
 
   // A Cage Drone went down: the survivalmon it was carrying gets back on its feet
@@ -455,7 +468,8 @@ export const Combat = {
     if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
     // wild ones met later in a run are further grown
     const level = Math.min(MAX_PET_LEVEL, 1 + Math.floor(this.time / 60) + (this.tierMult?.wildLv || 0)); // past the newer gates they're far more grown
-    const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level, where: this.world.zoneAtPx(e.x, e.y) });
+    const odds = e.lure ? tierOdds(this.tierOdds, e.lure) : this.tierOdds; // called by a Lure Horn II or better
+    const mon = Box.add(species, { skills: rollSkills(species, { odds }), joinTeam: false, origin: 'wild', level, where: this.world.zoneAtPx(e.x, e.y) });
     P.caught.push(species);
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);

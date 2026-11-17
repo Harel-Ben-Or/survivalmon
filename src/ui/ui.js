@@ -29,6 +29,9 @@ import { Meta } from '../systems/meta.js';
 import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
 import { armorPct } from '../systems/armor.js';
 import { cardRowsHTML } from './card_preview.js';
+import { itemName, itemText } from '../content/shop.js';
+// "1:05:12" / "4:30": time left on a town timer
+const countdown = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = Math.floor(sec % 60); return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const CONTROL_NAMES = { auto: 'Auto', touch: 'Touch', keys: 'Keyboard' };
@@ -223,13 +226,14 @@ export class UI {
     this.el.hud.innerHTML = `
       <div class="xpbar"><div class="fill"></div></div>
       <div class="hud-strip">
-        <div class="hs-left"><span class="hs-lv">Lv 1</span><span class="hs-items"></span></div>
+        <div class="hs-left"><span class="hs-lv">Lv 1</span><span class="hs-boosts"></span><span class="hs-items"></span></div>
         <div class="hs-mid"><span class="timer"><span class="t">00:00</span><small>left</small></span><span class="phase"></span><span class="paused-chip hidden">⏸ paused</span></div>
         <div class="hs-right"><span class="cnt"><img class="px" src="${icon('coin', 2)}" alt="Coins"><b class="coins">0</b></span><span class="cnt hs-spirit"><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="spirit">0</b></span><span class="cnt">KO <b class="kills">0</b></span></div>
       </div>
       <div class="bossbar hidden"><div class="name"></div><div class="bar"><div></div></div></div>
       <div class="minimap" title="Tap to make the map bigger"><canvas class="px" width="112" height="112"></canvas><div class="zone-chip"></div></div>
       <div class="feed"></div>
+      <button class="bag-btn" aria-label="Bag (B)"><img class="px" src="${icon('bag', 2)}" alt=""><b class="bag-n"></b></button>
       <div class="catch-card hidden"></div>
       <div class="hud-bottom">
         <div class="dash"><div class="pip"><div></div></div><span>SPACE</span></div>
@@ -242,10 +246,12 @@ export class UI {
       coins: q('.coins'), spirit: q('.spirit'), kills: q('.kills'),
       time: q('.timer .t'), phase: q('.phase'), paused: q('.paused-chip'), boss: q('.bossbar'), bossName: q('.bossbar .name'), bossFill: q('.bossbar .bar div'),
       mini: q('.minimap canvas'), minimap: q('.minimap'), zone: q('.zone-chip'), feed: q('.feed'), catchCard: q('.catch-card'),
+      boosts: q('.hs-boosts'), bag: q('.bag-btn'), bagN: q('.bag-n'),
       spells: [...this.el.hud.querySelectorAll('.spell')], dash: q('.dash .pip div'), combos: q('.combos-chip'),
     };
     // tap the radar for a bigger map
     this.h.minimap.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); this.h.minimap.classList.toggle('big'); });
+    this.h.bag.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); if (this.g.modal === 'bag') this.closeBag(); else if (!this.g.modal) this.openBag(); });
     this.zoneShown = null;
     this.invSig = '';
     this.last = {};
@@ -256,7 +262,7 @@ export class UI {
   set(key, el, prop, val) {
     if (this.last[key] === val) return;
     this.last[key] = val;
-    if (prop === 'text') el.textContent = val; else if (prop === 'class') el.className = val; else el.style[prop] = val;
+    if (prop === 'text') el.textContent = val; else if (prop === 'html') el.innerHTML = val; else if (prop === 'class') el.className = val; else el.style[prop] = val;
   }
 
   updateHUD() {
@@ -270,6 +276,11 @@ export class UI {
     this.set('coins', H.coins, 'text', String(Math.floor(P.coins)));
     this.set('spirit', H.spirit, 'text', String(Math.floor(P.spirit || 0)));
     this.set('kills', H.kills, 'text', String(P.kills));
+    // items from the bag still working: their icon and seconds left; the bag button shows how many you carry
+    const boosts = Object.values(g.boosts || {}).filter((b) => b.end > g.time);
+    this.set('boosts', H.boosts, 'html', boosts.map((b) => `<span class="hs-boost"><img class="px" src="${icon(b.icon, 2)}" alt="">${Math.ceil(b.end - g.time)}</span>`).join(''));
+    const bagN = Meta.bagSize();
+    this.set('bagN', H.bagN, 'text', bagN ? String(bagN) : '');
     // the zone you're in, under the radar; it glows for a moment when you cross into a new one
     const zid = g.zoneNow, Z = ZONES[zid];
     if (Z && this.zoneShown !== zid) {
@@ -717,7 +728,7 @@ export class UI {
           // this run so far: what the HUD strip leaves out (Spirit, materials, the zone, what you caught)
           const mats = Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => `<span><img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="${esc(MATERIALS[k].name)}">${n}</span>`).join('');
           const caught = P.caught.map((id) => `<img class="px" title="${esc(SPECIES[id].name)}" src="${artURL('creature', id)}" alt="">`).join('');
-          return `<span><img class="px" src="${icon('coin', 2)}" alt="Coins">${Math.floor(P.coins)}</span><span><img class="px" src="${icon('spirit', 2)}" alt="Spirit">${Math.floor(P.spirit || 0)}</span><span>KO ${P.kills}</span>${mats}${ZONES[g.zoneNow] ? `<span style="color:${ZONES[g.zoneNow].color}">${esc(ZONES[g.zoneNow].name)}</span>` : ''}${caught ? `<span class="pr-caught">Caught: ${caught}</span>` : ''}`;
+          return `<span><img class="px" src="${icon('coin', 2)}" alt="Coins">${Math.floor(P.coins)}</span><span><img class="px" src="${icon('spirit', 2)}" alt="Spirit">${Math.floor(P.spirit || 0)}</span>${P.shards ? `<span><img class="px" src="${icon('shard', 2)}" alt="Skyfall Shards">${P.shards}</span>` : ''}<span>KO ${P.kills}</span>${mats}${ZONES[g.zoneNow] ? `<span style="color:${ZONES[g.zoneNow].color}">${esc(ZONES[g.zoneNow].name)}</span>` : ''}${caught ? `<span class="pr-caught">Caught: ${caught}</span>` : ''}`;
         })()}</div>
         <div class="pause-body">
         <div class="pause-grid">
@@ -748,6 +759,25 @@ export class UI {
   }
   closePause() {
     this.closeModal();
+    this.g.modal = null;
+  }
+  openBag() {
+    const g = this.g;
+    g.modal = 'bag';
+    this.prompt(null);
+    const list = Meta.bagList();
+    const rows = list.map((x) => `<button class="bag-item" data-use="${x.key}"><img class="px" src="${icon(x.item.icon, 3)}" alt=""><span class="bi-main"><b>${esc(itemName(x.id, x.g))}</b><span class="small">${esc(itemText(x.id, x.g))}</span></span><b class="bi-n">×${x.n}</b></button>`).join('');
+    this.openModal(`
+      <div class="modal-box panel bag-box">
+        <div class="bag-head"><img class="px" src="${icon('bag', 2)}" alt=""><b>Bag</b><span class="small">Tap one to use it. The run waits while the bag is open.</span><button class="btn small secondary" data-act="bag-close">✕ <span class="key">B</span></button></div>
+        <div class="bag-list">${rows || '<p class="sub-note">Your bag is empty. Buy goods from the Merchant in town.</p>'}</div>
+      </div>`);
+    this.modalKind = 'bag';
+    this.el.modal.querySelectorAll('[data-use]').forEach((b) => b.addEventListener('click', () => { const used = g.useItem(b.dataset.use); if (used) this.closeBag(); }));
+  }
+  closeBag() {
+    if (this.modalKind === 'bag') this.closeModal();
+    this.modalKind = null;
     this.g.modal = null;
   }
 
@@ -785,7 +815,7 @@ export class UI {
               <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${g.tier ? ` · <span style="color:${gateColor(g.tier)}">${gateName(g.tier)}</span>` : ''}${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
               ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">You beat the Night Lord! The ${gateName(g.gateOpened)} is open to you now.</div>` : ''}
               ${g.allGates ? '<div class="end-gate" style="color:#ffd84a">You beat the West Gate Lv 4: every gate is conquered!</div>' : ''}
-              <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
+              <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${P.shards ? ` · <img class="px" src="${icon('shard', 2)}" alt="">+${P.shards} Skyfall Shards` : ''}${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>
           <div class="end-body">
@@ -862,6 +892,7 @@ export class UI {
       case 'hatch': this.hatch(); break;
       case 'next': this.nextLoot(); break;
       case 'resume': this.closePause(); break;
+      case 'bag-close': this.closeBag(); break;
       case 'quit': // ask once more so a stray tap can't throw a run away
         t.dataset.act = 'quit-yes'; t.textContent = 'Tap again to end the run'; t.classList.add('danger');
         break;
@@ -900,6 +931,7 @@ export class UI {
       if (k === 'Escape') this.closeMonSheet();
       return;
     }
+    if (this.modalKind === 'bag') return; // Esc and B close it (Game.update)
     if (this.modalKind === 'help') { if (k === 'Escape' || k === 'Enter') { this.closeModal(); if (this.g.mode === 'town') this.g.modal = null; } return; }
     if (this.modalKind === 'levelup') {
       const i = ['Digit1', 'Digit2', 'Digit3'].indexOf(k);
@@ -952,6 +984,10 @@ export class UI {
 
   tick(dt) {
     this.frame++;
+    if ((this.cdT = (this.cdT || 0) - dt) <= 0) {
+      this.cdT = 0.5;
+      document.querySelectorAll('[data-until]').forEach((el) => { const left = Math.max(0, (+el.dataset.until - Date.now()) / 1000); el.textContent = left > 0 ? countdown(left) : 'done!'; });
+    }
     if (this.screen === 'select' && this.heroCanvases) this.drawSelect();
     if (this.g.mode === 'town' && this.screen === 'town') this.updateTownHUD();
     if ((this.g.mode === 'world' || this.g.mode === 'house') && this.screen === 'hud') {

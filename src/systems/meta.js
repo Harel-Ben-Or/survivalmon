@@ -1,19 +1,26 @@
 // Progress that lasts between runs: banked coins and Spirit, Training Hall levels, the chosen hero,
 // which buildings are open and their levels. Coins are the hero's money; Spirit (earned by what your
-// survivalmons do) pays for the Spirit Shrine.
+// survivalmons do) pays for the Spirit Shrine. Skyfall Shards are the rare currency (content/shop.js).
 import { RUN_LENGTH } from './director.js';
-import { BUILDINGS, buildingCost } from '../content/buildings.js';
-import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, SET_BONUS, MILESTONES, slotCost } from '../content/gear.js';
+import { BUILDINGS, buildingCost, buildMins } from '../content/buildings.js';
+import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, MILESTONES, slotCost, GEAR_SETS, HERO_SETS, SET_PIECES, TOOLS, toolCost } from '../content/gear.js';
+import { itemKey, parseKey, STACK_MAX, rushCost } from '../content/shop.js';
 import { Profiles } from './profiles.js';
 import { armorPct } from './armor.js';
 import { HEROES } from '../content/heroes.js';
 
 const KEY = Profiles.key('meta'); // this player's save
 export const SPIRIT_START = 100;
+export const MAT_KEYS = ['wood', 'stone', 'clay', 'iron'];
 // gates: the newest gate opened (0 = only the North Gate, see content/gates.js); gateTier: the one
 // picked for the next run; gateNew: a gate just earned, not yet told in town
-const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, gates: 0, gateTier: 0, gateNew: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
-  mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, buffs: [] });
+// gear[hero][slot] = { own: { set: true }, on: set } (the pieces found for that slot, and the one worn)
+// items: the bag, { "id:grade": count }; builds: upgrades being built, { building: { to, done } }
+// tools: Workshop tool levels; shards: Skyfall Shards; bought: Skyfall counter buys, { day, n: { offer: count } }
+const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, shards: 0, gates: 0, gateTier: 0, gateNew: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
+  mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, items: {}, builds: {}, tools: {}, bought: { day: '', n: {} } });
+// The old Merchant's "next run" goods become bag items (grade I); the Time Candle is refunded
+const OLD_BUFFS = { snack: 'power', tonic: 'iron', horn: 'horn', pick: 'pick', feather: 'feather', warmer: 'warm' };
 
 // Training Hall upgrades. `mods` turns a level into hero stat mods (same keys as Player.recompute).
 export const TRAINING = [
@@ -42,10 +49,23 @@ export const Meta = {
       const d = JSON.parse(localStorage.getItem(KEY));
       if (d && d.v === 1) {
         const e = empty();
-        this.data = { ...e, ...d, spirit: d.spirit ?? SPIRIT_START, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes } };
+        this.data = { ...e, ...d, spirit: d.spirit ?? SPIRIT_START, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes },
+          items: { ...d.items }, builds: { ...d.builds }, tools: { ...d.tools }, bought: d.bought || e.bought };
+        this.migrate();
       }
     } catch { /* storage unavailable: start fresh */ }
     return this;
+  },
+  // Older saves: a gear slot was just `true` (the hero's own set's piece); Merchant buffs were for the next run
+  migrate() {
+    const D = this.data;
+    for (const [hero, slots] of Object.entries(D.gear || {})) {
+      for (const s of SLOTS) if (slots[s] === true) slots[s] = { own: { [HERO_SETS[hero][0]]: true }, on: HERO_SETS[hero][0] };
+    }
+    if (D.buffs) {
+      for (const b of D.buffs) { if (OLD_BUFFS[b]) this.addItem(OLD_BUFFS[b], 1, 1, false); else if (b === 'candle') D.coins += 30; }
+      delete D.buffs;
+    }
   },
   save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
 
@@ -64,6 +84,9 @@ export const Meta = {
   get gates() { return this.data.gates || 0; },
   get spirit() { return Math.floor(this.data.spirit || 0); },
   addSpirit(n) { this.data.spirit = (this.data.spirit || 0) + n; this.save(); },
+  get shards() { return Math.floor(this.data.shards || 0); },
+  addShards(n) { this.data.shards = (this.data.shards || 0) + Math.max(0, Math.floor(n)); this.save(); },
+  spendShards(n) { if (n > this.shards) return false; this.data.shards -= n; this.save(); return true; },
   get hero() { return this.data.hero; },
   setHero(id) { this.data.hero = id; this.save(); },
   bank(n) { this.data.coins += Math.max(0, Math.floor(n)); this.data.runs++; this.save(); },
@@ -96,20 +119,45 @@ export const Meta = {
   buildingLevel(id) { return this.data.buildings[id] || 1; },
   buildingBonus(id, key) { return BUILDINGS[id].bonus[key][this.buildingLevel(id) - 1]; },
 
-  // Pays a cost { coins, wood, stone, clay, iron } if there's enough of everything.
-  canAfford(c) { return !!c && this.data.coins >= (c.coins || 0) && ['wood', 'stone', 'clay', 'iron'].every((k) => this.data.mats[k] >= (c[k] || 0)); },
+  // Pays a cost { coins, wood, stone, clay, iron, shards } if there's enough of everything.
+  canAfford(c) { return !!c && this.data.coins >= (c.coins || 0) && this.shards >= (c.shards || 0) && MAT_KEYS.every((k) => this.data.mats[k] >= (c[k] || 0)); },
   pay(c) {
     if (!this.canAfford(c)) return false;
     this.data.coins -= c.coins || 0;
-    for (const k of ['wood', 'stone', 'clay', 'iron']) this.data.mats[k] -= c[k] || 0;
+    this.data.shards -= c.shards || 0;
+    for (const k of MAT_KEYS) this.data.mats[k] -= c[k] || 0;
     this.save();
     return true;
   },
-  upgradeBuilding(id) {
-    const c = buildingCost(id, this.buildingLevel(id));
-    if (!this.pay(c)) return false;
-    this.data.buildings[id] = this.buildingLevel(id) + 1;
+  // An upgrade is paid when it starts and takes buildMins to build; the building works at its old
+  // level meanwhile. building(id) = { to, done } while it's being built, else null.
+  building(id) { return this.data.builds[id] || null; },
+  upgradeBuilding(id, now = Date.now()) {
+    const L = this.buildingLevel(id), c = buildingCost(id, L);
+    if (this.building(id) || !this.pay(c)) return false;
+    this.data.builds[id] = { to: L + 1, done: now + buildMins(L) * 60000 };
     this.save();
+    return true;
+  },
+  // Finishes upgrades whose time is up. Returns the ids finished.
+  settleBuildings(now = Date.now()) {
+    const out = [];
+    for (const [id, b] of Object.entries(this.data.builds)) {
+      if (now < b.done) continue;
+      this.data.buildings[id] = Math.max(this.buildingLevel(id), b.to);
+      delete this.data.builds[id];
+      out.push(id);
+    }
+    if (out.length) this.save();
+    return out;
+  },
+  // Skyfall Shards to finish a build now (null if nothing's being built)
+  rushCost(id, now = Date.now()) { const b = this.building(id); return b ? rushCost(b.done - now) : null; },
+  rushBuilding(id, now = Date.now()) {
+    const c = this.rushCost(id, now);
+    if (c === null || !this.spendShards(c)) return false;
+    this.data.builds[id].done = now;
+    this.settleBuildings(now);
     return true;
   },
   bankMats(m) { for (const k of Object.keys(m)) this.data.mats[k] = (this.data.mats[k] || 0) + Math.floor(m[k]); this.save(); },
@@ -117,15 +165,29 @@ export const Meta = {
   // ---------------------------------------------------------- heroes and gear
   isHeroUnlocked(id) { return !!this.data.heroes[id]; },
   unlockHero(id) { if (this.data.heroes[id]) return false; this.data.heroes[id] = true; this.save(); return true; },
-  hasGear(hero, slot) { return !!this.data.gear[hero]?.[slot]; },
-  // Returns true for a new piece, false for a duplicate (salvaged by the caller).
-  addGear(hero, slot) {
+  // A slot has gear once any piece for it was found; it wears one piece (one set's) at a time.
+  hasGear(hero, slot) { return !!this.worn(hero, slot); },
+  ownsPiece(hero, slot, set) { return !!this.data.gear[hero]?.[slot]?.own?.[set]; },
+  worn(hero, slot) { return this.data.gear[hero]?.[slot]?.on || null; },
+  // Returns true for a new piece, false for a duplicate (salvaged by the caller). A slot with nothing
+  // worn puts the new piece on.
+  addGear(hero, slot, set = HERO_SETS[hero][0]) {
     const g = this.data.gear[hero] || (this.data.gear[hero] = {});
-    if (g[slot]) return false;
-    g[slot] = true;
+    const s = g[slot] || (g[slot] = { own: {}, on: null });
+    if (s.own[set]) return false;
+    s.own[set] = true;
+    if (!s.on) s.on = set;
     this.save();
     return true;
   },
+  wear(hero, slot, set) {
+    if (!this.ownsPiece(hero, slot, set)) return false;
+    this.data.gear[hero][slot].on = set;
+    this.save();
+    return true;
+  },
+  piecesOwned(hero) { return SLOTS.reduce((n, s) => n + Object.keys(this.data.gear[hero]?.[s]?.own || {}).length, 0); },
+  setWorn(hero, set) { return SLOTS.filter((s) => this.worn(hero, s) === set).length; },
   gearCount(hero) { return SLOTS.filter((s) => this.hasGear(hero, s)).length; },
   slotLevel(hero, slot) { return this.data.slots[hero]?.[slot] || 0; },
   slotCap() { return this.buildingBonus('workshop', 'cap'); },
@@ -148,19 +210,66 @@ export const Meta = {
     return m;
   },
   offWeapon(hero) { return this.hasGear(hero, 'off') ? SETS[hero].offW : null; },
-  // Everything the hero does for the survivalmon team: their boost (stronger with 4 set pieces),
-  // the 6-piece bonus and the slot-level milestones. Returns { team, petXp, wild, coins }.
+  // Everything the hero brings to a run besides the slots' own stats: their survivalmon boost, the
+  // bonuses of the sets worn (4 and 6 pieces) and the slot-level milestones.
+  // Returns { team, hero, types, petXp, wild, coins, mats, shards }.
   heroTeamBonus(hero) {
-    const out = { team: { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 }, petXp: 0, wild: 0, coins: 0 };
+    const out = { team: { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 }, hero: {}, types: {}, petXp: 0, wild: 0, coins: 0, mats: 0, shards: 0 };
     const add = (t, k = 1) => { for (const [key, v] of Object.entries(t || {})) out.team[key] += v * k; };
-    const n = this.gearCount(hero), b = HERO_BOOST[hero], boost = n >= SET_BONUS[0].pieces ? 1.5 : 1;
+    const bonuses = [];
+    for (const set of HERO_SETS[hero]) {
+      const n = this.setWorn(hero, set);
+      GEAR_SETS[set].bonus.forEach((b, i) => { if (n >= SET_PIECES[i]) bonuses.push(b); });
+    }
+    const b = HERO_BOOST[hero], boost = 1 + bonuses.reduce((s, x) => s + (x.boost || 0), 0);
     add(b.team, boost);
     out.petXp += (b.petXp || 0) * boost; out.wild += (b.wild || 0) * boost;
-    if (n >= SET_BONUS[1].pieces) add({ dmg: 0.1, hp: 0.1 });
-    const minL = n === SLOTS.length ? this.minSlotLevel(hero) : 0;
+    for (const x of bonuses) {
+      add(x.team);
+      for (const [k, v] of Object.entries(x.hero || {})) out.hero[k] = (out.hero[k] || 0) + v;
+      for (const [k, v] of Object.entries(x.types || {})) out.types[k] = (out.types[k] || 0) + v;
+      for (const k of ['petXp', 'wild', 'coins', 'mats', 'shards']) out[k] += x[k] || 0;
+    }
+    const minL = this.gearCount(hero) === SLOTS.length ? this.minSlotLevel(hero) : 0;
     for (const ms of MILESTONES) if (minL >= ms.level) { add(ms.team); out.coins += ms.coins || 0; }
     return out;
   },
+
+  // ---------------------------------------------------------- Workshop tools (better gathering)
+  toolLevel(id) { return this.data.tools[id] || 0; },
+  toolCap(t) { return Math.min(t.max, this.buildingBonus('workshop', 'tools')); },
+  toolUpCost(id) { const t = TOOLS.find((x) => x.id === id), L = this.toolLevel(id); return L >= this.toolCap(t) ? null : toolCost(id, L); },
+  toolUp(id) {
+    if (!this.pay(this.toolUpCost(id))) return false;
+    this.data.tools[id] = this.toolLevel(id) + 1;
+    this.save();
+    return true;
+  },
+  // How much more of a material gathering spots give, and how much faster gathering is
+  gatherMult(mat) { return 1 + TOOLS.reduce((s, t) => s + (t.mats.includes(mat) ? t.per * this.toolLevel(t.id) : 0), 0); },
+  gatherSpeed() { const t = TOOLS.find((x) => x.id === 'hands'); return 1 - t.per * this.toolLevel('hands'); },
+
+  // ---------------------------------------------------------- the bag (Merchant goods, used in runs)
+  itemCount(key) { return this.data.items[key] || 0; },
+  addItem(id, g = 1, n = 1, save = true) {
+    const k = itemKey(id, g), have = this.itemCount(k);
+    if (have + n > STACK_MAX) return false;
+    this.data.items[k] = have + n;
+    if (save) this.save();
+    return true;
+  },
+  takeItem(key) {
+    if (!this.itemCount(key)) return false;
+    if (--this.data.items[key] <= 0) delete this.data.items[key];
+    this.save();
+    return true;
+  },
+  // The bag's contents as [{ key, id, g, item, n }], in the Merchant's order, best grade first
+  bagList() {
+    return Object.entries(this.data.items).filter(([, n]) => n > 0).map(([key, n]) => ({ key, n, ...parseKey(key) }))
+      .filter((x) => x.item).sort((a, b) => a.item.order - b.item.order || b.g - a.g);
+  },
+  bagSize() { return Object.values(this.data.items).reduce((s, n) => s + n, 0); },
 
   runLength() { return runLengthAt(this.level('runtime')); },
   coinMult() { return 1 + 0.1 * this.level('coins'); },

@@ -42,6 +42,8 @@ export const NPCS = {
     lines: [
       { text: 'Bring me what you find out there and I will make it sing.' },
       { text: 'Each gear slot grows on its own. Level them all and the whole set wakes up.' },
+      { text: 'Four sets for every hero. Wear four pieces of one and it starts to hum. Six, and it sings.' },
+      { text: 'A sharp axe brings home twice the wood. Let me fix your tools.' },
       { text: 'Iron from the crater glows at night. I do not touch it with bare hands.' },
       { min: 1, text: 'The Snare gang\'s nets are good steel. Shame what they use them for.' },
     ],
@@ -90,10 +92,11 @@ export const NPCS = {
     name: 'Mags', role: 'Merchant', home: 'stall', act: ['Shop', 'showMerchant'],
     hello: 'Step right up, {name}! Everything lasts one whole run!',
     lines: [
-      { text: 'Snacks, tonics, horns and candles. Each lasts one run, so spend while it is hot.' },
+      { text: 'Tonics, brews, bells and horns. Keep them in your bag and use them when the wild gets rough.' },
+      { text: 'Skyfall Shards? Bring me some and I have eggs you will not find anywhere else.' },
       { text: 'I came for the falling star. I am staying for the customers.' },
       { text: 'A Lure Horn makes the wild ones come to you. Do not ask how.' },
-      { text: 'No refunds on Time Candles. Time is time.' },
+      { text: 'Better stall, better goods. Better prices? Not a chance.' },
     ],
   },
   ollie: {

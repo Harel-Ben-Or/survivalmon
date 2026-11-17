@@ -53,7 +53,7 @@ export const Pickups = {
         }
       }
       const d2 = dist2(k.x, k.y, P.x, P.y);
-      const pullable = k.kind === 'xp' || k.kind === 'coin' || k.kind === 'heart' || k.kind === 'berry';
+      const pullable = k.kind === 'xp' || k.kind === 'coin' || k.kind === 'heart' || k.kind === 'berry' || k.kind === 'shard';
       if (pullable && (k.magnet || d2 < mr2) && k.t > 0.25) {
         k.magnet = true;
         const d = Math.sqrt(d2) || 1;
@@ -105,6 +105,11 @@ export const Pickups = {
       case 'gear': this.collectGear(k.value); break;
       case 'berry': this.feedTeam(1); break;
       case 'stone': this.gainStone(k.value); break;
+      case 'shard':
+        P.shards = (P.shards || 0) + k.value;
+        this.feed(`+${k.value} Skyfall Shard`, '#c8a8ff');
+        this.particles.burst(k.x, k.y - 6, { n: 14, colors: ['#c8a8ff', '#8fd0ff', '#ffffff'], speed: 60, life: 0.5, up: 20 });
+        Audio.play('gem'); break;
     }
   },
   drawPickups(ctx, cam) {
@@ -117,9 +122,9 @@ export const Pickups = {
       const bob = k.kind === 'xp' ? 0 : Math.round(Math.sin(this.time * 4 + k.bob) * 1.5);
       const x = snap(k.x - cam.x - w / 2), y = snap(k.y - cam.y - h - 2 + bob);
       if (x < -20 || y < -20 || x > this.view.w + 20 || y > this.view.h + 20) continue;
-      if (k.kind === 'chest' || k.kind === 'egg' || k.kind === 'stone' || k.kind === 'gear') {
+      if (k.kind === 'chest' || k.kind === 'egg' || k.kind === 'stone' || k.kind === 'gear' || k.kind === 'shard') {
         ctx.globalAlpha = 0.35 + 0.2 * Math.sin(this.time * 6);
-        ctx.fillStyle = '#ffe07a';
+        ctx.fillStyle = k.kind === 'shard' ? '#b08aff' : '#ffe07a';
         ctx.beginPath(); ctx.ellipse(x + w / 2, y + h, 12, 5, 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
       }

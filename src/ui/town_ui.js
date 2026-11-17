@@ -10,7 +10,7 @@ import { Box, monName } from '../systems/collection.js';
 import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer } from './mons_ui.js';
 import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
-import { MERCHANT_ITEMS } from '../content/buildings.js';
+
 import { Meta, TRAINING } from '../systems/meta.js';
 import { GATE_SIDES, gateName, gateColor, gateBlurb } from '../content/gates.js';
 import { Audio } from '../core/audio.js';
@@ -32,12 +32,12 @@ export const TownUI = {
     const team = Box.team().map((m) => `<span class="t-mon ${m.hp <= 0 ? 'fainted' : ''}" title="${esc(monName(m))}"><img class="px" src="${artURL('creature', m.species) || icon('egg', 2)}" alt=""><b>${m.level}</b></span>`).join('');
     this.el.hud.innerHTML = `
       <div class="town-hud">
-        <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="t-spirit">${Meta.spirit}</b></div>
+        <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="t-spirit">${Meta.spirit}</b><img class="px" src="${icon('shard', 2)}" alt="Skyfall Shards"><b class="t-shards">${Meta.shards}</b></div>
         <div class="town-chip panel t-team">${team || '<em>No team yet</em>'}</div>
       </div>
       <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>`;
     this.el.hud.classList.remove('hidden');
-    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), run: this.el.hud.querySelector('.t-runlen') };
+    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen') };
     this.last = {};
     this.touch.setVisible(this.g.touchMode);
     Input.endFrame();
@@ -45,6 +45,7 @@ export const TownUI = {
   updateTownHUD() {
     this.set('tcoins', this.th.coins, 'text', String(Meta.coins));
     if (this.th.spirit) this.set('tspirit', this.th.spirit, 'text', String(Meta.spirit));
+    if (this.th.shards) this.set('tshards', this.th.shards, 'text', String(Meta.shards));
     this.set('trun', this.th.run, 'text', runTime(Meta.runLength()));
   },
 
@@ -79,7 +80,7 @@ export const TownUI = {
     const col = `<aside class="t2-col">
         <button class="t2-hero" data-mact="hero-toggle"><img class="px" src="${artURL('hero', hero) || iconURL('hero', hero, 2)}" alt=""><span><b>${esc(Meta.heroName(hero))} ›</b><span class="small">${esc(HERO_BOOST[hero].text)}</span></span></button>
         ${heroes}${gate}
-        ${Meta.data.buffs.length ? `<div class="small buffs">Ready: ${Meta.data.buffs.map((b) => esc(MERCHANT_ITEMS.find((x) => x.id === b)?.name || b)).join(', ')}</div>` : ''}
+        ${Meta.bagSize() ? `<div class="small buffs"><img class="px inline-ic" src="${icon('bag', 2)}" alt=""> ${Meta.bagSize()} item${Meta.bagSize() === 1 ? '' : 's'} in your bag (B in a run)</div>` : ''}
         <div class="t2-slots">${Array.from({ length: size }, (_, i) => row(i)).join('')}</div>
         ${this.buildingPanel('gate')}
       </aside>`;

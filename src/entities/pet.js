@@ -36,7 +36,7 @@ export const TYPE_PERK = { shot: 0.92, charge: 0.9, area: 0.12, support: 0.9 }; 
 const AREA_R = { aura: 30, slam: 36, lobber: 22 };
 function typedUp(q, arch, type, ups) {
   const u = ups?.[type];
-  if (!u?.n) return q;
+  if (!u?.n && !u?.dmg) return q; // type cards picked this run (n), and damage from them and the hero's gear sets
   q.dmg *= 1 + u.dmg;
   if (type === 'shot' || type === 'charge') q.cd = (q.cd || 1) * Math.pow(TYPE_PERK[type], u.n);
   else if (type === 'chain') q.chains = (q.chains || 3) + u.n;
@@ -110,12 +110,6 @@ export class Pet {
       this.hp = this.maxHp * this.pass.wind;
       this.g.toast(`${this.name} got back up! (Second Wind)`);
       this.g.particles.burst(this.x, this.y - 8, { n: 14, colors: ['#9af08a', '#ffffff'], speed: 50, life: 0.5, up: 20 });
-      return;
-    }
-    if (this.g.reviveFeather) {
-      this.g.reviveFeather = false;
-      this.hp = this.maxHp * 0.5;
-      this.g.toast(`${this.name} got back up! (Revive Feather)`);
       return;
     }
     this.hp = 0;

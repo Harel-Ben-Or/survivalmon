@@ -26,12 +26,13 @@ import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { WEAPONS } from '../content/weapons.js';
 import { COMBOS } from '../content/artifacts.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
-import { BASE_ODDS } from '../content/skills.js';
+import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
 import { tierMult, gateName, gateColor, gateSide, gateBlurb, GATE_MAX } from '../content/gates.js';
-import { SETS, SLOTS, SLOT_NAME, offWeaponLevel } from '../content/gear.js';
-import { MATERIALS } from '../content/buildings.js';
+import { SETS, SLOTS, SLOT_NAME, offWeaponLevel, HERO_SETS, GEAR_SETS, pieceName } from '../content/gear.js';
+import { MATERIALS, BUILDINGS } from '../content/buildings.js';
+import { ITEM, BOOST_TIME, itemName, parseKey } from '../content/shop.js';
 import { UI } from '../ui/ui.js';
 const NO_BLESS = Object.freeze({ dmg: 0, haste: 0, def: 0, end: 0 });
 import { Profiles } from '../systems/profiles.js';
@@ -41,7 +42,9 @@ const MAX_STEP = 1 / 60;
 // the upgrade icons (Training Hall, level-up cards, Spirit Shrine)
 const UP_ICONS = ['hp', 'damage', 'speed', 'haste', 'magnet', 'armor', 'crit', 'critdmg', 'regen', 'area', 'multi', 'luck', 'exp', 'runtime', 'coins', 'wild'].map((k) => `up_${k}`)
   .concat(['power', 'haste', 'guard', 'vigor', 'focus', 'heal'].map((k) => `team_${k}`));
-const EXTRA_ICONS = [...UP_ICONS, ...Object.values(ATK_TYPES).map((t) => t.icon), 'mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS];
+const EXTRA_ICONS = [...UP_ICONS, ...Object.values(ATK_TYPES).map((t) => t.icon), 'mat_wood', 'mat_stone', 'mat_clay', 'mat_iron', 'gear_helmet', 'gear_armor', 'gear_gloves', 'gear_boots', ...EGG_ICONS,
+  'shard', 'shard_pile', 'bag', 'it_swift', 'it_power', 'it_iron', 'it_heal', 'it_horn', 'it_warm', 'it_frost', 'it_pick', 'egg_star', 'egg_mystery',
+  'tool_axe', 'tool_pick', 'tool_spade', 'hammer', 'anvil', 'stopwatch'];
 const GATHER_TIME = 1.6;  // seconds standing at a gathering spot
 const GATHER = { wood: 3, stone: 3, clay: 2, iron: 1 };
 const SETTINGS_KEY = 'survivelmon.settings';
@@ -208,30 +211,31 @@ export class Game {
     this.blessing = { dmg: 0, haste: 0, def: 0, end: 0 };
     this.runId = (this.runId || 0) + 1;
     this.activeCombos = new Set();
-    // Merchant items last this one run
-    this.buffs = new Set(Meta.data.buffs);
-    Meta.data.buffs = []; Meta.save();
+    // the hero's sets and gear: team bonuses, hero stats, attack types, coins, materials, shard luck
     this.heroBonus = Meta.heroTeamBonus(heroId);
-    this.runLength = Meta.runLength() + (this.buffs.has('candle') ? 10 : 0);
+    this.runLength = Meta.runLength();
     this.coinMult = Meta.coinMult();
     this.wildMult = Meta.wildMult();
-    this.matMult = this.buffs.has('pick') ? 2 : 1;
-    this.reviveFeather = this.buffs.has('feather');
+    this.matMult = 1;
+    this.boosts = {}; // items used from the bag: { stat: { v, end } }
     this.director = new Director(this);
     const P = this.player = new Player(this, heroId);
     P.x = this.world.spawn.x; P.y = this.world.spawn.y;
     // Training Hall upgrades
     const mods = { ...Meta.heroMods(), petXp: this.heroBonus.petXp };
     for (const [k, v] of Object.entries(Meta.gearMods(heroId))) mods[k] = (mods[k] || 0) + v;
+    for (const [k, v] of Object.entries(this.heroBonus.hero)) mods[k] = (mods[k] || 0) + v;
     P.bonus = mods;
     P.mats = { wood: 0, stone: 0, clay: 0, iron: 0 };
+    P.shards = 0;
     P.recompute();
     P.hp = P.stats.maxHp;
     P.addItem('weapon', P.hero.weapon);
     const off = Meta.offWeapon(heroId);
     if (off) P.addItem('weapon', off, offWeaponLevel(Meta.slotLevel(heroId, 'off')));
     this.team = this.teamBonus();
-    this.typeUp = Object.fromEntries(ATK_TYPE_IDS.map((t) => [t, { dmg: 0, n: 0 }])); // type cards picked this run
+    // type cards picked this run (n), and their damage, which starts at what the hero's sets give
+    this.typeUp = Object.fromEntries(ATK_TYPE_IDS.map((t) => [t, { dmg: this.heroBonus.types[t] || 0, n: 0 }]));
     this.tierOdds = Shrine.odds();
     this.canCatch = Box.data.firstHatch;
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
@@ -281,6 +285,7 @@ export class Game {
     if (hurt && Meta.unlock('clinic')) this.unlockNote = 'The Clinic is open: heal your hurt survivalmons there.';
     Box.warmEggs(this.time * this.hatchMult());
     Meta.bankMats(P.mats);
+    Meta.addShards(P.shards || 0);
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, this.time);
     // won through the newest gate: the next gate's guard will let you through
     this.gateOpened = 0;
@@ -315,7 +320,7 @@ export class Game {
     if (this.mode !== 'world' && this.mode !== 'house') return;
     const P = this.player;
     save(PENDING_KEY, {
-      coins: Math.floor(P.coins), spirit: Math.floor(P.spirit), mats: { ...P.mats }, time: this.time, kills: P.kills,
+      coins: Math.floor(P.coins), spirit: Math.floor(P.spirit), shards: P.shards || 0, mats: { ...P.mats }, time: this.time, kills: P.kills,
       pets: P.pets.map((p) => ({ id: p.mon.id, hp: p.fainted ? 0 : p.hp / p.maxHp })),
     });
   }
@@ -328,6 +333,7 @@ export class Game {
     Box.warmEggs(r.time || 0);
     Box.save();
     Meta.bankMats(r.mats || {});
+    Meta.addShards(r.shards || 0);
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, r.time || 0);
     Meta.bank(r.coins || 0);
     Meta.addSpirit(r.spirit || 0);
@@ -349,8 +355,10 @@ export class Game {
     if (this.mode === 'world' || this.mode === 'house') {
       if (Input.anyPressed('Escape', 'KeyP')) {
         if (this.modal === 'pause') this.ui.closePause();
+        else if (this.modal === 'bag') this.ui.closeBag();
         else if (!this.modal) this.ui.openPause();
       }
+      if (Input.wasPressed('KeyB')) { if (this.modal === 'bag') this.ui.closeBag(); else if (!this.modal) this.ui.openBag(); }
       if (!this.modal) {
         if (this.mode === 'world') this.updateWorld(dt);
         else this.updateHouse(dt);
@@ -602,12 +610,12 @@ export class Game {
     for (const o of this.world.nodes) {
       const near = dist2(P.x, P.y, o.x, o.y - 2) < 20 * 20;
       o.node.t = near ? o.node.t + dt : Math.max(0, o.node.t - dt * 2);
-      if (o.node.t >= GATHER_TIME) this.gather(o);
+      if (o.node.t >= GATHER_TIME * this.gatherTime()) this.gather(o);
     }
   }
   gather(o) {
     const P = this.player, k = o.node.kind;
-    const n = Math.max(1, Math.round(GATHER[k] * (this.matMult || 1)));
+    const n = Math.max(1, Math.round(GATHER[k] * (this.matMult || 1) * Meta.gatherMult(k) * (1 + this.boost('mats'))));
     P.mats[k] += n;
     this.world.removeObject(o);
     this.particles.burst(o.x, o.y - 6, { n: 14, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 60, life: 0.5, up: 20 });
@@ -615,13 +623,16 @@ export class Game {
     Audio.play('coin');
   }
   addMats(m) { for (const [k, v] of Object.entries(m)) this.player.mats[k] += Math.max(1, Math.round(v * (this.matMult || 1))); }
-  // A gear piece for a random hero (often the one you're playing), never one you already own.
+  gatherTime() { return Meta.gatherSpeed(); }
+  // A gear piece for a random hero (often the one you're playing): any of their 4 sets, never a
+  // piece you already own.
   rollGear() {
     const hero = this.player.hero.id, others = Object.keys(SETS).filter((h) => h !== hero);
     const order = Math.random() < 0.6 ? [hero, ...others.sort(() => Math.random() - 0.5)] : [...others.sort(() => Math.random() - 0.5), hero];
     for (const h of order) {
-      const free = SLOTS.filter((s) => !Meta.hasGear(h, s));
-      if (free.length) return { hero: h, slot: choice(free) };
+      const free = [];
+      for (const set of HERO_SETS[h]) for (const s of SLOTS) if (!Meta.ownsPiece(h, s, set)) free.push({ hero: h, slot: s, set });
+      if (free.length) return choice(free);
     }
     return null;
   }
@@ -631,10 +642,10 @@ export class Game {
     else this.addMats({ iron: 2, wood: 3 });
   }
   collectGear(v) {
-    const set = SETS[v.hero], heroName = v.hero[0].toUpperCase() + v.hero.slice(1);
-    if (!Meta.addGear(v.hero, v.slot)) { this.addMats({ iron: 2, wood: 3 }); this.toast(`You already have ${set[v.slot]}: broke it down for materials`); return; }
+    const set = v.set || HERO_SETS[v.hero][0], name = pieceName(v.hero, set, v.slot), heroName = Meta.heroName(v.hero);
+    if (!Meta.addGear(v.hero, v.slot, set)) { this.addMats({ iron: 2, wood: 3 }); this.toast(`You already have ${name}: broke it down for materials`); return; }
     const locked = !Meta.isHeroUnlocked(v.hero);
-    this.feed(`Gear: ${heroName}'s ${set[v.slot]}! ${SLOT_NAME[v.slot]}${locked ? ` (waits until you unlock ${heroName})` : ''}`, '#ffd84a');
+    this.feed(`Gear: ${heroName}'s ${name}! ${GEAR_SETS[set].name}${locked ? ` (waits until you unlock ${heroName})` : ''}`, GEAR_SETS[set].color);
     if (Meta.unlock('workshop')) this.toast('The Workshop is open in town!');
     Audio.play('chest');
   }
@@ -655,12 +666,68 @@ export class Game {
   teamBonus() {
     const t = Shrine.teamBonus(), h = this.heroBonus?.team || {};
     for (const k of Object.keys(t)) t[k] += h[k] || 0;
-    if (this.buffs?.has('snack')) t.dmg += 0.2;
-    if (this.buffs?.has('tonic')) t.def += 0.2;
     return t;
   }
   // Support survivalmons' blessings: a short boost for the hero and the whole team
-  blessed() { const B = this.blessing; return B && B.end > this.time ? B : NO_BLESS; }
+  // ...and items from the bag (Swift Tonic, Power Brew, Iron Tonic) add theirs on top
+  blessed() {
+    const B = this.blessing, b = B && B.end > this.time ? B : NO_BLESS;
+    const dmg = this.boost('dmg'), haste = this.boost('haste'), def = this.boost('def');
+    if (!dmg && !haste && !def) return b;
+    return { dmg: b.dmg + dmg, haste: 1 - (1 - b.haste) * (1 - haste), def: 1 - (1 - b.def) * (1 - def), end: Math.max(b.end, this.time + 1) };
+  }
+  // An item boost still running: its strength, else 0
+  boost(stat) { const x = this.boosts?.[stat]; return x && x.end > this.time ? x.v : 0; }
+  // Uses one item from the bag (key "id:grade"). Returns false (and keeps it) when it would do nothing.
+  useItem(key) {
+    const { id, g, item } = parseKey(key), P = this.player;
+    if (!item || !Meta.itemCount(key) || (this.mode !== 'world' && this.mode !== 'house')) return false;
+    const v = item.eff(g), onScreen = (e) => !e.dead && Math.abs(e.x - P.x) < this.view.w / 2 + 20 && Math.abs(e.y - P.y) < this.view.h / 2 + 20;
+    const no = (why) => { this.ui.toast(why); return false; };
+    if (item.kind === 'boost') {
+      // another of the same kind adds a minute and keeps the stronger one
+      const b = this.boosts[item.stat], on = b && b.end > this.time;
+      this.boosts[item.stat] = { v: on ? Math.max(b.v, v) : v, end: (on ? b.end : this.time) + BOOST_TIME, icon: item.icon };
+    } else if (id === 'heal') {
+      P.heal(P.stats.maxHp * v);
+      for (const p of P.pets) if (!p.fainted) p.hp = Math.min(p.maxHp, p.hp + p.maxHp * v);
+      this.particles.burst(P.x, P.y - 8, { n: 24, colors: ['#9af08a', '#ffffff'], speed: 70, life: 0.6, up: 20 });
+    } else if (id === 'feather') {
+      const down = P.pets.filter((p) => p.fainted);
+      if (!down.length) return no('No survivalmon has fainted.');
+      for (const p of down) {
+        if (p.carriedBy) p.carriedBy.carry = null; // a Cage Drone lets go
+        p.carriedBy = null; p.fainted = false; p.hp = p.maxHp * v; p.faintT = 0;
+        this.particles.burst(p.x, p.y - 8, { n: 20, colors: ['#ffd84a', '#ffffff'], speed: 60, life: 0.6, up: 20 });
+      }
+      P.recompute(); this.applyTeamPassives();
+    } else if (id === 'frost') {
+      for (const e of this.enemies) if (onScreen(e)) e.freeze = Math.max(e.freeze || 0, e.boss ? v / 2 : v);
+      this.addEffect({ type: 'flashring', x: P.x, y: P.y, R: 260, life: 0.5, color: '#bfeaff' });
+    } else if (id === 'blast') {
+      this.addEffect({ type: 'flashring', x: P.x, y: P.y, R: 260, life: 0.5, color: '#ffb070' });
+      for (const e of this.enemies) if (onScreen(e)) this.damageEnemy(e, e.maxHp * v * (e.boss ? 0.1 : 1), { raw: true, silent: true });
+      this.shake(5, 0.35); Audio.play('explode');
+    } else if (id === 'horn') {
+      if (!this.canCatch) return no('Wild survivalmons come once your first egg has hatched.');
+      let n = 0;
+      for (let i = 0; i < v; i++) {
+        const zone = ZONES[this.world.zoneAtPx(P.x, P.y)];
+        const sp = Math.random() < 0.65 ? choice(zone.mons) : choice(BASE_IDS);
+        const e = this.director.spawn('wild', { wild: sp });
+        if (e) { n++; if (g >= 2) e.lure = g >= 4 ? 2 : 1; }
+      }
+      if (!n) return no('No room for a wild survivalmon here. Try again in a moment.');
+      this.feed(`The horn calls ${n === 1 ? 'a wild survivalmon' : `${n} wild survivalmons`}! Catch them within 25 s`, '#7af0ff');
+    } else if (id === 'warm') {
+      if (!Box.eggs.length) return no('No eggs in your Hatchery to warm.');
+      Box.warmEggs(v);
+    }
+    Meta.takeItem(key);
+    this.feed(`Used ${itemName(id, g)}`, '#ffe07a');
+    Audio.play(item.kind === 'boost' ? 'levelup' : 'heal');
+    return true;
+  }
   bless(b) {
     const B = this.blessing ||= { dmg: 0, haste: 0, def: 0, end: 0 };
     if (B.end <= this.time) B.dmg = B.haste = B.def = 0;
@@ -673,10 +740,10 @@ export class Game {
     this.cry = sum('cry');
     const hb = this.heroBonus || { coins: 0, wild: 0 };
     this.coinMult = Meta.coinMult() * (1 + sum('nose') + hb.coins);
-    this.wildMult = Meta.wildMult() * (1 + sum('star') + hb.wild) * (1 + Shrine.bonus('wild')) * (this.buffs?.has('horn') ? 1.5 : 1);
-    this.matMult = (this.buffs?.has('pick') ? 2 : 1) * (1 + sum('nose')) * (this.tierMult?.mats || 1);
+    this.wildMult = Meta.wildMult() * (1 + sum('star') + hb.wild) * (1 + Shrine.bonus('wild'));
+    this.matMult = (1 + sum('nose') + (hb.mats || 0)) * (this.tierMult?.mats || 1);
   }
-  hatchMult() { return (1 + Meta.buildingBonus('hatchery', 'speed') + Shrine.bonus('hatch')) * (this.buffs?.has('warmer') ? 1.5 : 1); }
+  hatchMult() { return 1 + Meta.buildingBonus('hatchery', 'speed') + Shrine.bonus('hatch'); }
   // An egg found in a run goes to the Hatchery (or turns into coins if every nest is full).
   findEgg(x, y) {
     const species = choice([...BASE_IDS, ...BASE_IDS.slice(0, 5)]);
@@ -805,13 +872,34 @@ export class Game {
   // Medals just won and achievement tiers just reached: a banner for the first, toasts for the rest
   // (just toasts over a town page, where banners don't show)
   checkNews() {
-    const out = [...Box.news.splice(0).map((n) => ({ title: `${MEDALS[n.medal].name} medal: ${SPECIES[n.species].name}!`, sub: `You ${MEDALS[n.medal].desc}`, color: MEDALS[n.medal].color })),
-      ...checkAchievements().map((a) => ({ title: `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} coins`, color: '#ffd84a' }))];
+    if (this.mode === 'town') {
+      // buildings finish in town (never mid-run), and training spots roll for skill grades
+      const built = Meta.settleBuildings(), research = Shrine.settle();
+      for (const id of built) Box.news.push({ kind: 'built', id });
+      if (research) Box.news.push({ kind: 'research', level: research });
+      Box.settleTrainingSkills();
+      if ((built.length || research) && this.ui.screen !== 'town') this.ui.rerender(); // the open page shows the new level
+    }
+    const out = [...Box.news.splice(0).map((n) => this.newsLine(n)).filter(Boolean),
+      ...checkAchievements().map((a) => ({ title: a.name === 'Skyfall Shards' ? `+${a.pay} Skyfall Shards!` : `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} Skyfall Shards`, color: '#c8a8ff' }))];
     if (!out.length) return;
     const page = this.mode !== 'world' || this.modal;
     if (this.mode === 'world' || this.mode === 'house') out.forEach((n) => this.feed(n.title, n.color)); // the details wait for town
     else out.forEach((n, i) => (i === 0 && !page ? this.banner(n.title, n.color, false, n.sub) : this.toast(`${n.title} ${n.sub}`)));
     Audio.play('levelup');
+  }
+  // One Box.news entry as a { title, sub, color } line
+  newsLine(n) {
+    if (n.medal) return { title: `${MEDALS[n.medal].name} medal: ${SPECIES[n.species].name}!`, sub: `You ${MEDALS[n.medal].desc}`, color: MEDALS[n.medal].color };
+    if (n.kind === 'built') return { title: `${BUILDINGS[n.id].name} is now Lv ${Meta.buildingLevel(n.id)}!`, sub: BUILDINGS[n.id].levelText(Meta.buildingLevel(n.id)), color: '#ffe07a' };
+    if (n.kind === 'research') return { title: `Research done: tier odds level ${n.level}!`, sub: 'New catches and eggs roll better skills', color: '#c8a8ff' };
+    if (n.kind === 'trainSkill') {
+      const m = Box.get(n.monId);
+      if (!m) return null;
+      const k = n.skill, skill = k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name;
+      return { title: `Training paid off: ${m.nick || SPECIES[m.species].name}'s ${skill} is now ${TIERS[n.to]}!`, sub: 'Hard work at the Ranch raised a skill grade', color: '#ffd84a' };
+    }
+    return null;
   }
   toast(text) { if (this.mode === 'world' || this.mode === 'house') this.ui.feed(text); else this.ui.toast(text); }
   bossBar(e) { this.boss = e; this.ui.bossBar(e); }
@@ -925,7 +1013,7 @@ export class Game {
       ctx.strokeStyle = '#2b1d24'; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.arc(x, y - 1, 7, 0, TAU); ctx.stroke();
       ctx.strokeStyle = '#ffd84a'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.arc(x, y - 1, 7, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, o.node.t / GATHER_TIME)); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y - 1, 7, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, o.node.t / (GATHER_TIME * this.gatherTime()))); ctx.stroke();
     }
   }
   drawHouseMarker(ctx, h, cam) {

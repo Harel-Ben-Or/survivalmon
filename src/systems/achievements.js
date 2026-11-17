@@ -2,8 +2,9 @@
 // - Medals belong to a species (in its Survidex record, Box.data.dex[id].medals): won the first time
 //   you have one that is among the tallest/shortest/heaviest/lightest 5%, has an S-grade attack, or
 //   reaches Lv 70. Box.noteSize hands them out.
-// - Achievements are goals across your whole collection, each in tiers. Reaching a tier pays gold
-//   coins at once (Box.data.achv[id] = tiers reached).
+// - Achievements are goals across your whole collection, each in tiers. Reaching a tier pays
+//   Skyfall Shards at once (Box.data.achv[id] = tiers reached). Before shards they paid coins: a save
+//   from then gets the shards for the tiers it already had, once (Box.data.achvShards).
 import { Box } from './collection.js';
 import { Meta } from './meta.js';
 import { BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, DEX_IDS } from '../content/species.js';
@@ -22,26 +23,26 @@ const medals = (k) => Object.values(Box.data.dex).filter((r) => r.medals?.[k]).l
 const had = (ids) => ids.filter((id) => Box.known(id)).length;
 const how = (k) => Object.values(Box.data.dex).reduce((s, r) => s + (r.how?.[k] || 0), 0);
 const medalGoal = (id, name, what) => ({ id, name, desc: (n) => (n === 1 ? `Win your first ${what} medal` : `Win the ${what} medal on ${n} different survivalmons`),
-  tiers: [1, 5, 15, 40], pay: [40, 100, 250, 600], have: () => medals(id) });
+  tiers: [1, 5, 15, 40], pay: [10, 20, 50, 120], have: () => medals(id) });
 
 export const ACHIEVEMENTS = [
   { id: 'collector', name: 'Collector', desc: (n) => (n === DEX_IDS.length ? `Find all ${n} survivalmons` : `Find ${n} different survivalmons`),
-    tiers: [5, 15, 35, 70, 120, DEX_IDS.length], pay: [30, 60, 120, 250, 500, 1000], have: () => had(DEX_IDS) },
+    tiers: [5, 15, 35, 70, 120, DEX_IDS.length], pay: [5, 10, 20, 40, 80, 150], have: () => had(DEX_IDS) },
   { id: 'species', name: 'Every species', desc: (n) => (n === BASE_IDS.length ? 'Have all 10 species' : `Have ${n} different species`),
-    tiers: [3, 6, BASE_IDS.length], pay: [40, 80, 200], have: () => had(BASE_IDS) },
-  { id: 'wild', name: 'Wild catcher', desc: (n) => `Catch ${n} wild survivalmons`, tiers: [5, 25, 100, 300], pay: [30, 80, 200, 500], have: () => how('wild') },
-  { id: 'breeder', name: 'Breeder', desc: (n) => `Find ${n} different breeds`, tiers: [3, 10, 25, 55], pay: [50, 120, 300, 800], have: () => had([...PURE_IDS, ...MIXED_IDS]) },
-  { id: 'evolver', name: 'Evolver', desc: (n) => (n === 1 ? 'Evolve a survivalmon for the first time' : `Find ${n} different first evolutions`), tiers: [1, 10, 30, 55], pay: [60, 150, 400, 900], have: () => had(EVOLVED_IDS) },
-  { id: 'finalist', name: 'Final forms', desc: (n) => (n === 1 ? 'Find your first final evolution' : `Find ${n} different final evolutions`), tiers: [1, 10, 30, 55], pay: [100, 250, 600, 1500], have: () => had(FINAL_IDS) },
+    tiers: [3, 6, BASE_IDS.length], pay: [10, 20, 40], have: () => had(BASE_IDS) },
+  { id: 'wild', name: 'Wild catcher', desc: (n) => `Catch ${n} wild survivalmons`, tiers: [5, 25, 100, 300], pay: [5, 15, 40, 100], have: () => how('wild') },
+  { id: 'breeder', name: 'Breeder', desc: (n) => `Find ${n} different breeds`, tiers: [3, 10, 25, 55], pay: [10, 25, 60, 150], have: () => had([...PURE_IDS, ...MIXED_IDS]) },
+  { id: 'evolver', name: 'Evolver', desc: (n) => (n === 1 ? 'Evolve a survivalmon for the first time' : `Find ${n} different first evolutions`), tiers: [1, 10, 30, 55], pay: [15, 30, 80, 180], have: () => had(EVOLVED_IDS) },
+  { id: 'finalist', name: 'Final forms', desc: (n) => (n === 1 ? 'Find your first final evolution' : `Find ${n} different final evolutions`), tiers: [1, 10, 30, 55], pay: [25, 50, 120, 300], have: () => had(FINAL_IDS) },
   medalGoal('giant', 'Giant hunter', 'Giant'),
   medalGoal('mini', 'Tiny finder', 'Mini'),
   medalGoal('heavy', 'Heavy lifter', 'Heavyweight'),
   medalGoal('feather', 'Light as a feather', 'Featherweight'),
-  { id: 'star', name: 'Star grades', desc: (n) => (n === 1 ? 'Win your first Star medal' : `Win the Star medal on ${n} different survivalmons`), tiers: [1, 10, 30], pay: [50, 200, 600], have: () => medals('star') },
-  { id: 'master', name: 'Master trainer', desc: (n) => (n === 1 ? 'Raise a survivalmon to Lv 70' : `Raise ${n} different survivalmons to Lv 70`), tiers: [1, 5, 20], pay: [150, 500, 1500], have: () => medals('master') },
+  { id: 'star', name: 'Star grades', desc: (n) => (n === 1 ? 'Win your first Star medal' : `Win the Star medal on ${n} different survivalmons`), tiers: [1, 10, 30], pay: [15, 40, 120], have: () => medals('star') },
+  { id: 'master', name: 'Master trainer', desc: (n) => (n === 1 ? 'Raise a survivalmon to Lv 70' : `Raise ${n} different survivalmons to Lv 70`), tiers: [1, 5, 20], pay: [30, 100, 300], have: () => medals('master') },
   { id: 'gates', name: 'Gate opener', desc: (n) => (n === 1 ? 'Open the South Gate Lv 1' : n === 15 ? 'Open every gate, up to the West Gate Lv 4' : `Open ${n} gates past the North Gate Lv 1`),
-    tiers: [1, 4, 8, 12, 15], pay: [500, 2000, 5000, 10000, 25000], have: () => Meta.gates },
-  { id: 'perfect', name: 'Perfect', desc: () => 'Have a survivalmon with every skill at S', tiers: [1], pay: [500],
+    tiers: [1, 4, 8, 12, 15], pay: [20, 60, 120, 200, 400], have: () => Meta.gates },
+  { id: 'perfect', name: 'Perfect', desc: () => 'Have a survivalmon with every skill at S', tiers: [1], pay: [150],
     have: () => (Box.mons.some((m) => m.skills.length > 1 && m.skills.every((k) => k.t === 4)) ? 1 : 0) },
 ];
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
@@ -52,11 +53,18 @@ export const tiersReached = (a) => Box.data.achv?.[a.id] || 0;
 export function checkAchievements() {
   const got = (Box.data.achv ||= {});
   const news = [];
+  if (!Box.data.achvShards) {
+    // tiers won back when achievements paid coins: their shards, once
+    Box.data.achvShards = true;
+    const back = ACHIEVEMENTS.reduce((s, a) => s + a.pay.slice(0, got[a.id] || 0).reduce((x, y) => x + y, 0), 0);
+    if (back) { Meta.addShards(back); news.push({ name: 'Skyfall Shards', desc: 'Achievements pay Skyfall Shards now. These are for the ones you already won', pay: back }); }
+    Box.save();
+  }
   for (const a of ACHIEVEMENTS) {
     const have = a.have(), t0 = got[a.id] || 0;
     let t = t0;
     while (t < a.tiers.length && have >= a.tiers[t]) {
-      Meta.data.coins += a.pay[t];
+      Meta.data.shards = (Meta.data.shards || 0) + a.pay[t];
       news.push({ name: tierName(a, t), desc: a.desc(a.tiers[t]), pay: a.pay[t] });
       t++;
     }

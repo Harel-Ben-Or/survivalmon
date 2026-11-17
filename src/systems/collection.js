@@ -33,6 +33,8 @@ export const STARTER_HATCH = 60;     // seconds in the wild before the starter e
 export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
 export const TRAIN_XP_PER_MIN = 6;   // Ranch training, offline
+export const TRAIN_SKILL_EVERY = 2 * 3600 * 1000;           // a skill roll every 2 hours trained
+export const TRAIN_SKILL_CHANCE = { basic: 0.01, other: 0.013 }; // ...for a basic species, and the rest
 export const SPECIES_UP_MAX = 100;   // species upgrade levels
 // Spirit for what your survivalmons do outside a run (a catch pays 10 and their kills 0.2 each, in the run)
 export const SPIRIT_FOR = { hatch: 10, evolve: 25, medal: 25 };
@@ -400,11 +402,36 @@ export const Box = {
   isTraining(id) { return this.data.training.some((t) => t.id === id); },
   toggleTraining(id) {
     const i = this.data.training.findIndex((t) => t.id === id);
-    if (i >= 0) { this.settleTraining(); this.data.training.splice(i, 1); }
-    else if (this.data.training.length < this.trainSpots()) this.data.training.push({ id, since: Date.now() });
+    if (i >= 0) { this.settleTraining(); this.settleTrainingSkills(); this.data.training.splice(i, 1); }
+    else if (this.data.training.length < this.trainSpots()) this.data.training.push({ id, since: Date.now(), rollAt: Date.now() + TRAIN_SKILL_EVERY });
     else return false;
     this.save();
     return true;
+  },
+  // Every 2 hours in a training spot, a small chance (1% for the 10 basic species, 1.3% for breeds
+  // and evolutions) that one of its skills goes up a grade: a random one that isn't S yet.
+  // Each one is put in Box.news for the game to announce. Returns them too.
+  trainSkillChance(mon) { return BASE_IDS.includes(mon.species) ? TRAIN_SKILL_CHANCE.basic : TRAIN_SKILL_CHANCE.other; },
+  settleTrainingSkills(now = Date.now(), rnd = Math.random) {
+    const out = [];
+    let changed = false;
+    for (const t of this.data.training) {
+      const mon = this.get(t.id);
+      if (!mon) continue;
+      if (!t.rollAt) { t.rollAt = (t.since || now) + TRAIN_SKILL_EVERY; changed = true; } // trained before this rule
+      while (now >= t.rollAt) {
+        t.rollAt += TRAIN_SKILL_EVERY; changed = true;
+        const open = mon.skills.filter((k) => k.t < 4);
+        if (!open.length || rnd() >= this.trainSkillChance(mon)) continue;
+        const k = open[Math.floor(rnd() * open.length)];
+        k.t++;
+        const up = { kind: 'trainSkill', monId: mon.id, skill: k, to: k.t };
+        this.news.push(up); out.push(up);
+        this.noteSize(this.dexRec(mon.species), mon); // an S attack can win the Star medal
+      }
+    }
+    if (changed) this.save();
+    return out;
   },
   // Pays out the EXP trained since last time. Returns [{ mon, xp, levels }].
   settleTraining(now = Date.now()) {

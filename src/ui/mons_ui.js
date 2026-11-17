@@ -343,6 +343,7 @@ export const MonsUI = {
           const btn = (n, label) => `<button class="btn small secondary" data-mact="feed" data-id="${m.id}" data-n="${n}" ${have >= n ? '' : 'disabled'}>${label}</button>`;
           return `<div class="feed-row"><span class="small">Feed species coins: each gives 1% of a level (you have ${kinds})</span>${btn(10, '+10% · 10')}${btn(100, '+1 level · 100')}${btn(Math.min(have, 100 * (MAX_PET_LEVEL - m.level)), `All · ${Math.min(have, 100 * (MAX_PET_LEVEL - m.level))}`)}</div>`;
         })()}
+        ${m.skills.some((k) => k.t < 4) ? `<p class="small ms-train">Training at the Ranch: every 2 hours there's a ${(Box.trainSkillChance(m) * 100).toFixed(1).replace('.0', '')}% chance one of its skills (not S yet) goes up a grade.${Box.isTraining(m.id) ? ' It is training now.' : ''}</p>` : ''}
         <div class="loot-actions ms-actions">
           <button class="btn small" data-mact="mon-team" data-id="${m.id}" ${m.hp <= 0 && !Box.inTeam(m.id) ? 'disabled' : ''}>${Box.inTeam(m.id) ? 'Leave the team' : 'Join the team'}</button>
           ${heal}
@@ -510,7 +511,7 @@ export const MonsUI = {
       const t = tiersReached(a), have = a.have(), done = t >= a.tiers.length, goal = a.tiers[Math.min(t, a.tiers.length - 1)];
       return `<div class="achv ${done ? 'done' : ''}"><div class="achv-top"><b>${esc(done ? tierName(a, t - 1) : tierName(a, t))}</b><span class="achv-pips">${a.tiers.map((_, i) => `<i class="${i < t ? 'on' : ''}"></i>`).join('')}</span></div>
         <div class="small">${esc(a.desc(goal))}</div>
-        ${done ? '<div class="small achv-done">Done!</div>' : `<div class="achv-bar"><i style="width:${Math.min(100, (have / goal) * 100).toFixed(0)}%"></i></div><div class="small achv-prog"><span>${Math.min(have, goal)} / ${goal}</span><span>Reward: ${a.pay[t]} <img class="px inline-ic" src="${icon('coin', 2)}" alt="coins"></span></div>`}</div>`;
+        ${done ? '<div class="small achv-done">Done!</div>' : `<div class="achv-bar"><i style="width:${Math.min(100, (have / goal) * 100).toFixed(0)}%"></i></div><div class="small achv-prog"><span>${Math.min(have, goal)} / ${goal}</span><span>Reward: ${a.pay[t]} <img class="px inline-ic" src="${icon('shard', 2)}" alt="Skyfall Shards"></span></div>`}</div>`;
     }).join('');
     const medalKey = MEDAL_IDS.map((k) => `<span class="medal on" style="--c:${MEDALS[k].color}" title="${esc(MEDALS[k].desc)}">${esc(MEDALS[k].name)}</span>`).join('');
     this.page('survidex', `
@@ -689,7 +690,8 @@ export const MonsUI = {
     }).join('')}</div>`).join('');
     const odds = (o) => o.map((v, i) => `<span><b class="tier t${i}">${TIERS[i]}</b>${v}%</span>`).join('');
     const r = Shrine.data.researching, next = Shrine.nextResearch();
-    const research = r ? `<div>Researching level ${r.level}… ready in ${mmss(Math.max(0, (r.done - Date.now()) / 1000))}</div>`
+    const rush = Shrine.rushCost();
+    const research = r ? `<div class="bld-next building"><span>Researching level ${r.level}… ready in <b data-until="${r.done}">${mmss(Math.max(0, (r.done - Date.now()) / 1000))}</b></span><button class="btn small rush-btn" data-mact="research-rush" ${Meta.shards >= rush ? '' : 'disabled'}>Finish now <img class="px inline-ic" src="${icon('shard', 2)}" alt="Skyfall Shards">${rush}</button></div>`
       : next ? `<button class="btn small" data-mact="research" ${Meta.spirit >= next.spirit ? '' : 'disabled'}>Research level ${next.level}: ${next.spirit} Spirit, ${next.mins} min</button>`
       : '<div class="small">Upgrade the Shrine to research further.</div>';
     this.page('shrine', `

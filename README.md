@@ -126,6 +126,12 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Spirit**: the Spirit Shrine's own currency, earned by what your survivalmons do: 10 per wild catch and 0.2
   per enemy they defeat (2 per elite, 20 per boss) in a run (banked with the coins), 10 per egg hatched, 25 per
   evolution and 25 per medal. Coins stay the hero's money (Training Hall, buildings, Workshop, Merchant, Clinic).
+- **Skyfall Shards** (content/shop.js): the rare currency. Achievements pay them (a save from before shards got
+  the shards for the tiers it already had, once), and from the Lv 2 gates on they drop in the wild: every boss
+  drops 1 per gate level past 1 (the Night Lord 3), an elite 3% and any other monster 0.08% (both times the
+  gate level past 1); gear sets with shard luck raise all of it. They're banked when the run ends. Shards buy
+  eggs and materials at the Merchant's Skyfall counter and finish building upgrades and Shrine research at once
+  (1 shard per 5 minutes left).
 - **Ranch** (talk to Dell): every survivalmon as a small tile with its level and a colored tier letter per
   skill (square = its own attack, round = passives); tap one for its sheet: a big picture, HP and EXP, each
   skill explained with what it gives at every tier, and buttons to rename it, put it in the team, heal it (if
@@ -138,6 +144,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   their signature move now and then). Free copies for species coins, and spend those on species upgrades
   (up to Lv 100: +8% damage and HP a level to Lv 20, +3% after) or feed them to a survivalmon of that species
   (a mix: either parent's coins): each coin is 1% of the EXP its level needs, so 100 coins are a level at any level.
+  Every 2 hours in a training spot there's a small chance one of its skills that isn't S yet goes up a grade:
+  1% for the 10 basic species, 1.3% for breeds and evolutions (Box.settleTrainingSkills; rolled in town, and
+  for the time the game was closed).
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
   used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
@@ -156,11 +165,28 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Medals and achievements** (systems/achievements.js): each species has 6 medals, won the first time you have
   one among the tallest, shortest, heaviest or lightest 5% of its kind, with an S-grade attack, or at Lv 70.
   Achievements (Survidex, Achievements tab) are goals in tiers (find, catch, breed, evolve, win medals, raise to
-  Lv 70, a perfect all-S survivalmon, open the gates); each tier pays gold coins. Both pop up as you earn them.
+  Lv 70, a perfect all-S survivalmon, open the gates); each tier pays Skyfall Shards (about 3,900 in all).
+  Both pop up as you earn them.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
-- **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
-- **Merchant**: items for your next run.
-- Every building has levels (coins + wood, stone, clay and iron gathered in runs).
+- **Workshop** (Tamsin): **Gear**: each hero has 4 sets (their own and 3 more, content/gear.js GEAR_SETS), each
+  with a helmet, armor, gloves, boots and two weapons. A slot wears one piece at a time (tap a piece to wear it)
+  and keeps its level when you swap. Wearing 4 and 6 pieces of a set gives its two bonuses: team damage, HP,
+  speed, defense or crits, the hero's own stats, extra damage for one attack type, coins, materials, EXP, wild
+  survivalmons or Skyfall Shard luck. Drops pick any piece you don't have yet. **Tools**: an axe (wood), a
+  pickaxe (stone and iron) and a spade (clay), +15% from gathering spots a level, and Quick hands (gathering
+  8% faster a level); the Workshop's level caps them (2 a level).
+- **Merchant** (Mags): **Goods** for coins (some also materials) go into your **bag**. In a run, open it with B
+  or the bag button under the map (the run waits) and tap one to use it: Swift Tonic, Power Brew and Iron
+  Tonic (1 minute of attack speed, damage or defense for you and the team; another adds a minute), Lucky Pick
+  (more from gathering for a minute), Healing Draught, Revive Feather, Frost Bell (freezes monsters on
+  screen), Blast Powder (a share of every monster's health on screen), Lure Horn (calls wild survivalmons) and
+  Warm Stone (warms your eggs). The Merchant's level is the grade it sells: each grade costs 2.6x more and
+  works better; its running boosts show by the level on the HUD. The **Skyfall** counter sells eggs for
+  shards (they change at midnight): a Mystery Egg, two species eggs, a Bright Egg (every skill B or better)
+  and one Star Egg a day (one skill is S), and swaps shards for materials.
+- Every building has levels (coins + wood, stone, clay and iron gathered in runs). An upgrade takes time to
+  build (15 min, 45 min, 2 h, then 4 h); the building works at its old level until it's done, and it finishes
+  in town (never mid-run).
 
 ## Survivalmons
 
@@ -272,7 +298,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/world/town.js` — the town map (layout, yards, decor), its doors and collision, and the Ranch (roaming and
   training at the dummies); `src/ui/town_ui.js`, `mons_ui.js`, `shop_ui.js` — the town screens.
 - `src/systems/meta.js` — coins, materials, Training Hall, building levels, heroes and gear; `src/systems/shrine.js` — the Spirit Shrine.
-- `src/content/skills.js` — skill tiers and passives; `gear.js` — hero boosts, unlocks and gear; `buildings.js` — building levels and Merchant items.
+- `src/content/skills.js` — skill tiers and passives; `gear.js` — hero boosts, unlocks, gear sets and Workshop tools; `buildings.js` — building levels and build times; `shop.js` — Merchant goods, the Skyfall counter and shard drops.
 - `src/world/` — map generation, ground painter, house interiors (`interior.js`: the random rooms, the
   basements and the hand-made rooms of the town's buildings), collision, monster pathing.
 - `src/content/npcs.js` — the village's people: who keeps which building, their buttons and talk lines.

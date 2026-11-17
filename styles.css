@@ -1250,3 +1250,84 @@ body .tbtn.pause-btn { top: calc(var(--strip) + var(--mini) + 28px + env(safe-ar
   .h-parent .small, .h-out .small + .small { display: none; }
   .h-card { gap: 2px; }
 }
+
+/* ---------------------------------------------------------------- the bag, boosts and Skyfall Shards */
+#hud .hs-boosts { display: flex; align-items: center; gap: 6px; }
+#hud .hs-boost { display: inline-flex; align-items: center; gap: 2px; font-weight: 800; color: #9af08a; }
+#hud .hs-boost img { width: calc(var(--strip) - 6px); height: calc(var(--strip) - 6px); }
+#hud .bag-btn { position: absolute; pointer-events: auto; cursor: pointer; top: calc(var(--strip) + var(--mini) + 28px + env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right));
+  width: 38px; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; background: #c8a46a; border: 2px solid var(--ink); border-radius: 8px; box-shadow: 0 3px 0 var(--ink); }
+#hud .bag-btn img { width: 28px; height: 28px; }
+#hud .bag-btn .bag-n { position: absolute; right: -5px; bottom: -5px; min-width: 16px; padding: 0 3px; font-size: 11px; line-height: 15px; color: var(--ink); background: var(--gold); border: 1px solid var(--ink); border-radius: 8px; }
+#hud .bag-btn .bag-n:empty { display: none; }
+body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
+@media (max-height: 300px) {
+  #hud .bag-btn { width: 34px; height: 34px; }
+  #hud .bag-btn img { width: 24px; height: 24px; }
+  body.touch #hud .bag-btn { right: calc(52px + env(safe-area-inset-right)); }
+  #hud .hs-boost img { width: 14px; height: 14px; }
+}
+.bag-box { width: min(560px, 94vw); max-height: 92vh; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+.bag-head { display: flex; align-items: center; gap: 8px; align-self: stretch; }
+.bag-head .btn { margin-left: auto; }
+.bag-head img { width: 24px; height: 24px; }
+.bag-head span.small { flex: 1; color: var(--muted); }
+.bag-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; }
+.bag-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; text-align: left; font: inherit; color: var(--text); background: var(--panel-2); border: 2px solid var(--ink); border-radius: 6px; cursor: pointer; }
+.bag-item:hover { border-color: var(--gold); }
+.bag-item img { width: 36px; height: 36px; flex: none; }
+.bi-main { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.bi-main .small { color: var(--muted); font-size: 12px; line-height: 1.25; }
+.bi-n { color: var(--gold); white-space: nowrap; }
+@media (max-height: 480px) {
+  .bag-box { padding: 6px; gap: 4px; }
+  .bag-head span.small { display: none; }
+  .bag-head b { flex: 1; }
+  .bag-item { padding: 4px 6px; }
+  .bag-item img { width: 28px; height: 28px; }
+}
+.pg-merchant .ws-slots, .pg-workshop .ws-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 6px; }
+.bag-panel { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; }
+.bag-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* building upgrades in progress */
+.bld-next.building { color: #ffe07a; }
+.bld-next.building b[data-until] { color: var(--text); font-variant-numeric: tabular-nums; }
+.rush-btn { background: #8a6ad8; color: #fff; }
+.rush-btn img { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }
+.shrine-research .bld-next { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+
+/* the Workshop: sets and the pieces in each slot */
+.ws-sets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.ws-setcard { padding: 6px 8px; background: var(--panel-2); border: 2px solid var(--ink); border-left: 5px solid var(--sc); border-radius: 6px; font-size: 12px; }
+.ws-setcard.on { box-shadow: 0 0 0 1px var(--sc); }
+.wsc-head { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; }
+.wsc-head b { color: var(--sc); font-size: 13px; }
+.wsc-head .small { color: var(--muted); white-space: nowrap; }
+.wsc-b { line-height: 1.3; }
+.wsc-b.off { color: var(--muted); }
+.wsc-b.on { color: var(--gold); }
+.pieces { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.piece { font: 700 11px var(--font); color: var(--text); padding: 1px 6px; background: rgba(0,0,0,.25); border: 1px solid var(--sc); border-radius: 10px; cursor: pointer; }
+.piece.on { background: var(--sc); color: var(--ink); }
+.mat-chip { font-size: 12px; }
+@media (max-height: 480px) { .ws-setcard { padding: 4px 6px; font-size: 11px; } }
+@media (max-height: 300px), (max-width: 640px) { .pg-merchant .mat-chip, .pg-workshop .mat-chip { display: none; } }
+
+/* the Skyfall counter */
+.sky-eggs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.sky-egg { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px; text-align: center; background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; }
+.sky-egg.star { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,216,74,.35); }
+.sky-egg b { font-size: 13px; }
+.sky-egg span.small { color: var(--muted); font-size: 11px; line-height: 1.25; flex: 1; }
+.sky-pic { position: relative; }
+.sky-pic img { width: 48px; height: 48px; object-fit: contain; }
+.sky-pic .sky-star { position: absolute; right: -10px; top: -6px; width: 22px; height: 22px; }
+.sky-egg .btn img { width: 14px; height: 14px; vertical-align: -2px; margin-right: 3px; }
+.sky-swaps { display: flex; flex-wrap: wrap; gap: 6px; }
+.sky-swap img { width: 14px; height: 14px; vertical-align: -2px; margin: 0 2px; }
+@media (max-height: 480px) {
+  .sky-pic img { width: 36px; height: 36px; }
+  .sky-egg { padding: 4px; }
+}
+.ms-train { color: var(--muted); margin: 2px 0; font-size: 12px; }

@@ -1,5 +1,7 @@
 // Town buildings: what unlocks them, what each level adds and what the next level costs.
-// Levels go 1–5. bonus arrays are indexed by level - 1.
+// Levels go 1–5. bonus arrays are indexed by level - 1. An upgrade takes time to build (BUILD_MINS);
+// the building keeps working at its old level until it's done, and Skyfall Shards can finish it at once.
+import { GRADES, MERCHANT_STOCK } from './shop.js';
 
 export const BUILDINGS = {
   gate: { name: 'Enter the Wild', bonus: { team: [0, 1, 1, 2, 2] },
@@ -12,10 +14,10 @@ export const BUILDINGS = {
     levelText: (L) => `Eggs hatch ${Math.round([0, 15, 30, 45, 60][L - 1])}% faster` },
   clinic: { name: 'Clinic', bonus: { discount: [0, 0.2, 0.35, 0.5, 0.6], rest: [0, 0.1, 0.2, 0.3, 0.4] },
     levelText: (L) => `Healing ${Math.round([0, 20, 35, 50, 60][L - 1])}% cheaper; resting heals ${50 + [0, 10, 20, 30, 40][L - 1]}% per run` },
-  merchant: { name: 'Merchant', bonus: { stock: [3, 4, 5, 6, 7] },
-    levelText: (L) => `${[3, 4, 5, 6, 7][L - 1]} items for sale` },
-  workshop: { name: 'Workshop', bonus: { cap: [10, 20, 30, 40, 50] },
-    levelText: (L) => `Gear slots go up to level ${[10, 20, 30, 40, 50][L - 1]}` },
+  merchant: { name: 'Merchant', bonus: { stock: MERCHANT_STOCK },
+    levelText: (L) => `Sells grade ${GRADES[L - 1]} goods, ${MERCHANT_STOCK[L - 1]} kinds` },
+  workshop: { name: 'Workshop', bonus: { cap: [10, 20, 30, 40, 50], tools: [2, 4, 6, 8, 10] },
+    levelText: (L) => `Gear slots go up to level ${[10, 20, 30, 40, 50][L - 1]}; tools up to level ${2 * L}` },
   shrine: { name: 'Spirit Shrine', bonus: { cap: [5, 10, 15, 20, 25], research: [1, 2, 3, 4, 5] },
     levelText: (L) => `Shrine upgrades go up to level ${[5, 10, 15, 20, 25][L - 1]}; ${[1, 2, 3, 4, 5][L - 1]} tier research levels` },
 };
@@ -26,6 +28,10 @@ export function buildingCost(id, L) {
   const k = L;
   return { coins: 150 * k * k, wood: 15 * k, stone: 12 * k, clay: k >= 2 ? 8 * (k - 1) : 0, iron: k >= 3 ? 5 * (k - 2) : 0 };
 }
+// Minutes to build level L + 1 (from level 1: 15 min, then 45 min, 2 h and 4 h)
+export const BUILD_MINS = [15, 45, 120, 240];
+export const buildMins = (L) => BUILD_MINS[L - 1] || 0;
+export const fmtMins = (m) => (m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}` : `${m} min`);
 
 // When a closed building opens (Enter the Wild, Training Hall, Ranch and Hatchery are open from the start).
 export const UNLOCK_TEXT = {
@@ -36,15 +42,5 @@ export const UNLOCK_TEXT = {
   workshop: 'Opens when you find your first gear',
 };
 
-// The Merchant's goods: each lasts for your next run. The stall shows as many as its level allows.
-export const MERCHANT_ITEMS = [
-  { id: 'snack', name: 'Power Snack', icon: 'berry', price: 40, text: 'Survivalmons deal 20% more damage next run' },
-  { id: 'tonic', name: 'Iron Tonic', icon: 'team_guard', price: 40, text: 'Survivalmons take 20% less damage next run' },
-  { id: 'horn', name: 'Lure Horn', icon: 'up_wild', price: 60, text: 'Wild survivalmons appear 50% more often next run' },
-  { id: 'pick', name: 'Lucky Pick', icon: 'mat_iron', price: 50, text: 'Double materials next run' },
-  { id: 'candle', name: 'Time Candle', icon: 'hourglass', price: 30, text: '+10 seconds on your next run' },
-  { id: 'feather', name: 'Revive Feather', icon: 'phoenix', price: 50, text: 'The first survivalmon to faint gets back up once' },
-  { id: 'warmer', name: 'Egg Warmer', icon: 'egg', price: 40, text: 'Eggs warm up 50% faster next run' },
-];
-
+// The Merchant's goods are in content/shop.js.
 export const MATERIALS = { wood: { name: 'Wood', icon: 'mat_wood' }, stone: { name: 'Stone', icon: 'mat_stone' }, clay: { name: 'Clay', icon: 'mat_clay' }, iron: { name: 'Iron', icon: 'mat_iron' } };

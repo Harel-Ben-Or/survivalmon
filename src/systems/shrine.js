@@ -3,6 +3,7 @@
 import { Meta } from './meta.js';
 import { BASE_ODDS } from '../content/skills.js';
 import { Profiles } from './profiles.js';
+import { rushCost } from '../content/shop.js';
 
 const KEY = Profiles.key('shrine'); // this player's save
 const pct = (v) => `${Math.round(v * 100)}%`;
@@ -69,5 +70,13 @@ export const Shrine = {
     this.data.researching = null;
     this.save();
     return r.level;
+  },
+  // Skyfall Shards finish research at once
+  rushCost(now = Date.now()) { const r = this.data.researching; return r ? rushCost(r.done - now) : null; },
+  rush(now = Date.now()) {
+    const c = this.rushCost(now);
+    if (c === null || !Meta.spendShards(c)) return 0;
+    this.data.researching.done = now;
+    return this.settle(now);
   },
 };
