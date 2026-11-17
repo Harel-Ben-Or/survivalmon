@@ -70,8 +70,13 @@ function loadImage(src) {
   loadProgress.total++;
   return new Promise((resolve) => {
     const img = new Image();
+    let retried = false;
     img.onload = () => { loadProgress.done++; resolve(img); };
-    img.onerror = () => { loadProgress.done++; resolve(null); };
+    // a flaky connection or a stale cached copy: one more try, fresh from the network
+    img.onerror = () => {
+      if (!retried) { retried = true; img.src = `${src}${src.includes('?') ? '&' : '?'}r=${Date.now()}`; return; }
+      loadProgress.done++; resolve(null);
+    };
     img.src = src;
   });
 }

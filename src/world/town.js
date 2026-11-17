@@ -501,6 +501,17 @@ export const TownMode = {
       const tg = this.tileGround;
       this.townGround = tg ? new TileGround(tg.cfg, tg.sheets, tg.grass) : null;
     }
+    // the ground tiles failed to load at start (a bad connection): try again, and lay them when they come
+    if (!this.townGround && !this.groundRetry) {
+      this.groundRetry = TileGround.load().then((tg) => {
+        this.groundRetry = null;
+        if (!tg) return;
+        this.tileGround ||= tg;
+        if (this.tileGround === tg) tg.attach(this.world);
+        this.townGround = new TileGround(tg.cfg, tg.sheets, tg.grass);
+        this.townGround.attach(this.town);
+      });
+    }
     Audio.stopMusic();
     this.resetRunState();
     this.mode = 'town'; this.modal = null; this.boss = null;
