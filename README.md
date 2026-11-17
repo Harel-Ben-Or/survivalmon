@@ -93,9 +93,11 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   them (**E**) and pick their button (Eggs, Train, Gear, Upgrades, Heal, Survidex, Ranch) to use the building,
   or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie, Tove, Kestrel and Rook
   guard the gates, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
-- **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
-  The other gates (South at the bottom of town, East by the Survidex, West by the Clinic) are guarded until
-  you've earned them; once you have, the team screen also picks which gate to run through.
+- **Enter the Wild** (talk to Ollie at the North Gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
+  Every gate's guard stands in the middle of the gate, a step toward town, and every run starts by talking to
+  them (Head out). The South Gate is at the bottom of town; the East and West Gates stand side-on, right on the
+  town's east and west edges. A guard turns you back until you've earned their gate; once you have, the team
+  screen also picks which gate to run through.
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.

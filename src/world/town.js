@@ -32,8 +32,8 @@ const BUILDINGS = [
   // you've beaten the Night Lord past the gate before it.
   { id: 'gate', name: 'North Gate', spr: 'town_gate', door: [GX, 7], always: true, gate: 'north', tier: 0 },
   { id: 'gate_s', name: 'South Gate', spr: 'town_gate_s', door: [GSX, 31], always: true, gate: 'south', tier: 1 },
-  { id: 'gate_e', name: 'East Gate', spr: 'town_gate_e', door: [38, 13], always: true, gate: 'east', tier: 2 },
-  { id: 'gate_w', name: 'West Gate', spr: 'town_gate_w', door: [3, 22], always: true, gate: 'west', tier: 3 },
+  { id: 'gate_e', name: 'East Gate', spr: 'town_gate_e', at: [654, 292], always: true, gate: 'east', tier: 2 },
+  { id: 'gate_w', name: 'West Gate', spr: 'town_gate_w', at: [18, 292], always: true, gate: 'west', tier: 3 },
   { id: 'training', name: 'Training Hall', spr: 'town_training', door: [13, 8], always: true, yard: T.DIRT },
   { id: 'workshop', name: 'Workshop', spr: 'town_workshop', door: [27, 8], yard: T.GRAVEL },
   { id: 'shrine', name: 'Spirit Shrine', spr: 'shrine', door: [6, 9], yard: T.STONE },
@@ -57,7 +57,13 @@ const DECOR = {
 const FLOWERS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b'];
 const RANCH_MAX = 16; // survivalmons shown roaming the pasture
 // where each gate's guard stands, from the gate's door: beside the way in, on the town side
-const GUARD_AT = { north: [30, 26], south: [54, 4], east: [-20, 24], west: [22, 22] };
+// Each gate's guard stands in the middle of the gate, a step toward town, so starting a run always
+// means talking to them (the gates themselves have no door prompt). How far in from the gate's middle,
+// and which way they face.
+const GUARD_STEP = { north: 14, south: 16, east: 24, west: 24 };
+const GUARD_FACE = { north: 'south', south: 'south', east: 'west', west: 'east' };
+// where you come back from a run: this far in from the gate's middle (clear of the South Gate's arch)
+const SPAWN_STEP = { north: 46, south: 88, east: 46, west: 46 };
 const SPOTS_MAX = 6;  // training dummies the Ranch can hold
 // How far from its dummy each kind of attacker stands
 const STAND = { shooter: 32, zapper: 34, lobber: 34, slam: 20, aura: 14, support: 14, roller: 30 };
@@ -106,7 +112,7 @@ export class Town {
   decal(name, x, y) { this.baked.push({ name, pc: PC[name], x: Math.round(x), y: Math.round(y) }); }
 
   building(b) {
-    const s = SPR[b.spr], x = b.door[0] * TILE + 8, y = b.door[1] * TILE + 4;
+    const s = SPR[b.spr], [x, y] = b.at || [b.door[0] * TILE + 8, b.door[1] * TILE + 4];
     this.objects.push({ spr: b.spr, img: grounded(s), x, y, sortY: y, fade: true });
     // a soft shadow round the base, darkest right where the walls meet the ground
     this.shadows.push({ x, y: y - 2, rx: s.w * 0.52, ry: 8, a: 0.7 });
@@ -116,15 +122,16 @@ export class Town {
       this.solid(x - s.w / 2 + 2, y - 12, 18, 10);
       this.solid(x + s.w / 2 - 20, y - 12, 18, 10);
       if (b.gate === 'north') this.solid(x - s.w / 2, 0, s.w, y - 30);
-      this.doors.push({ ...b, x, y: y - 16, py: y - s.h + 6 });
+      this.doors.push({ ...b, x, y: y - 16, py: y - s.h + 6, mid: [x, y], toTown: [0, b.gate === 'north' ? 1 : -1], baseY: y });
       return;
     }
     if (b.gate) {
-      // east and west: the arch seen side-on, its far post up-left (east) or up-right (west)
+      // east and west: seen side-on, flush on the town's edge: two posts one behind the other (the far
+      // one up the screen), the beam between them; the way through is between their feet
       const m = b.gate === 'east' ? 1 : -1;
-      this.solid(x - m * 13 - 7, y - 26, 14, 8);
-      this.solid(x + m * 14 - 7, y - 10, 14, 8);
-      this.doors.push({ ...b, x: x + m, y: y - 13, py: y - s.h + 4 });
+      this.solid(x + m * 1 - 8, y - 9, 16, 8);
+      this.solid(x + m * 4 - 8, y - 59, 16, 8);
+      this.doors.push({ ...b, x: x + m * 2.5, y: y - 30, py: y - s.h + 4, mid: [x + m * 2.5, y - 30], toTown: [-m, 0], baseY: y });
       return;
     }
     // walls: the lower half of the sprite; the roof above it can hide the hero walking behind
@@ -168,7 +175,7 @@ export class Town {
   // in ragged patches, so the woods fade into the grass instead of ending in a straight line.
   forest() {
     const kinds = ['tree_dark_0', 'tree_dark_1', 'tree_green_0', 'tree_green_1', 'pine_0', 'pine_1', 'tree_dark_2'];
-    const gaps = { n: [GX - 3, GX + 2], s: [GSX - 3, GSX + 2], e: [8, 14], w: [17, 23] };
+    const gaps = { n: [GX - 3, GX + 2], s: [GSX - 3, GSX + 2], e: [9, 20], w: [9, 20] };
     const gateGap = (side, t) => !!gaps[side] && t >= gaps[side][0] && t <= gaps[side][1];
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       const e = Math.min(x, y, this.w - 1 - x, this.h - 1 - y);
@@ -213,8 +220,8 @@ export class Town {
     this.road(T.DIRT, [[GX + 0.5, 17], [GX, 20.5], [17, 22], [14, 23.5], [11, 24]]); // Hatchery
     this.road(T.DIRT, [[22.5, 17.5], [22.5, 21.5], [24.5, 24]]);                  // Ranch
     this.road(T.DIRT, [[16.5, 22.6], [15.5, 26], [GSX, 30]]);                      // South Gate
-    this.road(T.DIRT, [[30, 14.5], [33.5, 13], [37, 12.6]]);                        // East Gate
-    this.road(T.DIRT, [[7.5, 17], [5.5, 19.5], [4, 21]]);                           // West Gate
+    this.road(T.DIRT, [[34, 16], [37, 16.4], [40.6, 16.4]]);                        // on past the Survidex to the East Gate
+    this.road(T.DIRT, [[7.5, 17], [4.5, 16.4], [1.2, 16.4]]);                        // West Gate
     this.disc(T.STONE, GX, 13, 4.2);                                                // the square
     this.rect(T.STONE, 25, 14, 30, 15);                                             // the market stall's paving
     // a pond in the south with lily pads on it
@@ -223,7 +230,7 @@ export class Town {
     this.solid(19 * TILE + 2, 23.6 * TILE + 4, 4 * TILE - 4, 3 * TILE - 4);
     for (const b of BUILDINGS) {
       if (SPR[b.spr]) this.building(b);
-      else this.doors.push({ ...b, x: b.door[0] * TILE + 8, y: b.door[1] * TILE + 8, py: b.door[1] * TILE - 26 }); // art missing: the door still works
+      else if (b.door) this.doors.push({ ...b, x: b.door[0] * TILE + 8, y: b.door[1] * TILE + 8, py: b.door[1] * TILE - 26 }); // art missing: the door still works
     }
     // the square: the well in the middle and a lamp at each corner
     const [wx, wy] = at(GX, 13); this.prop('well', wx, wy, 26, 9);
@@ -238,11 +245,11 @@ export class Town {
     // trees in the gaps behind the buildings, and a few in the open
     for (const [s, x, y] of [
       ['tree_green_0', 9.6, 6.6], ['tree_dark_0', 16.9, 6.1], ['tree_green_1', 24.1, 6.1], ['tree_autumn_0', 31.6, 5.6],
-      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.2, 26.4], ['tree_dark_1', 38.2, 15.8],
-      ['tree_pink_0', 24.4, 28.6], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 7.4, 27.4], ['pine_1', 36.4, 4.8], ['tree_green_1', 34.4, 8.2],
+      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 37.4, 12.6],
+      ['tree_pink_0', 24.4, 28.6], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 7.4, 27.4], ['pine_1', 36.4, 4.8], ['tree_green_1', 37.6, 9.4],
       ['tree_dark_0', 10.6, 30.2], ['tree_green_1', 20.2, 30.6], ['pine_0', 31.4, 29.8], ['tree_autumn_0', 37.2, 29.2], ['tree_green_0', 28.2, 31.2],
     ]) this.tree(s, x * TILE, y * TILE);
-    for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.6, 15.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19],
+    for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19],
       ['bush_0', 22.6, 29.4], ['rock', 33.6, 30.4], ['stump', 4.8, 29.6]]) {
       this.prop(s, x * TILE, y * TILE, 8, 4); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 });
     }
@@ -256,7 +263,9 @@ export class Town {
     this.spawn = { x: GX * TILE + 8, y: 18.5 * TILE };
     this.gateSpawn = { x: GX * TILE + 8, y: 9 * TILE + 4 };
     // where you come back from a run through each gate
-    this.gateSpawns = { north: this.gateSpawn, south: { x: GSX * TILE + 8, y: 28.6 * TILE }, east: { x: 35.6 * TILE, y: 13 * TILE }, west: { x: 6.4 * TILE, y: 21.2 * TILE } };
+    this.gateSpawns = {};
+    for (const d of this.doors) if (d.gate) this.gateSpawns[d.gate] = { x: d.mid[0] + d.toTown[0] * SPAWN_STEP[d.gate], y: d.mid[1] + d.toTown[1] * SPAWN_STEP[d.gate] };
+    this.gateSpawn = this.gateSpawns.north || this.gateSpawn;
   }
 
   // ---------------------------------------------------------------- the villagers
@@ -291,20 +300,20 @@ export class Town {
       const s = spots[Math.floor(rng() * spots.length)];
       this.npcs.push({ id, x: s.x, y: s.y, tx: s.x, ty: s.y, dir: 'south', moving: false, wait: 0.5 + rng() * 3, seed: i * 1.7 });
     });
-    const stand = (id, x, y) => {
-      this.npcs.push({ id, x, y, dir: 'south', still: true, seed: x * 0.13 });
+    const stand = (id, x, y, dir = 'south', sortY) => {
+      this.npcs.push({ id, x, y, dir, still: true, seed: x * 0.13, sortY, face: dir });
       this.solids.push({ x: x - 6, y: y - 5, w: 12, h: 7, npc: true });
     };
     const stall = this.doors.find((d) => d.id === 'merchant');
     for (const id of NPC_IDS.filter((i) => NPCS[i].gate)) {
-      const d = this.doors.find((x) => x.gate === NPCS[id].gate), [dx, dy] = GUARD_AT[NPCS[id].gate];
-      if (d) stand(id, d.x + dx, d.y + dy);
+      const side = NPCS[id].gate, d = this.doors.find((x) => x.gate === side), k = GUARD_STEP[side];
+      if (d?.mid) stand(id, d.mid[0] + d.toTown[0] * k, d.mid[1] + d.toTown[1] * k, GUARD_FACE[side], side === 'south' ? d.baseY + 1 : undefined);
     }
     if (stall && merchantOpen) stand('mags', stall.x - 30, stall.y + 4);
   }
   updateVillagers(dt, P) {
     for (const n of this.npcs || []) {
-      if (n.still || n.talking) { n.moving = false; continue; }
+      if (n.still || n.talking) { n.moving = false; if (n.face && !n.talking) n.dir = n.face; continue; } // a guard turns back to their post
       const near = Math.hypot(P.x - n.x, P.y - n.y) < 20;
       if (n.wait > 0 || near) {
         n.wait -= dt; n.moving = false;
@@ -648,6 +657,7 @@ export const TownMode = {
     // the nearest door, or someone to talk to if they're closer
     let near = null, bd = 22 * 22, who = null, wd = 24 * 24;
     for (const d of town.doors) {
+      if (d.gate) continue; // a gate's guard is the way out
       const dd = dist2(P.x, P.y, d.x, d.y);
       if (dd < bd) { bd = dd; near = d; }
     }
@@ -751,7 +761,7 @@ export const TownMode = {
     for (const t of town.trainees) list.push({ y: t.y, trainee: t });
     Box.eggs.forEach((e, i) => { const n = town.nests[i]; if (n) list.push({ y: n.y, egg: e, n }); });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
-    for (const n of town.npcs || []) list.push({ y: n.y, npc: n });
+    for (const n of town.npcs || []) list.push({ y: n.sortY ?? n.y, npc: n });
     list.push({ y: P.y, hero: P });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
