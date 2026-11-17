@@ -6,6 +6,7 @@ import { ICON_ART, snap } from '../gfx/art.js';
 import { STONES } from '../content/species.js';
 import { SETS, SLOT_ICON } from '../content/gear.js';
 import { WEAPONS } from '../content/weapons.js';
+import { TILE } from '../world/world.js';
 
 // A gear piece shows its slot's icon (or the weapon it is)
 export const gearIcon = (v) => SLOT_ICON[v.slot] || WEAPONS[v.slot === 'main' ? SETS[v.hero].mainW : SETS[v.hero].offW].icon;
@@ -37,6 +38,20 @@ export const Pickups = {
       k.t += dt;
       k.x += k.vx * dt; k.y += k.vy * dt;
       k.vx *= 1 - 5 * dt; k.vy *= 1 - 5 * dt;
+      // a drop that came down in water (or inside a rock or a tree) washes up on the nearest shore
+      if (!k.settled && k.t > 0.3) {
+        k.settled = true;
+        if (!this.world.walkable(k.x, k.y)) k.shore = this.shoreNear(k.x, k.y);
+      }
+      if (k.shore && !k.magnet) {
+        const dx = k.shore.x - k.x, dy = k.shore.y - k.y, d = Math.hypot(dx, dy);
+        if (d < 1.5) k.shore = null;
+        else {
+          const sp = Math.max(40, Math.min(150, d * 4)) * dt;
+          k.x += (dx / d) * Math.min(d, sp); k.y += (dy / d) * Math.min(d, sp);
+          if (Math.random() < 10 * dt) this.particles.add({ x: k.x + rand(-3, 3), y: k.y, vx: rand(-6, 6), vy: rand(-8, -2), life: 0.35, color: '#d8f2ff', size: 1 });
+        }
+      }
       const d2 = dist2(k.x, k.y, P.x, P.y);
       const pullable = k.kind === 'xp' || k.kind === 'coin' || k.kind === 'heart' || k.kind === 'berry';
       if (pullable && (k.magnet || d2 < mr2) && k.t > 0.25) {
@@ -51,6 +66,23 @@ export const Pickups = {
     this.pickups = this.pickups.filter((k) => !k.taken);
     let xp = 0; for (const k of this.pickups) if (k.kind === 'xp') xp++;
     this.pickupCount.xp = xp;
+  },
+  // The middle of the nearest tile you can stand on (searching outward ring by ring), or null
+  shoreNear(x, y) {
+    const W = this.world, tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+    for (let r = 1; r <= 30; r++) {
+      let best = null, bd = Infinity;
+      const tryTile = (i, j) => {
+        if (W.solidAt(tx + i, ty + j) !== 0) return;
+        const cx = (tx + i + 0.5) * TILE, cy = (ty + j + 0.5) * TILE, d = (cx - x) ** 2 + (cy - y) ** 2;
+        if (d < bd) { bd = d; best = { x: cx, y: cy }; }
+      };
+      for (let i = -r; i <= r; i++) { tryTile(i, -r); tryTile(i, r); }
+      for (let j = -r + 1; j < r; j++) { tryTile(-r, j); tryTile(r, j); }
+      // a little scatter inside the tile, so several drops don't stack on one spot
+      if (best) return { x: best.x + rand(-4, 4), y: best.y + rand(-3, 3) };
+    }
+    return null;
   },
   collect(k) {
     const P = this.player, S = P.stats;
