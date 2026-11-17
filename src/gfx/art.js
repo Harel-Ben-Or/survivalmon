@@ -161,7 +161,7 @@ function makeCreature(id, canvas) {
 function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
 // Sheets drawn facing left. The game treats every sprite as facing right, so these are mirrored as
 // they load; otherwise they walk backwards.
-const FACES_LEFT = new Set(['emberpup', 'leafkit', 'puddlit', 'cinderhound', 'thornhare', 'scaldfrog', 'magmaul', 'lilypaw', 'zapgill']);
+const FACES_LEFT = new Set(['emberpup', 'leafkit', 'puddlit', 'scaldfrog', 'magmaul', 'lilypaw', 'zapgill']);
 // A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
 function animatedCreature(id, sheet) {
   const c = sheet.width / 8, rows = Math.round(sheet.height / c);
