@@ -34,7 +34,7 @@ export const ShopUI = {
   },
   pageBuilding(screen) { const id = PAGE_BUILDING[screen]; return id ? this.buildingPanel(id) : ''; },
   rerender() {
-    if (this.modalKind === 'training') { this.renderTraining(); return; }
+    if (this.screen === 'training') { this.renderTraining(); return; }
     const f = REDRAW[this.screen];
     if (f) this[f]();
   },

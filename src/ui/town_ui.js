@@ -7,7 +7,7 @@ import { playOpening } from './story.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
-import { pickTile, skillName, viewMons, listBar } from './mons_ui.js';
+import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer } from './mons_ui.js';
 import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 import { MERCHANT_ITEMS } from '../content/buildings.js';
@@ -53,56 +53,49 @@ export const TownUI = {
   showTeam(side) {
     const i = GATE_SIDES.indexOf(side);
     if (i >= 0 && i <= Meta.gates) { Meta.data.gateTier = i + 4 * Math.floor((Meta.gates - i) / 4); Meta.save(); }
-    this.hideScreens();
-    this.g.modal = 'screen';
-    this.screen = 'team';
+    this.heroOpen = false;
     this.renderTeam();
-    this.el.select.classList.remove('hidden');
-    this.el.select.scrollTop = 0;
   },
+  // Left: the hero (tap to change), the gate, and the team's slots as rows. Right: every survivalmon as
+  // a tile (tap one to put it in the first empty slot or take it out; drag onto a slot to place it).
+  // The run button sits at the bottom-right, clear of both lists.
   renderTeam() {
-    const team = Box.team(), hero = Meta.hero;
-    const size = Box.teamSize();
-    const hp = (m) => `<div class="hp-bar ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(m.hp * 100)}%"></div></div>`;
-    const slot = (i) => {
+    const team = Box.team(), hero = Meta.hero, size = Box.teamSize();
+    const row = (i) => {
       const m = team[i];
-      if (!m) return `<div class="team-slot" data-slot="${i}"><span>Drag a survivalmon here</span></div>`;
-      return `<div class="team-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}"><img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="">
-        <div class="ts-main"><b>${esc(monName(m))}</b> <span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<span class="mt-tiers">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span></div>
-        <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button><i>✕</i></div>`;
+      if (!m) return `<div class="team-slot t2-slot empty" data-slot="${i}"><span>+ empty slot</span></div>`;
+      return `<div class="team-slot t2-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}">
+        <img class="px" src="${artURL('creature', m.species)}" alt="">
+        <div class="t2-main"><b>${esc(monName(m))}</b><span class="small">${m.hp <= 0 ? 'Fainted' : `Lv ${m.level}`}</span>
+          <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span>
+          <div class="hp-bar ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(m.hp * 100)}%"></div></div></div>
+        <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button><i class="t2-x" aria-hidden="true">✕</i></div>`;
     };
-    // each card shows the survivalmon's skills and their grades, so two of the same species can be told apart
-    const card = (m) => pickTile(m, `team-pick ${Box.inTeam(m.id) ? 'in' : ''}`, `data-mon="${m.id}"`);
-    // sorted and filtered as the bar above the list says
     const pool = viewMons('team', Box.mons);
-    this.el.select.innerHTML = `
-      <div class="team-screen">
-        <h2>Choose your team</h2>
-        ${Meta.gates ? this.gatePicker() : ''}
-        <div class="team-body">
-          <div class="team-left panel">
-            <div class="team-label">Hero</div>
-            <div class="hero-pick">${HEROES.map((h) => `<button class="hero-chip ${h.id === hero ? 'sel' : ''} ${Meta.isHeroUnlocked(h.id) ? '' : 'locked'}" data-pickhero="${h.id}">
-              <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${Meta.isHeroUnlocked(h.id) ? esc(Meta.heroName(h.id)) : '🔒'}</span></button>`).join('')}</div>
-            <div class="small hero-boost">${esc(HERO_BOOST[hero].text)}</div>
-            ${Meta.data.buffs.length ? `<div class="small buffs">Ready for this run: ${Meta.data.buffs.map((b) => esc(MERCHANT_ITEMS.find((x) => x.id === b)?.name || b)).join(', ')}</div>` : ''}
-            <div class="team-label">Team ${team.length}/${size}</div>
-            <div class="team-slots">${Array.from({ length: size }, (_, i) => slot(i)).join('')}</div>
-          </div>
-          <div class="team-right panel">
-            <div class="team-label">Your survivalmons: tap or drag one onto a slot · <b class="pt-info-key">i</b> for stats</div>
-            ${Box.mons.length ? listBar('team', pool.length, Box.mons.length) : ''}
-            <div class="pick-tiles team-pool">${pool.map(card).join('') || `<em>${Box.mons.length ? 'None match these filters.' : Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
-          </div>
-        </div>
+    this.sheetList = pool.map((m) => m.id);
+    const heroes = this.heroOpen ? `<div class="hero-pick t2-heroes">${HEROES.map((h) => `<button class="hero-chip ${h.id === hero ? 'sel' : ''} ${Meta.isHeroUnlocked(h.id) ? '' : 'locked'}" data-pickhero="${h.id}">
+        <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${Meta.isHeroUnlocked(h.id) ? esc(Meta.heroName(h.id)) : '🔒'}</span></button>`).join('')}</div>` : '';
+    const gate = Meta.gates ? `<label class="t2-gate"><span class="small">Gate</span><select data-mact-change="gate-tier" aria-label="Gate">${Array.from({ length: Meta.gates + 1 }, (_, t) => `<option value="${t}" ${t === Math.min(Meta.data.gateTier || 0, Meta.gates) ? 'selected' : ''}>${esc(gateName(t))}</option>`).join('')}</select></label>` : '';
+    const col = `<aside class="t2-col">
+        <button class="t2-hero" data-mact="hero-toggle"><img class="px" src="${artURL('hero', hero) || iconURL('hero', hero, 2)}" alt=""><span><b>${esc(Meta.heroName(hero))} ›</b><span class="small">${esc(HERO_BOOST[hero].text)}</span></span></button>
+        ${heroes}${gate}
+        ${Meta.data.buffs.length ? `<div class="small buffs">Ready: ${Meta.data.buffs.map((b) => esc(MERCHANT_ITEMS.find((x) => x.id === b)?.name || b)).join(', ')}</div>` : ''}
+        <div class="t2-slots">${Array.from({ length: size }, (_, i) => row(i)).join('')}</div>
         ${this.buildingPanel('gate')}
-        <div class="team-actions">
-          <button class="btn secondary" data-act="back">Back to town</button>
-          <button class="btn go-btn" data-act="go">${Meta.gates ? `Through the ${gateName(Math.min(Meta.data.gateTier || 0, Meta.gates))}!` : "Let's run to the wild!"} <small>${runTime(Meta.runLength())}</small></button>
-        </div>
-      </div>`;
+      </aside>`;
+    const tiles = pool.map((m) => gridTile(m, { act: 'team-tap', cls: `team-pick ${Box.inTeam(m.id) ? 'picked' : ''}`, attrs: `data-mon="${m.id}"` })).join('');
+    const right = `<section class="t2-pool">${Box.mons.length ? `${tiles ? `<div class="g-grid team-pool">${tiles}</div>` : '<p class="sub-note">None match these filters.</p>'}`
+      : `<p class="sub-note">${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</p>`}</section>`;
+    const tier = Math.min(Meta.data.gateTier || 0, Meta.gates);
+    this.page('team', `<div class="team-screen team2">${col}${right}</div>`, {
+      title: `Team ${team.length}/${size}`, noBuilding: true,
+      tools: Box.mons.length ? listTools('team') : '',
+      chips: Meta.gates && tier ? `<span class="pg-chip" style="color:${gateColor(tier)}">${esc(gateName(tier))}</span>` : '',
+      foot: `<button class="btn go-btn" data-act="go">${Meta.gates ? `Through the ${esc(gateName(tier))}!` : "Let's run!"} <small>${runTime(Meta.runLength())}</small></button>`,
+      drawer: lvDrawer('team', this.lvOpen === 'team'),
+    });
     this.bindTeamDrag();
-    this.bindListBars();
+    this.el.select.querySelector('.t2-gate select')?.addEventListener('change', (e) => { Meta.data.gateTier = +e.target.value; Meta.save(); Audio.play('click'); this.renderTeam(); });
   },
   // A short drag lifts a survivalmon onto the slot under your finger; a tap adds or removes it.
   bindTeamDrag() {
@@ -114,7 +107,7 @@ export const TownUI = {
       if (!drag || e.pointerId !== drag.pid) return;
       if (!drag.ghost) {
         if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 8) return;
-        drag.ghost = drag.el.querySelector('.pt-pic img').cloneNode();
+        drag.ghost = drag.el.querySelector('img').cloneNode();
         drag.ghost.className = 'px drag-ghost';
         document.body.appendChild(drag.ghost);
         drag.el.classList.add('dragging');
@@ -143,6 +136,7 @@ export const TownUI = {
     };
     root.querySelectorAll('.team-pick').forEach((el) => el.addEventListener('pointerdown', (e) => {
       if (drag || e.target.closest('.pt-info')) return; // the i button opens the sheet instead
+      if (e.button === 2) return;
       drag = { pid: e.pointerId, id: +el.dataset.mon, el, x0: e.clientX, y0: e.clientY, ghost: null };
       document.addEventListener('pointermove', move);
       document.addEventListener('pointerup', end);
@@ -150,6 +144,7 @@ export const TownUI = {
     }));
     root.querySelectorAll('.team-slot.filled').forEach((el) => el.addEventListener('click', (e) => {
       if (e.target.closest('.pt-info')) return;
+      e.stopPropagation();
       const m = Box.team()[+el.dataset.slot];
       if (!m) return;
       Box.toggleTeam(m.id);
@@ -163,42 +158,47 @@ export const TownUI = {
     const chips = Array.from({ length: Meta.gates + 1 }, (_, t) => `<button class="gate-chip ${t === sel ? 'sel' : ''}" data-mact="gate-tier" data-tier="${t}" style="--gc:${gateColor(t)}">${gateName(t)}${t === Meta.gates ? '<small>newest</small>' : ''}</button>`).join('');
     return `<div class="gate-pick panel"><div class="team-label">Gate</div><div class="gate-chips">${chips}</div><div class="small gate-blurb">${gateBlurb(sel)}</div></div>`;
   },
+  heroToggle() { this.heroOpen = !this.heroOpen; Audio.play('click'); this.renderTeam(); },
   pickHero(id) {
     if (!Meta.isHeroUnlocked(id)) { this.toast(`${id[0].toUpperCase() + id.slice(1)}: ${HERO_UNLOCK[id].text} to unlock.`); return; }
     Meta.setHero(id);
     Audio.play('click');
+    this.heroOpen = false;
     this.renderTeam();
   },
 
   // ------------------------------------------------------------ Training Hall
   showTraining() {
-    this.g.modal = 'training';
     this.prompt(null);
     this.renderTraining();
   },
   renderTraining() {
-    const keep = this.el.modal.querySelector('.train-list')?.scrollTop || 0;
+    const sel = TRAINING.find((u) => u.id === this.trainSel) || TRAINING.find((u) => Meta.cost(u.id) !== null) || TRAINING[0];
+    this.trainSel = sel.id;
     const rows = TRAINING.map((u) => {
       const L = Meta.level(u.id), cost = Meta.cost(u.id), maxed = cost === null;
       const now = L || u.id === 'runtime' ? u.desc(L) : 'Not trained yet';
-      return `<div class="train-row ${maxed ? 'maxed' : ''}">
+      return `<div class="u-row ${maxed ? 'maxed' : ''} ${u.id === sel.id ? 'on' : ''}" data-mact="train-sel" data-u="${u.id}">
         <img class="px" src="${icon(u.icon, 3)}" alt="">
-        <div class="train-info"><b>${u.name}</b> <span class="lvl">Lv ${L}${maxed ? ' · MAX' : ''}</span>
-          <div class="now">${esc(now)}</div>${maxed ? '' : `<div class="next">Next: ${esc(u.desc(L + 1))}</div>`}</div>
-        ${maxed ? '' : `<button class="btn small buy-btn" data-buy="${u.id}" ${cost <= Meta.coins ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${cost}</button>`}
+        <div class="u-info"><b>${u.name}</b> <span class="lvl">${maxed ? 'MAX' : `${L}/${Meta.maxLevel(u)}`}</span>
+          <div class="small u-next">${esc(now)}${maxed ? '' : ` → ${esc(u.desc(L + 1))}`}</div></div>
+        <span class="u-cost ${!maxed && cost > Meta.coins ? 'short' : ''}">${maxed ? 'MAX' : cost}</span>
+        ${maxed ? '' : `<button class="btn small buy-btn u-buy" data-buy="${u.id}" ${cost <= Meta.coins ? '' : 'disabled'}>Buy · ${cost}</button>`}
       </div>`;
     }).join('');
-    this.openModal(`
-      <div class="modal-box panel train-box">
-        <div class="train-head"><h2>Training Hall</h2><div class="town-chip"><img class="px" src="${icon('coin', 2)}" alt=""><b>${Meta.coins}</b></div></div>
-        <div class="train-list">${rows}${this.buildingPanel('training')}</div>
-        <div class="loot-actions"><button class="btn" data-act="leave">Leave <span class="key">Esc</span></button></div>
-      </div>`);
-    this.modalKind = 'training';
-    this.el.modal.querySelector('.train-list').scrollTop = keep;
+    const L = Meta.level(sel.id), cost = Meta.cost(sel.id), maxed = cost === null;
+    const detail = `<div class="u-detail panel"><div class="u-dh"><img class="px" src="${icon(sel.icon, 4)}" alt=""><div><b>${sel.name}</b><div class="small">Level ${L} of ${Meta.maxLevel(sel)}</div></div></div>
+      <div class="u-now">Now: <b>${esc(L || sel.id === 'runtime' ? sel.desc(L) : 'Not trained yet')}</b></div>
+      ${maxed ? '<div class="u-now">This is as far as it goes here.</div>' : `<div class="u-now">Next: <b class="u-up">${esc(sel.desc(L + 1))}</b></div>
+      <button class="btn go-btn u-go" data-buy="${sel.id}" ${cost <= Meta.coins ? '' : 'disabled'}>Upgrade · ${cost}</button>`}</div>`;
+    this.page('training', `<div class="u-split"><div class="u-list">${rows}${this.buildingPanel('training')}</div>${detail}</div>`, {
+      title: 'Training Hall', noBuilding: true,
+      chips: `<span class="pg-chip"><img class="px inline-ic" src="${icon('coin', 2)}" alt="Coins"> ${Meta.coins}</span>`,
+    });
   },
   buyTraining(id) {
     Audio.play(Meta.buy(id) ? 'levelup' : 'click');
+    this.trainSel = id;
     this.renderTraining();
   },
 

@@ -60,6 +60,22 @@ Ember Fields, Windy Highlands and Blossom Glades. Most wild survivalmons you mee
 you're in. Difficulty still rises with time only, not with distance. The minimap is a radar of the
 land around you.
 
+**The run screen stays clear.** A thin EXP line and one strip of small text run along the top (level and
+items, the clock and the Blight's strength, coins / Spirit / KO). Under it at the right: a small radar
+(tap it to enlarge) with the zone you're in written under it; it glows when you cross into a new zone. HP is
+under the hero and under each survivalmon. Banners are only for the big moments (a run starting, a boss
+arriving or falling, nightfall, the final fight); all other news goes to a short feed at the top-left that
+fades, and a repeat counts up (x2). A new catch shows a card with its level and every skill's grade. Arrows
+at the screen's edge point to wild survivalmons and bosses out of view. The pause screen shows this run's
+coins, Spirit, KO, materials, zone and catches.
+
+**Town pages** share one thin header: ‹ Town at the top-left, the title and a few counts, the page's tools at
+the right (Sort and Filter open one drawer of chips), and the main button at the bottom-right. Lists of
+survivalmons are a grid of square tiles (picture, level, a grade letter per skill, flags for team, training,
+ready to evolve, locked and hurt); tapping one opens its sheet as a side drawer (full screen on small
+screens) with ‹ › to step through the list. Sizes switch by screen height (desktop, phone under 480 px,
+the small viewer under 300 px).
+
 The full design (buildings, breeding, skill tiers, gear) is in the design doc;
 `PLAN.md` covers the original build.
 
@@ -108,7 +124,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   evolution and 25 per medal. Coins stay the hero's money (Training Hall, buildings, Workshop, Merchant, Clinic).
 - **Ranch** (talk to Dell): every survivalmon as a small tile with its level and a colored tier letter per
   skill (square = its own attack, round = passives); tap one for its sheet: a big picture, HP and EXP, each
-  skill explained with what it gives at every tier, and buttons to rename it, put it in the team, train or free it.
+  skill explained with what it gives at every tier, and buttons to rename it, put it in the team, heal it (if
+  hurt), train, lock or free it. **Select** chooses several to free or lock at once; a locked survivalmon is
+  never freed or used for breeding.
   The barn has the fenced pasture right beside it, where every survivalmon you own roams
   (walk in through the barn's door). Train them (they gain EXP while you're away): each training spot
   has a dummy in the pasture, and a survivalmon in training stands by it
@@ -168,9 +186,11 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   best skills, highest level, newest, oldest, most evolved) and filter it by type, group and attack type; each
   list remembers its choice on the device. In the Ranch, **Free several** lets you tick many (never your team's)
   and free them at once for their species coins (a second tap confirms).
-- **Hatchery**: only the 10 species breed (Lv 3+). The first one you tap fills the Parent A window, the next
-  Parent B (each shows its picture, level, types, stats and skills); between them is what they make and the
-  Combine button, which first shows a preview: its own attack's tier odds and every skill pair it can inherit.
+- **Hatchery**: only the 10 species breed (Lv 3+). The first one you tap fills Parent A, the next Parent B;
+  between them is what you'll get, with its own attack's chance of B-or-better and A-or-better, before you
+  commit. Combine (bottom-right) shows the full preview: tier odds and every skill pair it can inherit. The
+  **What can I make?** tab lists every breed you can make now from species you have (??? for ones not found
+  yet), and Use pair fills both parents.
 - **Evolving**: the 10 species never evolve. Every breed evolves twice, at **Lv 30** and **Lv 55** (the level
   cap is 70), each time with an evolution stone of its type (a mixed breed and its evolutions: either parent's
   type): Cinderhound -> Azureblaze -> Cerberix, Ashbloom -> Infernobloom -> Pyregrove. Each evolution gives 40%

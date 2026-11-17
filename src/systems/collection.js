@@ -299,7 +299,7 @@ export const Box = {
   breed(aId, bId, odds = BASE_ODDS) {
     const a = this.get(aId), b = this.get(bId);
     // only the 10 species breed (two different survivalmons, either of the same species or of two)
-    const species = a && b && aId !== bId && SPECIES[a.species].stage === 1 && SPECIES[b.species].stage === 1 ? breedResult(a.species, b.species) : null;
+    const species = a && b && aId !== bId && !a.locked && !b.locked && SPECIES[a.species].stage === 1 && SPECIES[b.species].stage === 1 ? breedResult(a.species, b.species) : null;
     const sz = rollSize(((a?.sz || 1) + (b?.sz || 1)) / 2); // big parents, bigger babies
     if (!species || this.data.eggs.length >= EGG_SLOTS) return null;
     const pick = (m) => ({ ...m.skills[Math.floor(Math.random() * m.skills.length)] });
@@ -353,7 +353,7 @@ export const Box = {
   },
   free(id) {
     const mon = this.get(id);
-    if (!mon) return null;
+    if (!mon || mon.locked) return null; // locked: kept safe
     const got = this.freeValue(mon);
     for (const [l, n] of Object.entries(got)) this.data.coins[l] = (this.data.coins[l] || 0) + n;
     this.remove(id);

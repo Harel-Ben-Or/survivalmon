@@ -68,6 +68,7 @@ export class UI {
 
   hideScreens() {
     for (const k of ['title', 'select', 'hud']) this.el[k].classList.add('hidden');
+    this.el.select.classList.remove('as-page');
     document.body.classList.remove('in-town');
     this.touch?.setVisible(false);
     this.closeModal();
@@ -933,10 +934,11 @@ export class UI {
       else if (k === 'Space') this.talkAct('chat');
       return;
     }
+    if (this.lvOpen && !this.modalKind && k === 'Escape') { const l = this.lvOpen; this.lvOpen = null; this.relist(l); return; } // the sort/filter drawer closes first
     if (this.screen === 'team' && !this.modalKind && k === 'Escape') { this.showTown(); return; }
     if (this.screen === 'team' && !this.modalKind && k === 'Enter') { Box.save(); this.g.startRun(Meta.hero); return; }
     if (this.screen === 'title' && !this.modalKind && k === 'Enter' && this.g.mode === 'title') { Audio.unlock(); if (Box.isEmpty && !Box.eggs.length) this.startOpening(); else this.g.toTown(); return; }
-    if (['ranch', 'starter', 'hatchery', 'clinic', 'survidex', 'shrine', 'workshop', 'merchant'].includes(this.screen) && k === 'Escape' && !this.modalKind) { this.back(); return; }
+    if (['ranch', 'starter', 'hatchery', 'clinic', 'survidex', 'shrine', 'workshop', 'merchant', 'training'].includes(this.screen) && k === 'Escape' && !this.modalKind) { this.back(); return; }
     if (this.screen === 'select' && this.g.mode !== 'world') {
       const i = ['Digit1', 'Digit2', 'Digit3', 'Digit4'].indexOf(k);
       if (i >= 0) { Audio.unlock(); this.g.startRun(HEROES[i].id); return; }

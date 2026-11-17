@@ -93,22 +93,82 @@ export function listBar(key, shown, all, { groups = true } = {}) {
   const atks = { '': 'All attacks', ...Object.fromEntries(Object.entries(ATK_TYPES).map(([k, t]) => [k, t.name])) };
   return `<div class="list-bar" data-list="${key}">${sel('sort', 'Sort', SORTS, v.sort)}${sel('type', 'Type', types, v.type)}${groups ? sel('group', 'Group', GROUPS, v.group) : ''}${sel('atk', 'Attack type', atks, v.atk)}<span class="lb-count">${shown === all ? `${all} shown` : `${shown} of ${all}`}</span></div>`;
 }
+// One survivalmon in a grid: its picture, level and a grade letter per skill, with small flags
+// (team: gold frame; T training; ! ready to evolve; a lock; an HP bar when hurt). The whole tile is
+// the tap target.
+export const gridTile = (m, { act = 'mon-open', cls = '', check = null, attrs = '' } = {}) => `<div class="g-tile ${Box.inTeam(m.id) ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''} ${cls}" data-mact="${act}" data-id="${m.id}" ${attrs} title="${esc(monName(m))} · Lv ${m.level}">
+    <img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="g-lv">${m.level}</b>
+    <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>`).join('')}</span>
+    ${Box.isTraining(m.id) ? '<i class="g-flag train" title="Training">T</i>' : Box.canEvolve(m) ? '<i class="g-flag evo" title="Ready to evolve">!</i>' : ''}
+    ${m.locked ? '<i class="g-lock" title="Locked">🔒</i>' : ''}
+    ${check != null ? `<i class="g-check">${check ? '✓' : ''}</i>` : ''}
+    ${m.hp < 1 ? `<span class="g-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
+  </div>`;
+// The header's list tools: a Sort button showing the current order and a Filter button with the number
+// of filters on. Both open the same drawer of chips (lvDrawer).
+export function listTools(key, { groups = true } = {}) {
+  const v = listView(key), n = (v.type ? 1 : 0) + (groups && v.group !== 'all' ? 1 : 0) + (v.atk ? 1 : 0);
+  const short = { name: 'A–Z', grade: 'Best', level: 'Level', new: 'Newest', old: 'Oldest', stage: 'Evolved' };
+  return `<button class="pg-tool" data-mact="lv-open" data-list="${key}" aria-label="Sort">⇅ ${short[v.sort] || 'Sort'}</button><button class="pg-tool ${n ? 'on' : ''}" data-mact="lv-open" data-list="${key}" aria-label="Filter">Filter${n ? ` <b>${n}</b>` : ''}</button>`;
+}
+// The drawer: sort and filters as chips; a tap applies at once; Reset clears the filters
+export function lvDrawer(key, open, { groups = true } = {}) {
+  if (!open) return '';
+  const v = listView(key);
+  const chip = (field, val, label, style = '') => `<button class="lv-chip ${v[field] === val ? 'on' : ''}" data-mact="lv-set" data-list="${key}" data-f="${field}" data-v="${val}" ${style}>${esc(label)}</button>`;
+  const row = (title, field, opts) => `<div class="lv-grp"><div class="lv-h">${title}</div><div class="lv-chips">${opts.map(([val, label, st]) => chip(field, val, label, st)).join('')}</div></div>`;
+  return `<div class="lv-scrim" data-mact="lv-close"></div><aside class="lv-drawer panel" aria-label="Sort and filter">
+    ${row('Sort', 'sort', Object.entries(SORTS))}
+    ${row('Type', 'type', [['', 'All'], ...Object.entries(TYPES).map(([k, t]) => [k, t.name, `style="--c:${t.color}"`])])}
+    ${groups ? row('Group', 'group', Object.entries(GROUPS).map(([k, t]) => [k, k === 'all' ? 'All' : t])) : ''}
+    ${row('Attack', 'atk', [['', 'All'], ...Object.entries(ATK_TYPES).map(([k, t]) => [k, t.name])])}
+    <div class="lv-foot"><button class="btn small secondary" data-mact="lv-reset" data-list="${key}">Reset filters</button><button class="btn small" data-mact="lv-close">Done</button></div>
+  </aside>`;
+}
 const hpBar = (mon) => `<div class="hp-bar ${mon.hp <= 0 ? 'out' : mon.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(mon.hp * 100)}%"></div></div>`;
 const healCost = (mon) => Math.ceil((1 - mon.hp) * (6 + mon.level * 2) * (1 - Meta.buildingBonus('clinic', 'discount')));
 
 export const MonsUI = {
   // A full-screen page over the town (the town stops while it's open).
-  page(screen, html) {
+  // Every town page: one thin header (‹ Town at the left, the title, a few short chips, the page's
+  // tools at the right), the page's body scrolling under it, and an optional footer button at the
+  // bottom-right. Pages that still start with <h2>Title</h2> and a box-meta bar have them moved into
+  // the header (long notes go to the top of the body).
+  page(screen, html, o = {}) {
     this.bindListBars();
-    if (screen !== 'ranch') this.freeSel = null; // leaving the Ranch ends Free several
-    const same = this.screen === screen, top = this.el.select.scrollTop;
+    if (screen !== 'ranch') this.freeSel = null; // leaving the Ranch ends Select
+    if (this.lvOpen && this.lvOpen !== screen && !(screen === 'team' && this.lvOpen === 'team')) this.lvOpen = null;
+    const same = this.screen === screen, top = same ? this.el.select.querySelector('.pg-body')?.scrollTop || 0 : 0;
+    let title = o.title || '', chips = o.chips || '', note = '';
+    const m = html.match(/^\s*<h2>([^<]*)<\/h2>/);
+    if (m) { title = title || m[1]; html = html.slice(m[0].length); }
+    const bm = html.match(/^\s*<div class="box-meta panel">([\s\S]*?)<\/div>/);
+    if (bm && !/<div/.test(bm[1])) {
+      html = html.slice(bm[0].length);
+      for (const sp of bm[1].match(/<span[\s\S]*?<\/span>(?=\s*(<span|$))/g) || []) {
+        const text = sp.replace(/<[^>]+>/g, '').trim();
+        if (text.length > 28) note += `<p class="pg-note">${sp}</p>`; else chips += sp.replace(/^<span/, '<span class="pg-chip"');
+      }
+    }
     this.hideScreens();
     if (this.g.mode === 'town') this.g.modal = 'screen';
     this.screen = screen;
-    this.el.select.innerHTML = `<div class="mons-page">${html}${this.g.mode === 'town' ? this.pageBuilding(screen) : ''}<button class="btn secondary" data-act="back">${this.g.mode === 'town' ? 'Back to town' : 'Back'}</button></div>`;
+    const back = this.g.mode === 'town' ? 'Town' : 'Back';
+    this.el.select.innerHTML = `<div class="pg pg-${screen} ${o.foot ? 'has-foot' : ''}">
+      <header class="pg-head">
+        <button class="pg-back" data-act="back" aria-label="Back to ${back.toLowerCase()}">‹ ${back}</button>
+        <h2 class="pg-title">${esc(title)}</h2>
+        <div class="pg-chips">${chips}</div>
+        <div class="pg-tools">${o.tools || ''}</div>
+      </header>
+      <div class="pg-body">${note}${html}${this.g.mode === 'town' && !o.noBuilding ? this.pageBuilding(screen) : ''}</div>
+      ${o.foot ? `<div class="pg-foot">${o.foot}</div>` : ''}
+      ${o.drawer || ''}
+    </div>`;
     this.el.select.classList.remove('hidden');
-    // a fresh page starts at the top; redrawing the same page (after a tap) keeps your place
-    this.el.select.scrollTop = same ? top : 0;
+    this.el.select.classList.add('as-page');
+    const body = this.el.select.querySelector('.pg-body');
+    if (body) body.scrollTop = top;
   },
 
   // ------------------------------------------------------------ starter eggs
@@ -186,46 +246,42 @@ export const MonsUI = {
     const trained = Box.settleTraining();
     for (const t of trained) if (t.levels.length) this.toast(`${monName(t.mon)} trained up to Lv ${t.mon.level}!`);
     const list = viewMons('ranch', Box.mons);
-    // Free several: tap survivalmons to choose them (not the team's), then free them all at once
-    const freeing = !!this.freeSel, sel = this.freeSel || new Set();
+    this.sheetList = list.map((m) => m.id); // ‹ › on a sheet step through this order
+    // Select: tap survivalmons to choose them, then free or lock them all at once (not the team's;
+    // locked ones are never freed)
+    const selecting = !!this.freeSel, sel = this.freeSel || new Set();
     const tile = (m) => {
-      const inTeam = Box.inTeam(m.id), act = !freeing ? 'mon-open' : inTeam ? 'free-locked' : 'free-pick';
-      return `<div class="mon-tile ${inTeam ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''} ${freeing && inTeam ? 'locked' : ''} ${sel.has(m.id) ? 'picked' : ''}" data-mact="${act}" data-id="${m.id}" title="${esc(monName(m))}">
-        ${freeing && !inTeam ? `<i class="mt-check">${sel.has(m.id) ? '✓' : ''}</i>` : ''}
-        <span class="mt-pic"><img class="px" src="${pic(m.species)}" alt="">${Box.isTraining(m.id) ? '<i class="mt-flag train" title="Training">T</i>' : ''}${Box.canEvolve(m) ? '<i class="mt-flag evo" title="Ready to evolve">!</i>' : ''}<b class="mt-lv">${m.level}</b></span>
-        <span class="mt-name">${esc(monName(m))}</span>
-        <span class="mt-tiers">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span>
-        ${m.hp < 1 ? `<span class="mt-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
-      </div>`;
+      const inTeam = Box.inTeam(m.id), act = !selecting ? 'mon-open' : inTeam ? 'free-locked' : 'free-pick';
+      return gridTile(m, { act, cls: `${selecting && inTeam ? 'dim' : ''} ${sel.has(m.id) ? 'picked' : ''}`, check: selecting && !inTeam ? sel.has(m.id) : null });
     };
-    // what freeing the chosen ones pays, in species coins
+    const chosen = [...sel].map((id) => Box.get(id)).filter(Boolean), freeable = chosen.filter((m) => !m.locked);
     const pay = {};
-    for (const id of sel) { const m = Box.get(id); if (m) for (const [l, n] of Object.entries(Box.freeValue(m))) pay[l] = (pay[l] || 0) + n; }
+    for (const m of freeable) for (const [l, n] of Object.entries(Box.freeValue(m))) pay[l] = (pay[l] || 0) + n;
     const payTxt = Object.entries(pay).map(([l, n]) => `${n} ${SPECIES[l].name}`).join(', ');
-    const freeBar = !freeing ? '' : `<div class="free-bar panel">
-        <span><b>${sel.size} chosen</b> <span class="small">${sel.size ? `· you get ${esc(payTxt)} coins` : '· tap survivalmons to free them (not your team)'}</span></span>
-        <span class="fb-btns"><button class="btn small secondary" data-mact="free-all">Choose all shown</button><button class="btn small secondary" data-mact="free-none">Clear</button><button class="btn small secondary" data-mact="free-cancel">Cancel</button><button class="btn small danger" data-mact="free-go" ${sel.size ? '' : 'disabled'}>${this.freeSure ? `Tap again to free ${sel.size}` : `Free ${sel.size}`}</button></span>
-      </div>`;
+    const allLocked = chosen.length && chosen.every((m) => m.locked);
+    const tools = selecting
+      ? `<span class="pg-chip sel-n">${sel.size} chosen</span><button class="pg-tool" data-mact="free-all">All shown</button><button class="pg-tool" data-mact="free-none">Clear</button>
+        <button class="pg-tool" data-mact="sel-lock" ${chosen.length ? '' : 'disabled'}>${allLocked ? 'Unlock' : 'Lock'}</button>
+        <button class="pg-tool danger" data-mact="free-go" ${freeable.length ? '' : 'disabled'} title="${esc(payTxt ? `You get ${payTxt} coins` : '')}">${this.freeSure ? `Tap again: free ${freeable.length}` : `Free ${freeable.length}`}</button><button class="pg-tool" data-mact="free-cancel">Cancel</button>`
+      : `${Box.isEmpty ? '' : listTools('ranch')}${Box.isEmpty ? '' : '<button class="pg-tool" data-mact="free-mode">Select</button>'}`;
     const ups = BASE_IDS.map((l) => {
       const c = Box.upCost(l), have = Box.speciesCoins(l);
       return `<div class="sp-up"><img class="px" src="${pic(l)}" alt=""><div><b>${SPECIES[l].name}</b> <span class="lvl">Lv ${Box.upLevel(l)}</span><div class="small">${have} coins · +${Math.round(Box.upBonus(l) * 100)}% damage and HP</div></div>
         ${c === null ? '<span class="lvl">MAX</span>' : `<button class="btn small" data-mact="sp-up" data-line="${l}" ${have >= c ? '' : 'disabled'}>${c}</button>`}</div>`;
     }).join('');
-    this.page('ranch', `
-      <h2>Ranch</h2>
-      <div class="box-meta panel">
-        <span>${Box.mons.length} survivalmons</span>
-        <span>Training ${Box.data.training.length}/${Box.trainSpots()} spots</span>
-        <span class="tier-key">${TIERS.map((T, i) => `<b class="tier t${i}">${T}</b>`).join('')} skill tiers</span>
-        ${Box.isEmpty || freeing ? '' : '<button class="btn small secondary" data-mact="free-mode">Free several…</button>'}
-      </div>
-      ${Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>' : `${listBar('ranch', list.length, Box.mons.length)}
-      ${list.length ? `<div class="mon-tiles">${list.map(tile).join('')}</div>` : '<p class="sub-note">None match these filters.</p>'}
-      ${freeBar || '<p class="sub-note tap-note">Tap a survivalmon to see it up close.</p>'}`}
-      <details class="panel sp-ups" ${this.upsOpen ? 'open' : ''}><summary class="team-label">Species upgrades · free a survivalmon for its species coins, then make every one of that species (and its breeds) stronger</summary><div class="sp-grid">${ups}</div></details>`);
+    const body = Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>'
+      : `${selecting && payTxt ? `<p class="pg-note">Freeing the chosen ones gives ${esc(payTxt)} species coins.${chosen.length > freeable.length ? ` ${chosen.length - freeable.length} locked ${chosen.length - freeable.length === 1 ? 'one stays' : 'ones stay'}.` : ''}</p>` : ''}
+        ${list.length ? `<div class="g-grid">${list.map(tile).join('')}</div>` : '<p class="sub-note">None match these filters.</p>'}
+        <details class="panel sp-ups" ${this.upsOpen ? 'open' : ''}><summary class="team-label">Species upgrades · free a survivalmon for its species coins, then make every one of that species (and its breeds) stronger</summary><div class="sp-grid">${ups}</div></details>`;
+    this.page('ranch', body, {
+      title: 'Ranch', tools,
+      chips: `<span class="pg-chip">${list.length === Box.mons.length ? Box.mons.length : `${list.length}/${Box.mons.length}`}</span><span class="pg-chip">Training ${Box.data.training.length}/${Box.trainSpots()}</span>`,
+      drawer: lvDrawer('ranch', this.lvOpen === 'ranch'),
+    });
     this.el.select.querySelector('details.sp-ups')?.addEventListener('toggle', (e) => { this.upsOpen = e.target.open; });
-    if (this.sheetId != null && !freeing) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
+    if (this.sheetId != null && !selecting) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
   },
+  relist(key) { ({ ranch: () => this.showRanch(), team: () => this.renderTeam(), hatchery: () => this.showHatchery(), clinic: () => this.showClinic() })[key]?.(); },
   // A change in any list's sort or filter bar redraws that list
   bindListBars() {
     if (this.listBarsBound) return;
@@ -257,11 +313,15 @@ export const MonsUI = {
           <div class="small">${esc(skillDesc(k))}</div>
           <div class="tier-ladder">${k.k === 'u' ? 'Power' : 'Value'} by tier: ${ladder(k)}</div></div>
       </div>`).join('');
+    const order = this.sheetList || [], at = order.indexOf(m.id);
+    const step = at >= 0 && order.length > 1 ? `<div class="ms-step"><button class="btn small secondary" data-mact="sheet-step" data-d="-1" aria-label="Previous">‹</button><span class="small">${at + 1} of ${order.length}</span><button class="btn small secondary" data-mact="sheet-step" data-d="1" aria-label="Next">›</button></div>` : '';
+    const heal = m.hp < 1 && Meta.isUnlocked('clinic') ? `<button class="btn small" data-mact="heal" data-id="${m.id}" ${Meta.coins >= healCost(m) ? '' : 'disabled'}>Heal · ${healCost(m)} coins</button>` : '';
     const nameRow = renaming
       ? `<div class="ms-name name-row"><input class="name-input mon-name-input" maxlength="14" value="${esc(monName(m))}" aria-label="Name" autocomplete="off" spellcheck="false" enterkeyhint="done"><button class="btn small" data-mact="mon-rename-save" data-id="${m.id}">Save</button></div>`
       : `<div class="ms-name"><b>${esc(monName(m))}</b><button class="btn small secondary" data-mact="mon-rename" data-id="${m.id}">✎ Rename</button></div>`;
     this.openModal(`
       <div class="modal-box panel mon-sheet">
+        <div class="ms-bar">${step}<button class="btn small secondary ms-x" data-mact="mon-close" aria-label="Close">✕</button></div>
         <div class="ms-top">
           <div class="ms-pic ${m.hp <= 0 ? 'out' : ''}"><img class="px" src="${pic(m.species)}" alt=""></div>
           <div class="ms-info">
@@ -285,71 +345,88 @@ export const MonsUI = {
         })()}
         <div class="loot-actions ms-actions">
           <button class="btn small" data-mact="mon-team" data-id="${m.id}" ${m.hp <= 0 && !Box.inTeam(m.id) ? 'disabled' : ''}>${Box.inTeam(m.id) ? 'Leave the team' : 'Join the team'}</button>
+          ${heal}
           <button class="btn small secondary" data-mact="train" data-id="${m.id}">${Box.isTraining(m.id) ? 'Stop training' : 'Train'}</button>
-          <button class="btn small secondary free-btn" data-mact="free" data-id="${m.id}" title="Free it for ${esc(value)} coins">Free</button>
-          <button class="btn small secondary" data-mact="mon-close">Close <span class="key">Esc</span></button>
+          <button class="btn small secondary" data-mact="mon-lock" data-id="${m.id}" title="A locked survivalmon can't be freed or used for breeding">${m.locked ? '🔓 Unlock' : '🔒 Lock'}</button>
+          <button class="btn small secondary free-btn" data-mact="free" data-id="${m.id}" ${m.locked ? 'disabled title="Locked: unlock it first"' : `title="Free it for ${esc(value)} coins"`}>Free</button>
         </div>
       </div>`);
     this.modalKind = 'monsheet';
-    this.el.modal.classList.add('sheet-modal');
+    this.el.modal.classList.add('sheet-modal', 'drawer');
     if (renaming) { const inp = this.el.modal.querySelector('.mon-name-input'); setTimeout(() => { inp?.focus(); inp?.select(); }, 60); }
   },
   closeMonSheet() {
     this.sheetId = null;
     if (this.modalKind === 'monsheet') { this.closeModal(); this.modalKind = null; }
-    this.el.modal.classList.remove('sheet-modal');
+    this.el.modal.classList.remove('sheet-modal', 'drawer');
   },
 
   // ------------------------------------------------------------ Hatchery
   showHatchery() {
-    // two parent slots, A and B; only the 10 species breed (a breed never does)
-    const ok = (id) => { const m = Box.get(id); return m && m.level >= BREED_LEVEL && SPECIES[m.species].stage === 1; };
+    // two parent slots, A and B; only the 10 species breed (a breed never does); locked ones are kept out
+    const ok = (id) => { const m = Box.get(id); return m && m.level >= BREED_LEVEL && SPECIES[m.species].stage === 1 && !m.locked; };
     const pick = this.breedPick = [0, 1].map((i) => (ok((this.breedPick || [])[i]) ? this.breedPick[i] : null));
+    const tab = this.hatchTab || 'pair';
     const nests = Array.from({ length: EGG_SLOTS }, (_, i) => {
       const e = Box.eggs[i];
-      if (!e) return '<div class="nest panel"><img class="px" src="' + eggURL(null, 2) + '" style="opacity:.25" alt=""><span>Empty nest</span></div>';
-      const known = Box.known(e.species) || e.kind !== 'bred';
-      const close = e.progress >= e.need * 0.75; // wobbles when it is nearly ready to hatch
-      return `<div class="nest panel"><img class="px ${close ? 'egg-ready' : ''}" src="${eggURL(e.species, 2)}" alt=""><b>${known ? `${SPECIES[e.species].name} egg` : 'Mystery egg'}</b>
-        <div class="hp-bar warm"><div style="width:${Math.round((e.progress / e.need) * 100)}%"></div></div><span>${mmss(e.progress)} / ${mmss(e.need / 1)} in the wild</span></div>`;
+      if (!e) return `<div class="nest2"><img class="px" src="${eggURL(null, 2)}" style="opacity:.3" alt=""><span>Empty nest</span></div>`;
+      const known = Box.known(e.species) || e.kind !== 'bred', close = e.progress >= e.need * 0.75;
+      return `<div class="nest2"><img class="px ${close ? 'egg-ready' : ''}" src="${eggURL(e.species, 2)}" alt=""><span><b>${known ? `${SPECIES[e.species].name}` : 'Mystery egg'}</b> ${mmss(e.progress)}/${mmss(e.need)}</span><div class="hp-bar warm"><div style="width:${Math.round((e.progress / e.need) * 100)}%"></div></div></div>`;
     }).join('');
     const basics = Box.mons.filter((m) => SPECIES[m.species].stage === 1);
-    const ready = basics.filter((m) => m.level >= BREED_LEVEL), young = basics.length - ready.length;
+    const ready = basics.filter((m) => m.level >= BREED_LEVEL && !m.locked);
+    const lockedN = basics.filter((m) => m.locked).length, young = basics.filter((m) => m.level < BREED_LEVEL && !m.locked).length;
     const [A, B] = pick.map((id) => id && Box.get(id));
-    const result = A && B ? breedResult(A.species, B.species) : null;
     const full = Box.eggs.length >= EGG_SLOTS;
-    // a parent window: the chosen survivalmon's picture, level, types, attack and skills
-    const win = (m, i) => {
+    const pv = A && B ? Box.breedPreview(A.id, B.id, Shrine.odds()) : null;
+    const parent = (m, i) => {
       const label = i ? 'Parent B' : 'Parent A';
-      if (!m) return `<div class="parent-win empty"><span class="pw-label">${label}</span><img class="px" src="${eggURL(null, 2)}" alt=""><span class="small">${i && !A ? 'Pick parent A first' : 'Tap a survivalmon below'}</span></div>`;
-      const sp = SPECIES[m.species], st = monStats(m);
-      return `<div class="parent-win">
-        <span class="pw-label">${label}</span>
-        <button class="pw-x" data-mact="parent-clear" data-slot="${i}" aria-label="Take ${esc(monName(m))} out">✕</button>
-        <div class="pw-head"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b><div class="small">Lv ${m.level}${m.nick ? ` · ${esc(sp.name)}` : ''}</div><div>${types(sp)} ${atkTag(atkType(m.species), true)}</div></div></div>
-        <div class="pw-stats"><span>HP <b>${st.hp}</b></span><span>Attack <b>${st.atk}</b></span><span>Speed <b>${st.spd}</b></span></div>
-        <div class="pw-skills">${m.skills.map((k) => `<div><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b><span><b>${esc(skillName(k))}</b> <span class="small">${esc(skillDesc(k))}</span></span></div>`).join('')}</div>
-        <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button>
-      </div>`;
+      if (!m) return `<div class="h-card h-parent empty"><span class="pw-label">${label}</span><img class="px" src="${eggURL(null, 2)}" alt=""><span class="small">${i && !A ? 'Pick parent A first' : 'Tap a survivalmon below'}</span></div>`;
+      return `<div class="h-card h-parent"><span class="pw-label">${label}</span><button class="pw-x" data-mact="parent-clear" data-slot="${i}" aria-label="Take ${esc(monName(m))} out">✕</button>
+        <img class="px h-pic" src="${pic(m.species)}" alt=""><b>${esc(monName(m))}</b><span class="small">Lv ${m.level} ${types(SPECIES[m.species])}</span>
+        <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span></div>`;
     };
-    const known = result && Box.known(result);
-    const mid = `<div class="breed-mid">
-        <span class="bm-plus">+</span>
-        ${result ? `<img class="px bm-egg" src="${eggURL(known ? result : null, 3)}" alt=""><b>${known ? esc(SPECIES[result].name) : 'Mystery breed'}</b>${known ? atkTag(atkType(result)) : '<span class="small">not found yet</span>'}
-          <button class="btn" data-mact="breed-preview" ${full ? 'disabled' : ''}>Combine</button>${full ? '<span class="small">All nests are full</span>' : ''}`
-        : `<span class="small">${A ? 'Now pick parent B' : 'Pick two parents'}</span>`}
-      </div>`;
+    // the middle: what comes out, before you commit
+    let outcome;
+    if (pv) {
+      const known = Box.known(pv.species), sp = SPECIES[pv.species];
+      const aPlus = pv.own.slice(3).reduce((a, b) => a + b, 0), bPlus = pv.own.slice(2).reduce((a, b) => a + b, 0);
+      outcome = `<div class="h-card h-out"><span class="pw-label">You'll get</span>
+        <img class="px h-pic" src="${known ? pic(pv.species) : eggURL(null, 3)}" alt="" ${known ? '' : 'style="filter:brightness(0) opacity(.6)"'}><b>${known ? esc(sp.name) : 'A breed you haven\'t found'}</b>${known ? atkTag(atkType(pv.species)) : ''}
+        <span class="small">Its own attack: B or better <b>${Math.round(bPlus)}%</b> · A or better <b>${Math.round(aPlus)}%</b></span>
+        <span class="small">Plus one skill from each parent. Both parents are used up.</span></div>`;
+    } else outcome = `<div class="h-card h-out empty"><span class="pw-label">You'll get</span><span class="small">${A ? 'Now pick parent B' : 'Pick two parents to see what hatches'}</span></div>`;
     const shown = viewMons('hatchery', ready);
-    const choose = shown.map((m) => pickTile(m, pick.includes(m.id) ? 'sel' : '', `data-mact="pick-parent" data-id="${m.id}"`)).join('');
-    this.page('hatchery', `
-      <h2>Hatchery</h2>
-      <div class="nests">${nests}</div>
-      <div class="panel breed-box">
-        <div class="team-label">Breed two species (Lv ${BREED_LEVEL}+), or two of the same one. Both parents are used up; the egg gets one skill from each and a new attack of its own.</div>
-        <div class="breed-stage">${win(A, 0)}${mid}${win(B, 1)}</div>
-        ${ready.length ? `${listBar('hatchery', shown.length, ready.length, { groups: false })}${shown.length ? `<div class="pick-tiles breed-pool">${choose}</div>` : '<p class="sub-note">None match these filters.</p>'}` : `<p class="sub-note">You need species at Lv ${BREED_LEVEL} or higher. Catch them in the wild.</p>`}
-        ${young ? `<p class="sub-note">${young} more ${young === 1 ? 'species is' : 'species are'} below Lv ${BREED_LEVEL}. Breeds and evolutions can't breed.</p>` : '<p class="sub-note">Only species breed; breeds and evolutions never do.</p>'}
-      </div>`);
+    this.sheetList = shown.map((m) => m.id);
+    const pool = shown.map((m) => gridTile(m, { act: 'pick-parent', cls: pick.includes(m.id) ? 'picked' : '' })).join('');
+    // What can I make?: every breed you can make right now from species you have, and how
+    const have = (sp) => ready.filter((m) => m.species === sp).sort((a, b) => b.level - a.level);
+    const recipes = [...PURE_IDS, ...MIXED_IDS].map((id) => {
+      const [a, b] = SPECIES[id].pair;
+      const ma = have(a), mb = a === b ? ma.slice(1) : have(b);
+      return { id, a, b, can: ma.length > 0 && mb.length > 0, pa: ma[0], pb: mb[0] };
+    });
+    const makeable = recipes.filter((r) => r.can);
+    const make = makeable.map((r) => {
+      const known = Box.known(r.id);
+      return `<div class="h-make panel"><img class="px" src="${pic(r.id)}" alt="" ${known ? '' : 'style="filter:brightness(0) opacity(.55)"'}>
+        <div><b>${known ? esc(SPECIES[r.id].name) : '???'}</b><div class="small">${esc(SPECIES[r.a].name)} + ${esc(SPECIES[r.b].name)}</div></div>
+        <button class="btn small" data-mact="use-pair" data-a="${r.pa.id}" data-b="${r.pb.id}">Use pair</button></div>`;
+    }).join('');
+    const tabs = `<button class="pg-tool ${tab === 'pair' ? 'on' : ''}" data-mact="h-tab" data-t="pair">Pair</button><button class="pg-tool ${tab === 'make' ? 'on' : ''}" data-mact="h-tab" data-t="make">What can I make?</button>`;
+    const body = tab === 'make'
+      ? `<p class="pg-note">Breeds you can make now from species at Lv ${BREED_LEVEL}+ that you have (not locked). ??? are breeds you haven't found yet. ${recipes.length - makeable.length} more need species you don't have, or two of the same.</p>
+         ${makeable.length ? `<div class="h-makes">${make}</div>` : '<p class="sub-note">Nothing yet: catch more species and raise them to Lv 3.</p>'}`
+      : `<div class="h-stage">${parent(A, 0)}${outcome}${parent(B, 1)}</div>
+         <div class="h-nests">${nests}</div>
+         ${ready.length ? `<div class="pg-sub"><span class="team-label">Pick parents</span>${listTools('hatchery', { groups: false })}</div>${shown.length ? `<div class="g-grid">${pool}</div>` : '<p class="sub-note">None match these filters.</p>'}` : `<p class="sub-note">You need species at Lv ${BREED_LEVEL} or higher. Catch them in the wild.</p>`}
+         <p class="sub-note">${young ? `${young} more ${young === 1 ? 'species is' : 'species are'} below Lv ${BREED_LEVEL}. ` : ''}${lockedN ? `${lockedN} locked ${lockedN === 1 ? 'one is' : 'ones are'} kept out. ` : ''}Only species breed; breeds and evolutions never do.</p>`;
+    this.page('hatchery', body, {
+      title: 'Hatchery', tools: tabs,
+      chips: `<span class="pg-chip">Nests ${Box.eggs.length}/${EGG_SLOTS}</span>`,
+      foot: tab === 'pair' ? `<button class="btn go-btn" data-mact="breed-preview" ${pv && !full ? '' : 'disabled'}>${full ? 'All nests are full' : 'Combine…'}</button>` : '',
+      drawer: lvDrawer('hatchery', this.lvOpen === 'hatchery', { groups: false }),
+    });
   },
 
   // Before breeding: both parents, what they make, its own attack's tier odds and every skill pair
@@ -394,12 +471,17 @@ export const MonsUI = {
     const hurt = Box.hurtMons();
     const total = hurt.reduce((s, m) => s + healCost(m), 0);
     const shown = viewMons('clinic', hurt);
+    this.sheetList = shown.map((m) => m.id);
     const rows = shown.map((m) => `<div class="clinic-row panel"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b> Lv ${m.level}${m.hp <= 0 ? ' · <span class="out-txt">Fainted</span>' : ''}${hpBar(m)}</div>
-      <button class="btn small" data-mact="heal" data-id="${m.id}" ${Meta.coins >= healCost(m) ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${healCost(m)}</button></div>`).join('');
-    this.page('clinic', `
-      <h2>Clinic</h2>
-      <div class="box-meta panel"><span><img class="px inline-ic" src="${icon('coin', 2)}" alt=""> ${Meta.coins}</span><span>Survivalmons that stay home heal ${Math.round((0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest')) * 100)}% each run for free</span></div>
-      ${hurt.length ? `${listBar('clinic', shown.length, hurt.length)}<div class="clinic-list">${rows || '<p class="sub-note">None match these filters.</p>'}</div><button class="btn" data-mact="heal-all" ${Meta.coins >= total ? '' : 'disabled'}>Heal everyone (${total} coins)</button>` : '<p class="sub-note">Everyone is healthy.</p>'}`);
+      <button class="btn small" data-mact="heal" data-id="${m.id}" ${Meta.coins >= healCost(m) ? '' : 'disabled'}>Heal · ${healCost(m)}</button></div>`).join('');
+    this.page('clinic', `<p class="pg-note">Survivalmons that stay home heal ${Math.round((0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest')) * 100)}% each run for free.</p>
+      ${hurt.length ? `<div class="clinic-list">${rows || '<p class="sub-note">None match these filters.</p>'}</div>` : '<p class="sub-note">Everyone is healthy.</p>'}`, {
+      title: 'Clinic',
+      chips: `<span class="pg-chip"><img class="px inline-ic" src="${icon('coin', 2)}" alt="Coins"> ${Meta.coins}</span>`,
+      tools: hurt.length ? listTools('clinic') : '',
+      foot: hurt.length ? `<button class="btn go-btn" data-mact="heal-all" ${Meta.coins >= total ? '' : 'disabled'}>Heal everyone · ${total}</button>` : '',
+      drawer: lvDrawer('clinic', this.lvOpen === 'clinic'),
+    });
   },
 
   // ------------------------------------------------------------ Survidex
@@ -522,7 +604,7 @@ export const MonsUI = {
     }
     this.openModal(`<div class="modal-box panel mon-sheet dex-sheet">${body}${nav}</div>`);
     this.modalKind = 'dexsheet';
-    this.el.modal.classList.add('sheet-modal');
+    this.el.modal.classList.add('sheet-modal', 'drawer');
     this.el.select.querySelectorAll('.j-cell.pick').forEach((c) => c.classList.remove('pick'));
     this.el.select.querySelector(`.j-cell[data-sp="${id}"]`)?.classList.add('pick');
   },
@@ -583,13 +665,13 @@ export const MonsUI = {
     }
     this.openModal(`<div class="modal-box panel mon-sheet dex-sheet">${body}${nav}</div>`);
     this.modalKind = 'dexsheet';
-    this.el.modal.classList.add('sheet-modal');
+    this.el.modal.classList.add('sheet-modal', 'drawer');
     this.el.select.querySelectorAll('.j-cell.pick').forEach((c) => c.classList.remove('pick'));
     this.el.select.querySelector(`.j-cell[data-foe="${id}"]`)?.classList.add('pick');
   },
   closeDexSheet() {
     if (this.modalKind === 'dexsheet') { this.closeModal(); this.modalKind = null; }
-    this.el.modal.classList.remove('sheet-modal');
+    this.el.modal.classList.remove('sheet-modal', 'drawer');
   },
   stepDex(d) {
     if (this.dexList === 'foes') { const i = FOE_IDS.indexOf(this.dexSel); this.showFoeSheet(FOE_IDS[(i + d + FOE_IDS.length) % FOE_IDS.length]); return; }
@@ -623,12 +705,33 @@ export const MonsUI = {
     if (this.shopAct(act, el)) return;
     const id = +el.dataset.id;
     switch (act) {
+      case 'lv-open': this.lvOpen = el.dataset.list; this.relist(el.dataset.list); break;
+      case 'lv-close': { const k = this.lvOpen; this.lvOpen = null; if (k) this.relist(k); break; }
+      case 'lv-set': setListView(el.dataset.list, el.dataset.f, el.dataset.v); this.relist(el.dataset.list); break;
+      case 'lv-reset': { const k = el.dataset.list; setListView(k, 'type', ''); setListView(k, 'group', 'all'); setListView(k, 'atk', ''); this.relist(k); break; }
+      case 'sheet-step': {
+        const order = this.sheetList || [], i = order.indexOf(this.sheetId);
+        if (i >= 0 && order.length) this.showMonSheet(order[(i + +el.dataset.d + order.length) % order.length]);
+        break;
+      }
+      case 'mon-lock': { const m = Box.get(id); if (m) { m.locked = !m.locked; Box.save(); } this.monsRefresh(); break; }
+      case 'sel-lock': {
+        const chosen = [...(this.freeSel || [])].map((i) => Box.get(i)).filter(Boolean), lock = !chosen.every((m) => m.locked);
+        for (const m of chosen) m.locked = lock;
+        Box.save(); this.freeSure = false; this.toast(`${lock ? 'Locked' : 'Unlocked'} ${chosen.length}.`); this.showRanch(); break;
+      }
+      case 'h-tab': this.hatchTab = el.dataset.t; this.showHatchery(); break;
+      case 'team-tap': break; // handled by the team screen's tap-or-drag code
+      case 'hero-toggle': this.heroToggle(); break;
+      case 'train-sel': this.trainSel = el.dataset.u; Audio.play('click'); this.renderTraining(); break;
+      case 'use-pair': this.breedPick = [+el.dataset.a, +el.dataset.b]; this.hatchTab = 'pair'; Audio.play('click'); this.showHatchery(); break;
       case 'gate-tier': Meta.data.gateTier = +el.dataset.tier; Meta.save(); this.renderTeam(); break;
       case 'hatch-next': this.hatchNext(); break;
       case 'train':
         if (!Box.toggleTraining(id)) this.toast(`All ${Box.trainSpots()} training spots are taken.`);
         this.monsRefresh(); break;
       case 'free': {
+        if (Box.get(id)?.locked) { this.toast('Locked: unlock it first.'); break; }
         if (el.dataset.sure !== '1') { el.dataset.sure = '1'; el.textContent = 'Tap again to free'; el.classList.add('danger'); break; }
         const got = Box.free(id);
         if (got) this.toast(`Freed! +${Object.entries(got).map(([l, n]) => `${n} ${SPECIES[l].name} coins`).join(', ')}`);
@@ -647,7 +750,7 @@ export const MonsUI = {
         if (!this.freeSure) { this.freeSure = true; this.showRanch(); break; } // the second tap frees them
         const got = {};
         let n = 0;
-        for (const fid of this.freeSel) { const g = Box.free(fid); if (g) { n++; for (const [l, c] of Object.entries(g)) got[l] = (got[l] || 0) + c; } }
+        for (const fid of this.freeSel) { if (Box.get(fid)?.locked) continue; const g = Box.free(fid); if (g) { n++; for (const [l, c] of Object.entries(g)) got[l] = (got[l] || 0) + c; } }
         this.freeSel = null; this.freeSure = false;
         Audio.play('coin');
         this.toast(`Freed ${n} survivalmon${n === 1 ? '' : 's'}! +${Object.entries(got).map(([l, c]) => `${c} ${SPECIES[l].name}`).join(', ')} coins`);
@@ -695,7 +798,7 @@ export const MonsUI = {
         if (species) { this.breedPick = [null, null]; Audio.play('chest'); this.toast('An egg! It hatches after 3:00 in the wild.'); }
         this.showHatchery(); break;
       }
-      case 'heal': { const m = Box.get(id); if (m && Meta.coins >= healCost(m)) { Meta.data.coins -= healCost(m); Meta.save(); Box.heal(m); Audio.play('heal'); } this.showClinic(); break; }
+      case 'heal': { const m = Box.get(id); if (m && Meta.coins >= healCost(m)) { Meta.data.coins -= healCost(m); Meta.save(); Box.heal(m); Audio.play('heal'); } if (this.screen === 'clinic') { this.showClinic(); if (this.sheetId != null) this.showMonSheet(this.sheetId); } else this.monsRefresh(); break; }
       case 'heal-all': {
         const total = Box.hurtMons().reduce((s, m) => s + healCost(m), 0);
         if (Meta.coins >= total) { Meta.data.coins -= total; Meta.save(); for (const m of Box.hurtMons()) Box.heal(m); Audio.play('heal'); }
