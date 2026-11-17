@@ -33,6 +33,7 @@ export const STARTER_HATCH = 60;     // seconds in the wild before the starter e
 export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
 export const TRAIN_XP_PER_MIN = 6;   // Ranch training, offline
+export const SPECIES_UP_MAX = 100;   // species upgrade levels
 const empty = () => ({
   v: 2, nextId: 1, mons: [], team: [], eggs: [], bag: {}, coins: {}, upgrades: {}, training: [],
   seen: {}, caught: {}, discovered: {}, firstHatch: false, rewards: {},
@@ -339,7 +340,9 @@ export const Box = {
   },
   speciesCoins(line) { return this.data.coins[line] || 0; },
   upLevel(line) { return this.data.upgrades[line] || 0; },
-  upCost(line) { const L = this.upLevel(line); return L >= 20 ? null : 4 + L * 3; },
+  upCost(line) { const L = this.upLevel(line); return L >= SPECIES_UP_MAX ? null : 4 + L * 3; },
+  // +8% damage and HP a level up to Lv 20, then +3% a level up to Lv 100
+  upBonus(line) { const L = this.upLevel(line); return 0.08 * Math.min(L, 20) + 0.03 * Math.max(0, L - 20); },
   buyUpgrade(line) {
     const c = this.upCost(line);
     if (c === null || this.speciesCoins(line) < c) return false;
@@ -348,11 +351,27 @@ export const Box = {
     this.save();
     return true;
   },
-  // +8% damage and HP per upgrade level of the species a survivalmon is made of (averaged for mixes)
+  // The species upgrades of what a survivalmon is made of, as damage and HP (averaged for mixes)
   speciesMul(species) {
     const ls = SPECIES[species].lines;
-    return 1 + 0.08 * (ls.reduce((s, l) => s + this.upLevel(l), 0) / ls.length);
+    return 1 + ls.reduce((s, l) => s + this.upBonus(l), 0) / ls.length;
   },
+  // Feeding species coins: each coin of its own kind (a mix: either parent's) gives 1% of the EXP its
+  // current level needs, so 100 coins are a level at any level. Takes from the kind you have most of.
+  // Returns the levels gained.
+  feedCoins(mon, coins) {
+    const ls = [...new Set(SPECIES[mon.species].lines)];
+    let left = coins, levels = [];
+    while (left > 0 && mon.level < MAX_PET_LEVEL) {
+      const line = ls.reduce((a, b) => (this.speciesCoins(b) > this.speciesCoins(a) ? b : a));
+      if (this.speciesCoins(line) <= 0) break;
+      this.data.coins[line]--; left--;
+      levels = levels.concat(this.addXp(mon, petXpFor(mon.level) / 100));
+    }
+    this.save();
+    return levels;
+  },
+  feedCoinsHave(mon) { return [...new Set(SPECIES[mon.species].lines)].reduce((s, l) => s + this.speciesCoins(l), 0); },
 
   // ---------------------------------------------------------- Ranch training (offline)
   trainSpots() { return 2 + Meta.buildingBonus('ranch', 'spots'); },

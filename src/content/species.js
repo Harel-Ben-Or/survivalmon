@@ -495,8 +495,6 @@ export const FINAL_IDS = Object.keys(SPECIES).filter((id) => SPECIES[id].stage =
 export const DEX_IDS = [...BASE_IDS, ...PURE_IDS, ...MIXED_IDS, ...EVOLVED_IDS, ...FINAL_IDS];
 // Starter eggs: every species but Glimmoth, which only turns up in the wild.
 export const STARTERS = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'];
-// Kept so older code can ask; nothing is caught with orbs any more.
-export const CRITTER_IDS = BASE_IDS;
 
 // What two parents hatch into: the same species gives its grown-up form, two species their mix.
 const PAIR = {};

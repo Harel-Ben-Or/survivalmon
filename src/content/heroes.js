@@ -20,9 +20,9 @@ export const HEROES = [
   },
   {
     id: 'pip', name: 'Pip', title: 'Critter Tamer', weapon: 'sling', color: '#2fa39a',
-    desc: 'Born to befriend critters. Never short of Bond Orbs.',
-    perks: ['+50% pet power', '+50% pet EXP', '+2 Bond Orbs each run'],
-    mods: { petPower: 0.5, petXp: 0.5, luck: 0.1 }, orbs: 2,
+    desc: 'Born to befriend critters.',
+    perks: ['+50% pet power', '+50% pet EXP', '+10% luck'],
+    mods: { petPower: 0.5, petXp: 0.5, luck: 0.1 },
   },
 ];
 

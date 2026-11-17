@@ -448,7 +448,7 @@ export const Combat = {
     if (e.corrupted) this.banner(`You freed ${SPECIES[species].name} from the Snare!`, '#c8a0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
     else this.banner(`Caught a wild ${SPECIES[species].name}!`, '#7af0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
-    if (Math.random() < 0.08) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
+    if (Math.random() < 0.04) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
     if (o.petRef) o.petRef.gainXp(3);
     Audio.play('hatch'); setTimeout(() => Audio.play('chest'), 250);

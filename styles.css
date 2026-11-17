@@ -1009,3 +1009,7 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 .achv-prog { display: flex; justify-content: space-between; align-items: center; }
 .achv-done { color: var(--gold); font-weight: 800; }
 @media (max-height: 520px), (max-width: 640px) { .achv-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+
+/* feeding species coins to a survivalmon */
+.feed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 9px; background: rgba(0,0,0,.2); border: 1px solid var(--ink); border-radius: 8px; }
+.feed-row .small { flex: 1 1 200px; }

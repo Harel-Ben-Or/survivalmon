@@ -28,7 +28,6 @@ export class Player {
     this.bonus = {};
     this.weapons = []; this.spells = []; this.artifacts = []; this.pets = [];
     this.coins = 0; this.kills = 0;
-    this.orbs = { twig: 2 + (this.hero.orbs || 0), stone: 0, star: 0 };
     this.caught = [];
     this.iframes = 0; this.flash = 0;
     this.dashCd = 0; this.dashT = 0; this.dashVx = 0; this.dashVy = 0;

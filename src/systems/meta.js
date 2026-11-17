@@ -66,7 +66,7 @@ export const Meta = {
   maxLevel(u) { return u.id === 'runtime' ? u.max : Math.min(u.max, this.buildingBonus('training', 'cap')); },
   cost(id) {
     const u = TRAINING.find((x) => x.id === id), L = this.level(id);
-    return L >= this.maxLevel(u) ? null : Math.round(u.base * Math.pow(1.5, L));
+    return L >= this.maxLevel(u) ? null : Math.round(u.base * Math.pow(1.35, L));
   },
   buy(id) {
     const c = this.cost(id);

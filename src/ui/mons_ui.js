@@ -2,7 +2,7 @@
 // breeding), the Clinic, the Survidex and the Spirit Shrine.
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
-import { SPECIES, TYPES, STONES, STONE_OF, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType,
+import { SPECIES, TYPES, STONES, STONE_OF, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, MAX_PET_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType,
   SIZE, sizeLabel, weightLabel, weightOf, monSize, fmtH, fmtW, H5, H95, W5, W95 } from '../content/species.js';
 import { MEDALS, MEDAL_IDS, ACHIEVEMENTS, tierName, tiersReached } from '../systems/achievements.js';
 import { ZONES } from '../world/world.js';
@@ -203,7 +203,7 @@ export const MonsUI = {
       </div>`;
     const ups = BASE_IDS.map((l) => {
       const c = Box.upCost(l), have = Box.speciesCoins(l);
-      return `<div class="sp-up"><img class="px" src="${pic(l)}" alt=""><div><b>${SPECIES[l].name}</b> <span class="lvl">Lv ${Box.upLevel(l)}</span><div class="small">${have} coins · +${Box.upLevel(l) * 8}% damage and HP</div></div>
+      return `<div class="sp-up"><img class="px" src="${pic(l)}" alt=""><div><b>${SPECIES[l].name}</b> <span class="lvl">Lv ${Box.upLevel(l)}</span><div class="small">${have} coins · +${Math.round(Box.upBonus(l) * 100)}% damage and HP</div></div>
         ${c === null ? '<span class="lvl">MAX</span>' : `<button class="btn small" data-mact="sp-up" data-line="${l}" ${have >= c ? '' : 'disabled'}>${c}</button>`}</div>`;
     }).join('');
     this.page('ranch', `
@@ -272,6 +272,12 @@ export const MonsUI = {
         ${statBlock(m)}
         <div class="ms-skills">${skills}</div>
         ${evoLine}
+        ${(() => {
+          const have = Box.feedCoinsHave(m), kinds = [...new Set(sp.lines)].map((l) => `${Box.speciesCoins(l)} ${SPECIES[l].name}`).join(' + ');
+          if (m.level >= MAX_PET_LEVEL) return '';
+          const btn = (n, label) => `<button class="btn small secondary" data-mact="feed" data-id="${m.id}" data-n="${n}" ${have >= n ? '' : 'disabled'}>${label}</button>`;
+          return `<div class="feed-row"><span class="small">Feed species coins: each gives 1% of a level (you have ${kinds})</span>${btn(10, '+10% · 10')}${btn(100, '+1 level · 100')}${btn(Math.min(have, 100 * (MAX_PET_LEVEL - m.level)), `All · ${Math.min(have, 100 * (MAX_PET_LEVEL - m.level))}`)}</div>`;
+        })()}
         <div class="loot-actions ms-actions">
           <button class="btn small" data-mact="mon-team" data-id="${m.id}" ${m.hp <= 0 && !Box.inTeam(m.id) ? 'disabled' : ''}>${Box.inTeam(m.id) ? 'Leave the team' : 'Join the team'}</button>
           <button class="btn small secondary" data-mact="train" data-id="${m.id}">${Box.isTraining(m.id) ? 'Stop training' : 'Train'}</button>
@@ -568,6 +574,14 @@ export const MonsUI = {
         Audio.play('coin');
         this.toast(`Freed ${n} survivalmon${n === 1 ? '' : 's'}! +${Object.entries(got).map(([l, c]) => `${c} ${SPECIES[l].name}`).join(', ')} coins`);
         this.showRanch(); break;
+      }
+      case 'feed': {
+        const m = Box.get(id), n = +el.dataset.n;
+        if (!m || !n) break;
+        const lv = Box.feedCoins(m, n);
+        Audio.play(lv.length ? 'levelup' : 'coin');
+        if (lv.length) this.toast(`${monName(m)} grew to Lv ${m.level}!`);
+        this.monsRefresh(); break;
       }
       case 'mon-open': this.showMonSheet(id); break;
       case 'mon-close': this.closeMonSheet(); break;

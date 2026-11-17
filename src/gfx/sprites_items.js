@@ -4,17 +4,6 @@ import { OUT } from './sprites_chars.js';
 
 const I = () => new PixelCanvas(16, 16);
 
-// Bond Orb: two-tone sphere with a band and a centre button
-function orb(base, light, band, button, leaf) {
-  const p = I();
-  p.circle(8, 8.5, 6.5, base);
-  p.paint((x, y) => (y < 8 ? light : null));
-  p.rect(1, 8, 14, 2, band);
-  p.circle(8, 9, 2.6, band); p.circle(8, 9, 1.6, button);
-  p.set(4, 4, '#ffffff'); p.set(5, 3, '#ffffff');
-  if (leaf) { p.tri(8, 2, 12, 0, 11, 3, leaf); }
-  return p.outline(OUT);
-}
 // Evolution stone: faceted gem-like rock with a glowing rune
 function stone(base, light, dark) {
   const p = I();
@@ -67,9 +56,6 @@ export const ICONS = {
   berrypouch() { const p = I(); p.ellipse(8, 10, 6, 5, '#a8703f'); p.rect(5, 3, 6, 3, '#a8703f'); p.rect(4, 5, 8, 1, '#c8453a'); p.circle(6, 3, 1.4, '#e0483e'); p.circle(9.5, 2.5, 1.4, '#8a4ad8'); p.circle(11, 4, 1.2, '#e0483e'); return p.outline(OUT); },
 
   // ---------------- catching & evolution
-  orb_twig() { return orb('#a8703f', '#c8905a', '#5a3a1a', '#f3eedc', '#6cc24e'); },
-  orb_stone() { return orb('#8a909c', '#c4c8d0', '#3a3a46', '#7af0ff'); },
-  orb_star() { const p = orb('#3a4ab8', '#6a7ae8', '#f4c430', '#ffe07a'); p.set(8, 7, '#ffffff'); return p; },
   berry() { const p = new PixelCanvas(11, 11); p.circle(4, 7, 2.8, '#e0483e'); p.circle(7.5, 6.5, 2.6, '#8a4ad8'); p.set(3, 6, '#ffb0b0'); p.set(7, 5, '#d8b0ff'); p.tri(5, 3, 9, 1, 8, 4, '#4fa34a'); p.line(5, 4, 5, 2, '#3a7a32'); return p.outline(OUT); },
   stone_fire() { return stone('#f06a2a', '#ffd06a', '#a8361a'); },
   stone_water() { return stone('#3a8ae0', '#9ad8ff', '#1a4a90'); },

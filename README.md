@@ -77,7 +77,7 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.
-- **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00).
+- **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00). Each level costs 1.35x the one before.
 - **Ranch** (talk to Dell): every survivalmon as a small tile with its level and a colored tier letter per
   skill (square = its own attack, round = passives); tap one for its sheet: a big picture, HP and EXP, each
   skill explained with what it gives at every tier, and buttons to rename it, put it in the team, train or free it.
@@ -85,7 +85,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   (walk in through the barn's door). Train them (they gain EXP while you're away): each training spot
   has a dummy in the pasture, and a survivalmon in training stands by it
   and hits it with its own attack (shots, lightning, lobbed blobs, slams, auras, charges; evolutions use
-  their signature move now and then). Free copies for species coins, and spend those on species upgrades.
+  their signature move now and then). Free copies for species coins, and spend those on species upgrades
+  (up to Lv 100: +8% damage and HP a level to Lv 20, +3% after) or feed them to a survivalmon of that species
+  (a mix: either parent's coins): each coin is 1% of the EXP its level needs, so 100 coins are a level at any level.
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
   used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
