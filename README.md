@@ -78,6 +78,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.
 - **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00). Each level costs 1.35x the one before.
+- **Spirit**: the Spirit Shrine's own currency, earned by what your survivalmons do: 10 per wild catch and 0.2
+  per enemy they defeat (2 per elite, 20 per boss) in a run (banked with the coins), 10 per egg hatched, 25 per
+  evolution and 25 per medal. Coins stay the hero's money (Training Hall, buildings, Workshop, Merchant, Clinic).
 - **Ranch** (talk to Dell): every survivalmon as a small tile with its level and a colored tier letter per
   skill (square = its own attack, round = passives); tap one for its sheet: a big picture, HP and EXP, each
   skill explained with what it gives at every tier, and buttons to rename it, put it in the team, train or free it.

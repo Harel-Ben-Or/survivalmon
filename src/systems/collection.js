@@ -34,6 +34,8 @@ export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
 export const TRAIN_XP_PER_MIN = 6;   // Ranch training, offline
 export const SPECIES_UP_MAX = 100;   // species upgrade levels
+// Spirit for what your survivalmons do outside a run (a catch pays 10 and their kills 0.2 each, in the run)
+export const SPIRIT_FOR = { hatch: 10, evolve: 25, medal: 25 };
 const empty = () => ({
   v: 2, nextId: 1, mons: [], team: [], eggs: [], bag: {}, coins: {}, upgrades: {}, training: [],
   seen: {}, caught: {}, discovered: {}, firstHatch: false, rewards: {},
@@ -100,7 +102,7 @@ export const Box = {
     if (r.maxW == null || wf > r.maxW) r.maxW = wf;
     r.maxLv = Math.max(r.maxLv, m.level);
     const med = (r.medals ||= {});
-    const win = (k) => { if (!med[k]) { med[k] = Date.now(); this.news.push({ medal: k, species: m.species }); } };
+    const win = (k) => { if (!med[k]) { med[k] = Date.now(); this.news.push({ medal: k, species: m.species }); Meta.addSpirit(SPIRIT_FOR.medal); } };
     if (m.sz >= H95) win('giant');
     if (m.sz <= H5) win('mini');
     if (wf >= W95) win('heavy');
@@ -248,6 +250,7 @@ export const Box = {
       const mon = this.add(e.species, { skills: e.skills, origin: e.kind === 'bred' ? 'bred' : 'egg', ...(e.sz ? { sz: e.sz } : {}) });
       if (e.kind === 'bred') this.data.discovered[e.species] = true;
       if (fresh) this.hatchedNew.add(mon.id);
+      Meta.addSpirit(SPIRIT_FOR.hatch);
       out.push(mon);
       return false;
     });
@@ -313,6 +316,7 @@ export const Box = {
     mon.species = e.into;
     mon.skills[0] = { k: 'u', sp: e.into, t: Math.min(4, mon.skills[0].t + 1) };
     this.note(mon, 'evolved'); // it keeps its size: a big one grows into a big evolution
+    Meta.addSpirit(SPIRIT_FOR.evolve);
     this.data.discovered[e.into] = true;
     this.data.seen[e.into] = true;
     this.save();

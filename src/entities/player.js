@@ -27,7 +27,7 @@ export class Player {
     this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0; this.bonusPicks = 0; this.skillPicks = 0;
     this.bonus = {};
     this.weapons = []; this.spells = []; this.artifacts = []; this.pets = [];
-    this.coins = 0; this.kills = 0;
+    this.coins = 0; this.kills = 0; this.spirit = 0; // Spirit earned this run, banked at the end
     this.caught = [];
     this.iframes = 0; this.flash = 0;
     this.dashCd = 0; this.dashT = 0; this.dashVx = 0; this.dashVy = 0;

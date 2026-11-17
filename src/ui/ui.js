@@ -221,7 +221,7 @@ export class UI {
           <img class="portrait px" src="${artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 2)}">
           <div class="bars">
             <div class="hpbar"><div class="fill"></div><span></span></div>
-            <div class="counters"><span><img class="px" src="${icon('coin', 2)}"><b class="coins">0</b></span><span>KO <b class="kills">0</b></span><span class="mats"></span></div>
+            <div class="counters"><span><img class="px" src="${icon('coin', 2)}"><b class="coins">0</b></span><span><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="spirit">0</b></span><span>KO <b class="kills">0</b></span><span class="mats"></span></div>
             <div class="pets-row"></div>
           </div>
         </div>
@@ -243,7 +243,7 @@ export class UI {
     const q = (s) => this.el.hud.querySelector(s);
     this.h = {
       xp: q('.xpbar .fill'), lv: q('.xpbar .lv'), xpbar: q('.xpbar'), hpbar: q('.hpbar'), hp: q('.hpbar .fill'), hpText: q('.hpbar span'),
-      coins: q('.coins'), kills: q('.kills'), mats: q('.mats'), pets: q('.pets-row'), weapons: q('.weapons'),
+      coins: q('.coins'), spirit: q('.spirit'), kills: q('.kills'), mats: q('.mats'), pets: q('.pets-row'), weapons: q('.weapons'),
       time: q('.timer .t'), phase: q('.phase'), paused: q('.paused-chip'), boss: q('.bossbar'), bossName: q('.bossbar .name'), bossFill: q('.bossbar .bar div'),
       mini: q('.minimap canvas'), spells: [...this.el.hud.querySelectorAll('.spell')], dash: q('.dash .pip div'),
       arts: q('.hud-arts'), combos: q('.combos-chip'),
@@ -272,6 +272,7 @@ export class UI {
     this.set('hpt', H.hpText, 'text', `${Math.ceil(P.hp)} / ${S.maxHp}`);
     H.hpbar.classList.toggle('low', P.hp / S.maxHp < 0.3);
     this.set('coins', H.coins, 'text', String(Math.floor(P.coins)));
+    this.set('spirit', H.spirit, 'text', String(Math.floor(P.spirit || 0)));
     this.set('kills', H.kills, 'text', String(P.kills));
     const mats = Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => `<img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">${n}`).join(' ');
     if (this.last.mats !== mats) { this.last.mats = mats; H.mats.innerHTML = mats; }
@@ -723,7 +724,7 @@ export class UI {
             <div class="end-title">
               <h2 style="color:${color}">${title}</h2>
               <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
-              <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
+              <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>
           <div class="end-body">

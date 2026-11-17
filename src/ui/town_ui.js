@@ -31,18 +31,19 @@ export const TownUI = {
     const team = Box.team().map((m) => `<span class="t-mon ${m.hp <= 0 ? 'fainted' : ''}" title="${esc(monName(m))}"><img class="px" src="${artURL('creature', m.species) || icon('egg', 2)}" alt=""><b>${m.level}</b></span>`).join('');
     this.el.hud.innerHTML = `
       <div class="town-hud">
-        <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b></div>
+        <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="t-spirit">${Meta.spirit}</b></div>
         <div class="town-chip panel t-team">${team || '<em>No team yet</em>'}</div>
       </div>
       <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>`;
     this.el.hud.classList.remove('hidden');
-    this.th = { coins: this.el.hud.querySelector('.t-coins'), run: this.el.hud.querySelector('.t-runlen') };
+    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), run: this.el.hud.querySelector('.t-runlen') };
     this.last = {};
     this.touch.setVisible(this.g.touchMode);
     Input.endFrame();
   },
   updateTownHUD() {
     this.set('tcoins', this.th.coins, 'text', String(Meta.coins));
+    if (this.th.spirit) this.set('tspirit', this.th.spirit, 'text', String(Meta.spirit));
     this.set('trun', this.th.run, 'text', runTime(Meta.runLength()));
   },
 

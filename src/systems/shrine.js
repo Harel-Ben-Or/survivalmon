@@ -18,7 +18,8 @@ export const SHRINE_NODES = [
 ];
 // Skill tier odds (% for D, C, B, A, S) at each research level
 export const RESEARCH_ODDS = [BASE_ODDS, [60, 22, 11, 5, 2], [55, 23, 13, 6, 3], [50, 24, 15, 7, 4], [45, 25, 17, 8, 5], [40, 25, 19, 10, 6]];
-export const RESEARCH = [null, { coins: 100, mins: 10 }, { coins: 300, mins: 30 }, { coins: 800, mins: 60 }, { coins: 2000, mins: 120 }, { coins: 5000, mins: 240 }];
+// Research costs Spirit, like the upgrades
+export const RESEARCH = [null, { spirit: 50, mins: 10 }, { spirit: 150, mins: 30 }, { spirit: 400, mins: 60 }, { spirit: 1000, mins: 120 }, { spirit: 2500, mins: 240 }];
 const empty = () => ({ v: 1, nodes: {}, research: 0, researching: null });
 
 export const Shrine = {
@@ -39,8 +40,8 @@ export const Shrine = {
   },
   buy(id) {
     const c = this.cost(id);
-    if (c === null || c > Meta.coins) return false;
-    Meta.data.coins -= c; Meta.save();
+    if (c === null || c > Meta.spirit) return false;
+    Meta.data.spirit -= c; Meta.save();
     this.data.nodes[id] = this.level(id) + 1;
     this.save();
     return true;
@@ -54,8 +55,8 @@ export const Shrine = {
   nextResearch() { const L = this.data.research + 1; return L > 5 || L > this.researchCap() ? null : { level: L, ...RESEARCH[L] }; },
   startResearch() {
     const r = this.nextResearch();
-    if (!r || this.data.researching || Meta.coins < r.coins) return false;
-    Meta.data.coins -= r.coins; Meta.save();
+    if (!r || this.data.researching || Meta.spirit < r.spirit) return false;
+    Meta.data.spirit -= r.spirit; Meta.save();
     this.data.researching = { level: r.level, done: Date.now() + r.mins * 60000 };
     this.save();
     return true;

@@ -526,16 +526,16 @@ export const MonsUI = {
     const branches = ['Power', 'Guard', 'Wild'].map((b) => `<div class="panel shrine-branch"><div class="team-label">${b}</div>${SHRINE_NODES.filter((n) => n.branch === b).map((n) => {
       const L = Shrine.level(n.id), c = Shrine.cost(n.id);
       return `<div class="train-row"><img class="px" src="${icon(n.icon, 3)}" alt=""><div class="train-info"><b>${n.name}</b> <span class="lvl">Lv ${L}</span>${n.branch === 'Power' ? ` ${atkTag('all')}` : ''}<div class="now">${L ? esc(n.desc(Shrine.value(n.id))) : 'Not started'}</div><div class="next">Next: ${esc(n.desc(Shrine.value(n.id, L + 1)))}</div></div>
-        ${c === null ? '<span class="lvl">MAX</span>' : `<button class="btn small buy-btn" data-mact="shrine-buy" data-node="${n.id}" ${c <= Meta.coins ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${c}</button>`}</div>`;
+        ${c === null ? '<span class="lvl">MAX</span>' : `<button class="btn small buy-btn" data-mact="shrine-buy" data-node="${n.id}" ${c <= Meta.spirit ? '' : 'disabled'}><img class="px" src="${icon('spirit', 2)}" alt="Spirit">${c}</button>`}</div>`;
     }).join('')}</div>`).join('');
     const odds = (o) => o.map((v, i) => `<span><b class="tier t${i}">${TIERS[i]}</b>${v}%</span>`).join('');
     const r = Shrine.data.researching, next = Shrine.nextResearch();
     const research = r ? `<div>Researching level ${r.level}… ready in ${mmss(Math.max(0, (r.done - Date.now()) / 1000))}</div>`
-      : next ? `<button class="btn small" data-mact="research" ${Meta.coins >= next.coins ? '' : 'disabled'}>Research level ${next.level}: ${next.coins} coins, ${next.mins} min</button>`
+      : next ? `<button class="btn small" data-mact="research" ${Meta.spirit >= next.spirit ? '' : 'disabled'}>Research level ${next.level}: ${next.spirit} Spirit, ${next.mins} min</button>`
       : '<div class="small">Upgrade the Shrine to research further.</div>';
     this.page('shrine', `
       <h2>Spirit Shrine</h2>
-      <div class="box-meta panel"><span><img class="px inline-ic" src="${icon('coin', 2)}" alt=""> ${Meta.coins}</span><span>Upgrades here work for every survivalmon</span></div>
+      <div class="box-meta panel"><span><img class="px inline-ic" src="${icon('spirit', 2)}" alt=""> ${Meta.spirit} Spirit</span><span>Upgrades here work for every survivalmon. Spirit comes from what your survivalmons do: catches, their kills, hatching, evolving and medals.</span></div>
       <div class="shrine-grid">${branches}</div>
       <div class="panel shrine-research"><div class="team-label">Skill tier odds for new catches and eggs</div><div class="odds">${odds(Shrine.odds())}</div>
         ${next || r ? `<div class="odds next">Next: ${odds(RESEARCH_ODDS[(r ? r.level : next.level)])}</div>` : ''}${research}</div>`);

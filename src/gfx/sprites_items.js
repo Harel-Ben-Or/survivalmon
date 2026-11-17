@@ -4,6 +4,16 @@ import { OUT } from './sprites_chars.js';
 
 const I = () => new PixelCanvas(16, 16);
 
+// Spirit: a small pale-blue wisp of light (the Spirit Shrine's currency)
+function spiritWisp() {
+  const p = I();
+  p.tri(4, 9, 12, 9, 9, 1, '#5fd8f0');
+  p.ellipse(8, 10.5, 4.6, 4.2, '#5fd8f0');
+  p.tri(6, 9, 10, 9, 8.5, 3.5, '#bff4ff');
+  p.ellipse(8, 11, 2.6, 2.4, '#bff4ff');
+  p.ellipse(8, 11.5, 1.2, 1.1, '#ffffff');
+  return p.outline(OUT);
+}
 // Evolution stone: faceted gem-like rock with a glowing rune
 function stone(base, light, dark) {
   const p = I();
@@ -58,6 +68,7 @@ export const ICONS = {
   // ---------------- catching & evolution
   berry() { const p = new PixelCanvas(11, 11); p.circle(4, 7, 2.8, '#e0483e'); p.circle(7.5, 6.5, 2.6, '#8a4ad8'); p.set(3, 6, '#ffb0b0'); p.set(7, 5, '#d8b0ff'); p.tri(5, 3, 9, 1, 8, 4, '#4fa34a'); p.line(5, 4, 5, 2, '#3a7a32'); return p.outline(OUT); },
   stone_fire() { return stone('#f06a2a', '#ffd06a', '#a8361a'); },
+  spirit() { return spiritWisp(); },
   stone_water() { return stone('#3a8ae0', '#9ad8ff', '#1a4a90'); },
   stone_grass() { return stone('#4fb04a', '#b8f08a', '#2a6a2a'); },
   stone_storm() { return stone('#e8c030', '#fff6a0', '#9a7a10'); },

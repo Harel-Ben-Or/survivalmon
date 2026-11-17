@@ -276,6 +276,8 @@ export class Game {
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, this.time);
     const earned = Math.floor(P.coins);
     Meta.bank(earned);
+    this.spiritEarned = Math.floor(P.spirit);
+    Meta.addSpirit(this.spiritEarned);
     Audio.stopMusic();
     Audio.play(kind === 'won' || kind === 'timeup' ? 'victory' : kind === 'quit' ? 'door' : 'gameover');
     const rec = { time: this.time, kills: P.kills, level: P.level };
@@ -298,7 +300,7 @@ export class Game {
     if (this.mode !== 'world' && this.mode !== 'house') return;
     const P = this.player;
     save(PENDING_KEY, {
-      coins: Math.floor(P.coins), mats: { ...P.mats }, time: this.time, kills: P.kills,
+      coins: Math.floor(P.coins), spirit: Math.floor(P.spirit), mats: { ...P.mats }, time: this.time, kills: P.kills,
       pets: P.pets.map((p) => ({ id: p.mon.id, hp: p.fainted ? 0 : p.hp / p.maxHp })),
     });
   }
@@ -313,7 +315,8 @@ export class Game {
     Meta.bankMats(r.mats || {});
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, r.time || 0);
     Meta.bank(r.coins || 0);
-    this.unlockNote = `Your last run was closed before it ended. You kept its ${r.coins || 0} coins and the materials you gathered.`;
+    Meta.addSpirit(r.spirit || 0);
+    this.unlockNote = `Your last run was closed before it ended. You kept its ${r.coins || 0} coins, ${r.spirit || 0} Spirit and the materials you gathered.`;
   }
 
   // ------------------------------------------------------------ update

@@ -1,5 +1,6 @@
-// Progress that lasts between runs: banked coins, Training Hall levels, the chosen hero, which
-// buildings are open and their levels.
+// Progress that lasts between runs: banked coins and Spirit, Training Hall levels, the chosen hero,
+// which buildings are open and their levels. Coins are the hero's money; Spirit (earned by what your
+// survivalmons do) pays for the Spirit Shrine.
 import { RUN_LENGTH } from './director.js';
 import { BUILDINGS, buildingCost } from '../content/buildings.js';
 import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, SET_BONUS, MILESTONES, slotCost } from '../content/gear.js';
@@ -8,7 +9,8 @@ import { armorPct } from './armor.js';
 import { HEROES } from '../content/heroes.js';
 
 const KEY = Profiles.key('meta'); // this player's save
-const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
+export const SPIRIT_START = 100;
+const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
   mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, buffs: [] });
 
 // Training Hall upgrades. `mods` turns a level into hero stat mods (same keys as Player.recompute).
@@ -38,7 +40,7 @@ export const Meta = {
       const d = JSON.parse(localStorage.getItem(KEY));
       if (d && d.v === 1) {
         const e = empty();
-        this.data = { ...e, ...d, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes } };
+        this.data = { ...e, ...d, spirit: d.spirit ?? SPIRIT_START, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes } };
       }
     } catch { /* storage unavailable: start fresh */ }
     return this;
@@ -57,6 +59,8 @@ export const Meta = {
   // A hero's name as shown everywhere: the main character (Rowan's place) goes by the player's name
   heroName(id) { return id === 'rowan' ? this.playerName : HEROES.find((h) => h.id === id)?.name || id; },
   get coins() { return this.data.coins; },
+  get spirit() { return Math.floor(this.data.spirit || 0); },
+  addSpirit(n) { this.data.spirit = (this.data.spirit || 0) + n; this.save(); },
   get hero() { return this.data.hero; },
   setHero(id) { this.data.hero = id; this.save(); },
   bank(n) { this.data.coins += Math.max(0, Math.floor(n)); this.data.runs++; this.save(); },
