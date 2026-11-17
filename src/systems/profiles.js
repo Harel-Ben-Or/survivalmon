@@ -54,7 +54,7 @@ export const Profiles = {
   summary(id) {
     const box = read(this.key('box', id)), meta = read(this.key('meta', id)), best = read(this.key('best', id));
     const mons = box?.mons?.length || 0, runs = meta?.runs || 0;
-    return { fresh: !runs && !mons && !(box?.eggs?.length), runs, mons, coins: meta?.coins || 0, best: Math.max(best?.time || 0, meta?.bestTime || 0) };
+    return { fresh: !runs && !mons && !(box?.eggs?.length), runs, mons, coins: meta?.coins || 0, best: Math.max(best?.time || 0, meta?.bestTime || 0), played: meta?.played || 0 };
   },
 };
 Profiles.load();

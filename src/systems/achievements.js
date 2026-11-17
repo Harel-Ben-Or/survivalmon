@@ -39,8 +39,8 @@ export const ACHIEVEMENTS = [
   medalGoal('feather', 'Light as a feather', 'Featherweight'),
   { id: 'star', name: 'Star grades', desc: (n) => (n === 1 ? 'Win your first Star medal' : `Win the Star medal on ${n} different survivalmons`), tiers: [1, 10, 30], pay: [50, 200, 600], have: () => medals('star') },
   { id: 'master', name: 'Master trainer', desc: (n) => (n === 1 ? 'Raise a survivalmon to Lv 70' : `Raise ${n} different survivalmons to Lv 70`), tiers: [1, 5, 20], pay: [150, 500, 1500], have: () => medals('master') },
-  { id: 'gates', name: 'Gate opener', desc: (n) => (n === 1 ? 'Open the South Gate' : `Open ${n} gates past the North Gate`),
-    tiers: [1, 2, 3, 4, 8], pay: [1000, 4000, 15000, 50000, 400000], have: () => Meta.gates },
+  { id: 'gates', name: 'Gate opener', desc: (n) => (n === 1 ? 'Open the South Gate Lv 1' : n === 15 ? 'Open every gate, up to the West Gate Lv 4' : `Open ${n} gates past the North Gate Lv 1`),
+    tiers: [1, 4, 8, 12, 15], pay: [500, 2000, 5000, 10000, 25000], have: () => Meta.gates },
   { id: 'perfect', name: 'Perfect', desc: () => 'Have a survivalmon with every skill at S', tiers: [1], pay: [500],
     have: () => (Box.mons.some((m) => m.skills.length > 1 && m.skills.every((k) => k.t === 4)) ? 1 : 0) },
 ];

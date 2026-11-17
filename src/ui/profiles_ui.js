@@ -2,6 +2,8 @@
 // progress; switching or resetting reloads the game so every system starts from that save.
 import { Profiles } from '../systems/profiles.js';
 import { Audio } from '../core/audio.js';
+// Total time played: "45 min", "3 h 12 min"
+const playTime = (sec) => { const m = Math.floor((sec || 0) / 60), h = Math.floor(m / 60); return h ? `${h} h ${m % 60} min` : `${m} min`; };
 
 const PICKED = 'survivalmon.picked'; // chosen once this session: don't ask again on reload
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -24,7 +26,7 @@ export const ProfilesUI = {
     const cards = Profiles.list.map((p) => {
       const s = Profiles.summary(p.id), active = p.id === Profiles.data.active;
       const line = s.fresh ? 'New game: no progress yet'
-        : `${s.runs} run${s.runs === 1 ? '' : 's'} · best ${mmss(s.best)} · ${s.mons} survivalmon${s.mons === 1 ? '' : 's'} · ${s.coins} coins`;
+        : `Played ${playTime(s.played)} · ${s.runs} run${s.runs === 1 ? '' : 's'} · best ${mmss(s.best)} · ${s.mons} survivalmon${s.mons === 1 ? '' : 's'} · ${s.coins} coins`;
       const name = editId === p.id
         ? `<input class="prof-input" maxlength="16" value="${esc(p.name)}" data-id="${p.id}" aria-label="Player name"><button class="btn small" data-pact="save-name" data-id="${p.id}">Save</button>`
         : `<b class="prof-name">${esc(p.name)}</b>${active ? '<span class="prof-tag">Playing now</span>' : ''}`;

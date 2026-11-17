@@ -783,7 +783,8 @@ export class UI {
             <div class="end-title">
               <h2 style="color:${color}">${title}</h2>
               <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${g.tier ? ` · <span style="color:${gateColor(g.tier)}">${gateName(g.tier)}</span>` : ''}${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
-              ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">You beat the Night Lord! The ${gateName(g.gateOpened)}'s guard will let you through now.</div>` : ''}
+              ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">You beat the Night Lord! The ${gateName(g.gateOpened)} is open to you now.</div>` : ''}
+              ${g.allGates ? '<div class="end-gate" style="color:#ffd84a">You beat the West Gate Lv 4: every gate is conquered!</div>' : ''}
               <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>

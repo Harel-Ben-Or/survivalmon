@@ -27,13 +27,15 @@ while some daylight is left, +30% and move slower inside your lantern light (clo
 lightning and Fairy-type attacks.
 
 **Gates.** Four gates stand in town from the start, each with its guard: Ollie at the North Gate, Tove at the
-South Gate, Kestrel at the East Gate and Rook at the West Gate. The North Gate leads to the wild you know; a
-guard won't let you through the next gate until you've beaten the Night Lord (won a full run) past the gate
-before it ("You haven't even beaten the Night Lord past the North Gate. You're not strong enough to enter
-here."). After the West Gate comes North Gate II, South Gate II and on, for ever. Past each new gate the Blight is thicker (a purple haze;
-monsters have 2.2x the health and hit 1.6x harder than at the gate before) and it pays far more: 4x the coins,
-2x the Spirit, more EXP, stones and materials, and wild survivalmons 12 levels more grown. Pick the gate at
-the team screen (walking up to a gate picks its newest one). See content/gates.js.
+South Gate, Kestrel at the East Gate and Rook at the West Gate. Each gate has levels 1 to 4, opened in this
+order: North Lv 1, South Lv 1, East Lv 1, West Lv 1, then North Lv 2 ... up to the West Gate Lv 4, the last
+(16 in all). A guard won't let you through until you've defeated the Night Lord past the gate before it.
+Past each gate the Blight is thicker: monsters have (1 + t/2)^3 times the health and (1 + 0.6t)^1.2 times the
+damage, where t counts the gates before it (West Lv 1: x16 health, x3.4 damage; West Lv 4: x614, x16), under
+a purple haze. Rewards grow gently: coins x(1 + t/2), Spirit x(1 + 0.35t), EXP, stones and materials
+x(1 + t/4), wild survivalmons 4 levels higher per gate. Tuned with simulated runs: a ~10-hour team handles
+the Lv 1 gates and struggles from East Lv 2; a near-maxed team gets through West Lv 3 only with good dodging,
+and West Lv 4 needs more than that (gear and Shrine upgrades). See content/gates.js.
 
 Runs are **mons-first**: your hero fights with their two weapons (main hand and off hand from their
 gear), and your **survivalmons** do the rest with their own skills. Level-ups take turns: even
@@ -115,6 +117,8 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   them (Head out). The South Gate is at the bottom of town; the East and West Gates stand side-on, right on the
   town's east and west edges. A guard turns you back until you've earned their gate; once you have, the team
   screen also picks which gate to run through.
+- **Players**: several players can share the game, each with their own save; the player list shows each
+  one's total time played (counted from this version on), runs, best time, survivalmons and coins.
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.

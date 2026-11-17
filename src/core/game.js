@@ -29,7 +29,7 @@ import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } f
 import { BASE_ODDS } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
-import { tierMult, gateName, gateColor, gateSide, gateBlurb } from '../content/gates.js';
+import { tierMult, gateName, gateColor, gateSide, gateBlurb, GATE_MAX } from '../content/gates.js';
 import { SETS, SLOTS, SLOT_NAME, offWeaponLevel } from '../content/gear.js';
 import { MATERIALS } from '../content/buildings.js';
 import { UI } from '../ui/ui.js';
@@ -284,10 +284,11 @@ export class Game {
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, this.time);
     // won through the newest gate: the next gate's guard will let you through
     this.gateOpened = 0;
-    if (won && this.tier >= Meta.gates) {
+    this.allGates = false;
+    if (won && this.tier >= Meta.gates && this.tier < GATE_MAX) {
       Meta.data.gates = this.tier + 1; Meta.data.gateNew = this.tier + 1;
       this.gateOpened = this.tier + 1;
-    }
+    } else if (won && this.tier >= GATE_MAX && !Meta.data.allGates) { Meta.data.allGates = true; this.allGates = true; }
     const earned = Math.floor(P.coins);
     Meta.bank(earned);
     this.spiritEarned = Math.floor(P.spirit);
@@ -336,6 +337,10 @@ export class Game {
   // ------------------------------------------------------------ update
   update(dt) {
     this.realTime += dt;
+    if (this.mode !== 'title') {
+      Meta.data.played = (Meta.data.played || 0) + dt; // total time played, shown on the player list
+      if ((this.playSaveT = (this.playSaveT || 0) + dt) >= 30) { this.playSaveT = 0; Meta.save(); }
+    }
     this.shakeT = Math.max(0, this.shakeT - dt); // in every mode, so a shake can never get stuck on
     this.checkOrientation();
     // once a second: medals and achievements to announce (in a run, a house or the town)
