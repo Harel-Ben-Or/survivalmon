@@ -727,7 +727,7 @@ export class UI {
             <div class="end-title">
               <h2 style="color:${color}">${title}</h2>
               <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${g.tier ? ` · <span style="color:${gateColor(g.tier)}">${gateName(g.tier)}</span>` : ''}${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
-              ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">The ground shakes... the ${gateName(g.gateOpened)} has opened in town!</div>` : ''}
+              ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">You beat the Night Lord! The ${gateName(g.gateOpened)}'s guard will let you through now.</div>` : ''}
               <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>
@@ -874,7 +874,7 @@ export class UI {
     if (this.modalKind === 'naming-done') { if (k === 'Enter' || k === 'KeyE' || k === 'Escape') this.nameAct('name-done'); return; }
     if (this.modalKind === 'talk') {
       if (k === 'Escape') this.talkAct('bye');
-      else if (k === 'KeyE' || k === 'Enter') this.talkAct(this.talk && NPCS_ACT(this.talk.n.id) ? 'act' : 'chat');
+      else if (k === 'KeyE' || k === 'Enter') this.talkAct(this.talk && NPCS_ACT(this.talk.n.id) && !this.gateBlocked(this.talk.n.id) ? 'act' : 'chat');
       else if (k === 'Space') this.talkAct('chat');
       return;
     }

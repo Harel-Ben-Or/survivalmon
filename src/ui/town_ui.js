@@ -204,10 +204,13 @@ export const TownUI = {
 
   // ------------------------------------------------------------ talking to the villagers
   // The talk box: their face, name and a line, with the building's button (keepers), Chat and Bye
+  // A gate's guard turns you back until you've beaten the Night Lord past the gate before
+  gateBlocked(id) { const def = NPCS[id]; return !!def.blocked && def.tier > Meta.gates; },
+  talkLines(id) { return this.gateBlocked(id) ? NPCS[id].blocked : npcLines(id, this.talkStage()); },
   openTalk(n) {
-    const def = NPCS[n.id], lines = npcLines(n.id, this.talkStage());
-    const i = def.hello ? -1 : Math.floor(Math.random() * lines.length);
-    this.talk = { n, i, text: this.withName(def.hello || lines[i] || '...') };
+    const def = NPCS[n.id], lines = this.talkLines(n.id), blocked = this.gateBlocked(n.id);
+    const i = def.hello && !blocked ? -1 : blocked ? 0 : Math.floor(Math.random() * lines.length);
+    this.talk = { n, i, text: this.withName(i < 0 ? def.hello : lines[i] || '...') };
     this.g.modal = 'talk';
     this.prompt(null);
     this.renderTalk();
@@ -223,8 +226,8 @@ export const TownUI = {
           <div class="talk-name"><b>${esc(def.name)}</b><span>${esc(def.role)}</span></div>
           <p class="talk-text">${esc(text)}</p>
           <div class="talk-actions">
-            ${def.act ? `<button class="btn small" data-talk="act">${esc(def.act[0])} <span class="key">E</span></button>` : ''}
-            <button class="btn small secondary" data-talk="chat">Chat${def.act ? '' : ' <span class="key">E</span>'}</button>
+            ${def.act && !this.gateBlocked(n.id) ? `<button class="btn small" data-talk="act">${esc(def.act[0])} <span class="key">E</span></button>` : ''}
+            <button class="btn small secondary" data-talk="chat">Chat${def.act && !this.gateBlocked(n.id) ? '' : ' <span class="key">E</span>'}</button>
             <button class="btn small secondary" data-talk="bye">Bye <span class="key">Esc</span></button>
           </div>
         </div>
@@ -237,7 +240,7 @@ export const TownUI = {
     if (!this.talk) return;
     const { n } = this.talk, def = NPCS[n.id];
     if (what === 'chat') {
-      const lines = npcLines(n.id, this.talkStage());
+      const lines = this.talkLines(n.id);
       this.talk.i = (this.talk.i + 1) % lines.length;
       this.talk.text = this.withName(lines[this.talk.i] || '...');
       this.renderTalk();
@@ -249,7 +252,7 @@ export const TownUI = {
     n.talking = false;
     this.g.modal = null;
     Input.endFrame();
-    if (what === 'act' && def.act) this[def.act[1]]?.();
+    if (what === 'act' && def.act && !this.gateBlocked(n.id)) this[def.act[1]]?.(def.gate);
   },
 
   // ------------------------------------------------------------ the player's name

@@ -25,9 +25,11 @@ shows where it lands; it leaves a poison pool for 4 seconds). Light hurts them: 
 while some daylight is left, +30% and move slower inside your lantern light (close to the hero), and +50% from
 lightning and Fairy-type attacks.
 
-**Gates.** The North Gate leads to the wild you know. Win a full run (beat the Night Lord) through the newest
-gate and the ground shakes: the next gate opens in town, the South Gate, then the East Gate, the West Gate,
-then North Gate II, South Gate II and on, for ever. Past each new gate the Blight is thicker (a purple haze;
+**Gates.** Four gates stand in town from the start, each with its guard: Ollie at the North Gate, Tove at the
+South Gate, Kestrel at the East Gate and Rook at the West Gate. The North Gate leads to the wild you know; a
+guard won't let you through the next gate until you've beaten the Night Lord (won a full run) past the gate
+before it ("You haven't even beaten the Night Lord past the North Gate. You're not strong enough to enter
+here."). After the West Gate comes North Gate II, South Gate II and on, for ever. Past each new gate the Blight is thicker (a purple haze;
 monsters have 2.2x the health and hit 1.6x harder than at the gate before) and it pays far more: 4x the coins,
 2x the Spirit, more EXP, stones and materials, and wild survivalmons 12 levels more grown. Pick the gate at
 the team screen (walking up to a gate picks its newest one). See content/gates.js.
@@ -89,11 +91,11 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **People**: every building has a keeper inside its own room (Granny Wren at the Hatchery, Coach Hale,
   Tamsin the blacksmith, Keeper Sol, Doc Poppy, Quill the archivist, Dell the rancher). Walk in, talk to
   them (**E**) and pick their button (Eggs, Train, Gear, Upgrades, Heal, Survidex, Ranch) to use the building,
-  or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie guards the
-  gate, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
+  or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie, Tove, Kestrel and Rook
+  guard the gates, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
-  Once more gates are open (South at the bottom of town, East by the Survidex, West by the Clinic), the team
-  screen also picks which gate to run through.
+  The other gates (South at the bottom of town, East by the Survidex, West by the Clinic) are guarded until
+  you've earned them; once you have, the team screen also picks which gate to run through.
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.

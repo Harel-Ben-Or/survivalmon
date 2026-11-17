@@ -280,12 +280,11 @@ export class Game {
     Box.warmEggs(this.time * this.hatchMult());
     Meta.bankMats(P.mats);
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, this.time);
-    // won through the newest gate: the ground shakes and the next gate opens (the town is rebuilt with it)
+    // won through the newest gate: the next gate's guard will let you through
     this.gateOpened = 0;
     if (won && this.tier >= Meta.gates) {
       Meta.data.gates = this.tier + 1; Meta.data.gateNew = this.tier + 1;
       this.gateOpened = this.tier + 1;
-      this.town = null; this.townRooms = null;
     }
     const earned = Math.floor(P.coins);
     Meta.bank(earned);

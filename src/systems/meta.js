@@ -11,7 +11,7 @@ import { HEROES } from '../content/heroes.js';
 const KEY = Profiles.key('meta'); // this player's save
 export const SPIRIT_START = 100;
 // gates: the newest gate opened (0 = only the North Gate, see content/gates.js); gateTier: the one
-// picked for the next run; gateNew: a gate that opened and the town hasn't shaken for yet
+// picked for the next run; gateNew: a gate just earned, not yet told in town
 const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, gates: 0, gateTier: 0, gateNew: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
   mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, buffs: [] });
 

@@ -1,12 +1,14 @@
-// The people of the village: a keeper in every building (talk to them to use it), two who stand
-// outside (the Merchant at the stall, the guard at the gate) and villagers who wander the town.
+// The people of the village: a keeper in every building (talk to them to use it), those who stand
+// outside (the Merchant at the stall, a guard at each gate) and villagers who wander the town.
+// A gate's guard (gate, tier: see content/gates.js) turns you back until you've beaten the Night Lord
+// past the gate before it: they say a `blocked` line instead of their own.
 // Talk lines change as you get further: `min` is the story stage a line needs (see npcStage).
 // {name} in a line is the hero's name (the main character goes by the name the player gave).
 // Art: assets/sprites/npcs.png, 4 rows of 64px cells per person in NPC_IDS order: their 8 turns
 // (DIR8 order), then an idle cycle facing south (keepers) or walk cycles south, north, east
 // (villagers; west is east mirrored).
 
-export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss'];
+export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss', 'tove', 'kestrel', 'rook'];
 
 // home: the building they keep (their room), 'stall' / 'gate' (stands outside) or 'roam'.
 // act: the button that opens the building, and the screen it opens.
@@ -95,13 +97,55 @@ export const NPCS = {
     ],
   },
   ollie: {
-    name: 'Ollie', role: 'Gate guard', home: 'gate', act: ['Head out', 'showTeam'],
+    name: 'Ollie', role: 'North Gate guard', home: 'gate', gate: 'north', tier: 0, act: ['Head out', 'showTeam'],
     hello: 'Halt! Oh, it is you, {name}. Heading out?',
     lines: [
       { text: 'The wild is past this gate. Pick your team, then go.' },
       { text: 'When the clock runs out, come home. Nothing good walks at the end.' },
       { min: 1, text: 'Snare raids are getting bolder. Watch out for nets.' },
       { min: 2, text: 'I heard you made it past two minutes out there. Not bad!' },
+    ],
+  },
+  tove: {
+    name: 'Tove', role: 'South Gate guard', home: 'gate', gate: 'south', tier: 1, act: ['Head out', 'showTeam'],
+    hello: 'You beat the Night Lord up north, {name}? Then the South Gate is yours.',
+    blocked: [
+      'Halt! You haven\'t even beaten the Night Lord past the North Gate. You\'re not strong enough to enter here.',
+      'Survive a whole night out north and beat the Night Lord. Then come back and we\'ll talk.',
+      'The Blight is thicker past this gate. I\'m not sending you out there to get eaten.',
+    ],
+    lines: [
+      { text: 'The Blight runs thick past here. Monsters are tougher, but they carry far more coins.' },
+      { text: 'Wild survivalmons out south are older and stronger. Worth catching.' },
+      { text: 'I have stood at this gate since the Starfall. Nobody weak goes through on my watch.' },
+    ],
+  },
+  kestrel: {
+    name: 'Kestrel', role: 'East Gate guard', home: 'gate', gate: 'east', tier: 2, act: ['Head out', 'showTeam'],
+    hello: 'You beat the Night Lord past the South Gate? Then go on, {name}. Mind the haze.',
+    blocked: [
+      'Sorry, {name}. You haven\'t even beaten the Night Lord past the South Gate. You\'re not strong enough to enter here.',
+      'Tove sends me the ones who make it through the south. You\'re not one of them yet.',
+      'Out east the haze is so thick you can taste it. Get stronger first.',
+    ],
+    lines: [
+      { text: 'Out east the purple haze hangs low. Stay in your own light.' },
+      { text: 'The coins out there are worth the bruises. Mostly.' },
+      { text: 'If you see a witch after dark, keep moving. Her venom pools burn.' },
+    ],
+  },
+  rook: {
+    name: 'Rook', role: 'West Gate guard', home: 'gate', gate: 'west', tier: 3, act: ['Head out', 'showTeam'],
+    hello: 'The East Gate\'s Night Lord fell to you. Fine. Go west, {name}.',
+    blocked: [
+      'No. You haven\'t beaten the Night Lord past the East Gate. You are not strong enough to enter here.',
+      'Turn around. Come back when the east is behind you.',
+      'Past this gate, the Blight eats heroes for breakfast.',
+    ],
+    lines: [
+      { text: 'Few come back from the west. You will.' },
+      { text: 'Beat the Night Lord out here and Ollie opens the north again, darker than before.' },
+      { text: 'I don\'t talk much. Go.' },
     ],
   },
   tib: {
