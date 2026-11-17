@@ -203,8 +203,14 @@ function blank(c) {
 
 // ---------------------------------------------------------------- loading
 export async function loadArt(base = 'assets/sprites') {
+  // The Claude link can hold only so many files, so there the animation sheets come packed into a few
+  // big pages (creatures/anim/pack.json: page file names, and for each sheet [page, x, y, w, h]).
+  // Elsewhere there is no pack and each sheet is its own file.
+  const pack = await fetch(`${base}/creatures/anim/pack.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const pages = pack ? await Promise.all(pack.pages.map((p) => loadImage(`${base}/creatures/anim/${p}`))) : [];
+  const packed = (id) => { const e = pack?.sheets[id]; return e && pages[e[0]] ? cut(pages[e[0]], e[1], e[2], e[3], e[4]) : null; };
   await Promise.all(CREATURE_IDS.map(async (id) => {
-    const sheet = SPECIES[id] || HAS_SHEET.has(id) ? await loadImage(`${base}/creatures/anim/${id}.png`) : null;
+    const sheet = SPECIES[id] || HAS_SHEET.has(id) ? packed(id) || await loadImage(`${base}/creatures/anim/${id}.png`) : null;
     if (sheet) { CREATURE[id] = animatedCreature(id, sheet); return; }
     const img = await loadImage(`${base}/creatures/${id}.png`);
     if (img) CREATURE[id] = makeCreature(id, fromImage(img));

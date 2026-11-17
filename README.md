@@ -178,7 +178,9 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
     and `heroes/<id>/dash.png` (the dash: one row per direction, 8 frames in 96px cells with the 64px
     standing sprite 16px in)
   - `creatures/anim/<id>.png` — survivalmon and monster animation sheets (rows: move, idle, attack, faint;
-    a roller's attack row is its curl-up, ending as the ball it rolls as)
+    a roller's attack row is its curl-up, ending as the ball it rolls as). The Claude link can hold only 511
+    files, so for it `tools/pack_anims.py` packs every sheet into a few lossless WebP pages plus `pack.json`
+    (not committed); the game uses the pack when it finds one and the single sheets otherwise.
   - `creatures/<id>.png` — critters, monsters, evolved forms, bosses
   - `tiles/` — ground tilesets (grass, dirt, stone, farm, water, dark grass) with `tiles.json`
   - `world/` — trees, houses, barn, shrine, props; `decals/decals.png` — flowers, tufts, crops, lily pads (one sheet)
