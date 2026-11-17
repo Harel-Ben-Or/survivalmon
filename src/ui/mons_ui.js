@@ -2,7 +2,7 @@
 // breeding), the Clinic, the Survidex and the Spirit Shrine.
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
-import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
+import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
@@ -38,8 +38,8 @@ export const pickTile = (m, cls = '', attrs = '') => `<div class="pick-tile ${cl
   </div>`;
 // What each attack type's stats look like, in a few words
 const STAT_BLURB = { shot: 'hit hard but are a little fragile', chain: 'attack fast but have the least HP', charge: 'are tough and hit steadily', area: 'have the most HP and good defense', support: 'hit softly and keep everyone going' };
-// Stat bars. The bars are scaled to a strong Lv 30 survivalmon, so they fill up as it grows.
-const STAT_TOP = { hp: 700, atk: 380, spd: 160, def: 50, crit: 25 };
+// Stat bars. The bars are scaled to a strong Lv 60 final evolution, so they fill up as it grows.
+const STAT_TOP = { hp: 2000, atk: 650, spd: 160, def: 50, crit: 25 };
 export const statBlock = (m) => {
   const s = monStats(m);
   const row = (k, label, v, txt) => `<div class="st-row st-${k}"><span>${label}</span><div class="st-bar"><i style="width:${Math.max(3, Math.min(100, (v / STAT_TOP[k]) * 100)).toFixed(0)}%"></i></div><b>${txt}</b></div>`;
@@ -306,14 +306,15 @@ export const MonsUI = {
       <div class="small">${esc(sp.desc)}</div>
       <div class="small"><b>${esc(sp.unique.name)}</b> ${atkTag(atkType(sel))} · ${esc(sp.unique.desc)}</div>
       ${sp.stage === 2 ? `<div class="small">Bred from ${known ? esc(recipe) : '???'}</div>` : ''}
-      ${sp.stage === 3 ? `<div class="small">Evolves from ${esc(SPECIES[sp.from].name)}</div>` : ''}
+      ${sp.stage >= 3 ? `<div class="small">Evolves from ${esc(SPECIES[sp.from].name)} at Lv ${evoLevel(SPECIES[sp.from])}</div>` : ''}
+      ${sp.evo ? `<div class="small">Evolves at Lv ${evoLevel(sp)} into ${Box.known(sp.evo) ? esc(SPECIES[sp.evo].name) : '???'}</div>` : ''}
       <div class="small">You own ${Box.ownedCount(sel)}</div>`;
     const found = DEX_IDS.filter((id) => Box.known(id)).length;
     this.page('survidex', `
       <h2>Survidex</h2>
       <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span></div>
       <div class="dex-body">
-        <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('Evolved breeds', EVOLVED_IDS)}</div>
+        <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>
         <div class="panel dex-detail">${detail}</div>
       </div>`);
   },

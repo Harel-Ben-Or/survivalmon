@@ -140,7 +140,7 @@ export const NPCS = {
   moss: {
     name: 'Moss', role: 'Creature fan', home: 'roam',
     lines: [
-      { text: 'Breeds can evolve with the right stone. I have read every page!' },
+      { text: 'Every survivalmon evolves twice, at Lv 30 and Lv 55, with a stone of its type. I have read every page!' },
       { text: 'Your team looks strong, {name}! Mine would be all Glimmoths.' },
       { text: 'Quill lets me sort the drawings in the Survidex sometimes.' },
     ],

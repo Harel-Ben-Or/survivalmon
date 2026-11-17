@@ -1,6 +1,6 @@
 // PixelLab sprite art: loads the PNGs and prepares flipped, hit-flash and outlined variants.
 // World art is drawn at 2x the logical resolution (WS), so a 64px sprite is 32 logical px.
-import { SPECIES, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, DEX_IDS } from '../content/species.js';
+import { SPECIES, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, DEX_IDS } from '../content/species.js';
 
 export const WS = 2;
 
@@ -50,7 +50,7 @@ const CREATURE_IDS = [
   'slime', 'bat', 'shroom', 'wisp', 'wolf', 'spore', 'beetle', 'imp', 'golem',
   'king_slime', 'treant', 'colossus', 'alpha_wolf', 'night_lord',
   ...ENEMY_ANIM.filter((id) => id !== 'night_lord'),
-  ...MIXED_IDS, ...EVOLVED_IDS,
+  ...MIXED_IDS, ...EVOLVED_IDS, ...FINAL_IDS,
 ];
 // Enemy colour variants made by shifting the hue of an existing sprite
 const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom_blue: ['shroom', 185] };
@@ -137,6 +137,12 @@ function hueShift(src, deg) {
   return c;
 }
 
+// How a creature moves: its own entry, else the form it evolved from (an evolution walks, hops or flies
+// like the form before it)
+function motionOf(id) {
+  for (let s = id; s; s = SPECIES[s]?.from) if (MOTION[s]) return MOTION[s];
+  return 'walk';
+}
 function makeCreature(id, canvas) {
   const b = bbox(canvas);
   const L = flip(canvas);
@@ -148,7 +154,7 @@ function makeCreature(id, canvas) {
     RF: silhouette(canvas, '#ffffff'), LF: silhouette(L, '#ffffff'),
     RE: outlined(canvas, '#ffd84a'), LE: outlined(L, '#ffd84a'),
     RC: outlined(canvas, '#5ff0ff'), LC: outlined(L, '#5ff0ff'),
-    motion: MOTION[id] || 'walk',
+    motion: motionOf(id),
   };
 }
 

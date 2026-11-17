@@ -1,6 +1,6 @@
 // Survivalmons: the 10 species, their same-species breeds (Voltowl + Voltowl = Tempestowl), the 45
 // mixed breeds and the mixed breeds' evolutions. Monsters live in creatures.js and are never caught.
-// stage 1 = species (wild, starter eggs) · 2 = breeds · 3 = evolved mixed breeds.
+// stage 1 = species (wild, starter eggs) · 2 = breeds · 3 = first evolutions (Lv 30) · 4 = final evolutions (Lv 55).
 
 export const TYPES = {
   fire: { name: 'Fire', color: '#f08a3c' },
@@ -41,7 +41,7 @@ export const LEVEL_HP = 0.12, LEVEL_ATK = 0.08; // per level
 export const archType = (arch) => ARCH_TYPE[arch];
 export const atkType = (speciesId) => ARCH_TYPE[SPECIES[speciesId]?.arch];
 
-// Evolution stones: a mixed breed evolves with a stone of either parent's type. Rare boss and wild drops.
+// Evolution stones: a survivalmon evolves with a stone of its type (a mixed breed: either parent's). Rare boss and wild drops.
 export const STONES = {
   ember_stone: { name: 'Ember Stone', type: 'fire', icon: 'stone_fire' },
   tide_stone: { name: 'Tide Stone', type: 'water', icon: 'stone_water' },
@@ -57,9 +57,12 @@ export const STONES = {
 export const STONE_OF = { fire: 'ember_stone', water: 'tide_stone', grass: 'leaf_stone', storm: 'thunder_stone', rock: 'earth_stone', fairy: 'moon_stone',
   shadow: 'dusk_stone', ice: 'frost_stone', toxic: 'venom_stone', metal: 'steel_stone' };
 
-export const EVO_LEVEL = 10;      // mixed breeds evolve from this level (plus a matching stone)
+// Every species and breed evolves twice: at Lv 30, then at Lv 55, each time with a stone of its type
+export const EVO_LEVELS = [30, 55];
+export const EVO_LEVEL = EVO_LEVELS[0];
+export const evoLevel = (sp) => (sp.stage >= 3 ? EVO_LEVELS[1] : EVO_LEVELS[0]);
 export const BREED_LEVEL = 3;     // both parents need this level to breed
-export const MAX_PET_LEVEL = 30;
+export const MAX_PET_LEVEL = 60;
 export const petXpFor = (L) => Math.floor(14 + L * 8 + L * L);
 export const BERRY_XP = 6;
 
@@ -348,8 +351,97 @@ for (const [id, m] of Object.entries(MIXED)) {
   if (q.bless) { const b = q.bless; q.bless = { ...b, dur: b.dur + 1, heal: b.heal * 1.3, dmg: (b.dmg || 0) * 1.3, haste: (b.haste || 0) * 1.3, def: (b.def || 0) * 1.3 }; }
   if (q.count) q.count += 1; else if (q.chains) q.chains += 1; else if (q.radius) q.radius += 8;
   SPECIES[m.evo.id] = { id: m.evo.id, stage: 3, kind: 'evolved', name: m.evo.name, desc: m.evo.desc, arch: m.arch, q, hp: Math.round(hp * 1.4),
-    unique: { name: `Great ${m.unique.name}`, desc: `${m.unique.desc} Stronger and wider.` }, types, type: types[0], lines: [a, b], line: a, pair: [a, b], from: id };
+    unique: { name: `Great ${m.unique.name}`, desc: `${m.unique.desc} Stronger and wider.` }, baseUnique: m.unique, types, type: types[0], lines: [a, b], line: a, pair: [a, b], from: id };
 }
+
+// ---------------------------------------------------------------- evolutions
+// Every species and breed evolves twice, at Lv 30 and Lv 55 (EVO_LEVELS), each time with an evolution
+// stone of its type. A mixed breed's first evolution is above (its evo); these are all the rest:
+// [first evolution, final evolution] of each species and same-species breed...
+const LINE_EVOS = {
+  emberpup: [['scorchpaw', 'Scorchpaw', 'Its paws leave burning prints wherever it runs.'], ['blazefang', 'Blazefang', 'A great fire wolf with a mane of roaring flame.']],
+  leafkit: [['fernlynx', 'Fernlynx', 'A lynx of living ferns that heals the meadow it walks.'], ['elderlynx', 'Elderlynx', 'An ancient forest lynx crowned with leafy antlers.']],
+  voltowl: [['sparkhawk', 'Sparkhawk', 'A sharp-eyed hawk crackling with sparks.'], ['thunderroc', 'Thunderroc', 'A giant thunderbird whose wings carry the storm.']],
+  puddlit: [['rippletoad', 'Rippletoad', 'Every hop sends ripples across the pond.'], ['tsunamaw', 'Tsunamaw', 'A huge frog with a breaking wave on its back.']],
+  pebblet: [['cobblecurl', 'Cobblecurl', 'A tough round stone critter that curls up tight to roll.'], ['megalith', 'Megalith', 'An ancient standing stone that rolls like an avalanche.']],
+  glimmoth: [['shimmerwing', 'Shimmerwing', 'Its wings scatter clouds of glittering dust.'], ['starweaver', 'Starweaver', 'A great moth that weaves starlight into its wings.']],
+  duskit: [['shadecat', 'Shadecat', 'A sleek cat that slips between the shadows.'], ['voidtiger', 'Voidtiger', 'A tiger made of starless night.']],
+  snowpip: [['frostpeng', 'Frostpeng', 'A brave young penguin in a coat of frost.'], ['blizzarch', 'Blizzarch', 'A towering penguin knight of the blizzard.']],
+  venewt: [['venomtail', 'Venomtail', 'A newt whose tail drips with glowing poison.'], ['miasmaw', 'Miasmaw', 'A huge newt whose jaws breathe poison fog.']],
+  ferrit: [['razorstoat', 'Razorstoat', 'A steel stoat with blades along its back.'], ['sawtooth', 'Sawtooth', 'A steel beast with a buzzsaw tail.']],
+  cinderhound: [['azureblaze', 'Azureblaze', 'Its blue fire burns hotter than the sun.'], ['cerberix', 'Cerberix', 'A three-headed hound of blue fire.']],
+  thornhare: [['briarhare', 'Briarhare', 'A tall hare guarded by a thicket of rose briars.'], ['bloomjack', 'Bloomjack', 'A giant jackalope whose antlers bloom with roses.']],
+  tempestowl: [['typhowl', 'Typhowl', 'It carries a typhoon in its wings.'], ['skyrend', 'Skyrend', 'Its wingbeat splits the sky with lightning.']],
+  tidetoad: [['surgetoad', 'Surgetoad', 'Its croak pulls the tide in like a wave.'], ['maelstroad', 'Maelstroad', 'A great toad with a whirlpool spinning on its back.']],
+  boulderon: [['magmalith', 'Magmalith', 'A boulder split by rivers of glowing magma.'], ['calderon', 'Calderon', 'A living volcano crater that rolls through foes.']],
+  lunamoth: [['moonveil', 'Moonveil', 'Its wings shine like moonlight through a veil.'], ['selenara', 'Selenara', 'The full moon given wings.']],
+  nightprowl: [['duskstalker', 'Duskstalker', 'A shadow panther that hunts between dusk and dawn.'], ['nightmaw', 'Nightmaw', 'A vast shadow panther with starry eyes.']],
+  emperice: [['icemonarch', 'Icemonarch', 'An emperor penguin with a cape of ice.'], ['glaciempress', 'Glaciempress', 'The empress of the eternal winter.']],
+  venomander: [['venomwyrm', 'Venomwyrm', 'A long dragon covered in dripping venom spikes.'], ['basilisk', 'Basilisk', 'Its stare and its venom both turn foes to stone.']],
+  steelfang: [['bladefang', 'Bladefang', 'A steel wolverine whose tail is a pair of swords.'], ['sabrelord', 'Sabrelord', 'A towering steel beast with four bladed tails.']],
+};
+// ...and the final evolution of each evolved mixed breed
+const FINAL_EVOS = {
+  infernobloom: ['pyregrove', 'Pyregrove', 'A burning forest that walks on four paws.'],
+  geyserking: ['steamperor', 'Steamperor', 'Its every croak blasts scalding steam.'],
+  phoenowl: ['stormphoenix', 'Stormphoenix', 'A phoenix of fire and thunder.'],
+  volcanox: ['eruptor', 'Eruptor', 'A volcano that rolls through foes and erupts.'],
+  solarfly: ['helioswing', 'Helioswing', 'A winged sun.'],
+  lotusage: ['lotarch', 'Lotarch', 'An ancient keeper of every pond, crowned with lotus flowers.'],
+  stormleaf: ['cyclonleaf', 'Cyclonleaf', 'A whirlwind of razor leaves and lightning.'],
+  mossgiant: ['mossmonarch', 'Mossmonarch', 'A mountain covered in ancient forest.'],
+  blossomwisp: ['florafae', 'Florafae', 'Every flower bows as it passes.'],
+  stormgill: ['thunderfin', 'Thunderfin', 'A great fish that rides the lightning.'],
+  reefguard: ['atollos', 'Atollos', 'A whole coral island that guards its friends.'],
+  dreammoth: ['slumberwing', 'Slumberwing', 'Foes drift off to sleep just looking at it.'],
+  titanowl: ['earthshaker', 'Earthshaker', 'Each time it lands, the whole valley shakes.'],
+  celestowl: ['cosmowl', 'Cosmowl', 'It wears a galaxy on its wings.'],
+  prismoth: ['kaleidomoth', 'Kaleidomoth', 'Its crystal wings scatter light into every colour.'],
+  infernyx: ['umbrablaze', 'Umbrablaze', 'A panther of black and violet fire.'],
+  nightbramble: ['thornwraith', 'Thornwraith', 'A walking thicket of midnight thorns.'],
+  eclipsowl: ['eclipsar', 'Eclipsar', 'It swallows the sun.'],
+  abyssfin: ['deepmaw', 'Deepmaw', 'It hunts in waters no light has touched.'],
+  obsidclaw: ['onyxolith', 'Onyxolith', 'A black stone giant that rolls like the night.'],
+  nocturna: ['midnyx', 'Midnyx', 'Night itself, with wings.'],
+  auroravix: ['equinox', 'Equinox', 'Half summer flame, half winter frost.'],
+  wintergrove: ['frostwarden', 'Frostwarden', 'An ancient pine guardian of the frozen north.'],
+  hailstrix: ['tempestrix', 'Tempestrix', 'It brings the whole blizzard with it.'],
+  glacierback: ['frostfortress', 'Frostfortress', 'A turtle carrying a castle of ice.'],
+  glacitan: ['permafrost', 'Permafrost', 'Ice older than the mountains.'],
+  aurorafae: ['borealis', 'Borealis', 'The northern lights given wings.'],
+  fumeroar: ['smogmaw', 'Smogmaw', 'Its roar is a wall of burning smog.'],
+  mycelord: ['myconarch', 'Myconarch', 'A kingdom of mushrooms on legs.'],
+  voltoxin: ['venomvolt', 'Venomvolt', 'Lightning that poisons wherever it strikes.'],
+  swamplord: ['bogtyrant', 'Bogtyrant', 'The swamp rises when it croaks.'],
+  corrosaur: ['acidosaur', 'Acidosaur', 'It melts mountains with a single stomp.'],
+  hazewing: ['dreamhaze', 'Dreamhaze', 'Its haze drops foes into an endless sleep.'],
+  forgehound: ['furnacewolf', 'Furnacewolf', 'A wolf of molten steel.'],
+  gearwood: ['chronotree', 'Chronotree', 'Its rings tick like a giant clock.'],
+  teslowl: ['megavolt', 'Megavolt', 'It hums with a billion volts.'],
+  dreadnaut: ['flagship', 'Flagship', 'A whole battle fleet in one frog.'],
+  titanclad: ['bastion', 'Bastion', 'A rolling iron fortress.'],
+  mirrorwing: ['argentwing', 'Argentwing', 'Its silver wings shield every friend.'],
+  rimeshade: ['frostwraith', 'Frostwraith', 'A ghost of the coldest night.'],
+  gloomdrake: ['shadowhydra', 'Shadowhydra', 'A many-headed dragon of shadow and venom.'],
+  phantomblade: ['nightronin', 'Nightronin', 'A silent sword master of the night.'],
+  frostbite: ['cryotoxin', 'Cryotoxin', 'Its frozen venom never thaws.'],
+  ironberg: ['icebreaker', 'Icebreaker', 'An armoured iceberg that smashes through anything.'],
+  scrapdrake: ['scraptyrant', 'Scraptyrant', 'A rust dragon built from a mountain of scrap.'],
+};
+// An evolved form: its skill is a bigger version of the one before (more damage, one more shot, jump or
+// size step), with 40% more HP. The skill keeps its first name: Great X at the first evolution, Supreme X at the last.
+function addEvo(fromId, [id, name, desc], stage) {
+  const f = SPECIES[fromId], base = f.baseUnique || f.unique;
+  const q = { ...f.q, dmg: Math.round(f.q.dmg * 1.2) };
+  if (q.bless) { const b = q.bless; q.bless = { ...b, dur: b.dur + 1, heal: b.heal * 1.3, dmg: (b.dmg || 0) * 1.3, haste: (b.haste || 0) * 1.3, def: (b.def || 0) * 1.3 }; }
+  if (q.count) q.count += 1; else if (q.chains) q.chains += 1; else if (q.radius) q.radius += 8;
+  SPECIES[id] = { id, stage, kind: stage === 3 ? 'evolved' : 'final', name, desc, arch: f.arch, q, hp: Math.round(f.hp * 1.4),
+    unique: { name: `${stage === 3 ? 'Great' : 'Supreme'} ${base.name}`, desc: `${base.desc} ${stage === 3 ? 'Stronger and wider.' : 'At its very strongest.'}` },
+    baseUnique: base, types: f.types, type: f.type, lines: f.lines, line: f.line, pair: f.pair, from: fromId, fly: !!f.fly || !!q.fly };
+  f.evo = id;
+}
+for (const [from, [first, last]] of Object.entries(LINE_EVOS)) { addEvo(from, first, 3); addEvo(first[0], last, 4); }
+for (const [from, last] of Object.entries(FINAL_EVOS)) addEvo(from, last, 4);
 
 // Close-range attacks (slams, auras, charges) only hit what comes near, so they hit harder to keep up
 // with shots and lightning (measured with tools/sim.js: they dealt a quarter to a half as much).
@@ -365,8 +457,10 @@ for (const sp of Object.values(SPECIES)) {
 export const BASE_IDS = Object.keys(BASE);
 export const PURE_IDS = Object.keys(PURE);
 export const MIXED_IDS = Object.keys(MIXED);
-export const EVOLVED_IDS = MIXED_IDS.map((id) => MIXED[id].evo.id);
-export const DEX_IDS = [...BASE_IDS, ...PURE_IDS, ...MIXED_IDS, ...EVOLVED_IDS];
+// first evolutions (the mixed breeds', then the species' and same-species breeds') and final evolutions
+export const EVOLVED_IDS = [...MIXED_IDS.map((id) => MIXED[id].evo.id), ...Object.values(LINE_EVOS).map(([first]) => first[0])];
+export const FINAL_IDS = Object.keys(SPECIES).filter((id) => SPECIES[id].stage === 4);
+export const DEX_IDS = [...BASE_IDS, ...PURE_IDS, ...MIXED_IDS, ...EVOLVED_IDS, ...FINAL_IDS];
 // Starter eggs: every species but Glimmoth, which only turns up in the wild.
 export const STARTERS = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'];
 // Kept so older code can ask; nothing is caught with orbs any more.

@@ -1,6 +1,6 @@
 // The Ranch: every survivalmon you own (copies too), the team, Hatchery eggs, species coins and
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
-import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, EVO_LEVEL, breedResult, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
+import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
 import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
@@ -227,13 +227,15 @@ export const Box = {
     return species;
   },
 
-  // ---------------------------------------------------------- evolving mixed breeds
+  // ---------------------------------------------------------- evolving
+  // Every species and breed evolves at Lv 30 and again at Lv 55, each time with a stone of its type
+  // (a mixed breed and its evolutions: a stone of either parent's type).
   evoInfo(mon) {
     const sp = SPECIES[mon.species];
-    if (sp.kind !== 'mixed') return null;
-    const items = sp.types.map((t) => STONE_OF[t]);
-    const have = items.find((s) => this.itemCount(s) > 0);
-    return { into: sp.evo, items, item: have || items[0], level: EVO_LEVEL, hasItem: !!have, levelOk: mon.level >= EVO_LEVEL };
+    if (!sp?.evo) return null;
+    const items = [...new Set(sp.types.map((t) => STONE_OF[t]))];
+    const have = items.find((s) => this.itemCount(s) > 0), level = evoLevel(sp);
+    return { into: sp.evo, items, item: have || items[0], level, hasItem: !!have, levelOk: mon.level >= level };
   },
   canEvolve(mon) { const e = this.evoInfo(mon); return !!e && e.hasItem && e.levelOk; },
   evolve(mon) {
@@ -253,7 +255,7 @@ export const Box = {
   // ---------------------------------------------------------- species coins and upgrades
   // Freeing a survivalmon pays coins of the species it's made of (more for grown-up forms and levels).
   freeValue(mon) {
-    const sp = SPECIES[mon.species], each = (sp.stage === 1 ? 2 : sp.stage === 2 ? 3 : 5) + Math.floor(mon.level / 3);
+    const sp = SPECIES[mon.species], each = [0, 2, 3, 5, 7][sp.stage] + Math.floor(mon.level / 3);
     const out = {};
     for (const l of sp.lines) out[l] = (out[l] || 0) + each;
     return out;

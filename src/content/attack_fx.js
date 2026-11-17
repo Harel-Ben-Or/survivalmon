@@ -18,12 +18,14 @@ export function attackFx(spId) {
   if (cache[spId]) return cache[spId];
   const sp = SPECIES[spId];
   if (!sp) return (cache[spId] = {});
-  const own = sp.kind === 'pure' ? sp.line : sp.kind === 'evolved' ? sp.from : spId; // basic look comes from here
+  // the basic look comes from the form the line started as (a same-species breed: its species)
+  let root = sp; while (root.from) root = SPECIES[root.from];
+  const own = root.kind === 'pure' ? root.line : root.id;
   const fx = {};
   if (sp.arch === 'shooter') {
     const id = `pr_${own}`;
     if (hasVfx(id)) { fx.proj = id; fx.spin = SPIN.has(own); }
-    if (sp.kind === 'pure') fx.scale = 1.35;
+    fx.scale = sp.stage === 4 ? 1.5 : sp.kind === 'pure' || sp.stage === 3 ? 1.35 : 1; // grown-up forms shoot bigger
   } else if (sp.arch === 'zapper') {
     const ty = sp.types.find((t) => t !== 'storm') || 'storm';
     fx.bolt = BOLT[ty] || BOLT.storm;
@@ -35,9 +37,13 @@ export function attackFx(spId) {
   } else if (sp.arch === 'slam') {
     if (hasVfx(`slam_${own}`)) fx.slam = `slam_${own}`;
   }
-  if (sp.kind === 'evolved' && hasVfx(`evo_${spId}`)) {
-    fx.sig = `evo_${spId}`;
-    if (hasVfx(`evm_${spId}`)) fx.missile = `evm_${spId}`;
+  // an evolution's own big signature move: its own, else the one of the form it evolved from, else one
+  // borrowed from an evolved mixed breed of its line that attacks the same way
+  if (sp.stage >= 3) {
+    let s = sp; while (s && !hasVfx(`evo_${s.id}`)) s = SPECIES[s.from];
+    const sig = s?.id || Object.values(SPECIES).find((o) => o.stage === 3 && o.arch === sp.arch && o.lines.includes(sp.line) && hasVfx(`evo_${o.id}`))?.id
+      || Object.values(SPECIES).find((o) => o.stage === 3 && o.arch === sp.arch && hasVfx(`evo_${o.id}`))?.id;
+    if (sig) { fx.sig = `evo_${sig}`; if (hasVfx(`evm_${sig}`)) fx.missile = `evm_${sig}`; }
   }
   fx.color = TYPES[sp.types[1] || sp.types[0]]?.color;
   return (cache[spId] = fx);
