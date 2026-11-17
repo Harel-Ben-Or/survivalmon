@@ -393,6 +393,7 @@ export const Combat = {
     e.dead = true;
     const P = this.player, S = P.stats;
     P.kills++;
+    Box.foeKilled(e.type, this.tier || 0);
     if (o.pet) P.spirit += (e.boss ? 20 : e.elite ? 2 : 0.2) * (this.tierMult?.spirit || 1); // Spirit for what your survivalmons defeat
     const cx = e.x, cy = e.y - 4;
     this.particles.burst(cx, cy - 4, { n: e.boss ? 60 : 8, colors: e.colors, speed: e.boss ? 140 : 70, life: 0.45, size: e.boss ? 2 : 1 });

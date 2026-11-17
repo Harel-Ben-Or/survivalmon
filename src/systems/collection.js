@@ -40,6 +40,7 @@ const empty = () => ({
   v: 2, nextId: 1, mons: [], team: [], eggs: [], bag: {}, coins: {}, upgrades: {}, training: [],
   seen: {}, caught: {}, discovered: {}, firstHatch: false, rewards: {},
   dex: {}, // what you've done with each species, for the Survidex (see Box.note)
+  foes: {}, // the monsters you've met and defeated, for the Survidex's Monsters tab (see Box.meetFoe)
 });
 
 // Skills a newly caught or hatched survivalmon of this species rolls.
@@ -196,6 +197,23 @@ export const Box = {
     if (!SPECIES[species]) return;
     if (!this.data.seen[species]) { this.data.seen[species] = true; this.dirty = true; }
     if (zone) { const r = this.dexRec(species); if (!r.seenIn[zone]) { r.seenIn[zone] = true; this.dirty = true; } }
+  },
+  // Monsters: how many you've met and defeated, when you first met one, where, and the darkest gate you
+  // met / defeated one past. Monsters come by the hundred, so only a first meeting or first defeat
+  // saves at once; the counts go with the next save (end of the run, or the app going to the background).
+  foeRec(type) { return ((this.data.foes ||= {})[type] ||= { seen: 0, kills: 0, first: 0, where: {}, gate: 0, gateKill: -1 }); },
+  meetFoe(type, zone, tier = 0) {
+    const r = this.foeRec(type);
+    if (!r.seen) { r.first = Date.now(); this.dirty = true; }
+    r.seen++;
+    if (zone) r.where[zone] = (r.where[zone] || 0) + 1;
+    if (tier > r.gate) { r.gate = tier; this.dirty = true; }
+  },
+  foeKilled(type, tier = 0) {
+    const r = this.foeRec(type);
+    if (!r.kills) this.dirty = true;
+    r.kills++;
+    if (tier > r.gateKill) { r.gateKill = tier; this.dirty = true; }
   },
   maxHpOf(mon) { return SPECIES[mon.species].hp; },
 

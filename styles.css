@@ -105,6 +105,11 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .timer small { font-family: var(--font); font-size: 14px; color: var(--muted); margin-left: 6px; }
 .phase { font-size: 14px; color: var(--muted); text-shadow: 1px 1px 0 var(--ink); }
 .phase.dark { color: #ff9a8a; }
+/* Survidex: the Monsters tab */
+.j-cell.caught.foe { background: #4a3058; }
+.ms-pic.foe { background: #4a3058; }
+.j-kill { position: absolute; right: -4px; bottom: -4px; width: 16px; height: 16px; font: 800 11px/14px var(--font); text-align: center; color: #fff; background: #3a8a3a; border: 1px solid var(--ink); border-radius: 50%; }
+.foe-tag { display: inline-block; font-size: 12px; padding: 1px 6px; margin: 0 4px 2px 0; border-radius: 8px; background: rgba(0,0,0,.3); border: 1px solid var(--panel-edge); }
 .timer.final .t { color: #c49aff; }
 .timer.final small { color: #c49aff; }
 /* the gate picker on the team screen */

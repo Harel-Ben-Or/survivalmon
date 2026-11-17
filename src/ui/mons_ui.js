@@ -6,6 +6,9 @@ import { SPECIES, TYPES, STONES, STONE_OF, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS
   SIZE, sizeLabel, weightLabel, weightOf, monSize, fmtH, fmtW, H5, H95, W5, W95 } from '../content/species.js';
 import { MEDALS, MEDAL_IDS, ACHIEVEMENTS, tierName, tiersReached } from '../systems/achievements.js';
 import { ZONES } from '../world/world.js';
+import { ENEMIES } from '../content/creatures.js';
+import { FOE_GROUPS, FOE_IDS, FOE_GROUP_OF, FOES } from '../content/bestiary.js';
+import { gateName } from '../content/gates.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
@@ -17,6 +20,8 @@ import { eggURL } from '../gfx/eggs.js';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
 const pic = (species) => artURL('creature', species) || icon('egg', 3);
+const foePic = (id) => artURL('creature', ENEMIES[id]?.look || id) || icon('egg', 3);
+const foeRec = (id) => Box.data.foes?.[id] || null;
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const types = (sp) => sp.types.map((t) => `<span class="rar type-pill" style="background:${TYPES[t].color}">${TYPES[t].name}</span>`).join(' ');
 export const skillName = (k) => (k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name);
@@ -411,6 +416,13 @@ export const MonsUI = {
     const medalsWon = Object.values(Box.data.dex).reduce((n, r) => n + Object.keys(r.medals || {}).length, 0);
     const tiersAll = ACHIEVEMENTS.reduce((n, a) => n + a.tiers.length, 0), tiersGot = ACHIEVEMENTS.reduce((n, a) => n + tiersReached(a), 0);
     const tab = this.dexTab || 'mons';
+    // monsters: met ones in colour (a tick once you've defeated one), the rest as faint shadows
+    const foeCell = (id) => {
+      const r = foeRec(id), met = r?.seen > 0;
+      return `<span class="j-cell ${met ? 'caught foe' : ''}" data-mact="foe" data-foe="${id}" title="${met ? esc(ENEMIES[id].name) : '???'}"><img class="px" src="${foePic(id)}" alt="">${r?.kills ? '<b class="j-kill" title="Defeated">✓</b>' : ''}</span>`;
+    };
+    const metN = FOE_IDS.filter((id) => foeRec(id)?.seen).length;
+    const foes = FOE_GROUPS.map((gr) => `<div class="j-title">${esc(gr.name)} <span class="j-n">${gr.ids.filter((id) => foeRec(id)?.seen).length}/${gr.ids.length}</span></div><div class="j-row">${gr.ids.map(foeCell).join('')}</div>`).join('');
     // achievements: each goal with its tiers (reached ones lit), progress to the next and its reward
     const achv = ACHIEVEMENTS.map((a) => {
       const t = tiersReached(a), have = a.have(), done = t >= a.tiers.length, goal = a.tiers[Math.min(t, a.tiers.length - 1)];
@@ -421,9 +433,10 @@ export const MonsUI = {
     const medalKey = MEDAL_IDS.map((k) => `<span class="medal on" style="--c:${MEDALS[k].color}" title="${esc(MEDALS[k].desc)}">${esc(MEDALS[k].name)}</span>`).join('');
     this.page('survidex', `
       <h2>Survidex</h2>
-      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span><span>${medalsWon} medals</span><span>${tiersGot} / ${tiersAll} achievements</span></div>
-      <div class="dex-tabs"><button class="btn small ${tab === 'mons' ? '' : 'secondary'}" data-mact="dex-tab" data-t="mons">Survivalmons</button><button class="btn small ${tab === 'achv' ? '' : 'secondary'}" data-mact="dex-tab" data-t="achv">Achievements</button></div>
+      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span><span>${metN} / ${FOE_IDS.length} monsters met</span><span>${medalsWon} medals</span><span>${tiersGot} / ${tiersAll} achievements</span></div>
+      <div class="dex-tabs"><button class="btn small ${tab === 'mons' ? '' : 'secondary'}" data-mact="dex-tab" data-t="mons">Survivalmons</button><button class="btn small ${tab === 'foes' ? '' : 'secondary'}" data-mact="dex-tab" data-t="foes">Monsters</button><button class="btn small ${tab === 'achv' ? '' : 'secondary'}" data-mact="dex-tab" data-t="achv">Achievements</button></div>
       ${tab === 'mons' ? `<div class="journal panel"><div class="small">Tap one for everything you know about it. The number on an entry is its medals.</div>${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>`
+        : tab === 'foes' ? `<div class="journal panel"><div class="small">Every monster you've met. Tap one for what you know about it; defeat one (✓) to learn how it fights and how to beat it.</div>${foes}</div>`
         : `<div class="journal panel"><div class="small">Each tier you reach pays gold coins. Medals are won per survivalmon: ${medalKey}</div><div class="achv-grid">${achv}</div></div>`}`);
     if (sel) this.showDexSheet(sel);
   },
@@ -431,7 +444,7 @@ export const MonsUI = {
   showDexSheet(id) {
     const sp = SPECIES[id];
     if (!sp) return;
-    this.dexSel = id;
+    this.dexSel = id; this.dexList = 'mons';
     const known = Box.known(id), seen = Box.data.seen[id], r = Box.data.dex[id] || { n: 0, how: {}, where: {}, seenIn: {} };
     const num = `#${String(DEX_IDS.indexOf(id) + 1).padStart(3, '0')}`;
     const group = sp.stage === 1 ? 'Species' : sp.stage === 2 ? (sp.kind === 'pure' ? 'Same-species breed' : 'Mixed breed') : sp.stage === 3 ? 'First evolution' : 'Final evolution';
@@ -513,11 +526,75 @@ export const MonsUI = {
     this.el.select.querySelectorAll('.j-cell.pick').forEach((c) => c.classList.remove('pick'));
     this.el.select.querySelector(`.j-cell[data-sp="${id}"]`)?.classList.add('pick');
   },
+  // One monster's Survidex page: only what you've found out yourself
+  showFoeSheet(id) {
+    const def = ENEMIES[id], info = FOES[id], gr = FOE_GROUP_OF[id];
+    if (!def || !info) return;
+    this.dexSel = id; this.dexList = 'foes';
+    const r = foeRec(id) || { seen: 0, kills: 0, where: {}, gate: 0, gateKill: -1 };
+    const num = `#${String(FOE_IDS.indexOf(id) + 1).padStart(2, '0')}`;
+    const met = r.seen > 0, beaten = r.kills > 0;
+    const tags = [];
+    if (def.boss) tags.push('Boss');
+    if (def.night) tags.push('Weak to light');
+    if (def.flying || def.behavior === 'flyer') tags.push('Flies');
+    if (def.behavior === 'charger') tags.push('Charges');
+    if (def.proj || ['netter', 'witch'].includes(def.behavior)) tags.push('Attacks from range');
+    if (def.behavior === 'bloater') tags.push('Bursts');
+    if (def.splits) tags.push('Splits');
+    if (def.behavior === 'tank' || (def.knockRes || 0) >= 0.7) tags.push('Hard to push back');
+    const speed = def.speed >= 45 ? 'fast' : def.speed >= 28 ? 'steady' : 'slow';
+    const zoneOf = gr.id === 'zone' ? Object.values(ZONES).find((z) => z.native === id) : null;
+    const head = `<div class="dex-head">
+        <div class="ms-pic foe ${met ? '' : 'unknown'}"><img class="px" src="${foePic(id)}" alt=""></div>
+        <div class="ms-info"><span class="dex-num">${num} · ${esc(gr.name)}</span>
+          <div class="ms-name"><b>${met ? esc(def.name) : '???'}</b></div>
+          ${met ? `<div class="ms-sub">${tags.map((t) => `<span class="foe-tag">${esc(t)}</span>`).join('')}</div>` : ''}
+          ${met ? `<div class="small dex-desc">${esc(info.desc)}</div>` : ''}</div></div>`;
+    const nav = `<div class="loot-actions ms-actions">
+        <button class="btn small secondary" data-mact="dex-step" data-d="-1" aria-label="Previous">‹</button>
+        <button class="btn small secondary" data-mact="dex-close">Close <span class="key">Esc</span></button>
+        <button class="btn small secondary" data-mact="dex-step" data-d="1" aria-label="Next">›</button></div>`;
+    let body;
+    if (!met) {
+      const hint = gr.id === 'night' ? 'You haven\'t met it yet. Some monsters only come out after dark.'
+        : gr.id === 'boss' ? 'You haven\'t met it yet. Bosses come in longer runs.'
+        : gr.id === 'zone' ? 'You haven\'t met it yet. Each zone has a monster of its own: explore.'
+        : 'You haven\'t met it yet.';
+      body = `${head}<p class="sub-note">${hint}</p>`;
+    } else {
+      const date = (t) => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      const where = Object.entries(r.where || {}).sort((a, b) => b[1] - a[1]).map(([z]) => esc(ZONES[z]?.name || z)).join(', ');
+      const when = `<div class="dex-sec"><b>When and where</b><div>${esc(info.when)}${zoneOf ? ` (${esc(zoneOf.name)})` : ''}.</div>${where ? `<div class="small">You've met them in: ${where}</div>` : ''}</div>`;
+      const fight = beaten ? `<div class="dex-sec"><b>How it fights</b><div class="dex-rows">
+          <span>Health</span><span>${Math.round(def.hp).toLocaleString()}</span>
+          <span>Hits for</span><span>${Math.round(def.dmg)}</span>
+          <span>Speed</span><span>${speed}</span></div>
+          <div class="small">Those are its numbers at the start of a run, by the North Gate. Monsters grow tougher as a run goes on, after dark, and past every new gate.</div></div>
+        <div class="dex-sec"><b>How to beat it</b><div>${esc(info.tip)}</div></div>`
+        : '<p class="sub-note">Defeat one to learn how it fights and how to beat it.</p>';
+      const records = `<div class="dex-sec"><b>Your records</b><div class="dex-rows">
+          <span>Met</span><span>${r.seen.toLocaleString()}</span>
+          <span>Defeated</span><span>${r.kills.toLocaleString()}</span>
+          ${r.first ? `<span>First met</span><span>${date(r.first)}</span>` : ''}
+          ${r.gate > 0 ? `<span>Darkest gate met</span><span>${esc(gateName(r.gate))}</span>` : ''}
+          ${r.gateKill > 0 ? `<span>Darkest gate defeated</span><span>${esc(gateName(r.gateKill))}</span>` : ''}</div></div>`;
+      body = `${head}${when}${fight}${records}`;
+    }
+    this.openModal(`<div class="modal-box panel mon-sheet dex-sheet">${body}${nav}</div>`);
+    this.modalKind = 'dexsheet';
+    this.el.modal.classList.add('sheet-modal');
+    this.el.select.querySelectorAll('.j-cell.pick').forEach((c) => c.classList.remove('pick'));
+    this.el.select.querySelector(`.j-cell[data-foe="${id}"]`)?.classList.add('pick');
+  },
   closeDexSheet() {
     if (this.modalKind === 'dexsheet') { this.closeModal(); this.modalKind = null; }
     this.el.modal.classList.remove('sheet-modal');
   },
-  stepDex(d) { const i = DEX_IDS.indexOf(this.dexSel); this.showDexSheet(DEX_IDS[(i + d + DEX_IDS.length) % DEX_IDS.length]); },
+  stepDex(d) {
+    if (this.dexList === 'foes') { const i = FOE_IDS.indexOf(this.dexSel); this.showFoeSheet(FOE_IDS[(i + d + FOE_IDS.length) % FOE_IDS.length]); return; }
+    const i = DEX_IDS.indexOf(this.dexSel); this.showDexSheet(DEX_IDS[(i + d + DEX_IDS.length) % DEX_IDS.length]);
+  },
 
   // ------------------------------------------------------------ Spirit Shrine
   showShrine() {
@@ -629,6 +706,7 @@ export const MonsUI = {
       case 'dex-step': this.stepDex(+el.dataset.d); break;
       case 'dex-close': this.closeDexSheet(); break;
       case 'dex-tab': this.dexTab = el.dataset.t; this.showSurvidex(); break;
+      case 'foe': this.showFoeSheet(el.dataset.foe); break;
       case 'shrine-buy': if (Shrine.buy(el.dataset.node)) Audio.play('levelup'); this.showShrine(); break;
       case 'research': if (Shrine.startResearch()) this.toast('Research started. It keeps going while the game is closed.'); this.showShrine(); break;
     }

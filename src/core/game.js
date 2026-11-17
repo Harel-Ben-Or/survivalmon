@@ -789,6 +789,7 @@ export class Game {
   spawnEnemy(type, x, y, opts) {
     const e = new Enemy(this, type, x, y, opts);
     Box.markSeen(opts?.wild || type, opts?.wild && this.mode === 'world' ? this.world.zoneAtPx(x, y) : null);
+    if (!opts?.wild && this.mode === 'world') Box.meetFoe(type, this.world.zoneAtPx(x, y), this.tier || 0); // for the Survidex's Monsters tab
     this.enemies.push(e);
     return e;
   }

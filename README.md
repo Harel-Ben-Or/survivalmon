@@ -124,6 +124,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   have had (caught, hatched, bred, evolved), the smallest and biggest, the highest level and the first date;
   for a species where it lives, where you caught and saw it and which of its breeds you've found; for a breed
   its parents; and the evolution line, with forms you haven't had yet left as ???.
+  Its **Monsters** tab lists every monster (the Blight, zone monsters, the Snare gang, night creatures and
+  bosses): meet one to see what it does, when and where it comes; defeat one to see its health, damage and
+  speed and how to beat it. It keeps how many you've met and defeated, where, and the darkest gate.
 - **Sizes**: every survivalmon has its own height and its own build (so weight varies too), rolled when it's
   caught or hatched (a bred one leans toward its parents' height); evolving keeps both. Its sheet shows them
   (Tiny, Small, Average height, Tall, Huge; Featherweight, Light, Average weight, Heavy, Heavyweight); they
