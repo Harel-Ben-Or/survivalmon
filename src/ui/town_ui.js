@@ -1,7 +1,8 @@
 // Town screens, mixed into UI: the town HUD, "Choose your team" at Enter the Wild (drag or tap
 // survivalmons into the slots), the Training Hall and the town menu.
 import { iconURL } from '../gfx/assets.js';
-import { artURL } from '../gfx/art.js';
+import { artURL, npcFaceURL } from '../gfx/art.js';
+import { NPCS, npcLines, npcStage } from '../content/npcs.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box } from '../systems/collection.js';
@@ -184,6 +185,54 @@ export const TownUI = {
   buyTraining(id) {
     Audio.play(Meta.buy(id) ? 'levelup' : 'click');
     this.renderTraining();
+  },
+
+  // ------------------------------------------------------------ talking to the villagers
+  // The talk box: their face, name and a line, with the building's button (keepers), Chat and Bye
+  openTalk(n) {
+    const def = NPCS[n.id], lines = npcLines(n.id, this.talkStage());
+    const i = def.hello ? -1 : Math.floor(Math.random() * lines.length);
+    this.talk = { n, i, text: def.hello || lines[i] || '...' };
+    this.g.modal = 'talk';
+    this.prompt(null);
+    this.renderTalk();
+  },
+  talkStage() { return npcStage(Meta.data.bestTime || 0, Box.mons.length); },
+  renderTalk() {
+    const { n, text } = this.talk, def = NPCS[n.id];
+    this.openModal(`
+      <div class="talk-box panel">
+        <img class="px talk-face" src="${npcFaceURL(n.id)}" alt="">
+        <div class="talk-main">
+          <div class="talk-name"><b>${esc(def.name)}</b><span>${esc(def.role)}</span></div>
+          <p class="talk-text">${esc(text)}</p>
+          <div class="talk-actions">
+            ${def.act ? `<button class="btn small" data-talk="act">${esc(def.act[0])} <span class="key">E</span></button>` : ''}
+            <button class="btn small secondary" data-talk="chat">Chat${def.act ? '' : ' <span class="key">E</span>'}</button>
+            <button class="btn small secondary" data-talk="bye">Bye <span class="key">Esc</span></button>
+          </div>
+        </div>
+      </div>`);
+    this.modalKind = 'talk';
+    this.el.modal.classList.add('talk-modal');
+  },
+  talkAct(what) {
+    if (!this.talk) return;
+    const { n } = this.talk, def = NPCS[n.id];
+    if (what === 'chat') {
+      const lines = npcLines(n.id, this.talkStage());
+      this.talk.i = (this.talk.i + 1) % lines.length;
+      this.talk.text = lines[this.talk.i] || '...';
+      this.renderTalk();
+      return;
+    }
+    this.closeModal();
+    this.el.modal.classList.remove('talk-modal');
+    this.modalKind = null; this.talk = null;
+    n.talking = false;
+    this.g.modal = null;
+    Input.endFrame();
+    if (what === 'act' && def.act) this[def.act[1]]?.();
   },
 
   // ------------------------------------------------------------ town menu (pause button / Esc)

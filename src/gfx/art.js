@@ -269,6 +269,56 @@ export function drawHero(ctx, h, x, y, dir, o = {}) {
   ctx.drawImage(img, snap(x - (h.ax / WS) * sx), snap(y - (o.bob || 0) - (h.ay / WS) * sy), dw, dh);
 }
 
+// The village's people (assets/sprites/npcs.png): 4 rows of 88px cells each, in the order given:
+// their 8 turns (DIR8), then an idle cycle facing south, or walk cycles south, north and east.
+export const NPC_ART = {};
+const NPC_CELL = 88;
+export async function loadNpcArt(ids, base = 'assets/sprites') {
+  const sheet = await loadImage(`${base}/npcs.png`);
+  if (!sheet) return;
+  const C = NPC_CELL;
+  const row = (r) => {
+    const out = [];
+    for (let i = 0; (i + 1) * C <= sheet.width; i++) {
+      const c = cut(sheet, i * C, r * C, C, C);
+      if (blank(c)) break;
+      out.push(c);
+    }
+    return out;
+  };
+  ids.forEach((id, k) => {
+    const rot = row(k * 4);
+    if (rot.length < 8) return;
+    const dirs = Object.fromEntries(DIR8.map((d, i) => [d, rot[i]]));
+    const a = row(k * 4 + 1), n = row(k * 4 + 2), e = row(k * 4 + 3);
+    const walk = n.length && e.length ? { south: a, north: n, east: e, west: e.map((f) => flip(f)) } : null;
+    const b = bbox(dirs.south);
+    NPC_ART[id] = { dirs, idle: walk ? null : a, walk, w: C, h: C, ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1 };
+  });
+}
+const WALK4 = { east: 'east', 'south-east': 'east', 'north-east': 'east', west: 'west', 'south-west': 'west', 'north-west': 'west', south: 'south', north: 'north' };
+// One of them at (x, y) (their feet), facing dir; t = seconds, for the walk or idle cycle
+export function drawNpcArt(ctx, a, x, y, dir, t, moving) {
+  let img;
+  if (moving && a.walk) { const cyc = a.walk[WALK4[dir]]; img = cyc[Math.floor(t * 9) % cyc.length]; }
+  else if (!moving && a.idle?.length && dir === 'south') img = a.idle[Math.floor(t * 5) % a.idle.length];
+  else img = a.dirs[dir] || a.dirs.south;
+  ctx.drawImage(img, snap(x - a.ax / WS), snap(y - a.ay / WS), a.w / WS, a.h / WS);
+}
+// A face for the talk box: the head and shoulders of their south turn, as a data URL
+const faceCache = new Map();
+export function npcFaceURL(id) {
+  if (faceCache.has(id)) return faceCache.get(id);
+  const a = NPC_ART[id];
+  if (!a) return '';
+  const b = bbox(a.dirs.south), w = b.x1 - b.x0 + 1, s = Math.min(w + 4, b.y1 - b.y0 + 1);
+  const c = canvasOf(s, s);
+  c.getContext('2d').drawImage(a.dirs.south, Math.round((b.x0 + b.x1 + 1) / 2 - s / 2), b.y0 - 1, s, s, 0, 0, s, s);
+  const url = c.toDataURL();
+  faceCache.set(id, url);
+  return url;
+}
+
 // Data URL of a sprite cropped to its content, for DOM icons/portraits.
 const urlCache = new Map();
 export function artURL(kind, id) {
@@ -341,6 +391,9 @@ const WORLD_ART = {
 // Basement props (interior/cellar.png): trapdoor, ladder, gold of every kind and cellar things
 const CELLAR = ['trapdoor', 'hatch', 'ladder', 'gold_heap', 'gold_gems', 'gold_small', 'gold_sack', 'gold_jar', 'gold_crate',
   'gold_bars', 'gold_goblet', 'barrel_side', 'cobweb', 'candles', 'pillar', 'wine_rack'];
+// Furniture for the rooms of the town's buildings (interior/town_props.png)
+const TOWN_PROPS = ['tp_forge', 'tp_anvil', 'tp_rack', 'tp_workbench', 'tp_bag', 'tp_bench', 'tp_lantern', 'tp_offering',
+  'tp_medshelf', 'tp_desk', 'tp_case', 'tp_incubator', 'tp_nest', 'tp_trough', 'tp_saddle', 'tp_herbs'];
 // Ground decals baked into the map
 export const DECAL_ART = {};
 const DECALS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b', 'tuft', 'tuft_d', 'crop_carrot', 'crop_cabbage',
@@ -380,10 +433,22 @@ export async function loadWorldArt(SPR, base = 'assets/sprites') {
     const c = cropped(cell);
     SPR[name] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
   });
-  await Promise.all(DECALS.map(async (name) => {
-    const img = await get(`decals/${name}`);
-    if (img) { const c = cropped(fromImage(img)); DECAL_ART[name] = { img: c, w: c.width / WS, h: c.height / WS }; }
-  }));
+  // the town buildings' furniture (interior/town_props.png): 64px cells in TOWN_PROPS order
+  const props = await get('interior/town_props');
+  if (props) TOWN_PROPS.forEach((name, i) => {
+    const cell = cut(props, i * 64, 0, 64, 64);
+    if (blank(cell)) return;
+    const c = cropped(cell);
+    SPR[name] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
+  });
+  // the ground decals share one sheet, 24px cells in DECALS order
+  const decals = await get('decals/decals');
+  if (decals) DECALS.forEach((name, i) => {
+    const cell = cut(decals, i * 24, 0, 24, 24);
+    if (blank(cell)) return;
+    const c = cropped(cell);
+    DECAL_ART[name] = { img: c, w: c.width / WS, h: c.height / WS };
+  });
   await Promise.all(ROOMS.map(async (name) => {
     const img = await get(`interior/${name}`);
     if (img) ROOM_ART[name] = { img, w: img.width / WS, h: img.height / WS };

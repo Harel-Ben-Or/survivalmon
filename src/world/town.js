@@ -5,7 +5,7 @@
 import { Input } from '../core/input.js';
 import { Audio } from '../core/audio.js';
 import { SPR, PC } from '../gfx/assets.js';
-import { CREATURE, creatureMotion, drawCreature, drawVfx, vfxHitTime, ANIM_FPS, snap, WS } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, drawVfx, vfxHitTime, ANIM_FPS, snap, WS, NPC_ART, drawNpcArt, dir8 } from '../gfx/art.js';
 import { eggCanvas, EGG_SIZE } from '../gfx/eggs.js';
 import { UNLOCK_TEXT } from '../content/buildings.js';
 import { SPECIES } from '../content/species.js';
@@ -18,6 +18,8 @@ import { Player } from '../entities/player.js';
 import { Pet } from '../entities/pet.js';
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
+import { NPCS, NPC_IDS } from '../content/npcs.js';
+import { buildTownRoom, TOWN_ROOM_IDS } from './interior.js';
 
 const GX = 20; // the gate's column: the road to the wild runs north from it
 // door = the tile the building's door opens onto; yard = the ground it stands on;
@@ -231,6 +233,75 @@ export class Town {
     this.gateSpawn = { x: GX * TILE + 8, y: 9 * TILE + 4 };
   }
 
+  // ---------------------------------------------------------------- the villagers
+  // Open ground the villagers wander between: clear of buildings, the pond, the pasture and the forest
+  walkSpots() {
+    if (this.spots) return this.spots;
+    const spots = [], P = this.pasture;
+    for (let ty = 7; ty < this.h - 3; ty++) for (let tx = 3; tx < this.w - 3; tx++) {
+      const x = tx * TILE + 8, y = ty * TILE + 8, t = this.tileAt(tx, ty);
+      if (t === T.DARK || t === T.WATER) continue;
+      if (P && x > P.x0 - 12 && x < P.x1 + 12 && y > P.y0 - 12 && y < P.y1 + 12) continue;
+      if (this.clearAt(x, y, 9)) spots.push({ x, y });
+    }
+    return (this.spots = spots);
+  }
+  clearAt(x, y, r = 6) {
+    const x0 = x - r, x1 = x + r, y0 = y - 4, y1 = y + 2;
+    return !this.solids.some((s) => x0 < s.x + s.w && x1 > s.x && y0 < s.y + s.h && y1 > s.y);
+  }
+  // Nothing in the way walking straight from a to b?
+  clearLine(ax, ay, bx, by) {
+    const n = Math.ceil(Math.hypot(bx - ax, by - ay) / 6);
+    for (let i = 1; i <= n; i++) if (!this.clearAt(ax + ((bx - ax) * i) / n, ay + ((by - ay) * i) / n)) return false;
+    return true;
+  }
+  // The wanderers, the guard by the gate and the Merchant at the stall (once it has opened)
+  makeVillagers(merchantOpen) {
+    const spots = this.walkSpots(), rng = mulberry32(77);
+    this.solids = this.solids.filter((s) => !s.npc);
+    this.npcs = [];
+    NPC_IDS.filter((id) => NPCS[id].home === 'roam').forEach((id, i) => {
+      const s = spots[Math.floor(rng() * spots.length)];
+      this.npcs.push({ id, x: s.x, y: s.y, tx: s.x, ty: s.y, dir: 'south', moving: false, wait: 0.5 + rng() * 3, seed: i * 1.7 });
+    });
+    const stand = (id, x, y) => {
+      this.npcs.push({ id, x, y, dir: 'south', still: true, seed: x * 0.13 });
+      this.solids.push({ x: x - 6, y: y - 5, w: 12, h: 7, npc: true });
+    };
+    const gate = this.doors.find((d) => d.id === 'gate'), stall = this.doors.find((d) => d.id === 'merchant');
+    if (gate) stand('ollie', gate.x + 30, gate.y + 26);
+    if (stall && merchantOpen) stand('mags', stall.x - 30, stall.y + 4);
+  }
+  updateVillagers(dt, P) {
+    for (const n of this.npcs || []) {
+      if (n.still || n.talking) { n.moving = false; continue; }
+      const near = Math.hypot(P.x - n.x, P.y - n.y) < 20;
+      if (n.wait > 0 || near) {
+        n.wait -= dt; n.moving = false;
+        if (n.wait <= 0 && !near) this.pickWalk(n);
+        continue;
+      }
+      const dx = n.tx - n.x, dy = n.ty - n.y, d = Math.hypot(dx, dy);
+      if (d < 1.5) { n.moving = false; n.wait = 1.5 + Math.random() * 4; continue; }
+      const step = Math.min(20 * dt, d), nx = n.x + (dx / d) * step, ny = n.y + (dy / d) * step;
+      if (!this.clearAt(nx, ny)) { n.tx = n.x; n.ty = n.y; n.wait = 0.6; continue; }
+      n.x = nx; n.y = ny; n.moving = true;
+      n.dir = Math.abs(dx) > Math.abs(dy) * 1.2 ? (dx > 0 ? 'east' : 'west') : dy > 0 ? 'south' : 'north';
+    }
+  }
+  // Somewhere new to walk to, 30 to 150 px away, in a straight clear line
+  pickWalk(n) {
+    const spots = this.walkSpots();
+    for (let i = 0; i < 24; i++) {
+      const s = spots[Math.floor(Math.random() * spots.length)], d = Math.hypot(s.x - n.x, s.y - n.y);
+      if (d < 30 || d > 150 || !this.clearLine(n.x, n.y, s.x, s.y)) continue;
+      n.tx = s.x; n.ty = s.y;
+      return;
+    }
+    n.wait = 1;
+  }
+
   // ---------------------------------------------------------------- the Ranch
   // Where training spot i is: two dummies back to back on each row, with their trainees facing
   // them from either side (face: which way the trainee looks)
@@ -438,6 +509,8 @@ export const TownMode = {
     P.x = at.x; P.y = at.y; P.dir = 'down'; P.faceAngle = Math.PI / 2;
     for (const mon of Box.team()) P.pets.push(new Pet(this, mon));
     P.pets.forEach((pet, i) => { pet.x = P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)); pet.y = P.y + 6; });
+    this.townRoom = null; this.room = null;
+    this.town.makeVillagers(Meta.isUnlocked('merchant'));
     this.fillTownRanch();
     this.townGround?.attach(this.town);
     this.snapCamera();
@@ -502,34 +575,98 @@ export const TownMode = {
   },
 
   updateTown(dt) {
+    if (this.townRoom) { this.updateTownRoom(dt); return; }
     const P = this.player, town = this.town;
     P.update(dt, town.solids);
     P.pets.forEach((p, i) => p.update(dt, i, true));
     town.updateRanch(dt, this);
+    town.updateVillagers(dt, P);
     this.updateEffects(dt);
     this.particles.update(dt);
     this.followCamera(dt);
-    let near = null, bd = 22 * 22;
+    // the nearest door, or someone to talk to if they're closer
+    let near = null, bd = 22 * 22, who = null, wd = 24 * 24;
     for (const d of town.doors) {
       const dd = dist2(P.x, P.y, d.x, d.y);
       if (dd < bd) { bd = dd; near = d; }
     }
-    if (near) {
+    for (const n of town.npcs) {
+      const dd = dist2(P.x, P.y, n.x, n.y + 4);
+      if (dd < wd) { wd = dd; who = n; }
+    }
+    const act = Input.wasPressed('KeyE') || Input.wasPressed('Enter');
+    if (who && (!near || wd < bd)) {
+      this.ui.prompt(`Talk to ${NPCS[who.id].name}`, who.x, who.y - 34);
+      if (act) this.talkTo(who);
+    } else if (near) {
       near.open = near.always || Meta.isUnlocked(near.id);
       this.ui.prompt(near.open ? near.name : `${near.name} · closed`, near.x, near.py);
-      if (Input.wasPressed('KeyE') || Input.wasPressed('Enter')) this.enterBuilding(near);
+      if (act) this.enterBuilding(near);
     } else this.ui.prompt(null);
   },
 
   enterBuilding(d) {
     if (!d.open) { this.toast(`${d.name}: ${UNLOCK_TEXT[d.id] || 'opens later'}.`); return; }
     this.ui.prompt(null);
+    // most buildings are rooms with their keeper inside; the Merchant is the stall, served by Mags
+    if (TOWN_ROOM_IDS.includes(d.id)) { this.enterTownRoom(d); return; }
+    const mags = d.id === 'merchant' && this.town.npcs.find((n) => n.id === 'mags');
+    if (mags) { this.talkTo(mags); return; }
     Audio.play('door');
-    const screens = { gate: 'showTeam', training: 'showTraining', ranch: 'showRanch', hatchery: 'showHatchery', clinic: 'showClinic', survidex: 'showSurvidex', shrine: 'showShrine', workshop: 'showWorkshop', merchant: 'showMerchant' };
+    const screens = { gate: 'showTeam', merchant: 'showMerchant' };
     this.ui[screens[d.id]]?.();
   },
 
+  // ---------------------------------------------------------------- talking and the rooms
+  // Turn to face the hero and open the talk box
+  talkTo(n) {
+    const P = this.player;
+    n.dir = dir8(Math.atan2(P.y - n.y, P.x - n.x));
+    n.talking = true;
+    this.ui.prompt(null);
+    Audio.play('click');
+    this.ui.openTalk(n);
+  },
+  enterTownRoom(d) {
+    const P = this.player;
+    this.townRooms ||= {};
+    const room = (this.townRooms[d.id] ||= buildTownRoom(d.id));
+    this.townRoom = room; this.room = room; this.townDoor = d;
+    this.roomOff = { x: Math.floor((this.view.w - room.pw) / 2), y: Math.floor((this.view.h - room.ph) / 2) };
+    P.x = room.spawn.x; P.y = room.spawn.y - 6; P.dir = 'up'; P.faceAngle = -Math.PI / 2; P.d8 = null;
+    P.trail = []; P.dashT = 0;
+    P.pets.forEach((pet, i) => { pet.x = Math.max(16, Math.min(room.pw - 16, P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)))); pet.y = P.y + 4; pet.state = 'follow'; });
+    for (const n of room.npcs) { n.talking = false; n.dir = 'south'; }
+    this.ui.prompt(null);
+    Audio.play('door');
+  },
+  leaveTownRoom() {
+    const P = this.player, d = this.townDoor;
+    this.townRoom = null; this.room = null;
+    P.x = d.x; P.y = d.y + 8; P.dir = 'down'; P.faceAngle = Math.PI / 2; P.d8 = null; P.trail = [];
+    P.pets.forEach((pet, i) => { pet.x = P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)); pet.y = P.y + 4; pet.state = 'follow'; });
+    this.snapCamera();
+    this.ui.prompt(null);
+    Audio.play('door');
+  },
+  updateTownRoom(dt) {
+    const P = this.player, room = this.townRoom;
+    P.update(dt, room.solids);
+    P.pets.forEach((p, i) => p.update(dt, i, true));
+    this.updateEffects(dt);
+    this.particles.update(dt);
+    const n = room.npcs[0], act = Input.wasPressed('KeyE') || Input.wasPressed('Enter');
+    if (n && !n.talking) n.dir = 'south';
+    if (n && dist2(P.x, P.y, n.x, n.y + 6) < 32 * 32) {
+      this.ui.prompt(`Talk to ${NPCS[n.id].name}`, n.x, n.y - 34);
+      if (act) this.talkTo(n);
+    } else if (P.y > room.ph - 30 && Math.abs(P.x - room.doorX) < 16) this.ui.prompt('Leave', room.doorX, room.ph + 16);
+    else this.ui.prompt(null);
+    if (P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.leaveTownRoom();
+  },
+
   renderTown() {
+    if (this.townRoom) { this.renderHouse(); return; }
     const ctx = this.ctx, V = this.view, town = this.town, P = this.player, now = this.realTime;
     const cam = this.renderCam();
     ctx.fillStyle = '#245f2b'; ctx.fillRect(0, 0, V.w, V.h);
@@ -546,6 +683,7 @@ export const TownMode = {
     for (const t of town.trainees) list.push({ y: t.y, trainee: t });
     Box.eggs.forEach((e, i) => { const n = town.nests[i]; if (n) list.push({ y: n.y, egg: e, n }); });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
+    for (const n of town.npcs || []) list.push({ y: n.y, npc: n });
     list.push({ y: P.y, hero: P });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
@@ -565,6 +703,15 @@ export const TownMode = {
         drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, now, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: now + m.seed });
       } else if (it.dummy) drawDummy(ctx, it.dummy, cam);
       else if (it.trainee) drawTrainee(ctx, it.trainee, cam, now);
+      else if (it.npc) {
+        const n = it.npc, a = NPC_ART[n.id];
+        if (!a) continue;
+        const x = snap(n.x) - cam.x, y = snap(n.y) - cam.y;
+        ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
+        ctx.beginPath(); ctx.ellipse(x, y, 7, 2.5, 0, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 1;
+        drawNpcArt(ctx, a, x, y, n.dir, now + n.seed, n.moving);
+      }
       else if (it.egg) {
         // the egg's own patterned shell (32px art at 16 logical px; its bottom row is 30)
         const art = eggCanvas(it.egg.species), x = snap(it.n.x - cam.x), y = snap(it.n.y - cam.y), n = EGG_SIZE / WS;

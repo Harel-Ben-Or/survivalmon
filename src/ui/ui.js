@@ -19,6 +19,9 @@ import { Input } from '../core/input.js';
 import { TouchControls } from './touch.js';
 import { TownUI } from './town_ui.js';
 import { ProfilesUI } from './profiles_ui.js';
+import { NPCS } from '../content/npcs.js';
+
+const NPCS_ACT = (id) => !!NPCS[id]?.act;
 import { Profiles } from '../systems/profiles.js';
 import { T, ZONES } from '../world/world.js';
 import { Meta } from '../systems/meta.js';
@@ -742,7 +745,7 @@ export class UI {
 
   // ------------------------------------------------------------ input
   onClick(e) {
-    const t = e.target.closest('[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact],[data-pact]');
+    const t = e.target.closest('[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact],[data-pact],[data-talk]');
     if (!t) return;
     Audio.unlock();
     const g = this.g;
@@ -759,6 +762,7 @@ export class UI {
     if (t.dataset.starter) { this.chooseStarter(t.dataset.starter); return; }
     if (t.dataset.mact) { Audio.play('click'); this.monsAct(t.dataset.mact, t); return; }
     if (t.dataset.pact) { Audio.play('click'); this.profAct(t.dataset.pact, t); return; }
+    if (t.dataset.talk) { Audio.play('click'); this.talkAct(t.dataset.talk); return; }
     if (t.dataset.evolve) {
       const mon = Box.get(+t.dataset.evolve);
       if (!mon) return;
@@ -839,6 +843,12 @@ export class UI {
     if (this.modalKind === 'evolved' && ok) { e.preventDefault(); this.closeEvolve(); Input.endFrame(); return; }
     if (this.modalKind === 'end' && k === 'Enter') { this.g.toTown(true); return; }
     if ((this.modalKind === 'training' || this.modalKind === 'townmenu') && k === 'Escape') { this.closeModal(); this.g.modal = null; return; }
+    if (this.modalKind === 'talk') {
+      if (k === 'Escape') this.talkAct('bye');
+      else if (k === 'KeyE' || k === 'Enter') this.talkAct(this.talk && NPCS_ACT(this.talk.n.id) ? 'act' : 'chat');
+      else if (k === 'Space') this.talkAct('chat');
+      return;
+    }
     if (this.screen === 'team' && !this.modalKind && k === 'Escape') { this.showTown(); return; }
     if (this.screen === 'team' && !this.modalKind && k === 'Enter') { Box.save(); this.g.startRun(Meta.hero); return; }
     if (this.screen === 'title' && !this.modalKind && k === 'Enter' && this.g.mode === 'title') { Audio.unlock(); if (Box.isEmpty && !Box.eggs.length) this.showStarter(); else this.g.toTown(); return; }

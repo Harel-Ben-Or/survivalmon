@@ -721,3 +721,18 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
 .card .delta i { font-style: normal; color: #b0701c; font-weight: 900; }
 .card .delta b { color: #2e7a33; font-weight: 900; }
 @media (max-height: 500px) { .card .delta { font-size: 12px; gap: 3px; } .card .deltas { padding: 2px 4px; } .card .val .tier { font-size: 11px; height: 17px; min-width: 17px; } }
+
+/* talking to the villagers: a box along the bottom, the town still showing above it */
+.modal.talk-modal { align-items: flex-end; background: rgba(20,12,16,.22); }
+.talk-box { margin: 0 auto 2px; width: 100%; max-width: 640px; display: flex; gap: 14px; padding: 12px 14px; align-items: flex-start; }
+.talk-face { width: 72px; height: 72px; image-rendering: pixelated; background: rgba(255,255,255,.07); border-radius: 10px; flex: none; }
+.talk-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.talk-name b { font-size: 17px; }
+.talk-name span { margin-left: 8px; color: var(--muted); font-size: 13px; }
+.talk-text { margin: 0; font-size: 15px; line-height: 1.35; min-height: 2.7em; }
+.talk-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-height: 420px) {
+  .talk-box { padding: 8px 10px; gap: 10px; }
+  .talk-face { width: 52px; height: 52px; }
+  .talk-text { font-size: 13px; min-height: 0; }
+}

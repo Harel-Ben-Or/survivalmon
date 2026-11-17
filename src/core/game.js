@@ -4,7 +4,8 @@ import { Audio } from './audio.js';
 import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
-import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, WS, snap, ICON_ART } from '../gfx/art.js';
+import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART } from '../gfx/art.js';
+import { NPC_IDS } from '../content/npcs.js';
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
 import { World, TILE, ZONES } from '../world/world.js';
@@ -128,7 +129,7 @@ export class Game {
     buildAssets();
     await loadArt();
     await loadWorldArt(SPR);
-    await Promise.all([loadProjArt(SPR), loadVfxArt(), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
+    await Promise.all([loadProjArt(SPR), loadVfxArt(), loadNpcArt(NPC_IDS), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
     this.tileGround = await TileGround.load();
     Meta.load();
     Shrine.load();
@@ -780,7 +781,7 @@ export class Game {
     return { x, y };
   }
   worldToScreen(x, y) {
-    if (this.mode === 'house') return { x: (x + this.roomOff.x) * this.view.scale, y: (y + this.roomOff.y) * this.view.scale };
+    if (this.mode === 'house' || (this.mode === 'town' && this.townRoom)) return { x: (x + this.roomOff.x) * this.view.scale, y: (y + this.roomOff.y) * this.view.scale };
     return { x: (x - this.cam.x) * this.view.scale, y: (y - this.cam.y) * this.view.scale };
   }
 
@@ -928,9 +929,14 @@ export class Game {
     const list = room.furniture.filter((f) => !(f.type === 'gold' && f.opened)).map((f) => ({ y: f.flat ? -1e4 : f.y + f.h, f }));
     list.push({ y: P.y, player: P });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
+    for (const n of room.npcs || []) list.push({ y: n.y, npc: n });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
-      if (it.f) {
+      if (it.npc) {
+        const n = it.npc, a = NPC_ART[n.id];
+        ctx.fillStyle = 'rgba(20,10,10,0.25)'; ctx.beginPath(); ctx.ellipse(n.x + ox, n.y + oy, 7, 2.5, 0, 0, TAU); ctx.fill();
+        if (a) drawNpcArt(ctx, a, n.x + ox, n.y + oy, n.dir, this.realTime + (n.seed || 0), false);
+      } else if (it.f) {
         const f = it.f;
         let name = f.spr;
         if (f.opened) {

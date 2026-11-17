@@ -547,3 +547,80 @@ function paintRoom(room, rng) {
   }
   return cv;
 }
+
+// ---------------------------------------------------------------- the town's buildings
+// Each building in town has a room laid out by hand, with its keeper standing in it (talk to them
+// to use the building). items: [sprite, x, foot y, options]; npc: where the keeper stands.
+const BACK = WALL_H + 6; // the foot of anything standing against the back wall
+const TOWN_ROOMS = {
+  hatchery: {
+    w: 13, h: 10, floor: 'floor_wood', wall: 'wall_wood', who: 'wren', npc: [104, 84], windows: [64, 150],
+    rugs: [['rug_g', 104, 112]],
+    items: [['fireplace', 36, BACK + 2], ['tp_incubator', 104, BACK + 4], ['plant', 178, BACK], ['chair', 64, 60, { solidH: 6 }],
+      ['tp_nest', 58, 104, { solidH: 8 }], ['tp_nest', 154, 98, { solidH: 8 }], ['tp_nest', 166, 128, { solidH: 8 }], ['hay', 184, 72], ['hay', 30, 132]],
+  },
+  training: {
+    w: 14, h: 10, floor: 'floor_wood', wall: 'wall_wood', who: 'hale', npc: [112, 82], windows: [80, 146],
+    items: [['tp_rack', 34, BACK], ['tp_bench', 112, BACK + 4], ['tp_rack', 190, BACK], ['town_dummy', 54, 104], ['town_dummy', 170, 104],
+      ['tp_bag', 30, 136], ['town_dummy', 196, 136], ['barrel', 74, BACK + 6], ['crate', 152, BACK + 6]],
+  },
+  workshop: {
+    w: 14, h: 10, floor: 'floor_stone', wall: 'wall_stone', who: 'tamsin', npc: [130, 86], windows: [112],
+    items: [['tp_forge', 50, BACK + 4], ['tp_workbench', 162, BACK + 2], ['tp_rack', 202, BACK], ['tp_anvil', 100, 90],
+      ['node_iron', 30, 124], ['node_wood', 196, 128], ['barrel', 24, 80], ['crate', 190, 96]],
+  },
+  shrine: {
+    w: 13, h: 10, kind: 'shrine', floor: 'floor_stone', wall: 'shrine_brick', who: 'sol', npc: [104, 96], windows: [66, 142], torches: [22, 186],
+    rugs: [['rug_b', 104, 122]],
+    items: [['altar', 104, BACK - 2], ['candles', 72, BACK + 6, { solidH: 6 }], ['candles', 136, BACK + 6, { solidH: 6 }], ['tp_offering', 104, 76, { solidH: 8 }],
+      ['tp_lantern', 32, 70], ['tp_lantern', 176, 70], ['pillar', 38, 128], ['pillar', 170, 128]],
+  },
+  clinic: {
+    w: 13, h: 10, floor: 'floor_wood', wall: 'plaster', who: 'poppy', npc: [150, 76], windows: [110],
+    rugs: [['rug_r', 60, 104]],
+    items: [['bed_r', 30, 64, { solidH: 28 }], ['bed_b', 56, 64, { solidH: 28 }], ['bed_g', 82, 64, { solidH: 28 }], ['tp_medshelf', 150, BACK], ['tp_herbs', 186, BACK],
+      ['tp_bench', 158, 128, { solidH: 8 }], ['plant', 22, 134], ['plant', 190, 104], ['pot', 120, 50]],
+  },
+  survidex: {
+    w: 14, h: 10, floor: 'floor_wood', wall: 'wall_wood', who: 'quill', npc: [112, 82], windows: [],
+    rugs: [['rug_b', 112, 124]], painting: { n: 1, x: 140 },
+    items: [['bookshelf', 26, BACK], ['bookshelf', 52, BACK], ['tp_case', 112, BACK + 2], ['clock', 82, BACK], ['bookshelf', 172, BACK], ['bookshelf', 198, BACK],
+      ['tp_desk', 112, 100, { solidH: 10 }], ['plant', 22, 132], ['plant', 202, 132]],
+  },
+  ranch: {
+    w: 14, h: 10, kind: 'barn', floor: 'floor_barn', wall: 'barn_red', who: 'dell', npc: [112, 86], windows: [60, 164],
+    items: [['hay', 28, BACK + 4], ['hay', 50, BACK + 6], ['tp_trough', 100, BACK + 6], ['tp_saddle', 150, BACK + 4], ['hay', 194, BACK + 4],
+      ['barrel', 206, 84], ['crate', 22, 100], ['hay', 36, 134], ['barrel', 196, 132]],
+  },
+};
+export const TOWN_ROOM_IDS = Object.keys(TOWN_ROOMS);
+
+export function buildTownRoom(id) {
+  const spec = TOWN_ROOMS[id];
+  if (!spec) return null;
+  const pw = spec.w * T, ph = spec.h * T, dx = Math.floor(pw / 2);
+  const room = {
+    kind: spec.kind || 'cottage', theme: 'town', pw, ph, doorX: dx, walls: [], furniture: [], containers: [], spawn: { x: dx, y: ph - 20 },
+    windows: spec.windows || [], rugs: (spec.rugs || []).map(([name, x, y]) => ({ name, x, y })), torches: spec.torches || [], webs: [], stalls: [],
+    part: null, hatch: null, painting: spec.painting || null, floor: spec.floor, wall: spec.wall, npcs: [], canvas: null,
+  };
+  room.walls.push(
+    { x: 0, y: 0, w: pw, h: WALL_H + 4 }, { x: 0, y: 0, w: 8, h: ph }, { x: pw - 8, y: 0, w: 8, h: ph },
+    { x: 0, y: ph - 10, w: dx - DOOR_W / 2, h: 10 }, { x: dx + DOOR_W / 2, y: ph - 10, w: pw - dx - DOOR_W / 2, h: 10 },
+  );
+  const solids = [];
+  for (const [spr, fx, fy, o = {}] of spec.items) {
+    const s = SPR[spr];
+    if (!s) continue;
+    const x = Math.round(fx - s.w / 2), y = Math.round(fy - s.h), base = Math.min(s.h, o.solidH ?? 12);
+    const item = { spr, x, y, w: s.w, h: s.h, solid: { x: x + 1, y: y + s.h - base, w: s.w - 2, h: base } };
+    room.furniture.push(item);
+    solids.push(item.solid);
+  }
+  const [nx, ny] = spec.npc;
+  room.npcs.push({ id: spec.who, x: nx, y: ny, dir: 'south', seed: nx * 0.37 });
+  solids.push({ x: nx - 7, y: ny - 6, w: 14, h: 8 });
+  room.solids = [...room.walls, ...solids];
+  room.canvas = paintRoom(room, mulberry32(id.length * 977 + 5));
+  return room;
+}

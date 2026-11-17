@@ -60,6 +60,11 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
   yard (dirt, gravel or cobbles) with bushes and flowers along its base and trees in the gaps behind it.
   A pond sits in the south and the woods' shade spills into the edges of the town.
 - Walk with WASD / arrows or the joystick; stand at a door and press **E** (or tap **!**).
+- **People**: every building has a keeper inside its own room (Granny Wren at the Hatchery, Coach Hale,
+  Tamsin the blacksmith, Keeper Sol, Doc Poppy, Quill the archivist, Dell the rancher). Walk in, talk to
+  them (**E**) and pick their button (Eggs, Train, Gear, Upgrades, Heal, Survidex, Ranch) to use the building,
+  or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie guards the
+  gate, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
 - **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00).
 - **Ranch**: a red barn with the fenced pasture right beside it, where every survivalmon you own roams
@@ -142,10 +147,12 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   - `heroes/<id>/<direction>.png` (8 directions) and `heroes/<id>/walk/<direction>_<frame>.png` (walk cycles, counts in `walk/frames.json`)
   - `creatures/<id>.png` — critters, monsters, evolved forms, bosses
   - `tiles/` — ground tilesets (grass, dirt, stone, farm, water, dark grass) with `tiles.json`
-  - `world/` — trees, houses, barn, shrine, props; `decals/` — flowers, tufts, crops, lily pads
+  - `world/` — trees, houses, barn, shrine, props; `decals/decals.png` — flowers, tufts, crops, lily pads (one sheet)
+  - `npcs.png` — the village's 14 people: 4 rows of 88px cells each (8 turns, then an idle or walk cycles), order in `src/content/npcs.js`
   - `town/` — the town buildings: gate, Training Hall, Clinic, Workshop, Hatchery, Survidex library
   - `interior/` — floors, walls, furniture, chests (`cellar.png` holds the basement props in one sheet: trapdoor,
-    ladder, gold piles, candles, pillar, wine rack…); `icons/` — items, orbs, stones, pickups; `projectiles/`
+    ladder, gold piles, candles, pillar, wine rack…; `town_props.png` the furniture of the town's rooms: forge,
+    anvil, weapon rack, incubator, nests, medicine shelf, desk…); `icons/` — items, orbs, stones, pickups; `projectiles/`
   - `vfx/vfx_<n>.png` — every attack effect (made with PixelLab's effects tool), packed into atlas pages;
     `src/content/vfx_data.js` says where each frame is. `src/content/attack_fx.js` picks each skill's effects.
 - `src/gfx/art.js` — loads that art, draws it at 2× resolution and animates single images in code (hop / walk / fly).
@@ -156,8 +163,9 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   training at the dummies); `src/ui/town_ui.js`, `mons_ui.js`, `shop_ui.js` — the town screens.
 - `src/systems/meta.js` — coins, materials, Training Hall, building levels, heroes and gear; `src/systems/shrine.js` — the Spirit Shrine.
 - `src/content/skills.js` — skill tiers and passives; `gear.js` — hero boosts, unlocks and gear; `buildings.js` — building levels and Merchant items.
-- `src/world/` — map generation, ground painter, house interiors (`interior.js`: the random rooms and the
-  basements), collision, monster pathing.
+- `src/world/` — map generation, ground painter, house interiors (`interior.js`: the random rooms, the
+  basements and the hand-made rooms of the town's buildings), collision, monster pathing.
+- `src/content/npcs.js` — the village's people: who keeps which building, their buttons and talk lines.
 - `src/entities/`, `src/systems/` — player, monsters, pets, combat, loot, spawning.
 - `src/ui/` — HUD, menus and all modal screens (DOM overlay).
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;
