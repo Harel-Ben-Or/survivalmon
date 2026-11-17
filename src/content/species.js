@@ -444,6 +444,36 @@ for (const sp of Object.values(SPECIES)) {
   if (k.radius) sp.q.radius = Math.round((sp.q.radius || 30) * k.radius);
 }
 
+// ---------------------------------------------------------------- sizes
+// Each species has an average height (cm) and weight (kg); each survivalmon rolls its own size, a
+// factor (sz) around 1, when it's caught or hatched. Size is only shown (Survidex, its sheet), never
+// used in play. Breeds take after their parents and grow on when they evolve; weight goes with height³.
+const BASE_SIZE = { emberpup: [35, 6], leafkit: [30, 3.5], voltowl: [32, 1.8], puddlit: [28, 5], pebblet: [25, 18],
+  glimmoth: [18, 0.4], duskit: [30, 4], snowpip: [34, 7], venewt: [26, 2.5], ferrit: [38, 9] };
+const jitter = (id) => { let h = 7; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return 0.9 + ((h % 1000) / 1000) * 0.2; };
+export const SIZE = {};
+function sizeOf(id) {
+  if (SIZE[id]) return SIZE[id];
+  const sp = SPECIES[id];
+  let h, dens;
+  if (BASE_SIZE[id]) [h, dens] = [BASE_SIZE[id][0], BASE_SIZE[id][1] / BASE_SIZE[id][0] ** 3];
+  else if (sp.from) { const f = sizeOf(sp.from); h = f.h * (sp.stage === 4 ? 1.35 : 1.45) * jitter(id); dens = f.w / f.h ** 3; }
+  else { const [a, b] = sp.pair.map(sizeOf); h = ((a.h + b.h) / 2) * (sp.kind === 'pure' ? 1.7 : 1.55) * jitter(id); dens = (a.w / a.h ** 3 + b.w / b.h ** 3) / 2; }
+  return (SIZE[id] = { h: Math.round(h), w: +(dens * h ** 3).toPrecision(3) });
+}
+for (const id of Object.keys(SPECIES)) sizeOf(id);
+export const SZ_MIN = 0.7, SZ_MAX = 1.3;
+// A new survivalmon's size: most are near average, a few tiny or huge. A bred one leans toward its parents' size.
+export function rollSize(parentsSz) {
+  let s = SZ_MIN + (SZ_MAX - SZ_MIN) * ((Math.random() + Math.random() + Math.random()) / 3);
+  if (parentsSz) s = s * 0.6 + parentsSz * 0.4;
+  return Math.round(Math.min(SZ_MAX, Math.max(SZ_MIN, s)) * 100) / 100;
+}
+export const sizeLabel = (sz) => (sz < 0.82 ? 'Tiny' : sz < 0.94 ? 'Small' : sz <= 1.06 ? 'Average size' : sz <= 1.18 ? 'Big' : 'Huge');
+export const monSize = (species, sz = 1) => ({ h: SIZE[species].h * sz, w: SIZE[species].w * sz ** 3 });
+export const fmtH = (cm) => (cm >= 100 ? `${(cm / 100).toFixed(2)} m` : `${Math.round(cm)} cm`);
+export const fmtW = (kg) => (kg >= 1000 ? `${(kg / 1000).toFixed(2)} t` : kg >= 10 ? `${Math.round(kg)} kg` : `${kg.toFixed(1)} kg`);
+
 export const BASE_IDS = Object.keys(BASE);
 export const PURE_IDS = Object.keys(PURE);
 export const MIXED_IDS = Object.keys(MIXED);

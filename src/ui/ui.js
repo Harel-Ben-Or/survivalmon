@@ -828,6 +828,11 @@ export class UI {
       else if (k === 'Enter' || k === 'NumpadEnter') this.monsAct('breed', { dataset: {} });
       return;
     }
+    if (this.modalKind === 'dexsheet') {
+      if (k === 'Escape') this.closeDexSheet();
+      else if (k === 'ArrowLeft' || k === 'ArrowRight') this.stepDex(k === 'ArrowLeft' ? -1 : 1);
+      return;
+    }
     if (this.modalKind === 'monsheet') {
       if (e.target.classList?.contains('mon-name-input')) { if (k === 'Enter' || k === 'NumpadEnter') { e.preventDefault(); this.monsAct('mon-rename-save', { dataset: { id: String(this.sheetId) } }); } else if (k === 'Escape') this.showMonSheet(this.sheetId); return; }
       if (k === 'Escape') this.closeMonSheet();

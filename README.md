@@ -89,7 +89,14 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Hatchery**: 3 nests. Eggs hatch after time spent in the wild. Breed two survivalmons (Lv 5+, both are
   used up) into an egg of their breed: same species gives its grown-up form, two species one of 45 mixes.
 - **Clinic**: heal survivalmons hurt or fainted in a run (resting a run also heals them).
-- **Survidex**: all 175 survivalmons (10 species, 55 breeds, 55 first and 55 final evolutions), and breeding recipes you've found.
+- **Survidex**: all 175 survivalmons (10 species, 55 breeds, 55 first and 55 final evolutions). Tapping one opens
+  its page, which shows only what you've found out yourself: its attack and size range; how many you have and
+  have had (caught, hatched, bred, evolved), the smallest and biggest, the highest level and the first date;
+  for a species where it lives, where you caught and saw it and which of its breeds you've found; for a breed
+  its parents; and the evolution line, with forms you haven't had yet left as ???.
+- **Sizes**: every survivalmon has its own height and weight (Tiny, Small, Average, Big, Huge), rolled when it's
+  caught or hatched (a bred one leans toward its parents'); evolving keeps it. It shows on its sheet and in the
+  Survidex and doesn't change play.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
 - **Merchant**: items for your next run.

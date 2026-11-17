@@ -1,6 +1,6 @@
 // The Ranch: every survivalmon you own (copies too), the team, Hatchery eggs, species coins and
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
-import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
+import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, rollSize, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
 import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
@@ -36,6 +36,7 @@ export const TRAIN_XP_PER_MIN = 6;   // Ranch training, offline
 const empty = () => ({
   v: 2, nextId: 1, mons: [], team: [], eggs: [], bag: {}, coins: {}, upgrades: {}, training: [],
   seen: {}, caught: {}, discovered: {}, firstHatch: false, rewards: {},
+  dex: {}, // what you've done with each species, for the Survidex (see Box.note)
 });
 
 // Skills a newly caught or hatched survivalmon of this species rolls.
@@ -54,7 +55,43 @@ export const Box = {
       if (d && d.v === 2) this.data = { ...empty(), ...d };
       else if (d && d.v === 1) this.migrate(d);
     } catch { /* storage unavailable: start empty */ }
+    this.fillDex();
     return this;
+  },
+  // Saves from before sizes and the Survidex records: every survivalmon gets its size, and each
+  // species' record starts from the ones you have (and how many you'd found).
+  fillDex() {
+    const d = this.data;
+    if (d.dexFilled) return;
+    for (const m of d.mons) {
+      if (!m.sz) m.sz = rollSize();
+      const r = this.dexRec(m.species);
+      r.n = Math.max(r.n, d.caught[m.species] || 0);
+      r.how[m.origin === 'bred' ? 'bred' : m.origin === 'wild' ? 'wild' : 'egg'] = (r.how[m.origin === 'bred' ? 'bred' : m.origin === 'wild' ? 'wild' : 'egg'] || 0) + 1;
+      this.noteSize(r, m);
+      if (m.caughtAt && (!r.first || m.caughtAt < r.first)) r.first = m.caughtAt;
+    }
+    for (const [sp, n] of Object.entries(d.caught)) if (SPECIES[sp]) { const r = this.dexRec(sp); r.n = Math.max(r.n, n); }
+    d.dexFilled = true;
+    this.save();
+  },
+  // ---------------------------------------------------------- Survidex records
+  // For each species, only what you've done: how many you've had (and how: caught, hatched, bred,
+  // evolved), the smallest and biggest, the highest level, when you first had one, where you caught
+  // them and where you've seen them.
+  dexRec(sp) { return (this.data.dex[sp] ||= { n: 0, how: {}, first: 0, min: null, max: null, maxLv: 0, where: {}, seenIn: {} }); },
+  noteSize(r, m) {
+    if (r.min == null || m.sz < r.min) r.min = m.sz;
+    if (r.max == null || m.sz > r.max) r.max = m.sz;
+    r.maxLv = Math.max(r.maxLv, m.level);
+  },
+  note(m, how, where) {
+    const r = this.dexRec(m.species);
+    r.n++;
+    r.how[how] = (r.how[how] || 0) + 1;
+    if (!r.first) r.first = Date.now();
+    if (where) r.where[where] = (r.where[where] || 0) + 1;
+    this.noteSize(r, m);
   },
   // Saves from before the town: survivalmons keep their level and get skills; monsters you'd
   // caught (slimes, bats…) are no longer survivalmons, so they're traded for coins.
@@ -104,8 +141,10 @@ export const Box = {
     this.save();
   },
 
-  add(species, { skills = rollSkills(species), joinTeam = true, origin = 'wild', level = 1 } = {}) {
-    const mon = { id: this.data.nextId++, species, level, xp: 0, hp: 1, skills, caughtAt: Date.now(), origin };
+  // where: the zone a wild one was caught in; sz: its size (rolled if not given)
+  add(species, { skills = rollSkills(species), joinTeam = true, origin = 'wild', level = 1, where = null, sz = rollSize() } = {}) {
+    const mon = { id: this.data.nextId++, species, level, xp: 0, hp: 1, skills, caughtAt: Date.now(), origin, sz };
+    this.note(mon, origin === 'bred' ? 'bred' : origin === 'wild' ? 'wild' : 'egg', where);
     this.data.mons.push(mon);
     this.data.caught[species] = (this.data.caught[species] || 0) + 1;
     this.data.seen[species] = true;
@@ -127,8 +166,11 @@ export const Box = {
     this.data.team = this.data.team.filter((x) => x !== id);
     this.data.training = this.data.training.filter((t) => t.id !== id);
   },
-  markSeen(species) {
-    if (SPECIES[species] && !this.data.seen[species]) { this.data.seen[species] = true; this.dirty = true; }
+  // A wild survivalmon turned up (zone: where)
+  markSeen(species, zone) {
+    if (!SPECIES[species]) return;
+    if (!this.data.seen[species]) { this.data.seen[species] = true; this.dirty = true; }
+    if (zone) { const r = this.dexRec(species); if (!r.seenIn[zone]) { r.seenIn[zone] = true; this.dirty = true; } }
   },
   maxHpOf(mon) { return SPECIES[mon.species].hp; },
 
@@ -142,6 +184,7 @@ export const Box = {
       mon.level++;
       levels.push(mon.level);
     }
+    if (levels.length) { const r = this.dexRec(mon.species); r.maxLv = Math.max(r.maxLv, mon.level); }
     if (levels.length) this.save(); else this.dirty = true;
     return levels;
   },
@@ -179,7 +222,7 @@ export const Box = {
     this.data.eggs = this.data.eggs.filter((e) => {
       if (e.progress < e.need) return true;
       const fresh = !this.known(e.species);
-      const mon = this.add(e.species, { skills: e.skills, origin: e.kind === 'bred' ? 'bred' : 'egg' });
+      const mon = this.add(e.species, { skills: e.skills, origin: e.kind === 'bred' ? 'bred' : 'egg', ...(e.sz ? { sz: e.sz } : {}) });
       if (e.kind === 'bred') this.data.discovered[e.species] = true;
       if (fresh) this.hatchedNew.add(mon.id);
       out.push(mon);
@@ -213,6 +256,7 @@ export const Box = {
     const a = this.get(aId), b = this.get(bId);
     // only the 10 species breed (two different survivalmons, either of the same species or of two)
     const species = a && b && aId !== bId && SPECIES[a.species].stage === 1 && SPECIES[b.species].stage === 1 ? breedResult(a.species, b.species) : null;
+    const sz = rollSize(((a?.sz || 1) + (b?.sz || 1)) / 2); // big parents, bigger babies
     if (!species || this.data.eggs.length >= EGG_SLOTS) return null;
     const pick = (m) => ({ ...m.skills[Math.floor(Math.random() * m.skills.length)] });
     const ia = pick(a), ib = pick(b);
@@ -223,7 +267,7 @@ export const Box = {
     // a parent passing the breed's own species attack just strengthens it
     skills = skills.filter((s, i) => i === 0 || !(s.k === 'u' && s.sp === species));
     this.remove(aId); this.remove(bId);
-    this.data.eggs.push({ species, skills, need: BRED_HATCH, progress: 0, kind: 'bred' });
+    this.data.eggs.push({ species, skills, need: BRED_HATCH, progress: 0, kind: 'bred', sz });
     this.save();
     return species;
   },
@@ -245,6 +289,7 @@ export const Box = {
     this.data.bag[e.item]--;
     mon.species = e.into;
     mon.skills[0] = { k: 'u', sp: e.into, t: Math.min(4, mon.skills[0].t + 1) };
+    this.note(mon, 'evolved'); // it keeps its size: a big one grows into a big evolution
     this.data.discovered[e.into] = true;
     this.data.seen[e.into] = true;
     this.save();

@@ -2,7 +2,9 @@
 // breeding), the Clinic, the Survidex and the Spirit Shrine.
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
-import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
+import { SPECIES, TYPES, STONES, STONE_OF, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, evoLevel, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType,
+  SIZE, SZ_MIN, SZ_MAX, sizeLabel, monSize, fmtH, fmtW } from '../content/species.js';
+import { ZONES } from '../world/world.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
 import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
@@ -261,6 +263,7 @@ export const MonsUI = {
             <div class="ms-sub">${m.nick ? `${esc(sp.name)} · ` : ''}<b class="lv">Lv ${m.level}</b> ${types(sp)} ${atkTag(atkType(m.species))}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div>
             <div class="bar-row"><span>HP</span>${hpBar(m)}<span class="num">${Math.round(m.hp * maxHp)}/${maxHp}</span></div>
             <div class="bar-row"><span>EXP</span><div class="xp"><div style="width:${Math.min(100, (m.xp / need) * 100).toFixed(0)}%"></div></div><span class="num">${Math.floor(m.xp)}/${need}</span></div>
+            <div class="small ms-size">${(() => { const z = monSize(m.species, m.sz || 1); return `<b>${sizeLabel(m.sz || 1)}</b> · ${fmtH(z.h)} · ${fmtW(z.w)}`; })()}</div>
             <div class="small">${esc(sp.desc)}</div>
           </div>
         </div>
@@ -388,31 +391,108 @@ export const MonsUI = {
   },
 
   // ------------------------------------------------------------ Survidex
+  // Every survivalmon as a cell (had one: in colour; seen in the wild: a shadow; never met: faint).
+  // Tapping one opens its page, which tells only what you've found out yourself.
   showSurvidex(sel) {
     const cell = (id) => {
       const known = Box.known(id), seen = Box.data.seen[id];
       return `<span class="j-cell ${known ? 'caught' : seen ? 'seen' : ''} ${id === sel ? 'pick' : ''}" data-mact="dex" data-sp="${id}" title="${known || seen ? esc(SPECIES[id].name) : '???'}"><img class="px" src="${pic(id)}" alt=""></span>`;
     };
-    const group = (title, ids) => `<div class="j-title">${title}</div><div class="j-row">${ids.map(cell).join('')}</div>`;
-    const sp = sel && SPECIES[sel], known = sel && Box.known(sel);
-    const recipe = sp && sp.pair ? `${SPECIES[sp.pair[0]].name} + ${SPECIES[sp.pair[1]].name}` : '';
-    const detail = !sp ? '<p class="sub-note">Tap an entry.</p>' : !known && !Box.data.seen[sel] ? '<p class="sub-note">Not found yet.</p>' : `
-      <div class="mon-head"><img class="px" src="${pic(sel)}" alt=""><div><div class="name">${esc(sp.name)}</div>${types(sp)}</div></div>
-      <div class="small">${esc(sp.desc)}</div>
-      <div class="small"><b>${esc(sp.unique.name)}</b> ${atkTag(atkType(sel))} · ${esc(sp.unique.desc)}</div>
-      ${sp.stage === 2 ? `<div class="small">Bred from ${known ? esc(recipe) : '???'}</div>` : ''}
-      ${sp.stage >= 3 ? `<div class="small">Evolves from ${esc(SPECIES[sp.from].name)} at Lv ${evoLevel(SPECIES[sp.from])}</div>` : ''}
-      ${sp.evo ? `<div class="small">Evolves at Lv ${evoLevel(sp)} into ${Box.known(sp.evo) ? esc(SPECIES[sp.evo].name) : '???'}</div>` : ''}
-      <div class="small">You own ${Box.ownedCount(sel)}</div>`;
+    const group = (title, ids) => `<div class="j-title">${title} <span class="j-n">${ids.filter((id) => Box.known(id)).length}/${ids.length}</span></div><div class="j-row">${ids.map(cell).join('')}</div>`;
     const found = DEX_IDS.filter((id) => Box.known(id)).length;
     this.page('survidex', `
       <h2>Survidex</h2>
-      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span></div>
-      <div class="dex-body">
-        <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>
-        <div class="panel dex-detail">${detail}</div>
-      </div>`);
+      <div class="box-meta panel"><span>${found} / ${DEX_IDS.length} found</span><span class="small">Tap one for everything you know about it</span></div>
+      <div class="journal panel">${group('Species', BASE_IDS)}${group('Same-species breeds', PURE_IDS)}${group('Mixed breeds', MIXED_IDS)}${group('First evolutions · Lv 30', EVOLVED_IDS)}${group('Final evolutions · Lv 55', FINAL_IDS)}</div>`);
+    if (sel) this.showDexSheet(sel);
   },
+  // One survivalmon's Survidex page
+  showDexSheet(id) {
+    const sp = SPECIES[id];
+    if (!sp) return;
+    this.dexSel = id;
+    const known = Box.known(id), seen = Box.data.seen[id], r = Box.data.dex[id] || { n: 0, how: {}, where: {}, seenIn: {} };
+    const num = `#${String(DEX_IDS.indexOf(id) + 1).padStart(3, '0')}`;
+    const group = sp.stage === 1 ? 'Species' : sp.stage === 2 ? (sp.kind === 'pure' ? 'Same-species breed' : 'Mixed breed') : sp.stage === 3 ? 'First evolution' : 'Final evolution';
+    const zoneList = (o, counts) => Object.entries(o).map(([z, n]) => `${esc(ZONES[z]?.name || z)}${counts && n > 1 ? ` ×${n}` : ''}`).join(', ');
+    const head = (show) => `<div class="dex-head">
+        <div class="ms-pic ${show ? '' : 'unknown'}"><img class="px" src="${pic(id)}" alt=""></div>
+        <div class="ms-info"><span class="dex-num">${num} · ${group}</span>
+          <div class="ms-name"><b>${show ? esc(sp.name) : '???'}</b></div>
+          ${show ? `<div class="ms-sub">${types(sp)} ${atkTag(atkType(id))}</div>` : ''}
+          ${known ? `<div class="small dex-desc">${esc(sp.desc)}</div>` : ''}</div></div>`;
+    const nav = `<div class="loot-actions ms-actions">
+        <button class="btn small secondary" data-mact="dex-step" data-d="-1" aria-label="Previous">‹</button>
+        <button class="btn small secondary" data-mact="dex-close">Close <span class="key">Esc</span></button>
+        <button class="btn small secondary" data-mact="dex-step" data-d="1" aria-label="Next">›</button></div>`;
+    let body;
+    if (!known && !seen) {
+      const hint = sp.stage === 1 ? 'You have not met it yet. Species live in the wild: explore every zone.'
+        : sp.stage === 2 ? 'Not found yet. Breed two species in the Hatchery to find it.'
+        : `Not found yet. Evolve a survivalmon at Lv ${sp.stage === 3 ? 30 : 55} to find it.`;
+      body = `${head(false)}<p class="sub-note">${hint}</p>`;
+    } else if (!known) {
+      body = `${head(true)}
+        ${Object.keys(r.seenIn).length ? `<div class="dex-sec"><b>Seen in</b> ${zoneList(r.seenIn)}</div>` : ''}
+        <p class="sub-note">You have seen it but never had one. Catch one to learn more.</p>`;
+    } else {
+      // size: the species' usual range, then the smallest and biggest you've had
+      const S = SIZE[id], sizeOf = (sz) => { const m = monSize(id, sz); return `${fmtH(m.h)}, ${fmtW(m.w)} <span class="small">(${sizeLabel(sz)})</span>`; };
+      const size = `<div class="dex-sec"><b>Size</b><div>Usually ${fmtH(S.h * SZ_MIN)} to ${fmtH(S.h * SZ_MAX)}, ${fmtW(S.w * SZ_MIN ** 3)} to ${fmtW(S.w * SZ_MAX ** 3)}</div>
+          ${r.min != null ? `<div class="dex-rows"><span>Smallest you've had</span><span>${sizeOf(r.min)}</span><span>Biggest you've had</span><span>${sizeOf(r.max)}</span></div>` : ''}</div>`;
+      const total = r.n || Box.data.caught[id] || 0, parts = [['wild', 'caught'], ['egg', 'hatched'], ['bred', 'bred'], ['evolved', 'evolved']].filter(([k]) => r.how[k]);
+      const rest = total - parts.reduce((t, [k]) => t + r.how[k], 0); // ones from before the Survidex kept records
+      const how = [...parts.map(([k, w]) => `${r.how[k]} ${w}`), ...(rest > 0 ? [`${rest} more`] : [])].join(', ');
+      const when = r.first ? new Date(r.first).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const records = `<div class="dex-sec"><b>Your records</b><div class="dex-rows">
+          <span>You have now</span><span>${Box.ownedCount(id)}</span>
+          <span>Had in all</span><span>${total}${how ? ` <span class="small">(${how})</span>` : ''}</span>
+          ${when ? `<span>First one</span><span>${when}</span>` : ''}
+          ${r.maxLv ? `<span>Highest level</span><span>Lv ${r.maxLv}</span>` : ''}</div></div>`;
+      const stones = (o) => [...new Set(o.types.map((t) => STONES[STONE_OF[t]].name))].map((n) => `${/^[AEIOU]/.test(n) ? 'an' : 'a'} ${n}`).join(' or ');
+      let origin = '';
+      if (sp.stage === 1) {
+        const home = Object.entries(ZONES).filter(([, z]) => z.mons.includes(id)).map(([, z]) => esc(z.name)).join(' and ');
+        origin = `<div class="dex-sec"><b>Where</b><div>Lives mostly in ${home || 'every zone'}, and now and then turns up anywhere.</div>
+          ${Object.keys(r.where).length ? `<div class="small">You caught them in: ${zoneList(r.where, true)}</div>` : ''}
+          ${Object.keys(r.seenIn).length ? `<div class="small">You've seen them in: ${zoneList(r.seenIn)}</div>` : ''}</div>`;
+      } else if (sp.stage === 2) {
+        origin = `<div class="dex-sec"><b>Bred from</b><div>${sp.pair.map((b) => esc(SPECIES[b].name)).join(' + ')}</div></div>`;
+      } else {
+        origin = `<div class="dex-sec"><b>Evolves from</b><div>${esc(SPECIES[sp.from].name)} at Lv ${evoLevel(SPECIES[sp.from])}, with ${stones(SPECIES[sp.from])}</div></div>`;
+      }
+      // the evolution line: a breed, its first and its final evolution (only the ones you've had are named)
+      const node = (nid, label) => {
+        const k = Box.known(nid);
+        return `<div class="dex-node ${k ? '' : 'unknown'} ${nid === id ? 'here' : ''}" ${k ? `data-mact="dex-open" data-sp="${nid}"` : ''}><img class="px" src="${pic(nid)}" alt=""><b>${k ? esc(SPECIES[nid].name) : '???'}</b><span class="small">${label}</span></div>`;
+      };
+      let line;
+      if (sp.stage === 1) {
+        const breeds = [...PURE_IDS, ...MIXED_IDS].filter((b) => SPECIES[b].pair.includes(id));
+        const got = breeds.filter((b) => Box.known(b));
+        line = `<div class="dex-sec"><b>Breeds into</b><div class="small">Species never evolve. ${got.length} of its ${breeds.length} breeds found.</div>
+          <div class="dex-line wrap">${breeds.map((b) => node(b, Box.known(b) ? `with ${esc(SPECIES[SPECIES[b].pair.find((x) => x !== id) || id].name)}` : '')).join('')}</div></div>`;
+      } else {
+        let root = sp; while (root.from) root = SPECIES[root.from];
+        const e1 = root.evo, e2 = SPECIES[e1].evo;
+        line = `<div class="dex-sec"><b>Evolution line</b><div class="dex-line">${node(root.id, 'breed')}<span class="dex-arrow">→<small>Lv 30</small></span>${node(e1, 'first evolution')}<span class="dex-arrow">→<small>Lv 55</small></span>${node(e2, 'final evolution')}</div>
+          ${sp.evo ? `<div class="small">${Box.known(sp.evo) ? `Evolves into ${esc(SPECIES[sp.evo].name)}` : 'Its next form is still a mystery'} at Lv ${evoLevel(sp)}, with ${stones(sp)}.</div>` : '<div class="small">Its final form.</div>'}</div>`;
+      }
+      const atk = `<div class="dex-sec"><b>Attack</b><div><b>${esc(sp.unique.name)}</b> ${atkTag(atkType(id))}</div><div class="small">${esc(sp.unique.desc)}</div>
+          <div class="small">${esc(ATK_TYPES[atkType(id)]?.name || '')} survivalmons ${STAT_BLURB[atkType(id)] || ''}.</div></div>`;
+      body = `${head(true)}${atk}${size}${records}${origin}${line}`;
+    }
+    this.openModal(`<div class="modal-box panel mon-sheet dex-sheet">${body}${nav}</div>`);
+    this.modalKind = 'dexsheet';
+    this.el.modal.classList.add('sheet-modal');
+    this.el.select.querySelectorAll('.j-cell.pick').forEach((c) => c.classList.remove('pick'));
+    this.el.select.querySelector(`.j-cell[data-sp="${id}"]`)?.classList.add('pick');
+  },
+  closeDexSheet() {
+    if (this.modalKind === 'dexsheet') { this.closeModal(); this.modalKind = null; }
+    this.el.modal.classList.remove('sheet-modal');
+  },
+  stepDex(d) { const i = DEX_IDS.indexOf(this.dexSel); this.showDexSheet(DEX_IDS[(i + d + DEX_IDS.length) % DEX_IDS.length]); },
 
   // ------------------------------------------------------------ Spirit Shrine
   showShrine() {
@@ -510,7 +590,10 @@ export const MonsUI = {
         if (Meta.coins >= total) { Meta.data.coins -= total; Meta.save(); for (const m of Box.hurtMons()) Box.heal(m); Audio.play('heal'); }
         this.showClinic(); break;
       }
-      case 'dex': this.showSurvidex(el.dataset.sp); break;
+      case 'dex': this.showDexSheet(el.dataset.sp); break;
+      case 'dex-open': this.showDexSheet(el.dataset.sp); break;
+      case 'dex-step': this.stepDex(+el.dataset.d); break;
+      case 'dex-close': this.closeDexSheet(); break;
       case 'shrine-buy': if (Shrine.buy(el.dataset.node)) Audio.play('levelup'); this.showShrine(); break;
       case 'research': if (Shrine.startResearch()) this.toast('Research started. It keeps going while the game is closed.'); this.showShrine(); break;
     }

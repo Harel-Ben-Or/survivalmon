@@ -440,7 +440,7 @@ export const Combat = {
     // it faints where it stood, then shrinks away in a flash of light as it's caught
     if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
     // wild ones met later in a run are further grown
-    const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level: 1 + Math.floor(this.time / 60) });
+    const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level: 1 + Math.floor(this.time / 60), where: this.world.zoneAtPx(e.x, e.y) });
     P.caught.push(species);
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);

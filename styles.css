@@ -956,3 +956,32 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
   .list-bar select { font-size: 11px; padding: 3px 4px; }
   .free-bar .btn.small { font-size: 12px; padding: 4px 8px; }
 }
+
+/* a survivalmon's Survidex page */
+.j-n { margin-left: 4px; font-size: 11px; color: var(--muted); letter-spacing: 0; }
+.dex-sheet { gap: 8px; }
+.dex-head { display: flex; gap: 14px; align-items: flex-start; }
+.dex-head .ms-pic.unknown img { filter: brightness(0) opacity(.35); }
+.dex-num { font: 700 12px var(--font); letter-spacing: .05em; color: var(--gold); }
+.dex-desc { font-style: italic; }
+.dex-sec { display: flex; flex-direction: column; gap: 4px; padding: 7px 10px; font-size: 13px; line-height: 1.35;
+  background: rgba(0,0,0,.2); border: 1px solid var(--ink); border-radius: 8px; }
+.dex-sec > b:first-child { font: 700 11px var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.dex-rows { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+.dex-rows > span:nth-child(odd) { color: var(--muted); }
+.dex-line { display: flex; align-items: flex-start; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.dex-line.wrap { flex-wrap: wrap; overflow: visible; }
+.dex-node { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 84px; flex: none; padding: 4px; text-align: center;
+  background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; cursor: pointer; }
+.dex-node img { width: 52px; height: 52px; object-fit: contain; }
+.dex-node b { font-size: 12px; line-height: 1.1; }
+.dex-node.unknown { cursor: default; }
+.dex-node.unknown img { filter: brightness(0) opacity(.35); }
+.dex-node.here { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.dex-arrow { display: flex; flex-direction: column; align-items: center; align-self: center; font: 600 20px var(--font-title); color: var(--gold); }
+.dex-arrow small { font: 700 10px var(--font); color: var(--muted); }
+.ms-size b { color: var(--gold); }
+@media (max-height: 520px), (max-width: 640px) {
+  .dex-node { width: 70px; } .dex-node img { width: 40px; height: 40px; }
+  .dex-sec { padding: 5px 8px; font-size: 12px; }
+}

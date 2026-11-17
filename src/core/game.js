@@ -757,7 +757,7 @@ export class Game {
   // ------------------------------------------------------------ helpers used by content
   spawnEnemy(type, x, y, opts) {
     const e = new Enemy(this, type, x, y, opts);
-    Box.markSeen(opts?.wild || type);
+    Box.markSeen(opts?.wild || type, opts?.wild && this.mode === 'world' ? this.world.zoneAtPx(x, y) : null);
     this.enemies.push(e);
     return e;
   }
