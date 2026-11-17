@@ -116,9 +116,9 @@ export function rollContainer(P, c) {
   return out;
 }
 
-// Pick an evolution stone, leaning toward ones the team's mixed breeds can use.
+// Pick an evolution stone, leaning toward ones the team's survivalmons that can still evolve will need.
 export function rollStone(P) {
-  const wanted = (P?.pets || []).filter((p) => p.sp.kind === 'mixed').flatMap((p) => p.sp.types.map((t) => STONE_OF[t]));
+  const wanted = (P?.pets || []).filter((p) => p.sp.evo).flatMap((p) => p.sp.types.map((t) => STONE_OF[t]));
   if (wanted.length && chance(0.6)) return wanted[(Math.random() * wanted.length) | 0];
   const all = [...new Set(Object.values(STONE_OF))];
   return all[(Math.random() * all.length) | 0];

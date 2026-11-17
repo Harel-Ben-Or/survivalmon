@@ -25,7 +25,7 @@ import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { WEAPONS } from '../content/weapons.js';
 import { COMBOS } from '../content/artifacts.js';
-import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS } from '../content/species.js';
+import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
 import { BASE_ODDS } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
@@ -671,7 +671,7 @@ export class Game {
   }
   gainStone(id) {
     Box.addItem(id);
-    this.banner(`Rare find: ${STONES[id].name}!`, '#c88aff', true, 'Kept at your Ranch. Evolves a mixed breed of its type at Lv 10.');
+    this.banner(`Rare find: ${STONES[id].name}!`, '#c88aff', true, `Kept at your Ranch. Evolves a ${TYPES[STONES[id].type].name}-type breed at Lv 30 or Lv 55.`);
     Audio.play('chest');
     this.checkEvolve();
   }
