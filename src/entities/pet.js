@@ -3,9 +3,9 @@
 // HP it ends the run with is saved, and the Clinic heals it.
 import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
 import { attackFx } from '../content/attack_fx.js';
-import { SPECIES, archType } from '../content/species.js';
+import { SPECIES, archType, LEVEL_HP, LEVEL_ATK } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
-import { Box } from '../systems/collection.js';
+import { Box, statShape } from '../systems/collection.js';
 import { rand, TAU } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { armorCut } from '../systems/armor.js';
@@ -17,18 +17,20 @@ function tiered(sp, t) {
   const q = { ...sp.q }, k = TIER_POWER[t];
   q.dmg *= k;
   if (q.heal) q.heal *= k;
+  if (q.bless) { const b = q.bless; q.bless = { ...b, heal: b.heal * k, dmg: (b.dmg || 0) * k, haste: (b.haste || 0) * k, def: (b.def || 0) * k }; }
   if (t === 4) {
     if (sp.arch === 'shooter' || sp.arch === 'lobber') q.count = (q.count || 1) + 1;
     else if (sp.arch === 'zapper') q.chains = (q.chains || 3) + 2;
     else if (sp.arch === 'roller') q.cd *= 0.75;
     else if (sp.arch === 'aura') q.radius = (q.radius || 30) + 8;
     else if (sp.arch === 'slam') q.radius = (q.radius || 36) + 10;
+    else if (sp.arch === 'support') q.bless = { ...q.bless, cd: q.bless.cd * 0.75 };
   }
   return q;
 }
 
 // Type cards picked this run (g.typeUp): more damage for that attack type, plus the type's perk.
-export const TYPE_PERK = { shot: 0.92, charge: 0.9, area: 0.12 }; // cooldown factor per card, or size per card
+export const TYPE_PERK = { shot: 0.92, charge: 0.9, area: 0.12, support: 0.9 }; // cooldown factor per card, or size per card
 const AREA_R = { aura: 30, slam: 36, lobber: 22 };
 function typedUp(q, arch, type, ups) {
   const u = ups?.[type];
@@ -37,6 +39,7 @@ function typedUp(q, arch, type, ups) {
   if (type === 'shot' || type === 'charge') q.cd = (q.cd || 1) * Math.pow(TYPE_PERK[type], u.n);
   else if (type === 'chain') q.chains = (q.chains || 3) + u.n;
   else if (type === 'area') q.radius = (q.radius || AREA_R[arch] || 30) * (1 + TYPE_PERK.area * u.n);
+  else if (type === 'support' && q.bless) q.bless = { ...q.bless, cd: q.bless.cd * Math.pow(TYPE_PERK.support, u.n), heal: q.bless.heal * (1 + u.dmg) };
   return q;
 }
 
@@ -71,8 +74,9 @@ export class Pet {
     });
     this.q = this.attacks[0]?.q || {};
     this.guard = this.attacks.some((a) => a.arch === 'aura');
+    this.shape = statShape(this.mon); // HP, Attack, Speed and Defense by attack type
     const prev = this.maxHp;
-    this.maxHp = Math.round(sp.hp * (1 + 0.12 * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * (1 + this.team.hp));
+    this.maxHp = Math.round(sp.hp * this.shape.hp * (1 + LEVEL_HP * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * (1 + this.team.hp));
     if (prev && this.hp > 0) this.hp = Math.min(this.maxHp, this.hp * (this.maxHp / prev));
   }
   // A skill's tier in this run: its rolled tier plus any level-up boosts (S is the top)
@@ -80,8 +84,10 @@ export class Pet {
   get team() { return this.g.team || TEAM0; }
   get name() { return this.mon.nick || this.sp.name; }
   get power() {
-    return (1 + 0.08 * (this.mon.level - 1)) * (1 + 0.02 * (this.g.player.level - 1)) * Box.speciesMul(this.species) * (1 + this.team.dmg + (this.g.cry || 0));
+    return this.shape.atk * this.growth * (1 + 0.02 * (this.g.player.level - 1)) * (1 + this.team.dmg + (this.g.cry || 0));
   }
+  // Level and species upgrades, without the attack-type shape (heals use this)
+  get growth() { return (1 + LEVEL_ATK * (this.mon.level - 1)) * Box.speciesMul(this.species); }
   // Added to the hero's stats while this survivalmon is on the team
   passives() {
     let armor = 0, magnet = 0;
@@ -92,7 +98,7 @@ export class Pet {
   hurt(dmg) {
     if (this.fainted || this.g.mode !== 'world') return;
     // the hero's armor shields the team too, at half strength
-    const d = dmg * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * armorCut((this.g.player?.stats.armor || 0) * 0.5);
+    const d = dmg * (1 - this.shape.def) * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * (1 - this.g.blessed().def) * armorCut((this.g.player?.stats.armor || 0) * 0.5);
     this.hp -= d;
     this.flash = 0.12;
     this.calmT = 0;
@@ -168,7 +174,7 @@ export class Pet {
     }
     this.anim += dt * (this.moving ? 8 : 2);
     if (inRoom || this.fainted) return;
-    const rate = (g.combo('bestfriends') ? 1.5 : 1) / ((1 - (this.pass.swift || 0)) * (1 - this.team.haste));
+    const rate = (g.combo('bestfriends') ? 1.5 : 1) * this.shape.spd / ((1 - (this.pass.swift || 0)) * (1 - this.team.haste) * (1 - g.blessed().haste));
     for (const a of this.attacks) {
       a.cd -= dt * rate;
       if (a.cd <= 0) a.cd = ARCH[a.arch](this, g, a.q, a.fx || {}) ?? 0.4;
@@ -348,6 +354,16 @@ const ARCH = {
     }
     return q.tick || 0.5;
   },
+  // A support's dust still nicks foes around it; every few seconds it blesses the hero and the team
+  support(pet, g, q, fx) {
+    ARCH.aura(pet, g, q, fx);
+    const b = q.bless, P = g.player, tick = q.tick || 0.5;
+    if (!b) return tick;
+    pet.blessT = (pet.blessT ?? b.cd * 0.4) - tick;
+    const needed = g.nearestEnemy(P.x, P.y, 220) || P.hp < P.stats.maxHp || P.pets.some((o) => !o.fainted && o.hp < o.maxHp);
+    if (pet.blessT <= 0 && needed) { pet.blessT = b.cd; bless(pet, g, b, q.color); }
+    return tick;
+  },
   slam(pet, g, q, fx) {
     const R = q.radius || 36;
     if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) {
@@ -398,6 +414,19 @@ const ARCH = {
   },
 };
 const BOLT_FX = { bolt: ['#ffe680', '#ffffff'] };
+
+// A blessing: heals the hero and the team, then boosts everyone for a few seconds (damage, attack
+// speed or defense; several supports keep the best of each)
+function bless(pet, g, b, color = '#9af0c8') {
+  const P = g.player, amt = b.heal * pet.growth;
+  P.heal(amt + P.stats.maxHp * 0.02);
+  for (const o of P.pets) o.heal(amt * 1.5);
+  g.bless(b);
+  pet.swing();
+  g.addEffect({ type: 'ring', x: P.x, y: P.y, R: 28, life: 0.5, color });
+  for (const o of [P, ...P.pets]) if (!o.fainted) g.particles.burst(o.x, o.y - 8, { n: 8, colors: [color, '#ffffff'], speed: 26, life: 0.7, up: 24 });
+  Audio.play('heal');
+}
 
 // Evolved shooters: one or two big animated missiles that burst where they land
 function sigShot(pet, g, q, fx, t) {

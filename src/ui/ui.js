@@ -441,7 +441,7 @@ export class UI {
           <img class="px" src="${artURL('creature', c.pet.species)}">
           <div class="title">${esc(c.pet.name)}</div><div class="cat">${esc(name)}</div>
           ${s.k === 'u' ? `<div class="tags">${atkTag(atkType(s.sp))}</div>` : ''}
-          <div class="val"><b class="tier t${c.from}">${TIERS[c.from]}</b> → <b class="tier t${c.from + 1}">${TIERS[c.from + 1]}</b> for this run</div>
+          <div class="grade-up"><b class="tier t${c.from}${s.k === 'u' ? ' u' : ''}">${TIERS[c.from]}</b><i>➜</i><b class="tier t${c.from + 1}${s.k === 'u' ? ' u' : ''}">${TIERS[c.from + 1]}</b><span>for this run</span></div>
           ${cardRowsHTML(g, c)}
           <span class="key kb">${i + 1}</span></div>`;
       }
@@ -821,6 +821,11 @@ export class UI {
     if (this.screen === 'profiles' && !this.modalKind) {
       if (e.target.classList?.contains('prof-input')) { if (k === 'Enter' || k === 'NumpadEnter') this.profAct('save-name', e.target); else if (k === 'Escape') this.showProfiles(); return; }
       if (k === 'Escape') this.back();
+      return;
+    }
+    if (this.modalKind === 'breedpreview') {
+      if (k === 'Escape') this.closeModal();
+      else if (k === 'Enter' || k === 'NumpadEnter') this.monsAct('breed', { dataset: {} });
       return;
     }
     if (this.modalKind === 'monsheet') {

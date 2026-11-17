@@ -22,9 +22,22 @@ export const ATK_TYPES = {
   chain: { name: 'Chain', icon: 'atk_chain', color: '#ffe36a', desc: 'Lightning that jumps from foe to foe', perk: '+1 jump' },
   area: { name: 'Area', icon: 'atk_area', color: '#8fe08a', desc: 'Hits every foe in a circle: slams, auras and pools', perk: '12% bigger' },
   charge: { name: 'Charge', icon: 'atk_charge', color: '#ff8a7a', desc: 'Rushes through foes', perk: 'charges 10% more often' },
+  support: { name: 'Support', icon: 'team_heal', color: '#9af0c8', desc: 'Heals you and the team and gives everyone a short boost', perk: 'blesses 10% more often' },
 };
 export const ATK_TYPE_IDS = Object.keys(ATK_TYPES);
-const ARCH_TYPE = { shooter: 'shot', zapper: 'chain', slam: 'area', aura: 'area', lobber: 'area', roller: 'charge' };
+const ARCH_TYPE = { shooter: 'shot', zapper: 'chain', slam: 'area', aura: 'area', lobber: 'area', roller: 'charge', support: 'support' };
+
+// Stats. Every survivalmon has HP, Attack, Speed and Defense. The attack type sets the shape:
+// projectiles hit hardest, chain lightning is quick but fragile, chargers and area fighters are
+// tough, and supports are weak hitters that keep everyone else going. Each level adds HP and Attack.
+export const STAT_SHAPE = {
+  shot: { hp: 0.9, atk: 1.12, spd: 1, def: 0.05 },
+  chain: { hp: 0.8, atk: 1.06, spd: 1.1, def: 0 },
+  charge: { hp: 1.15, atk: 1, spd: 1, def: 0.15 },
+  area: { hp: 1.2, atk: 0.95, spd: 0.95, def: 0.12 },
+  support: { hp: 1.05, atk: 0.65, spd: 1, def: 0.08 },
+};
+export const LEVEL_HP = 0.12, LEVEL_ATK = 0.08; // per level
 export const archType = (arch) => ARCH_TYPE[arch];
 export const atkType = (speciesId) => ARCH_TYPE[SPECIES[speciesId]?.arch];
 
@@ -155,9 +168,9 @@ const MIXED = {
     unique: { name: 'Root Slam', desc: 'Slams the ground and roots foes in place.' },
     q: { dmg: 22, cd: 2.8, radius: 38, knock: 160, root: 1.5 },
     evo: { id: 'mossgiant', name: 'Mossgiant', desc: 'Forests grow on its shoulders.' } },
-  petalwisp: { pair: ['leafkit', 'glimmoth'], name: 'Petalwisp', desc: 'A flower fairy with petal wings.', arch: 'aura', hp: 1.5,
-    unique: { name: 'Blossom Ring', desc: 'Petal dust that hurts foes and heals the team.' },
-    q: { dmg: 6, tick: 0.5, radius: 32, heal: 3, healCd: 6, color: '#ffb8d8', fly: true },
+  petalwisp: { pair: ['leafkit', 'glimmoth'], name: 'Petalwisp', desc: 'A flower fairy with petal wings.', arch: 'support', hp: 1.5,
+    unique: { name: 'Blossom Blessing', desc: 'Every few seconds it heals you and the team, and everyone hits harder for a while.' },
+    q: { dmg: 8, tick: 0.5, radius: 30, color: '#ffb8d8', fly: true, bless: { cd: 7, dur: 5, heal: 8, dmg: 0.15 } },
     evo: { id: 'blossomwisp', name: 'Blossomwisp', desc: 'Spring follows wherever it flies.' } },
   zapgill: { pair: ['puddlit', 'voltowl'], name: 'Zapgill', desc: 'A frog with fins that crackle.', arch: 'zapper', hp: 1.6,
     unique: { name: 'Storm Surge', desc: 'Lightning that slows every foe it jumps to.' },
@@ -167,9 +180,9 @@ const MIXED = {
     unique: { name: 'Tidal Slam', desc: 'A splashing slam that knocks foes back and slows them.' },
     q: { dmg: 20, cd: 2.6, radius: 40, knock: 280, chill: 2 },
     evo: { id: 'reefguard', name: 'Reefguard', desc: 'A living reef that guards its friends.' } },
-  mistmoth: { pair: ['puddlit', 'glimmoth'], name: 'Mistmoth', desc: 'A moth with misty, dewdrop wings.', arch: 'aura', hp: 1.6,
-    unique: { name: 'Dream Mist', desc: 'A wide mist that slows foes and pulls in EXP.' },
-    q: { dmg: 5, tick: 0.5, radius: 42, chill: 1.5, magnet: 0.4, color: '#bfeaff', fly: true },
+  mistmoth: { pair: ['puddlit', 'glimmoth'], name: 'Mistmoth', desc: 'A moth with misty, dewdrop wings.', arch: 'support', hp: 1.6,
+    unique: { name: 'Dream Mist', desc: 'A mist that slows foes; every few seconds it heals a little and everyone attacks faster for a while.' },
+    q: { dmg: 6, tick: 0.5, radius: 40, chill: 1.5, magnet: 0.3, color: '#bfeaff', fly: true, bless: { cd: 7, dur: 5, heal: 4, haste: 0.15 } },
     evo: { id: 'dreammoth', name: 'Dreammoth', desc: 'Foes forget why they came.' } },
   cragowl: { pair: ['voltowl', 'pebblet'], name: 'Cragowl', desc: 'A stone-feathered owl with glowing eyes.', arch: 'slam', hp: 1.9,
     unique: { name: 'Thunder Quake', desc: 'A crashing slam that stuns foes.' },
@@ -283,9 +296,9 @@ const MIXED = {
     unique: { name: 'Iron Roll', desc: 'A heavy roll that sends foes flying.' },
     q: { dmg: 30, cd: 3.2, range: 150, speed: 220, time: 0.75, knock: 320, spin: true, armor: 2 },
     evo: { id: 'titanclad', name: 'Titanclad', desc: 'Nothing can dent its iron shell.' } },
-  chromoth: { pair: ['glimmoth', 'ferrit'], name: 'Chromoth', desc: 'A moth with mirror-chrome wings.', arch: 'aura', hp: 1.6,
-    unique: { name: 'Mirror Dust', desc: 'Shiny dust that hurts foes and guards you.' },
-    q: { dmg: 6, tick: 0.5, radius: 32, magnet: 0.2, armor: 2, color: '#e0e8f0', fly: true },
+  chromoth: { pair: ['glimmoth', 'ferrit'], name: 'Chromoth', desc: 'A moth with mirror-chrome wings.', arch: 'support', hp: 1.6,
+    unique: { name: 'Mirror Shield', desc: 'Every few seconds it heals a little and shields you and the team: everyone takes less damage for a while.' },
+    q: { dmg: 8, tick: 0.5, radius: 30, magnet: 0.2, armor: 1, color: '#e0e8f0', fly: true, bless: { cd: 7, dur: 5, heal: 4, def: 0.2 } },
     evo: { id: 'mirrorwing', name: 'Mirrorwing', desc: 'Foes are dazzled by their own reflection.' } },
 
   // --- the four new species with each other
@@ -332,6 +345,7 @@ for (const [id, m] of Object.entries(MIXED)) {
   SPECIES[id] = { id, stage: 2, kind: 'mixed', name: m.name, desc: m.desc, arch: m.arch, q: m.q, hp, unique: m.unique,
     types, type: types[0], lines: [a, b], line: a, pair: [a, b], evo: m.evo.id, fly: !!m.q.fly };
   const q = { ...m.q, dmg: Math.round(m.q.dmg * 1.2) };
+  if (q.bless) { const b = q.bless; q.bless = { ...b, dur: b.dur + 1, heal: b.heal * 1.3, dmg: (b.dmg || 0) * 1.3, haste: (b.haste || 0) * 1.3, def: (b.def || 0) * 1.3 }; }
   if (q.count) q.count += 1; else if (q.chains) q.chains += 1; else if (q.radius) q.radius += 8;
   SPECIES[m.evo.id] = { id: m.evo.id, stage: 3, kind: 'evolved', name: m.evo.name, desc: m.evo.desc, arch: m.arch, q, hp: Math.round(hp * 1.4),
     unique: { name: `Great ${m.unique.name}`, desc: `${m.unique.desc} Stronger and wider.` }, types, type: types[0], lines: [a, b], line: a, pair: [a, b], from: id };

@@ -4,7 +4,7 @@ import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
 import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
-import { Box, STARTER_HATCH, EGG_SLOTS, monName } from '../systems/collection.js';
+import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { Shrine, SHRINE_NODES, RESEARCH_ODDS } from '../systems/shrine.js';
 import { Audio } from '../core/audio.js';
@@ -27,6 +27,25 @@ export const atkTag = (t, short = false) => {
 };
 // Skill chips: grade, name and, for attack skills, the attack type
 export const skillChips = (mon) => mon.skills.map((k) => `<span class="sk" title="${esc(skillDesc(k))}"><b class="tier t${k.t}">${TIERS[k.t]}</b>${esc(skillName(k))}${k.k === 'u' ? atkTag(atkType(k.sp)) : ''}</span>`).join('');
+// A small tile for picking survivalmons: the picture with its level and attack type, the name, and
+// every skill as a grade badge and its name. The i button opens its sheet (stats and skills).
+export const pickTile = (m, cls = '', attrs = '') => `<div class="pick-tile ${cls} ${m.hp <= 0 ? 'fainted' : ''}" ${attrs} title="${esc(monName(m))}">
+    <span class="pt-pic"><img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="mt-lv">${m.level}</b>${atkTag(atkType(m.species), true)}</span>
+    <span class="pt-name">${esc(monName(m))}</span>
+    <span class="pt-skills">${m.skills.map((k) => `<span><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>${esc(skillName(k))}</span>`).join('')}</span>
+    ${m.hp < 1 ? `<span class="mt-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
+    <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button>
+  </div>`;
+// What each attack type's stats look like, in a few words
+const STAT_BLURB = { shot: 'hit hard but are a little fragile', chain: 'attack fast but have the least HP', charge: 'are tough and hit steadily', area: 'have the most HP and good defense', support: 'hit softly and keep everyone going' };
+// Stat bars. The bars are scaled to a strong Lv 30 survivalmon, so they fill up as it grows.
+const STAT_TOP = { hp: 700, atk: 380, spd: 160, def: 50, crit: 25 };
+export const statBlock = (m) => {
+  const s = monStats(m);
+  const row = (k, label, v, txt) => `<div class="st-row st-${k}"><span>${label}</span><div class="st-bar"><i style="width:${Math.max(3, Math.min(100, (v / STAT_TOP[k]) * 100)).toFixed(0)}%"></i></div><b>${txt}</b></div>`;
+  return `<div class="stats">${row('hp', 'HP', s.hp, s.hp)}${row('atk', 'Attack', s.atk, s.atk)}${row('spd', 'Speed', s.spd, s.spd)}${row('def', 'Defense', s.def, `${s.def}%`)}${s.crit ? row('crit', 'Crit', s.crit, `${s.crit}%`) : ''}
+    <div class="st-note">Each level: +${s.next.hp} HP, +${s.next.atk} Attack</div></div>`;
+};
 const hpBar = (mon) => `<div class="hp-bar ${mon.hp <= 0 ? 'out' : mon.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(mon.hp * 100)}%"></div></div>`;
 const healCost = (mon) => Math.ceil((1 - mon.hp) * (6 + mon.level * 2) * (1 - Meta.buildingBonus('clinic', 'discount')));
 
@@ -148,8 +167,7 @@ export const MonsUI = {
     if (!m) return;
     this.sheetId = id;
     const sp = SPECIES[m.species], need = petXpFor(m.level), evo = Box.evoInfo(m);
-    const heart = m.skills.filter((k) => k.k === 'p' && k.id === 'heart').reduce((v, k) => Math.max(v, PASSIVES.heart.vals[k.t]), 0);
-    const maxHp = Math.round(sp.hp * (1 + 0.12 * (m.level - 1)) * (1 + heart) * Box.speciesMul(sp.id));
+    const maxHp = monStats(m).hp;
     const value = Object.entries(Box.freeValue(m)).map(([l, n]) => `${n} ${SPECIES[l].name}`).join(' + ');
     const evoLine = !evo ? '' : Box.canEvolve(m) ? `<button class="btn small" data-evolve="${m.id}">Evolve into ${esc(SPECIES[evo.into].name)}</button>`
       : `<div class="evo-need">Evolves at Lv ${evo.level} with ${evo.items.map((st) => STONES[st].name).join(' or ')}</div>`;
@@ -176,6 +194,8 @@ export const MonsUI = {
             <div class="small">${esc(sp.desc)}</div>
           </div>
         </div>
+        <div class="team-label">Stats · ${esc(ATK_TYPES[atkType(m.species)]?.name || '')} survivalmons ${STAT_BLURB[atkType(m.species)] || ''}</div>
+        ${statBlock(m)}
         <div class="ms-skills">${skills}</div>
         ${evoLine}
         <div class="loot-actions ms-actions">
@@ -208,19 +228,56 @@ export const MonsUI = {
     }).join('');
     const ready = Box.mons.filter((m) => m.level >= BREED_LEVEL);
     const result = pick.length === 2 ? breedResult(Box.get(pick[0]).species, Box.get(pick[1]).species) : null;
-    const choose = ready.map((m) => `<div class="pool-mon ${pick.includes(m.id) ? 'sel' : ''}" data-mact="pick-parent" data-id="${m.id}"><img class="px" src="${pic(m.species)}" alt=""><b>${esc(monName(m))}</b><span>Lv ${m.level}</span></div>`).join('');
+    const choose = ready.map((m) => pickTile(m, pick.includes(m.id) ? 'sel' : '', `data-mact="pick-parent" data-id="${m.id}"`)).join('');
     this.page('hatchery', `
       <h2>Hatchery</h2>
       <div class="nests">${nests}</div>
       <div class="panel breed-box">
         <div class="team-label">Breed two survivalmons (Lv ${BREED_LEVEL}+). Both parents are used up; the egg gets one skill from each and a new skill of its own.</div>
-        ${ready.length < 2 ? `<p class="sub-note">You need two survivalmons at Lv ${BREED_LEVEL} or higher.</p>` : `<div class="mon-pool breed-pool">${choose}</div>`}
+        ${ready.length < 2 ? `<p class="sub-note">You need two survivalmons at Lv ${BREED_LEVEL} or higher.</p>` : `<div class="pick-tiles breed-pool">${choose}</div>`}
         <div class="breed-row">
-          <span>${pick.length === 2 ? `${esc(monName(Box.get(pick[0])))} + ${esc(monName(Box.get(pick[1])))} → <b>${result ? (Box.known(result) ? SPECIES[result].name : 'a mystery breed') : '?'}</b>` : `Pick two parents (${pick.length}/2)`}</span>
-          <button class="btn" data-mact="breed" ${result && Box.eggs.length < EGG_SLOTS ? '' : 'disabled'}>Breed</button>
+          <span>${pick.length === 2 ? `${esc(monName(Box.get(pick[0])))} + ${esc(monName(Box.get(pick[1])))} → <b>${result ? (Box.known(result) ? SPECIES[result].name : 'a mystery breed') : 'these two cannot breed'}</b>` : `Pick two parents (${pick.length}/2)`}</span>
+          <button class="btn" data-mact="breed-preview" ${result && Box.eggs.length < EGG_SLOTS ? '' : 'disabled'}>Breed…</button>
         </div>
         ${Box.eggs.length >= EGG_SLOTS ? '<p class="sub-note">All nests are full. Run in the wild to hatch them.</p>' : ''}
       </div>`);
+  },
+
+  // Before breeding: both parents, what they make, its own attack's tier odds and every skill pair
+  // it can inherit, with the chances. Breeding only happens from here.
+  showBreedPreview() {
+    const [a, b] = (this.breedPick || []).map((id) => Box.get(id));
+    const pv = a && b && Box.breedPreview(a.id, b.id, Shrine.odds());
+    if (!pv) return;
+    const known = Box.known(pv.species), sp = SPECIES[pv.species];
+    const chip = (k) => `<span class="sk"><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>${esc(skillName(k))}</span>`;
+    const pctTxt = (v) => (v >= 1 || v === 0 ? `${Math.round(v)}%` : '<1%');
+    const own = pv.own.map((v, i) => (v > 0.05 ? `<span><b class="tier t${i} u">${TIERS[i]}</b>${pctTxt(v)}</span>` : '')).join('');
+    const combos = pv.combos.map((c) => `<div class="bp-combo"><span class="sk-row">${c.skills.length ? c.skills.map(chip).join('') : '<span class="small">nothing extra</span>'}</span><b>${pctTxt(c.p)}</b></div>`).join('');
+    this.openModal(`
+      <div class="modal-box panel breed-preview">
+        <h2>Breed these two?</h2>
+        <div class="bp-parents">${pickTile(a, 'bp')}<span class="bp-op">+</span>${pickTile(b, 'bp')}<span class="bp-op">→</span>
+          <div class="bp-egg"><img class="px" src="${eggURL(known ? pv.species : null, 3)}" alt=""><b>${known ? esc(sp.name) : 'Mystery breed'}</b>${known ? atkTag(atkType(pv.species)) : '<span class="small">a breed you have not found yet</span>'}</div></div>
+        <div class="team-label">Its own attack${known ? ` (${esc(sp.unique.name)})` : ''}: tier odds</div>
+        <div class="odds">${own}</div>
+        <div class="team-label">Plus one skill from each parent, picked at random${pv.combos.length > 1 ? ': every way it can go' : ''}</div>
+        <div class="bp-combos">${combos}</div>
+        <p class="sub-note">${esc(monName(a))} and ${esc(monName(b))} are used up. The egg hatches after 3:00 in the wild.</p>
+        <div class="loot-actions">
+          <button class="btn" data-mact="breed">Breed</button>
+          <button class="btn secondary" data-mact="breed-cancel">Cancel <span class="key">Esc</span></button>
+        </div>
+      </div>`);
+    this.modalKind = 'breedpreview';
+    this.el.modal.classList.add('sheet-modal');
+  },
+  // Redraw whichever page a survivalmon sheet was opened from, and the sheet on top of it
+  monsRefresh() {
+    if (this.screen === 'team') this.renderTeam();
+    else if (this.screen === 'hatchery') this.showHatchery();
+    else { this.showRanch(); return; } // the Ranch reopens the sheet itself
+    if (this.sheetId != null) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
   },
 
   // ------------------------------------------------------------ Clinic
@@ -291,7 +348,7 @@ export const MonsUI = {
       case 'hatch-next': this.hatchNext(); break;
       case 'train':
         if (!Box.toggleTraining(id)) this.toast(`All ${Box.trainSpots()} training spots are taken.`);
-        this.showRanch(); break;
+        this.monsRefresh(); break;
       case 'free': {
         if (el.dataset.sure !== '1') { el.dataset.sure = '1'; el.textContent = 'Tap again to free'; el.classList.add('danger'); break; }
         const got = Box.free(id);
@@ -305,13 +362,13 @@ export const MonsUI = {
         const m = Box.get(id);
         if (m && !Box.inTeam(id) && m.hp <= 0) { this.toast('Fainted: heal it at the Clinic first.'); break; }
         if (!Box.toggleTeam(id)) this.toast(`Your team is full (${Box.teamSize()}). Take one out first.`);
-        this.showRanch(); break;
+        this.monsRefresh(); break;
       }
       case 'mon-rename': this.showMonSheet(id, true); break;
       case 'mon-rename-save': {
         Box.rename(id, this.el.modal.querySelector('.mon-name-input')?.value);
         Audio.play('click');
-        this.showRanch(); break;
+        this.monsRefresh(); break;
       }
       case 'sp-up': if (Box.buyUpgrade(el.dataset.line)) Audio.play('levelup'); this.showRanch(); break;
       case 'pick-parent': {
@@ -320,7 +377,10 @@ export const MonsUI = {
         if (i >= 0) p.splice(i, 1); else { if (p.length >= 2) p.shift(); p.push(id); }
         this.showHatchery(); break;
       }
+      case 'breed-preview': this.showBreedPreview(); break;
+      case 'breed-cancel': this.closeModal(); break;
       case 'breed': {
+        if (this.modalKind === 'breedpreview') this.closeModal();
         const [a, b] = this.breedPick;
         const species = Box.breed(a, b, Shrine.odds());
         if (species) { this.breedPick = []; Audio.play('chest'); this.toast('An egg! It hatches after 3:00 in the wild.'); }

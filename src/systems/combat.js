@@ -341,7 +341,7 @@ export const Combat = {
     let dmg = base;
     let crit = false;
     if (!o.raw) {
-      dmg *= o.pet ? S.petPower : S.might;
+      dmg *= (o.pet ? S.petPower : S.might) * (1 + this.blessed().dmg);
       const critChance = S.crit + (o.pet ? (o.petRef?.pass.claw || 0) + (this.team?.crit || 0) : 0);
       if (!o.noCrit && Math.random() < critChance) { crit = true; dmg *= S.critMult; }
       if (o.element === 'fire') dmg *= S.burnMult;

@@ -104,13 +104,22 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - 10 species in 10 types: Emberpup (fire), Leafkit (grass), Puddlit (water), Voltowl (storm), Pebblet (rock),
   Glimmoth (fairy), Duskit (shadow), Snowpip (ice), Venewt (toxic) and Ferrit (metal). The wild has 6 zones,
   each home to one or two of them (they turn up most there).
-- Every attack skill has one of 4 **attack types**, shown as a tag with its icon wherever the skill is:
+- Every attack skill has one of 5 **attack types**, shown as a tag with its icon wherever the skill is:
   **Projectile** (shots), **Chain** (lightning that jumps from foe to foe, a bit softer each jump), **Area**
-  (slams, auras and lobbed pools that hit everything in a circle) and **Charge** (rushes through foes).
+  (slams, auras and lobbed pools that hit everything in a circle), **Charge** (rushes through foes) and
+  **Support** (Petalwisp, Mistmoth, Chromoth and their evolutions: every few seconds a blessing heals the
+  hero and the team and, for a few seconds, everyone hits harder, attacks faster or takes less damage).
   Upgrades say which type they work on: Team Power, Haste and Focus (and the Shrine's Power branch) work
   on all attacks; the type cards on even levels (Sharp Shots, Chain Surge, Wide Blast, Stampede) add
   damage and a perk for one type (faster shots, +1 jump, bigger areas, more charges), up to 4 each per run.
   They only show up for types your team has, so a team of one type grows stronger with them.
+- **Stats**: HP, Attack, Speed and Defense (plus Crit with Sharp Claws), shown in each survivalmon's sheet.
+  The attack type sets their shape: Projectile hits hardest, Chain is quick but has the least HP, Charge and
+  Area are tough, Support hits softly. Every level adds HP (+12%) and Attack (+8%); passives (Big Heart,
+  Swift Strike, Thick Hide) show up in the stats too.
+- **Picking**: the team picker and the Hatchery use small tiles (level, attack type, every skill with its
+  grade); the i button opens the full sheet. Breeding first shows a preview: the breed, its own attack's
+  tier odds and every skill pair it can inherit, with the chances.
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
 - Every species and breed hatches from its own egg, and has walk, attack and faint animations.
 - Species and breeds fire basic attacks of their own (a projectile, coloured lightning, a lobbed blob that
@@ -186,7 +195,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;
   `src/ui/card_preview.js` — the "now → after" rows on each card;
   `src/systems/armor.js` — how armor cuts damage.
-- `assets/sprites/icons/up_*.png`, `team_*.png` and `atk_*.png` — the upgrade icons (hero upgrades, team upgrades) and the 4 attack type icons.
+- `assets/sprites/icons/up_*.png`, `team_*.png` and `atk_*.png` — the upgrade icons (hero upgrades, team upgrades) and the attack type icons (Support uses team_heal.png).
 - `assets/sprites/town/` — the town buildings (`ranch.png` is the Ranch barn).
 - `icons/trio-*.png` — the app icon (Emberpup, Leafkit and Puddlit together; `trio-art.png` is the 128px original, the rest are sizes of it). The file names change with each new icon, so installed apps notice it.
 - `index.html` — also holds the loading screen (shown until all the art has loaded; `src/gfx/art.js` counts the images).

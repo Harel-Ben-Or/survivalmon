@@ -130,7 +130,7 @@ export class Player {
 
   hurt(dmg, src) {
     if (this.iframes > 0 || this.dashT > 0 || this.g.mode !== 'world') return false;
-    const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor)));
+    const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor) * (1 - this.g.blessed().def)));
     this.hp -= d;
     this.iframes = 0.6; this.flash = 0.15;
     this.g.particles.number(this.x, this.y - 4, d, 'hurt');

@@ -50,7 +50,7 @@ const FLOWERS = ['flower_r', 'flower_w', 'flower_y', 'flower_p', 'flower_b'];
 const RANCH_MAX = 16; // survivalmons shown roaming the pasture
 const SPOTS_MAX = 6;  // training dummies the Ranch can hold
 // How far from its dummy each kind of attacker stands
-const STAND = { shooter: 32, zapper: 34, lobber: 34, slam: 20, aura: 14, roller: 30 };
+const STAND = { shooter: 32, zapper: 34, lobber: 34, slam: 20, aura: 14, support: 14, roller: 30 };
 
 export class Town {
   constructor() {
@@ -421,6 +421,7 @@ function trainStep(t, dt, g) {
       hitDummy(t, g);
       break;
     case 'aura':
+    case 'support':
       g.addEffect({ type: 'ring', x: t.x, y: t.y, R: STAND.aura + 8, life: 0.45, color: fx.color || '#ffffff' });
       hitDummy(t, g);
       break;

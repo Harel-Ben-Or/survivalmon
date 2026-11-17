@@ -31,6 +31,7 @@ import { Shrine } from '../systems/shrine.js';
 import { SETS, SLOTS, SLOT_NAME, offWeaponLevel } from '../content/gear.js';
 import { MATERIALS } from '../content/buildings.js';
 import { UI } from '../ui/ui.js';
+const NO_BLESS = Object.freeze({ dmg: 0, haste: 0, def: 0, end: 0 });
 import { Profiles } from '../systems/profiles.js';
 
 const MAX_STEP = 1 / 60;
@@ -199,6 +200,7 @@ export class Game {
     this.freshWorld = false;
     this.resetRunState();
     this.time = 0;
+    this.blessing = { dmg: 0, haste: 0, def: 0, end: 0 };
     this.runId = (this.runId || 0) + 1;
     this.activeCombos = new Set();
     // Merchant items last this one run
@@ -347,6 +349,11 @@ export class Game {
   updateWorld(dt) {
     const P = this.player;
     this.time += dt;
+    // a support's blessing: sparkles on everyone while it lasts
+    if (this.blessed() !== NO_BLESS && Math.random() < dt * 10) {
+      const who = [P, ...P.pets.filter((p) => !p.fainted)], o = who[Math.floor(Math.random() * who.length)];
+      this.particles.add({ x: o.x + rand(-6, 6), y: o.y - rand(2, 14), vx: 0, vy: -14, life: 0.6, color: Math.random() < 0.5 ? '#ffffff' : '#ffe9a0' });
+    }
     if (this.time >= this.runLength) { if (this.runLength >= RUN_LENGTH) this.victory(); else this.timeUp(); return; }
     this.director.update(dt);
     this.enemyHash.clear();
@@ -617,6 +624,14 @@ export class Game {
     if (this.buffs?.has('snack')) t.dmg += 0.2;
     if (this.buffs?.has('tonic')) t.def += 0.2;
     return t;
+  }
+  // Support survivalmons' blessings: a short boost for the hero and the whole team
+  blessed() { const B = this.blessing; return B && B.end > this.time ? B : NO_BLESS; }
+  bless(b) {
+    const B = this.blessing ||= { dmg: 0, haste: 0, def: 0, end: 0 };
+    if (B.end <= this.time) B.dmg = B.haste = B.def = 0;
+    B.dmg = Math.max(B.dmg, b.dmg || 0); B.haste = Math.max(B.haste, b.haste || 0); B.def = Math.max(B.def, b.def || 0);
+    B.end = Math.max(B.end, this.time + b.dur);
   }
   // Passive skills that work for the whole team or the whole run.
   applyTeamPassives() {

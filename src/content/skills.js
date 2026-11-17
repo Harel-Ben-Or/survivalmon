@@ -22,9 +22,18 @@ export const PASSIVES = {
 export const PASSIVE_IDS = Object.keys(PASSIVES);
 
 // Roll a tier from odds (an array of 5 weights). bonus moves that many points from D up to B, A and S.
-export function rollTier(odds = BASE_ODDS, bonus = 0) {
+function tierWeights(odds, bonus) {
   const w = [...odds];
   if (bonus > 0) { const m = Math.min(bonus, w[0]); w[0] -= m; w[2] += m * 0.5; w[3] += m * 0.35; w[4] += m * 0.15; }
+  return w;
+}
+// The chance of each tier (%) that rollTier gives
+export function tierOdds(odds = BASE_ODDS, bonus = 0) {
+  const w = tierWeights(odds, bonus), sum = w.reduce((a, b) => a + b, 0);
+  return w.map((v) => (v / sum) * 100);
+}
+export function rollTier(odds = BASE_ODDS, bonus = 0) {
+  const w = tierWeights(odds, bonus);
   let r = Math.random() * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < w.length; i++) { r -= w[i]; if (r < 0) return i; }
   return 0;

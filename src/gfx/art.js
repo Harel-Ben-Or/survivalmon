@@ -148,14 +148,19 @@ function makeCreature(id, canvas) {
 }
 
 function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
+// Sheets drawn facing left. The game treats every sprite as facing right, so these are mirrored as
+// they load; otherwise they walk backwards.
+const FACES_LEFT = new Set(['emberpup', 'leafkit', 'puddlit', 'cinderhound', 'thornhare', 'scaldfrog', 'magmaul', 'lilypaw', 'zapgill']);
 // A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
 function animatedCreature(id, sheet) {
   const c = sheet.width / 8, rows = Math.round(sheet.height / c);
-  const a = makeCreature(id, cut(sheet, 0, 0, c, c));
+  const mirror = FACES_LEFT.has(id);
+  const frame = (i, row) => { const f = cut(sheet, i * c, row * c, c, c); return mirror ? flip(f) : f; };
+  const a = makeCreature(id, frame(0, 0));
   a.anim = {};
   for (const [k, row] of ANIM_ROWS) {
     if (row >= rows) continue;
-    const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => cut(sheet, i * c, row * c, c, c));
+    const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
     if (row >= 2 && frames.every(blank)) continue; // e.g. rollers have no attack frames
     a.anim[k] = frames.map((R) => ({ R, L: flip(R) }));
   }

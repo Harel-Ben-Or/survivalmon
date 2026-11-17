@@ -7,7 +7,8 @@ import { playOpening } from './story.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
-import { skillChips } from './mons_ui.js';
+import { pickTile, skillName } from './mons_ui.js';
+import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 import { MERCHANT_ITEMS } from '../content/buildings.js';
 import { Meta, TRAINING } from '../systems/meta.js';
@@ -62,12 +63,11 @@ export const TownUI = {
       const m = team[i];
       if (!m) return `<div class="team-slot" data-slot="${i}"><span>Drag a survivalmon here</span></div>`;
       return `<div class="team-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}"><img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="">
-        <div><b>${esc(monName(m))}</b><span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<div class="sk-row">${skillChips(m)}</div></div><i>Tap to remove</i></div>`;
+        <div class="ts-main"><b>${esc(monName(m))}</b> <span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<span class="mt-tiers">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span></div>
+        <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button><i>✕</i></div>`;
     };
     // each card shows the survivalmon's skills and their grades, so two of the same species can be told apart
-    const card = (m) => `<div class="pool-mon ${Box.inTeam(m.id) ? 'in' : ''} ${m.hp <= 0 ? 'fainted' : ''}" data-mon="${m.id}" title="${esc(monName(m))}">
-      <img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="" draggable="false"><b>${esc(monName(m))}</b><span>Lv ${m.level}</span>${hp(m)}
-      <div class="pm-skills">${skillChips(m)}</div></div>`;
+    const card = (m) => pickTile(m, `team-pick ${Box.inTeam(m.id) ? 'in' : ''}`, `data-mon="${m.id}"`);
     // the same species side by side, best skills and highest level first
     const grade = (m) => m.skills.reduce((s, k) => s + k.t, 0);
     const pool = [...Box.mons].sort((a, b) => SPECIES[a.species].name.localeCompare(SPECIES[b.species].name) || grade(b) - grade(a) || b.level - a.level);
@@ -85,8 +85,8 @@ export const TownUI = {
             <div class="team-slots">${Array.from({ length: size }, (_, i) => slot(i)).join('')}</div>
           </div>
           <div class="team-right panel">
-            <div class="team-label">Your survivalmons: drag one onto a slot, or tap it</div>
-            <div class="mon-pool">${pool.map(card).join('') || `<em>${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
+            <div class="team-label">Your survivalmons: tap or drag one onto a slot · <b class="pt-info-key">i</b> for stats</div>
+            <div class="pick-tiles team-pool">${pool.map(card).join('') || `<em>${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
           </div>
         </div>
         ${this.buildingPanel('gate')}
@@ -107,7 +107,7 @@ export const TownUI = {
       if (!drag || e.pointerId !== drag.pid) return;
       if (!drag.ghost) {
         if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 8) return;
-        drag.ghost = drag.el.querySelector('img').cloneNode();
+        drag.ghost = drag.el.querySelector('.pt-pic img').cloneNode();
         drag.ghost.className = 'px drag-ghost';
         document.body.appendChild(drag.ghost);
         drag.el.classList.add('dragging');
@@ -134,14 +134,15 @@ export const TownUI = {
       Audio.play('click');
       this.renderTeam();
     };
-    root.querySelectorAll('.pool-mon').forEach((el) => el.addEventListener('pointerdown', (e) => {
-      if (drag) return;
+    root.querySelectorAll('.team-pick').forEach((el) => el.addEventListener('pointerdown', (e) => {
+      if (drag || e.target.closest('.pt-info')) return; // the i button opens the sheet instead
       drag = { pid: e.pointerId, id: +el.dataset.mon, el, x0: e.clientX, y0: e.clientY, ghost: null };
       document.addEventListener('pointermove', move);
       document.addEventListener('pointerup', end);
       document.addEventListener('pointercancel', end);
     }));
-    root.querySelectorAll('.team-slot.filled').forEach((el) => el.addEventListener('click', () => {
+    root.querySelectorAll('.team-slot.filled').forEach((el) => el.addEventListener('click', (e) => {
+      if (e.target.closest('.pt-info')) return;
       const m = Box.team()[+el.dataset.slot];
       if (!m) return;
       Box.toggleTeam(m.id);

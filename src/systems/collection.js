@@ -1,7 +1,7 @@
 // The Ranch: every survivalmon you own (copies too), the team, Hatchery eggs, species coins and
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
-import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, EVO_LEVEL, breedResult } from '../content/species.js';
-import { BASE_ODDS, rollTier, rollPassive, sameSkill } from '../content/skills.js';
+import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, EVO_LEVEL, breedResult, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
+import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
 
@@ -9,6 +9,26 @@ const KEY = Profiles.key('box'); // this player's save
 export const EGG_SLOTS = 3;
 // What a survivalmon is called: the name you gave it, or its species
 export const monName = (m) => (m && (m.nick || SPECIES[m.species]?.name)) || '';
+// A survivalmon's stats out of town (no run cards): HP, Attack (100 = an average Lv 1), Speed (100 =
+// normal attack rate), Defense (% less damage taken) and Crit (% double hits). `tiers` can override
+// skill tiers (a run's boosts). The Pet uses the same shape and growth.
+export function statShape(m) { return STAT_SHAPE[atkType(m.species)] || STAT_SHAPE.shot; }
+export function monPassives(m, tierOf = (s) => s.t) {
+  const pass = {};
+  for (const s of m.skills) if (s.k === 'p' && PASSIVES[s.id]) pass[s.id] = Math.max(pass[s.id] || 0, PASSIVES[s.id].vals[tierOf(s)]);
+  return pass;
+}
+export function monStats(m) {
+  const sp = SPECIES[m.species], sh = statShape(m), pass = monPassives(m), mul = Box.speciesMul(sp.id), L = m.level - 1;
+  return {
+    hp: Math.round(sp.hp * sh.hp * (1 + LEVEL_HP * L) * (1 + (pass.heart || 0)) * mul),
+    atk: Math.round(100 * sh.atk * (1 + LEVEL_ATK * L) * mul),
+    spd: Math.round((100 * sh.spd) / (1 - (pass.swift || 0))),
+    def: Math.round(100 * (1 - (1 - sh.def) * (1 - (pass.hide || 0)))),
+    crit: Math.round(100 * (pass.claw || 0)),
+    next: { hp: Math.round(sp.hp * sh.hp * LEVEL_HP * (1 + (pass.heart || 0)) * mul), atk: Math.round(100 * sh.atk * LEVEL_ATK * mul) },
+  };
+}
 export const STARTER_HATCH = 60;     // seconds in the wild before the starter egg hatches
 export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
@@ -172,6 +192,23 @@ export const Box = {
   // ---------------------------------------------------------- breeding
   // Both parents are used up. Each passes one of its skills at random (keeping its tier); the
   // breed's own skill rolls a fresh tier, helped by its parents' own skill tiers.
+  // What two parents could give, for the preview before breeding (same rules as breed below): the
+  // species, its own attack's tier odds (%), and every skill pair it can inherit with its chance (%).
+  breedPreview(aId, bId, odds = BASE_ODDS) {
+    const a = this.get(aId), b = this.get(bId);
+    const species = a && b && aId !== bId ? breedResult(a.species, b.species) : null;
+    if (!species) return null;
+    const own = tierOdds(odds, ((a.skills[0].t + b.skills[0].t) / 2) * 12);
+    const combos = new Map(), p = 100 / (a.skills.length * b.skills.length);
+    for (const ia of a.skills) for (const ib of b.skills) {
+      let skills = sameSkill(ia, ib) ? [{ ...ia, t: Math.min(4, Math.max(ia.t, ib.t) + 1) }] : [ia, ib];
+      skills = skills.filter((s) => !(s.k === 'u' && s.sp === species));
+      const key = skills.map((s) => `${s.k}:${s.sp || s.id}:${s.t}`).sort().join('|');
+      const c = combos.get(key);
+      if (c) c.p += p; else combos.set(key, { skills, p });
+    }
+    return { species, own, combos: [...combos.values()].sort((x, y) => y.p - x.p) };
+  },
   breed(aId, bId, odds = BASE_ODDS) {
     const a = this.get(aId), b = this.get(bId);
     const species = a && b && aId !== bId ? breedResult(a.species, b.species) : null;

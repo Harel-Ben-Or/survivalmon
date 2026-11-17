@@ -148,7 +148,7 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 @keyframes fade { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
 
 /* ---------- modals */
-.modal { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; background: rgba(20,12,16,.6); padding: 16px; overflow-y: auto; }
+.modal { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; background: rgba(20,12,16,.6); padding: 16px; overflow-y: auto; z-index: 5; }
 .modal-box { margin: auto; padding: 18px 20px; max-width: 920px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .cards { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .card {
@@ -591,8 +591,9 @@ body.in-town .dash-btn { display: none; }
 .mons-page { display: flex; flex-direction: column; align-items: center; gap: 12px; width: min(1100px, 100%); }
 .sk-row { display: flex; flex-wrap: wrap; gap: 4px; }
 .sk { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px 1px 1px; font-size: 12px; background: rgba(0,0,0,.25); border: 1px solid var(--ink); border-radius: 10px; }
-.tier { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 3px; font: 700 12px var(--font-title); color: var(--ink); border-radius: 9px; border: 1px solid var(--ink); }
-.tier.t0 { background: #b8b0a8; } .tier.t1 { background: #7ad27a; } .tier.t2 { background: #6aaaf0; } .tier.t3 { background: #c58af0; } .tier.t4 { background: #ffd84a; box-shadow: 0 0 6px rgba(255,216,74,.8); }
+/* skill grade badges: a little gem with a light top and a shaded bottom; the letter sits dead centre */
+.tier { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 18px; height: 18px; padding: 0 3px; font: 700 12px/1 var(--font-title); color: var(--ink); text-shadow: none; border-radius: 9px; border: 1.5px solid var(--ink); box-shadow: inset 0 -2px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.55); vertical-align: middle; }
+.tier.t0 { background: #c4bcb2; } .tier.t1 { background: #7ad27a; } .tier.t2 { background: #6aaaf0; } .tier.t3 { background: #c58af0; } .tier.t4 { background: #ffd84a; box-shadow: inset 0 -2px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.7), 0 0 6px rgba(255,216,74,.85); }
 .hp-bar { height: 6px; background: #4a2028; border: 1px solid var(--ink); border-radius: 3px; overflow: hidden; min-width: 50px; flex: 1; }
 .hp-bar div { height: 100%; background: #9af08a; }
 .hp-bar.low div { background: #ff8a5a; } .hp-bar.out div { width: 0 !important; } .hp-bar.warm div { background: #ffd84a; }
@@ -712,7 +713,11 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
 @media (max-height: 500px) { .lvl-sub { font-size: 12px; margin: -4px 0 6px; } }
 .lvl-skill .lvl-head { color: #ffd84a; }
 .lvl-skill { box-shadow: 0 0 0 3px var(--ink), 0 0 24px rgba(255,216,74,.45); }
-.card .val .tier { font-size: 14px; height: 22px; min-width: 22px; vertical-align: 2px; }
+/* "A → S for this run" on a skill-up card */
+.grade-up { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; font: 600 16px var(--font-title); color: #2e7a33; }
+.grade-up .tier { min-width: 28px; height: 28px; font-size: 16px; border-radius: 14px; border-width: 2px; }
+.grade-up .tier.u { border-radius: 7px; }
+.grade-up i { font-style: normal; color: #b0701c; font-size: 18px; }
 /* "now → after" rows on level-up cards */
 .card .deltas { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 4px 6px; background: rgba(43,29,36,.08); border-radius: 6px; }
 .card .delta { display: flex; align-items: baseline; justify-content: center; gap: 5px; flex-wrap: wrap; font-size: 15px; line-height: 1.25; color: #4a3a3a; }
@@ -720,7 +725,7 @@ canvas.cut { display: block; width: 260px; height: 220px; image-rendering: pixel
 .card .delta em { font-style: normal; }
 .card .delta i { font-style: normal; color: #b0701c; font-weight: 900; }
 .card .delta b { color: #2e7a33; font-weight: 900; }
-@media (max-height: 500px) { .card .delta { font-size: 12px; gap: 3px; } .card .deltas { padding: 2px 4px; } .card .val .tier { font-size: 11px; height: 17px; min-width: 17px; } }
+@media (max-height: 500px) { .card .delta { font-size: 12px; gap: 3px; } .card .deltas { padding: 2px 4px; } .grade-up { font-size: 13px; gap: 4px; } .grade-up .tier { min-width: 21px; height: 21px; font-size: 12px; } }
 
 /* talking to the villagers: a box along the bottom, the town still showing above it */
 .modal.talk-modal { align-items: flex-end; background: rgba(20,12,16,.22); }
@@ -824,3 +829,73 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
   .story-pick { padding: 6px 8px; gap: 5px; } .story-egg img { width: 32px; height: 32px; } .story-egg { padding: 4px 6px; }
   .story-cap.big p { font-size: 26px; }
 }
+
+/* Small picking tiles (team picker, Hatchery, breed preview): picture with level and attack type,
+   name, each skill as a grade badge and its name, and an i button for the full sheet */
+.pick-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; overflow-y: auto; min-height: 0; }
+.pick-tile { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 5px 5px 5px; min-width: 0;
+  background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; cursor: pointer; touch-action: pan-y; }
+.pick-tile.team-pick { cursor: grab; }
+.pick-tile.in { opacity: .45; }
+.pick-tile.dragging { opacity: .25; }
+.pick-tile.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.pick-tile.fainted { filter: grayscale(.8); opacity: .6; }
+.pt-pic { position: relative; align-self: center; display: block; width: 40px; height: 40px; background: #6dbd48; border: 2px solid var(--ink); border-radius: 6px; flex: none; }
+.pt-pic img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.pt-pic .atk-tag { position: absolute; left: -9px; top: -7px; padding: 1px; border-radius: 50%; }
+.pt-pic .atk-tag img { width: 12px !important; height: 12px !important; }
+.pt-name { font-size: 12px; font-weight: 800; line-height: 1.15; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-skills { display: flex; flex-direction: column; gap: 2px; }
+.pt-skills > span { display: flex; align-items: center; gap: 3px; min-width: 0; font-size: 10px; line-height: 1.2; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-skills .tier { flex: none; min-width: 14px; height: 14px; padding: 0 2px; font-size: 9px; border-width: 1px; }
+.pick-tile .mt-hp { align-self: center; }
+.pt-info { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; padding: 0; font: 700 12px/16px var(--font-title); font-style: italic;
+  color: var(--ink); background: #bfe8ff; border: 1.5px solid var(--ink); border-radius: 50%; cursor: pointer; }
+.pt-info:hover { background: #fff; }
+.pt-info-key { display: inline-block; width: 15px; height: 15px; font: 700 10px/13px var(--font-title); font-style: italic; text-align: center; color: var(--ink); background: #bfe8ff; border: 1px solid var(--ink); border-radius: 50%; text-transform: none; }
+.team-screen .team-pool { max-height: none; }
+.breed-pool { max-height: 300px; }
+/* compact team slots */
+.team-slot.filled { position: relative; padding-right: 50px; }
+.team-slot .ts-main { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; min-width: 0; flex: 1; }
+.team-slot .ts-main b { display: inline; }
+.team-slot .ts-main .hp-bar { flex: 1 1 60px; margin: 0; }
+.team-slot .ts-main .mt-tiers { flex-basis: 100%; justify-content: flex-start; }
+.team-slot .pt-info { top: 50%; right: 26px; transform: translateY(-50%); }
+.team-slot i { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 13px; }
+@media (max-height: 500px) {
+  .pick-tiles { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 4px; }
+  .pick-tile { padding: 3px 4px 4px; gap: 2px; }
+  .pt-pic { width: 32px; height: 32px; }
+  .pt-name { font-size: 11px; }
+  .team-slot.filled { min-height: 36px; }
+  .team-slot img { width: 30px; height: 30px; }
+}
+
+/* stats in a survivalmon's sheet */
+.stats { display: grid; gap: 4px; padding: 8px 10px; background: rgba(0,0,0,.18); border: 1px solid var(--ink); border-radius: 8px; }
+.st-row { display: grid; grid-template-columns: 62px 1fr 46px; align-items: center; gap: 8px; font-size: 12px; }
+.st-row span { color: var(--muted); font-weight: 700; }
+.st-row b { text-align: right; font: 600 14px var(--font-title); }
+.st-bar { height: 8px; background: #2b1d24; border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.st-bar i { display: block; height: 100%; border-radius: 3px; }
+.st-hp .st-bar i { background: linear-gradient(#b4f5a4, #5cc04a); }
+.st-atk .st-bar i { background: linear-gradient(#ffc28a, #e86a3a); }
+.st-spd .st-bar i { background: linear-gradient(#bfe8ff, #4aa3df); }
+.st-def .st-bar i { background: linear-gradient(#e0d8cc, #9a8c78); }
+.st-crit .st-bar i { background: linear-gradient(#ffe9a0, #f0b030); }
+.st-note { font-size: 11px; color: #9af08a; }
+
+/* the breeding preview */
+.breed-preview { max-width: 640px; align-items: stretch; gap: 8px; }
+.breed-preview h2 { text-align: center; }
+.bp-parents { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.bp-parents .pick-tile { width: 128px; cursor: default; }
+.bp-op { font: 600 24px var(--font-title); color: var(--gold); }
+.bp-egg { display: flex; flex-direction: column; align-items: center; gap: 3px; max-width: 130px; text-align: center; }
+.bp-egg img { width: 48px; height: 48px; object-fit: contain; }
+.bp-combos { display: flex; flex-direction: column; gap: 4px; }
+.bp-combo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 6px; background: rgba(0,0,0,.18); border-radius: 6px; }
+.bp-combo > b { font: 600 15px var(--font-title); color: var(--gold); }
+.breed-preview .odds { font-size: 13px; }
+.bp-parents .pt-info { display: none; }

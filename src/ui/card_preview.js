@@ -32,7 +32,7 @@ const PASSIVE_ROWS = {
   claw: ['Double hits', pct], nose: ['Coins', plus], star: ['Wild survivalmons', plus],
 };
 // what an attack skill gains on top at S grade (see tiered() in pet.js)
-const S_TWIST = { shooter: '+1 shot', lobber: '+1 shot', zapper: '+2 jumps', roller: 'charges more often', aura: 'wider aura', slam: 'wider slam' };
+const S_TWIST = { shooter: '+1 shot', lobber: '+1 shot', zapper: '+2 jumps', roller: 'charges more often', aura: 'wider aura', slam: 'wider slam', support: 'blesses more often' };
 
 export function cardRows(g, c) {
   const P = g.player, S = P.stats;
@@ -49,6 +49,13 @@ export function cardRows(g, c) {
     const sp = SPECIES[s.sp];
     const hit = (t) => `${Math.max(1, Math.round(sp.q.dmg * TIER_POWER[t] * pet.power * S.petPower))}`;
     const rows = [['Hit', hit(from), hit(to)]];
+    const b = sp.q.bless;
+    if (b) { // a support: its heal and its boost matter more than its hit
+      const heal = (t) => `${Math.round(b.heal * TIER_POWER[t] * pet.growth)}`;
+      const [label, key] = b.dmg ? ['Team damage', 'dmg'] : b.haste ? ['Team speed', 'haste'] : ['Team guard', 'def'];
+      const boost = (t) => `+${Math.round(b[key] * TIER_POWER[t] * 100)}%`;
+      rows.splice(0, 1, ['Heal', heal(from), heal(to)], [label, boost(from), boost(to)]);
+    }
     if (to === 4 && S_TWIST[sp.arch]) rows.push(['At S', '', S_TWIST[sp.arch]]);
     return rows;
   }

@@ -138,7 +138,7 @@ export const TEAM_CARDS = [
 ];
 // Attack type cards: more damage for one attack type, plus that type's perk (see ATK_TYPES and
 // typedUp in pet.js). Only offered for types someone on the team has; up to 4 of each per run.
-const TYPE_NAMES = { shot: 'Sharp Shots', chain: 'Chain Surge', area: 'Wide Blast', charge: 'Stampede' };
+const TYPE_NAMES = { shot: 'Sharp Shots', chain: 'Chain Surge', area: 'Wide Blast', charge: 'Stampede', support: 'Kind Hearts' };
 export const TYPE_CARDS = ATK_TYPE_IDS.map((t) => ({
   id: `t_${t}`, name: TYPE_NAMES[t], icon: ATK_TYPES[t].icon, base: 0.15, atk: t, w: 7,
   fmt: (v) => `${ATK_TYPES[t].name} attacks: +${pct(v)} damage, ${ATK_TYPES[t].perk}`,
