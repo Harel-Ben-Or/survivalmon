@@ -119,6 +119,10 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   Swift Strike, Thick Hide) show up in the stats too.
 - **Picking**: the team picker and the Hatchery use small tiles (level, attack type, every skill with its
   grade); the i button opens the full sheet.
+- **Lists**: every list of survivalmons (Ranch, team picker, Hatchery, Clinic) has a bar to sort it (name A to Z,
+  best skills, highest level, newest, oldest, most evolved) and filter it by type, group and attack type; each
+  list remembers its choice on the device. In the Ranch, **Free several** lets you tick many (never your team's)
+  and free them at once for their species coins (a second tap confirms).
 - **Hatchery**: only the 10 species breed (Lv 3+). The first one you tap fills the Parent A window, the next
   Parent B (each shows its picture, level, types, stats and skills); between them is what they make and the
   Combine button, which first shows a preview: its own attack's tier odds and every skill pair it can inherit.

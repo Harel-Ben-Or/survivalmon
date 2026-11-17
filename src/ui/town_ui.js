@@ -7,7 +7,7 @@ import { playOpening } from './story.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
-import { pickTile, skillName } from './mons_ui.js';
+import { pickTile, skillName, viewMons, listBar } from './mons_ui.js';
 import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 import { MERCHANT_ITEMS } from '../content/buildings.js';
@@ -68,9 +68,8 @@ export const TownUI = {
     };
     // each card shows the survivalmon's skills and their grades, so two of the same species can be told apart
     const card = (m) => pickTile(m, `team-pick ${Box.inTeam(m.id) ? 'in' : ''}`, `data-mon="${m.id}"`);
-    // the same species side by side, best skills and highest level first
-    const grade = (m) => m.skills.reduce((s, k) => s + k.t, 0);
-    const pool = [...Box.mons].sort((a, b) => SPECIES[a.species].name.localeCompare(SPECIES[b.species].name) || grade(b) - grade(a) || b.level - a.level);
+    // sorted and filtered as the bar above the list says
+    const pool = viewMons('team', Box.mons);
     this.el.select.innerHTML = `
       <div class="team-screen">
         <h2>Choose your team</h2>
@@ -86,7 +85,8 @@ export const TownUI = {
           </div>
           <div class="team-right panel">
             <div class="team-label">Your survivalmons: tap or drag one onto a slot · <b class="pt-info-key">i</b> for stats</div>
-            <div class="pick-tiles team-pool">${pool.map(card).join('') || `<em>${Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
+            ${Box.mons.length ? listBar('team', pool.length, Box.mons.length) : ''}
+            <div class="pick-tiles team-pool">${pool.map(card).join('') || `<em>${Box.mons.length ? 'None match these filters.' : Box.eggs.length ? 'Your first egg is still warming in the Hatchery. Run alone for now!' : 'No survivalmons yet'}</em>`}</div>
           </div>
         </div>
         ${this.buildingPanel('gate')}
@@ -96,6 +96,7 @@ export const TownUI = {
         </div>
       </div>`;
     this.bindTeamDrag();
+    this.bindListBars();
   },
   // A short drag lifts a survivalmon onto the slot under your finger; a tap adds or removes it.
   bindTeamDrag() {

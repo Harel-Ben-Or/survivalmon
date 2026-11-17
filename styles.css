@@ -935,3 +935,24 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
   .breed-stage { grid-template-columns: 1fr; }
   .breed-mid { width: auto; flex-direction: row; flex-wrap: wrap; }
 }
+
+/* the sort and filter bar above every list of survivalmons */
+.list-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; width: min(1100px, 100%); }
+.list-bar select { min-width: 0; max-width: 48%; padding: 4px 6px; font: 700 12px var(--font); color: var(--text);
+  background: var(--panel-2); border: 2px solid var(--ink); border-radius: 6px; cursor: pointer; }
+.list-bar select:focus-visible { outline: 2px solid var(--gold); }
+.lb-count { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.team-right .list-bar, .breed-box .list-bar { width: 100%; }
+/* Free several: chosen tiles, the team's locked, and the bar with the totals and the buttons */
+.mon-tile .mt-check { position: absolute; top: 3px; left: 3px; z-index: 1; width: 18px; height: 18px; font: 900 13px/15px var(--font); font-style: normal;
+  text-align: center; color: #fff; background: #fff; border: 2px solid var(--ink); border-radius: 5px; }
+.mon-tile.picked { border-color: #ff7a6a; box-shadow: 0 0 0 2px #ff7a6a; }
+.mon-tile.picked .mt-check { background: #e8543e; }
+.mon-tile.locked { opacity: .4; }
+.free-bar { position: sticky; bottom: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px;
+  width: min(1100px, 100%); padding: 6px 10px; }
+.free-bar .fb-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (max-height: 520px), (max-width: 640px) {
+  .list-bar select { font-size: 11px; padding: 3px 4px; }
+  .free-bar .btn.small { font-size: 12px; padding: 4px 8px; }
+}

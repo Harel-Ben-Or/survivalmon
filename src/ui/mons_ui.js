@@ -46,12 +46,53 @@ export const statBlock = (m) => {
   return `<div class="stats">${row('hp', 'HP', s.hp, s.hp)}${row('atk', 'Attack', s.atk, s.atk)}${row('spd', 'Speed', s.spd, s.spd)}${row('def', 'Defense', s.def, `${s.def}%`)}${s.crit ? row('crit', 'Crit', s.crit, `${s.crit}%`) : ''}
     <div class="st-note">Each level: +${s.next.hp} HP, +${s.next.atk} Attack</div></div>`;
 };
+// ---------------------------------------------------------------- sorting and filtering
+// Every list of survivalmons (Ranch, team picker, Hatchery, Clinic) has the same bar: how to sort it,
+// and filters by type, group and attack type. Each list remembers its own choice on this device.
+const SORTS = { name: 'Name A to Z', grade: 'Best skills first', level: 'Highest level first', new: 'Newest first', old: 'Oldest first', stage: 'Most evolved first' };
+const GROUPS = { all: 'All groups', species: 'Species', breed: 'Breeds', evo1: 'First evolutions', evo2: 'Final evolutions' };
+const LIST_SORT = { ranch: 'level', team: 'name', hatchery: 'name', clinic: 'level' };
+const groupOf = (m) => ['', 'species', 'breed', 'evo1', 'evo2'][SPECIES[m.species].stage];
+const bestTier = (m) => Math.max(...m.skills.map((k) => k.t));
+const tierSum = (m) => m.skills.reduce((s, k) => s + k.t, 0);
+const BY = {
+  name: (a, b) => monName(a).localeCompare(monName(b)) || bestTier(b) - bestTier(a) || b.level - a.level,
+  grade: (a, b) => bestTier(b) - bestTier(a) || tierSum(b) - tierSum(a) || b.level - a.level,
+  level: (a, b) => b.level - a.level || bestTier(b) - bestTier(a) || a.id - b.id,
+  new: (a, b) => (b.caughtAt || 0) - (a.caughtAt || 0) || b.id - a.id,
+  old: (a, b) => (a.caughtAt || 0) - (b.caughtAt || 0) || a.id - b.id,
+  stage: (a, b) => SPECIES[b.species].stage - SPECIES[a.species].stage || b.level - a.level || a.id - b.id,
+};
+const VIEWS_KEY = 'survivelmon.listViews';
+let views = null;
+const allViews = () => { if (!views) { try { views = JSON.parse(localStorage.getItem(VIEWS_KEY)) || {}; } catch { views = {}; } } return views; };
+export const listView = (key) => ({ sort: LIST_SORT[key] || 'level', type: '', group: 'all', atk: '', ...allViews()[key] });
+export function setListView(key, field, value) {
+  allViews()[key] = { ...listView(key), [field]: value };
+  try { localStorage.setItem(VIEWS_KEY, JSON.stringify(views)); } catch { /* storage unavailable */ }
+}
+// A list, filtered and sorted as its bar says
+export function viewMons(key, mons) {
+  const v = listView(key);
+  return mons.filter((m) => (!v.type || SPECIES[m.species].types.includes(v.type)) && (v.group === 'all' || groupOf(m) === v.group) && (!v.atk || atkType(m.species) === v.atk))
+    .sort(BY[v.sort] || BY.level);
+}
+// The bar: sort, type, group (left out where only species show) and attack type, and how many are shown
+export function listBar(key, shown, all, { groups = true } = {}) {
+  const v = listView(key);
+  const sel = (field, label, options, val) => `<select data-lv="${field}" aria-label="${label}">${Object.entries(options).map(([k, t]) => `<option value="${k}" ${k === val ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+  const types = { '': 'All types', ...Object.fromEntries(Object.entries(TYPES).map(([k, t]) => [k, t.name])) };
+  const atks = { '': 'All attacks', ...Object.fromEntries(Object.entries(ATK_TYPES).map(([k, t]) => [k, t.name])) };
+  return `<div class="list-bar" data-list="${key}">${sel('sort', 'Sort', SORTS, v.sort)}${sel('type', 'Type', types, v.type)}${groups ? sel('group', 'Group', GROUPS, v.group) : ''}${sel('atk', 'Attack type', atks, v.atk)}<span class="lb-count">${shown === all ? `${all} shown` : `${shown} of ${all}`}</span></div>`;
+}
 const hpBar = (mon) => `<div class="hp-bar ${mon.hp <= 0 ? 'out' : mon.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(mon.hp * 100)}%"></div></div>`;
 const healCost = (mon) => Math.ceil((1 - mon.hp) * (6 + mon.level * 2) * (1 - Meta.buildingBonus('clinic', 'discount')));
 
 export const MonsUI = {
   // A full-screen page over the town (the town stops while it's open).
   page(screen, html) {
+    this.bindListBars();
+    if (screen !== 'ranch') this.freeSel = null; // leaving the Ranch ends Free several
     const same = this.screen === screen, top = this.el.select.scrollTop;
     this.hideScreens();
     if (this.g.mode === 'town') this.g.modal = 'screen';
@@ -136,12 +177,26 @@ export const MonsUI = {
   showRanch() {
     const trained = Box.settleTraining();
     for (const t of trained) if (t.levels.length) this.toast(`${monName(t.mon)} trained up to Lv ${t.mon.level}!`);
-    const team = Box.team(), rest = Box.mons.filter((m) => !Box.inTeam(m.id)).sort((a, b) => b.level - a.level || a.id - b.id);
-    const tile = (m) => `<div class="mon-tile ${Box.inTeam(m.id) ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''}" data-mact="mon-open" data-id="${m.id}" title="${esc(monName(m))}">
+    const list = viewMons('ranch', Box.mons);
+    // Free several: tap survivalmons to choose them (not the team's), then free them all at once
+    const freeing = !!this.freeSel, sel = this.freeSel || new Set();
+    const tile = (m) => {
+      const inTeam = Box.inTeam(m.id), act = !freeing ? 'mon-open' : inTeam ? 'free-locked' : 'free-pick';
+      return `<div class="mon-tile ${inTeam ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''} ${freeing && inTeam ? 'locked' : ''} ${sel.has(m.id) ? 'picked' : ''}" data-mact="${act}" data-id="${m.id}" title="${esc(monName(m))}">
+        ${freeing && !inTeam ? `<i class="mt-check">${sel.has(m.id) ? '✓' : ''}</i>` : ''}
         <span class="mt-pic"><img class="px" src="${pic(m.species)}" alt="">${Box.isTraining(m.id) ? '<i class="mt-flag train" title="Training">T</i>' : ''}${Box.canEvolve(m) ? '<i class="mt-flag evo" title="Ready to evolve">!</i>' : ''}<b class="mt-lv">${m.level}</b></span>
         <span class="mt-name">${esc(monName(m))}</span>
         <span class="mt-tiers">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span>
         ${m.hp < 1 ? `<span class="mt-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
+      </div>`;
+    };
+    // what freeing the chosen ones pays, in species coins
+    const pay = {};
+    for (const id of sel) { const m = Box.get(id); if (m) for (const [l, n] of Object.entries(Box.freeValue(m))) pay[l] = (pay[l] || 0) + n; }
+    const payTxt = Object.entries(pay).map(([l, n]) => `${n} ${SPECIES[l].name}`).join(', ');
+    const freeBar = !freeing ? '' : `<div class="free-bar panel">
+        <span><b>${sel.size} chosen</b> <span class="small">${sel.size ? `· you get ${esc(payTxt)} coins` : '· tap survivalmons to free them (not your team)'}</span></span>
+        <span class="fb-btns"><button class="btn small secondary" data-mact="free-all">Choose all shown</button><button class="btn small secondary" data-mact="free-none">Clear</button><button class="btn small secondary" data-mact="free-cancel">Cancel</button><button class="btn small danger" data-mact="free-go" ${sel.size ? '' : 'disabled'}>${this.freeSure ? `Tap again to free ${sel.size}` : `Free ${sel.size}`}</button></span>
       </div>`;
     const ups = BASE_IDS.map((l) => {
       const c = Box.upCost(l), have = Box.speciesCoins(l);
@@ -154,12 +209,27 @@ export const MonsUI = {
         <span>${Box.mons.length} survivalmons</span>
         <span>Training ${Box.data.training.length}/${Box.trainSpots()} spots</span>
         <span class="tier-key">${TIERS.map((T, i) => `<b class="tier t${i}">${T}</b>`).join('')} skill tiers</span>
+        ${Box.isEmpty || freeing ? '' : '<button class="btn small secondary" data-mact="free-mode">Free several…</button>'}
       </div>
-      ${Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>' : `<div class="mon-tiles">${[...team, ...rest].map(tile).join('')}</div>
-      <p class="sub-note tap-note">Tap a survivalmon to see it up close.</p>`}
+      ${Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>' : `${listBar('ranch', list.length, Box.mons.length)}
+      ${list.length ? `<div class="mon-tiles">${list.map(tile).join('')}</div>` : '<p class="sub-note">None match these filters.</p>'}
+      ${freeBar || '<p class="sub-note tap-note">Tap a survivalmon to see it up close.</p>'}`}
       <details class="panel sp-ups" ${this.upsOpen ? 'open' : ''}><summary class="team-label">Species upgrades · free a survivalmon for its species coins, then make every one of that species (and its breeds) stronger</summary><div class="sp-grid">${ups}</div></details>`);
     this.el.select.querySelector('details.sp-ups')?.addEventListener('toggle', (e) => { this.upsOpen = e.target.open; });
-    if (this.sheetId != null) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
+    if (this.sheetId != null && !freeing) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
+  },
+  // A change in any list's sort or filter bar redraws that list
+  bindListBars() {
+    if (this.listBarsBound) return;
+    this.listBarsBound = true;
+    this.el.select.addEventListener('change', (e) => {
+      const s = e.target.closest('select[data-lv]');
+      if (!s) return;
+      const key = s.closest('.list-bar').dataset.list;
+      setListView(key, s.dataset.lv, s.value);
+      Audio.play('click');
+      ({ ranch: () => this.showRanch(), team: () => this.renderTeam(), hatchery: () => this.showHatchery(), clinic: () => this.showClinic() })[key]?.();
+    });
   },
   // One survivalmon up close
   showMonSheet(id, renaming = false) {
@@ -254,14 +324,15 @@ export const MonsUI = {
           <button class="btn" data-mact="breed-preview" ${full ? 'disabled' : ''}>Combine</button>${full ? '<span class="small">All nests are full</span>' : ''}`
         : `<span class="small">${A ? 'Now pick parent B' : 'Pick two parents'}</span>`}
       </div>`;
-    const choose = ready.map((m) => pickTile(m, pick.includes(m.id) ? 'sel' : '', `data-mact="pick-parent" data-id="${m.id}"`)).join('');
+    const shown = viewMons('hatchery', ready);
+    const choose = shown.map((m) => pickTile(m, pick.includes(m.id) ? 'sel' : '', `data-mact="pick-parent" data-id="${m.id}"`)).join('');
     this.page('hatchery', `
       <h2>Hatchery</h2>
       <div class="nests">${nests}</div>
       <div class="panel breed-box">
         <div class="team-label">Breed two species (Lv ${BREED_LEVEL}+), or two of the same one. Both parents are used up; the egg gets one skill from each and a new attack of its own.</div>
         <div class="breed-stage">${win(A, 0)}${mid}${win(B, 1)}</div>
-        ${ready.length ? `<div class="pick-tiles breed-pool">${choose}</div>` : `<p class="sub-note">You need species at Lv ${BREED_LEVEL} or higher. Catch them in the wild.</p>`}
+        ${ready.length ? `${listBar('hatchery', shown.length, ready.length, { groups: false })}${shown.length ? `<div class="pick-tiles breed-pool">${choose}</div>` : '<p class="sub-note">None match these filters.</p>'}` : `<p class="sub-note">You need species at Lv ${BREED_LEVEL} or higher. Catch them in the wild.</p>`}
         ${young ? `<p class="sub-note">${young} more ${young === 1 ? 'species is' : 'species are'} below Lv ${BREED_LEVEL}. Breeds and evolutions can't breed.</p>` : '<p class="sub-note">Only species breed; breeds and evolutions never do.</p>'}
       </div>`);
   },
@@ -307,12 +378,13 @@ export const MonsUI = {
   showClinic() {
     const hurt = Box.hurtMons();
     const total = hurt.reduce((s, m) => s + healCost(m), 0);
-    const rows = hurt.map((m) => `<div class="clinic-row panel"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b> Lv ${m.level}${m.hp <= 0 ? ' · <span class="out-txt">Fainted</span>' : ''}${hpBar(m)}</div>
+    const shown = viewMons('clinic', hurt);
+    const rows = shown.map((m) => `<div class="clinic-row panel"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b> Lv ${m.level}${m.hp <= 0 ? ' · <span class="out-txt">Fainted</span>' : ''}${hpBar(m)}</div>
       <button class="btn small" data-mact="heal" data-id="${m.id}" ${Meta.coins >= healCost(m) ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${healCost(m)}</button></div>`).join('');
     this.page('clinic', `
       <h2>Clinic</h2>
       <div class="box-meta panel"><span><img class="px inline-ic" src="${icon('coin', 2)}" alt=""> ${Meta.coins}</span><span>Survivalmons that stay home heal ${Math.round((0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest')) * 100)}% each run for free</span></div>
-      ${hurt.length ? `<div class="clinic-list">${rows}</div><button class="btn" data-mact="heal-all" ${Meta.coins >= total ? '' : 'disabled'}>Heal everyone (${total} coins)</button>` : '<p class="sub-note">Everyone is healthy.</p>'}`);
+      ${hurt.length ? `${listBar('clinic', shown.length, hurt.length)}<div class="clinic-list">${rows || '<p class="sub-note">None match these filters.</p>'}</div><button class="btn" data-mact="heal-all" ${Meta.coins >= total ? '' : 'disabled'}>Heal everyone (${total} coins)</button>` : '<p class="sub-note">Everyone is healthy.</p>'}`);
   },
 
   // ------------------------------------------------------------ Survidex
@@ -378,6 +450,24 @@ export const MonsUI = {
         const got = Box.free(id);
         if (got) this.toast(`Freed! +${Object.entries(got).map(([l, n]) => `${n} ${SPECIES[l].name} coins`).join(', ')}`);
         this.closeMonSheet();
+        this.showRanch(); break;
+      }
+      // Free several
+      case 'free-mode': this.freeSel = new Set(); this.freeSure = false; this.closeMonSheet(); this.showRanch(); break;
+      case 'free-pick': if (this.freeSel.has(id)) this.freeSel.delete(id); else this.freeSel.add(id); this.freeSure = false; this.showRanch(); break;
+      case 'free-locked': this.toast('That one is in your team. Take it out of the team to free it.'); break;
+      case 'free-all': for (const m of viewMons('ranch', Box.mons)) if (!Box.inTeam(m.id)) this.freeSel.add(m.id); this.freeSure = false; this.showRanch(); break;
+      case 'free-none': this.freeSel.clear(); this.freeSure = false; this.showRanch(); break;
+      case 'free-cancel': this.freeSel = null; this.freeSure = false; this.showRanch(); break;
+      case 'free-go': {
+        if (!this.freeSel?.size) break;
+        if (!this.freeSure) { this.freeSure = true; this.showRanch(); break; } // the second tap frees them
+        const got = {};
+        let n = 0;
+        for (const fid of this.freeSel) { const g = Box.free(fid); if (g) { n++; for (const [l, c] of Object.entries(g)) got[l] = (got[l] || 0) + c; } }
+        this.freeSel = null; this.freeSure = false;
+        Audio.play('coin');
+        this.toast(`Freed ${n} survivalmon${n === 1 ? '' : 's'}! +${Object.entries(got).map(([l, c]) => `${c} ${SPECIES[l].name}`).join(', ')} coins`);
         this.showRanch(); break;
       }
       case 'mon-open': this.showMonSheet(id); break;
