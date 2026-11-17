@@ -565,7 +565,11 @@ export const TownMode = {
     // new heroes
     const heroUnlocks = { bram: Meta.data.bestTime >= 120, lyra: Box.linesCaught() >= 3, pip: Object.keys(Box.data.discovered).length > 0 };
     for (const [h, ok] of Object.entries(heroUnlocks)) if (ok && Meta.unlockHero(h)) notes.push(`New hero: ${h[0].toUpperCase() + h.slice(1)}! Pick them at Enter the Wild.`);
-    const show = () => { for (const n of notes) this.toast(n); this.ui.showTown(); };
+    const show = () => {
+      for (const n of notes) this.toast(n);
+      this.ui.showTown();
+      if (!Meta.named && Meta.hero === 'rowan') this.ui.openNaming(); // Ollie asks who you are
+    };
     if (hatched.length) {
       this.fillTownRanch();
       const P = this.player;

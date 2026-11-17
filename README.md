@@ -66,8 +66,14 @@ Run it locally with `npm run dev` (http://localhost:5173). There's no build step
   or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie guards the
   gate, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
+- **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
+  another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
+  any time from the town menu.
 - **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00).
-- **Ranch**: a red barn with the fenced pasture right beside it, where every survivalmon you own roams
+- **Ranch** (talk to Dell): every survivalmon as a small tile with its level and a colored tier letter per
+  skill (square = its own attack, round = passives); tap one for its sheet: a big picture, HP and EXP, each
+  skill explained with what it gives at every tier, and buttons to rename it, put it in the team, train or free it.
+  The barn has the fenced pasture right beside it, where every survivalmon you own roams
   (walk in through the barn's door). Train them (they gain EXP while you're away): each training spot
   has a dummy in the pasture, and a survivalmon in training stands by it
   and hits it with its own attack (shots, lightning, lobbed blobs, slams, auras, charges; evolutions use

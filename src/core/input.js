@@ -6,6 +6,7 @@ const stick = { x: 0, y: 0 };
 const BLOCK = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'Tab']);
 
 window.addEventListener('keydown', (e) => {
+  if (/^(INPUT|TEXTAREA)$/.test(e.target?.tagName)) return; // typing a name: the keys are for the text box
   if (BLOCK.has(e.code)) e.preventDefault();
   if (!down.has(e.code)) pressed.add(e.code);
   down.add(e.code);

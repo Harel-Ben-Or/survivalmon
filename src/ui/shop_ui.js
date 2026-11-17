@@ -44,7 +44,7 @@ export const ShopUI = {
     this.wsHero = hero;
     const set = SETS[hero], n = Meta.gearCount(hero), minL = n === SLOTS.length ? Meta.minSlotLevel(hero) : 0;
     const tabs = HEROES.map((h) => `<button class="hero-chip ${h.id === hero ? 'sel' : ''} ${Meta.isHeroUnlocked(h.id) ? '' : 'locked'}" data-mact="ws-hero" data-h="${h.id}">
-      <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${h.name} ${Meta.gearCount(h.id)}/6</span></button>`).join('');
+      <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${Meta.heroName(h.id)} ${Meta.gearCount(h.id)}/6</span></button>`).join('');
     const rows = SLOTS.map((s) => {
       const own = Meta.hasGear(hero, s), L = Meta.slotLevel(hero, s), c = Meta.slotUpCost(hero, s);
       return `<div class="train-row ${own ? '' : 'missing'}"><img class="px" src="${icon(gearIcon(hero, s), 3)}" style="filter:hue-rotate(${set.hue}deg)${own ? '' : ' grayscale(1) opacity(.4)'}" alt="">

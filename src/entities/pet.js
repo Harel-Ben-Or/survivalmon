@@ -78,7 +78,7 @@ export class Pet {
   // A skill's tier in this run: its rolled tier plus any level-up boosts (S is the top)
   tierOf(s) { return Math.min(4, s.t + (this.boost?.get(s) || 0)); }
   get team() { return this.g.team || TEAM0; }
-  get name() { return this.sp.name; }
+  get name() { return this.mon.nick || this.sp.name; }
   get power() {
     return (1 + 0.08 * (this.mon.level - 1)) * (1 + 0.02 * (this.g.player.level - 1)) * Box.speciesMul(this.species) * (1 + this.team.dmg + (this.g.cry || 0));
   }

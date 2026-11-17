@@ -1,6 +1,7 @@
 // The people of the village: a keeper in every building (talk to them to use it), two who stand
 // outside (the Merchant at the stall, the guard at the gate) and villagers who wander the town.
 // Talk lines change as you get further: `min` is the story stage a line needs (see npcStage).
+// {name} in a line is the hero's name (the main character goes by the name the player gave).
 // Art: assets/sprites/npcs.png, 4 rows of 64px cells per person in NPC_IDS order: their 8 turns
 // (DIR8 order), then an idle cycle facing south (keepers) or walk cycles south, north, east
 // (villagers; west is east mirrored).
@@ -12,7 +13,7 @@ export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell
 export const NPCS = {
   wren: {
     name: 'Granny Wren', role: 'Hatchery keeper', home: 'hatchery', act: ['Eggs', 'showHatchery'],
-    hello: 'Come in, come in. Mind the eggs, dear.',
+    hello: 'Come in, {name}, come in. Mind the eggs, dear.',
     lines: [
       { max: 0, text: 'That egg you carried in is warm. Take it with you into the wild: eggs hatch with time spent out there.' },
       { text: 'Eggs warm up while you are out in the wild. Bring them home safe and they hatch.' },
@@ -24,7 +25,7 @@ export const NPCS = {
   },
   hale: {
     name: 'Coach Hale', role: 'Training Hall', home: 'training', act: ['Train', 'showTraining'],
-    hello: 'Feet apart! Shoulders back! Oh, it is you.',
+    hello: 'Feet apart! Shoulders back! Oh, it is you, {name}.',
     lines: [
       { text: 'Feet first! A quick tamer is a living tamer.' },
       { text: 'Coins in, muscle out. Every level you train here stays with you for good.' },
@@ -35,7 +36,7 @@ export const NPCS = {
   },
   tamsin: {
     name: 'Tamsin', role: 'Blacksmith', home: 'workshop', act: ['Gear', 'showWorkshop'],
-    hello: 'Hot iron, mind your fingers. What do you need?',
+    hello: 'Hot iron, {name}, mind your fingers. What do you need?',
     lines: [
       { text: 'Bring me what you find out there and I will make it sing.' },
       { text: 'Each gear slot grows on its own. Level them all and the whole set wakes up.' },
@@ -45,7 +46,7 @@ export const NPCS = {
   },
   sol: {
     name: 'Keeper Sol', role: 'Spirit Shrine', home: 'shrine', act: ['Upgrades', 'showShrine'],
-    hello: 'Breathe. The spirits are listening.',
+    hello: 'Breathe, {name}. The spirits are listening.',
     lines: [
       { text: 'What the spirits teach one survivalmon, every survivalmon learns.' },
       { text: 'Research takes time. Go out; the spirits work while you are away.' },
@@ -55,7 +56,7 @@ export const NPCS = {
   },
   poppy: {
     name: 'Doc Poppy', role: 'Healer', home: 'clinic', act: ['Heal', 'showClinic'],
-    hello: 'Anyone hurt? Let me have a look.',
+    hello: 'Hello, {name}! Anyone hurt? Let me have a look.',
     lines: [
       { text: 'Hurt mons rest here between runs. Resting is free; a quick fix costs coins.' },
       { text: 'Fainted is not gone. Bring them in and they will be back on their feet.' },
@@ -65,7 +66,7 @@ export const NPCS = {
   },
   quill: {
     name: 'Quill', role: 'Survidex archivist', home: 'survidex', act: ['Survidex', 'showSurvidex'],
-    hello: 'Ah! A visitor. Have you seen anything new out there?',
+    hello: 'Ah, {name}! Have you seen anything new out there?',
     lines: [
       { text: 'One hundred and ten kinds of survivalmon, and I mean to draw every one.' },
       { text: 'Each zone has its own natives. Write down where you meet them!' },
@@ -75,7 +76,7 @@ export const NPCS = {
   },
   dell: {
     name: 'Dell', role: 'Rancher', home: 'ranch', act: ['Ranch', 'showRanch'],
-    hello: 'Howdy! The herd is doing fine.',
+    hello: 'Howdy, {name}! The herd is doing fine.',
     lines: [
       { text: 'The ones you leave behind stay here and train on the dummies.' },
       { text: 'Happy mons, strong mons. Mostly happy, honestly.' },
@@ -85,7 +86,7 @@ export const NPCS = {
   },
   mags: {
     name: 'Mags', role: 'Merchant', home: 'stall', act: ['Shop', 'showMerchant'],
-    hello: 'Step right up! Everything lasts one whole run!',
+    hello: 'Step right up, {name}! Everything lasts one whole run!',
     lines: [
       { text: 'Snacks, tonics, horns and candles. Each lasts one run, so spend while it is hot.' },
       { text: 'I came for the falling star. I am staying for the customers.' },
@@ -95,7 +96,7 @@ export const NPCS = {
   },
   ollie: {
     name: 'Ollie', role: 'Gate guard', home: 'gate', act: ['Head out', 'showTeam'],
-    hello: 'Halt! Oh, it is you. Heading out?',
+    hello: 'Halt! Oh, it is you, {name}. Heading out?',
     lines: [
       { text: 'The wild is past this gate. Pick your team, then go.' },
       { text: 'When the clock runs out, come home. Nothing good walks at the end.' },
@@ -109,6 +110,7 @@ export const NPCS = {
       { text: 'When I grow up I am getting a Voltowl. A big one!' },
       { text: 'Mum says I cannot go past the gate. The Blight is out there.' },
       { text: 'Did you see the star fall? It was purple!' },
+      { text: '{name}! {name}! Can I see your survivalmons? Please?' },
     ],
   },
   juniper: {
@@ -139,7 +141,7 @@ export const NPCS = {
     name: 'Moss', role: 'Creature fan', home: 'roam',
     lines: [
       { text: 'Breeds can evolve with the right stone. I have read every page!' },
-      { text: 'Your team looks strong! Mine would be all Glimmoths.' },
+      { text: 'Your team looks strong, {name}! Mine would be all Glimmoths.' },
       { text: 'Quill lets me sort the drawings in the Survidex sometimes.' },
     ],
   },

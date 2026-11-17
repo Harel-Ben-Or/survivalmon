@@ -3,8 +3,8 @@
 import { iconURL } from '../gfx/assets.js';
 import { artURL } from '../gfx/art.js';
 import { SPECIES, TYPES, STONES, STARTERS, DEX_IDS, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, BREED_LEVEL, petXpFor, breedResult, ATK_TYPES, atkType } from '../content/species.js';
-import { TIERS, PASSIVES } from '../content/skills.js';
-import { Box, STARTER_HATCH, EGG_SLOTS } from '../systems/collection.js';
+import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
+import { Box, STARTER_HATCH, EGG_SLOTS, monName } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { Shrine, SHRINE_NODES, RESEARCH_ODDS } from '../systems/shrine.js';
 import { Audio } from '../core/audio.js';
@@ -111,26 +111,18 @@ export const MonsUI = {
   },
 
   // ------------------------------------------------------------ Ranch
+  // Every survivalmon as a small tile (picture, name, level and a tier badge per skill); tap one
+  // for its sheet: a big picture, its skills in depth and what to do with it.
   showRanch() {
     const trained = Box.settleTraining();
-    for (const t of trained) if (t.levels.length) this.toast(`${SPECIES[t.mon.species].name} trained up to Lv ${t.mon.level}!`);
-    const card = (m) => {
-      const sp = SPECIES[m.species], need = petXpFor(m.level), evo = Box.evoInfo(m);
-      const value = Object.entries(Box.freeValue(m)).map(([l, n]) => `${n} ${SPECIES[l].name}`).join(' + ');
-      const evoLine = !evo ? '' : Box.canEvolve(m) ? `<button class="btn small" data-evolve="${m.id}">Evolve</button>`
-        : `<div class="evo-need">Evolves at Lv ${evo.level} with ${evo.items.map((s) => STONES[s].name).join(' or ')}</div>`;
-      return `<div class="mon-card panel ${Box.inTeam(m.id) ? 'in-team' : ''}">
-        <div class="mon-head"><img class="px" src="${pic(m.species)}" alt=""><div><div class="name">${esc(sp.name)} <b class="lv">Lv ${m.level}</b></div>${types(sp)}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div></div>
-        <div class="bar-row"><span>HP</span>${hpBar(m)}</div>
-        <div class="bar-row"><span>EXP</span><div class="xp"><div style="width:${Math.min(100, (m.xp / need) * 100).toFixed(0)}%"></div></div></div>
-        <div class="sk-row">${skillChips(m)}</div>
-        ${evoLine}
-        <div class="mon-actions">
-          <button class="btn small secondary" data-mact="train" data-id="${m.id}">${Box.isTraining(m.id) ? 'Stop training' : 'Train'}</button>
-          <button class="btn small secondary free-btn" data-mact="free" data-id="${m.id}" title="Free it for ${esc(value)} coins">Free</button>
-        </div>
+    for (const t of trained) if (t.levels.length) this.toast(`${monName(t.mon)} trained up to Lv ${t.mon.level}!`);
+    const team = Box.team(), rest = Box.mons.filter((m) => !Box.inTeam(m.id)).sort((a, b) => b.level - a.level || a.id - b.id);
+    const tile = (m) => `<div class="mon-tile ${Box.inTeam(m.id) ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''}" data-mact="mon-open" data-id="${m.id}" title="${esc(monName(m))}">
+        <span class="mt-pic"><img class="px" src="${pic(m.species)}" alt="">${Box.isTraining(m.id) ? '<i class="mt-flag train" title="Training">T</i>' : ''}${Box.canEvolve(m) ? '<i class="mt-flag evo" title="Ready to evolve">!</i>' : ''}<b class="mt-lv">${m.level}</b></span>
+        <span class="mt-name">${esc(monName(m))}</span>
+        <span class="mt-tiers">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span>
+        ${m.hp < 1 ? `<span class="mt-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
       </div>`;
-    };
     const ups = BASE_IDS.map((l) => {
       const c = Box.upCost(l), have = Box.speciesCoins(l);
       return `<div class="sp-up"><img class="px" src="${pic(l)}" alt=""><div><b>${SPECIES[l].name}</b> <span class="lvl">Lv ${Box.upLevel(l)}</span><div class="small">${have} coins · +${Box.upLevel(l) * 8}% damage and HP</div></div>
@@ -140,10 +132,66 @@ export const MonsUI = {
       <h2>Ranch</h2>
       <div class="box-meta panel">
         <span>${Box.mons.length} survivalmons</span>
-        <span>Training ${Box.data.training.length}/${Box.trainSpots()} spots · they gain EXP even while you're away</span>
+        <span>Training ${Box.data.training.length}/${Box.trainSpots()} spots</span>
+        <span class="tier-key">${TIERS.map((T, i) => `<b class="tier t${i}">${T}</b>`).join('')} skill tiers</span>
       </div>
-      <div class="panel sp-ups"><div class="team-label">Species upgrades · free a survivalmon for its species coins, then make every one of that species (and its breeds) stronger</div><div class="sp-grid">${ups}</div></div>
-      ${Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>' : `<div class="mon-grid">${Box.mons.map(card).join('')}</div>`}`);
+      ${Box.isEmpty ? '<p class="sub-note">No survivalmons yet. Your first egg is warming in the Hatchery.</p>' : `<div class="mon-tiles">${[...team, ...rest].map(tile).join('')}</div>
+      <p class="sub-note tap-note">Tap a survivalmon to see it up close.</p>`}
+      <details class="panel sp-ups" ${this.upsOpen ? 'open' : ''}><summary class="team-label">Species upgrades · free a survivalmon for its species coins, then make every one of that species (and its breeds) stronger</summary><div class="sp-grid">${ups}</div></details>`);
+    this.el.select.querySelector('details.sp-ups')?.addEventListener('toggle', (e) => { this.upsOpen = e.target.open; });
+    if (this.sheetId != null) { if (Box.get(this.sheetId)) this.showMonSheet(this.sheetId); else this.closeMonSheet(); }
+  },
+  // One survivalmon up close
+  showMonSheet(id, renaming = false) {
+    const m = Box.get(id);
+    if (!m) return;
+    this.sheetId = id;
+    const sp = SPECIES[m.species], need = petXpFor(m.level), evo = Box.evoInfo(m);
+    const heart = m.skills.filter((k) => k.k === 'p' && k.id === 'heart').reduce((v, k) => Math.max(v, PASSIVES.heart.vals[k.t]), 0);
+    const maxHp = Math.round(sp.hp * (1 + 0.12 * (m.level - 1)) * (1 + heart) * Box.speciesMul(sp.id));
+    const value = Object.entries(Box.freeValue(m)).map(([l, n]) => `${n} ${SPECIES[l].name}`).join(' + ');
+    const evoLine = !evo ? '' : Box.canEvolve(m) ? `<button class="btn small" data-evolve="${m.id}">Evolve into ${esc(SPECIES[evo.into].name)}</button>`
+      : `<div class="evo-need">Evolves at Lv ${evo.level} with ${evo.items.map((st) => STONES[st].name).join(' or ')}</div>`;
+    // what each tier gives: the attack's power, or the passive's value
+    const ladder = (k) => TIERS.map((T, i) => `<span class="tl ${i === k.t ? 'on' : ''}"><b class="tier t${i}">${T}</b>${k.k === 'u' ? Math.round(TIER_POWER[i] * 100) : Math.round(PASSIVES[k.id].vals[i] * 100)}%</span>`).join('');
+    const skills = m.skills.map((k) => `<div class="ms-skill">
+        <b class="tier big t${k.t}">${TIERS[k.t]}</b>
+        <div><div class="ms-sk-name"><b>${esc(skillName(k))}</b> ${k.k === 'u' ? `${atkTag(atkType(k.sp))} <span class="small">attack</span>` : '<span class="small">passive</span>'}</div>
+          <div class="small">${esc(skillDesc(k))}</div>
+          <div class="tier-ladder">${k.k === 'u' ? 'Power' : 'Value'} by tier: ${ladder(k)}</div></div>
+      </div>`).join('');
+    const nameRow = renaming
+      ? `<div class="ms-name name-row"><input class="name-input mon-name-input" maxlength="14" value="${esc(monName(m))}" aria-label="Name" autocomplete="off" spellcheck="false" enterkeyhint="done"><button class="btn small" data-mact="mon-rename-save" data-id="${m.id}">Save</button></div>`
+      : `<div class="ms-name"><b>${esc(monName(m))}</b><button class="btn small secondary" data-mact="mon-rename" data-id="${m.id}">✎ Rename</button></div>`;
+    this.openModal(`
+      <div class="modal-box panel mon-sheet">
+        <div class="ms-top">
+          <div class="ms-pic ${m.hp <= 0 ? 'out' : ''}"><img class="px" src="${pic(m.species)}" alt=""></div>
+          <div class="ms-info">
+            ${nameRow}
+            <div class="ms-sub">${m.nick ? `${esc(sp.name)} · ` : ''}<b class="lv">Lv ${m.level}</b> ${types(sp)} ${atkTag(atkType(m.species))}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div>
+            <div class="bar-row"><span>HP</span>${hpBar(m)}<span class="num">${Math.round(m.hp * maxHp)}/${maxHp}</span></div>
+            <div class="bar-row"><span>EXP</span><div class="xp"><div style="width:${Math.min(100, (m.xp / need) * 100).toFixed(0)}%"></div></div><span class="num">${Math.floor(m.xp)}/${need}</span></div>
+            <div class="small">${esc(sp.desc)}</div>
+          </div>
+        </div>
+        <div class="ms-skills">${skills}</div>
+        ${evoLine}
+        <div class="loot-actions ms-actions">
+          <button class="btn small" data-mact="mon-team" data-id="${m.id}" ${m.hp <= 0 && !Box.inTeam(m.id) ? 'disabled' : ''}>${Box.inTeam(m.id) ? 'Leave the team' : 'Join the team'}</button>
+          <button class="btn small secondary" data-mact="train" data-id="${m.id}">${Box.isTraining(m.id) ? 'Stop training' : 'Train'}</button>
+          <button class="btn small secondary free-btn" data-mact="free" data-id="${m.id}" title="Free it for ${esc(value)} coins">Free</button>
+          <button class="btn small secondary" data-mact="mon-close">Close <span class="key">Esc</span></button>
+        </div>
+      </div>`);
+    this.modalKind = 'monsheet';
+    this.el.modal.classList.add('sheet-modal');
+    if (renaming) { const inp = this.el.modal.querySelector('.mon-name-input'); setTimeout(() => { inp?.focus(); inp?.select(); }, 60); }
+  },
+  closeMonSheet() {
+    this.sheetId = null;
+    if (this.modalKind === 'monsheet') { this.closeModal(); this.modalKind = null; }
+    this.el.modal.classList.remove('sheet-modal');
   },
 
   // ------------------------------------------------------------ Hatchery
@@ -159,7 +207,7 @@ export const MonsUI = {
     }).join('');
     const ready = Box.mons.filter((m) => m.level >= BREED_LEVEL);
     const result = pick.length === 2 ? breedResult(Box.get(pick[0]).species, Box.get(pick[1]).species) : null;
-    const choose = ready.map((m) => `<div class="pool-mon ${pick.includes(m.id) ? 'sel' : ''}" data-mact="pick-parent" data-id="${m.id}"><img class="px" src="${pic(m.species)}" alt=""><b>${esc(SPECIES[m.species].name)}</b><span>Lv ${m.level}</span></div>`).join('');
+    const choose = ready.map((m) => `<div class="pool-mon ${pick.includes(m.id) ? 'sel' : ''}" data-mact="pick-parent" data-id="${m.id}"><img class="px" src="${pic(m.species)}" alt=""><b>${esc(monName(m))}</b><span>Lv ${m.level}</span></div>`).join('');
     this.page('hatchery', `
       <h2>Hatchery</h2>
       <div class="nests">${nests}</div>
@@ -167,7 +215,7 @@ export const MonsUI = {
         <div class="team-label">Breed two survivalmons (Lv ${BREED_LEVEL}+). Both parents are used up; the egg gets one skill from each and a new skill of its own.</div>
         ${ready.length < 2 ? `<p class="sub-note">You need two survivalmons at Lv ${BREED_LEVEL} or higher.</p>` : `<div class="mon-pool breed-pool">${choose}</div>`}
         <div class="breed-row">
-          <span>${pick.length === 2 ? `${esc(SPECIES[Box.get(pick[0]).species].name)} + ${esc(SPECIES[Box.get(pick[1]).species].name)} → <b>${result ? (Box.known(result) ? SPECIES[result].name : 'a mystery breed') : '?'}</b>` : `Pick two parents (${pick.length}/2)`}</span>
+          <span>${pick.length === 2 ? `${esc(monName(Box.get(pick[0])))} + ${esc(monName(Box.get(pick[1])))} → <b>${result ? (Box.known(result) ? SPECIES[result].name : 'a mystery breed') : '?'}</b>` : `Pick two parents (${pick.length}/2)`}</span>
           <button class="btn" data-mact="breed" ${result && Box.eggs.length < EGG_SLOTS ? '' : 'disabled'}>Breed</button>
         </div>
         ${Box.eggs.length >= EGG_SLOTS ? '<p class="sub-note">All nests are full. Run in the wild to hatch them.</p>' : ''}
@@ -178,7 +226,7 @@ export const MonsUI = {
   showClinic() {
     const hurt = Box.hurtMons();
     const total = hurt.reduce((s, m) => s + healCost(m), 0);
-    const rows = hurt.map((m) => `<div class="clinic-row panel"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(SPECIES[m.species].name)}</b> Lv ${m.level}${m.hp <= 0 ? ' · <span class="out-txt">Fainted</span>' : ''}${hpBar(m)}</div>
+    const rows = hurt.map((m) => `<div class="clinic-row panel"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b> Lv ${m.level}${m.hp <= 0 ? ' · <span class="out-txt">Fainted</span>' : ''}${hpBar(m)}</div>
       <button class="btn small" data-mact="heal" data-id="${m.id}" ${Meta.coins >= healCost(m) ? '' : 'disabled'}><img class="px" src="${icon('coin', 2)}" alt="">${healCost(m)}</button></div>`).join('');
     this.page('clinic', `
       <h2>Clinic</h2>
@@ -247,6 +295,21 @@ export const MonsUI = {
         if (el.dataset.sure !== '1') { el.dataset.sure = '1'; el.textContent = 'Tap again to free'; el.classList.add('danger'); break; }
         const got = Box.free(id);
         if (got) this.toast(`Freed! +${Object.entries(got).map(([l, n]) => `${n} ${SPECIES[l].name} coins`).join(', ')}`);
+        this.closeMonSheet();
+        this.showRanch(); break;
+      }
+      case 'mon-open': this.showMonSheet(id); break;
+      case 'mon-close': this.closeMonSheet(); break;
+      case 'mon-team': {
+        const m = Box.get(id);
+        if (m && !Box.inTeam(id) && m.hp <= 0) { this.toast('Fainted: heal it at the Clinic first.'); break; }
+        if (!Box.toggleTeam(id)) this.toast(`Your team is full (${Box.teamSize()}). Take one out first.`);
+        this.showRanch(); break;
+      }
+      case 'mon-rename': this.showMonSheet(id, true); break;
+      case 'mon-rename-save': {
+        Box.rename(id, this.el.modal.querySelector('.mon-name-input')?.value);
+        Audio.play('click');
         this.showRanch(); break;
       }
       case 'sp-up': if (Box.buyUpgrade(el.dataset.line)) Audio.play('levelup'); this.showRanch(); break;

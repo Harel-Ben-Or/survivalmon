@@ -8,7 +8,7 @@ import { SPECIES, STONES, TYPES, petXpFor, ATK_TYPES, atkType } from '../content
 import { MonsUI, atkTag } from './mons_ui.js';
 import { ShopUI } from './shop_ui.js';
 import { MATERIALS } from '../content/buildings.js';
-import { Box } from '../systems/collection.js';
+import { Box, monName } from '../systems/collection.js';
 import { HERO_ART, artURL } from '../gfx/art.js';
 import { playEvolve as playEvolveScene } from './cutscene.js';
 import { CAT_LABEL, itemDef, levelDiff, combosForItem, nameOf, iconOf } from '../systems/loot.js';
@@ -144,7 +144,7 @@ export class UI {
         ${HEROES.map((h, i) => `
           <div class="hero-card panel clickable" data-hero="${h.id}" data-idx="${i}">
             <canvas class="px" width="64" height="64"></canvas>
-            <div class="name">${h.name}</div><div class="role">${h.title}</div>
+            <div class="name">${esc(Meta.heroName(h.id))}</div><div class="role">${h.title}</div>
             <div class="desc">${esc(h.desc)}</div>
             <div class="weapon"><img class="px" width="24" height="24" src="${icon(WEAPONS[h.weapon].icon, 2)}">${WEAPONS[h.weapon].name}</div>
             <ul>${h.perks.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
@@ -153,7 +153,7 @@ export class UI {
       </div>
       <div class="team-strip panel">
         <span>Your team</span>
-        ${Box.team().map((m) => `<img class="px" title="${esc(SPECIES[m.species].name)} Lv ${m.level}" src="${artURL('creature', m.species)}"><b>Lv ${m.level}</b>`).join('') || '<em>No critters yet</em>'}
+        ${Box.team().map((m) => `<img class="px" title="${esc(monName(m))} Lv ${m.level}" src="${artURL('creature', m.species)}"><b>Lv ${m.level}</b>`).join('') || '<em>No critters yet</em>'}
         <button class="btn small secondary" data-act="box">Edit team</button>
         <button class="btn small secondary" data-act="back">Back</button>
       </div>`;
@@ -405,10 +405,11 @@ export class UI {
   // ------------------------------------------------------------ modals
   openModal(html) {
     this.el.modal.innerHTML = html;
-    this.el.modal.classList.remove('hidden');
+    this.el.modal.classList.remove('hidden', 'talk-modal', 'sheet-modal');
   }
   closeModal() {
     this.el.modal.classList.add('hidden');
+    this.el.modal.classList.remove('talk-modal', 'sheet-modal');
     this.el.modal.innerHTML = '';
     this.modalKind = null;
     Input.endFrame();
@@ -458,7 +459,7 @@ export class UI {
     const head = kind === 'team' ? `Survivalmons level up! <small>Lv ${this.levelNum}</small>`
       : kind === 'bonus' ? 'Treasure! <small>Bonus pick</small>'
       : kind === 'skill' ? 'Boss defeated! <small>Skill up</small>'
-      : `${esc(P.hero.name)} levels up! <small>Lv ${this.levelNum}</small>`;
+      : `${esc(Meta.heroName(P.hero.id))} levels up! <small>Lv ${this.levelNum}</small>`;
     const sub = kind === 'team' ? 'Pick an upgrade for your team. Next level: your hero.'
       : kind === 'bonus' ? 'From the chest: pick one, for your hero or your team.'
       : kind === 'skill' ? 'Pick one skill to go up a grade for the rest of this run. Each skill can go up once per run.'
@@ -582,7 +583,7 @@ export class UI {
     this.modalKind = 'evolve';
     this.openModal(`
       <div class="modal-box panel evo-box">
-        <h2>${esc(sp.name)} is ready to evolve!</h2>
+        <h2>${esc(monName(mon))} is ready to evolve!</h2>
         <div class="evo-stage">
           <img class="px creature-big" src="${artURL('creature', mon.species)}">
           <span class="evo-arrow">→</span>
@@ -721,7 +722,7 @@ export class UI {
             <img class="px end-hero" src="${artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 5)}">
             <div class="end-title">
               <h2 style="color:${color}">${title}</h2>
-              <div class="end-sub">${esc(P.hero.name)} · ${formatTime(rec.time)} survived${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
+              <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
               <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>
@@ -773,6 +774,7 @@ export class UI {
     Audio.play('click');
     switch (t.dataset.act) {
       case 'profiles': this.closeModal(); this.showProfiles(); break;
+      case 'rename-player': this.closeModal(); this.openNaming(true); break;
       case 'install': {
         const p = window.__install;
         if (p) { p.prompt(); p.userChoice.finally(() => { window.__install = null; if (this.screen === 'title') this.showTitle(); }); }
@@ -820,6 +822,11 @@ export class UI {
       if (k === 'Escape') this.back();
       return;
     }
+    if (this.modalKind === 'monsheet') {
+      if (e.target.classList?.contains('mon-name-input')) { if (k === 'Enter' || k === 'NumpadEnter') { e.preventDefault(); this.monsAct('mon-rename-save', { dataset: { id: String(this.sheetId) } }); } else if (k === 'Escape') this.showMonSheet(this.sheetId); return; }
+      if (k === 'Escape') this.closeMonSheet();
+      return;
+    }
     if (this.modalKind === 'help') { if (k === 'Escape' || k === 'Enter') { this.closeModal(); if (this.g.mode === 'town') this.g.modal = null; } return; }
     if (this.modalKind === 'levelup') {
       const i = ['Digit1', 'Digit2', 'Digit3'].indexOf(k);
@@ -843,6 +850,12 @@ export class UI {
     if (this.modalKind === 'evolved' && ok) { e.preventDefault(); this.closeEvolve(); Input.endFrame(); return; }
     if (this.modalKind === 'end' && k === 'Enter') { this.g.toTown(true); return; }
     if ((this.modalKind === 'training' || this.modalKind === 'townmenu') && k === 'Escape') { this.closeModal(); this.g.modal = null; return; }
+    if (this.modalKind === 'naming') {
+      if (k === 'Enter' || k === 'NumpadEnter') { e.preventDefault(); this.nameAct('name-ok'); }
+      else if (k === 'Escape' && this.namingFromMenu) this.nameAct('name-cancel');
+      return;
+    }
+    if (this.modalKind === 'naming-done') { if (k === 'Enter' || k === 'KeyE' || k === 'Escape') this.nameAct('name-done'); return; }
     if (this.modalKind === 'talk') {
       if (k === 'Escape') this.talkAct('bye');
       else if (k === 'KeyE' || k === 'Enter') this.talkAct(this.talk && NPCS_ACT(this.talk.n.id) ? 'act' : 'chat');

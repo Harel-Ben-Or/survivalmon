@@ -5,6 +5,7 @@ import { BUILDINGS, buildingCost } from '../content/buildings.js';
 import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, SET_BONUS, MILESTONES, slotCost } from '../content/gear.js';
 import { Profiles } from './profiles.js';
 import { armorPct } from './armor.js';
+import { HEROES } from '../content/heroes.js';
 
 const KEY = Profiles.key('meta'); // this player's save
 const empty = () => ({ v: 1, coins: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
@@ -25,6 +26,8 @@ export const TRAINING = [
 
 // 20 s at first, growing a little faster each level, up to the longest run (8 minutes at level 18).
 export function runLengthAt(L) { return Math.min(RUN_LENGTH, 20 + 10 * L + L * L); }
+// A name typed by the player: trimmed, single spaces, at most 14 characters
+export const cleanName = (n) => String(n || '').replace(/[<>"&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
 function fmtTime(s) { return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; }
 
 export const Meta = {
@@ -42,6 +45,17 @@ export const Meta = {
   },
   save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
 
+  // The main character's name: Rowan until the player gives their own (asked at the gate)
+  get playerName() { return this.data.name || 'Rowan'; },
+  get named() { return !!this.data.named; },
+  setName(n) {
+    this.data.name = cleanName(n) || 'Rowan';
+    this.data.named = true;
+    this.save();
+    return this.data.name;
+  },
+  // A hero's name as shown everywhere: the main character (Rowan's place) goes by the player's name
+  heroName(id) { return id === 'rowan' ? this.playerName : HEROES.find((h) => h.id === id)?.name || id; },
   get coins() { return this.data.coins; },
   get hero() { return this.data.hero; },
   setHero(id) { this.data.hero = id; this.save(); },

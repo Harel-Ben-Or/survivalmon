@@ -5,7 +5,7 @@ import { artURL, npcFaceURL } from '../gfx/art.js';
 import { NPCS, npcLines, npcStage } from '../content/npcs.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
-import { Box } from '../systems/collection.js';
+import { Box, monName } from '../systems/collection.js';
 import { skillChips } from './mons_ui.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 import { MERCHANT_ITEMS } from '../content/buildings.js';
@@ -26,7 +26,7 @@ export const TownUI = {
     this.g.modal = null;
     this.g.syncTownPets?.();
     document.body.classList.add('in-town');
-    const team = Box.team().map((m) => `<span class="t-mon ${m.hp <= 0 ? 'fainted' : ''}" title="${esc(SPECIES[m.species].name)}"><img class="px" src="${artURL('creature', m.species) || icon('egg', 2)}" alt=""><b>${m.level}</b></span>`).join('');
+    const team = Box.team().map((m) => `<span class="t-mon ${m.hp <= 0 ? 'fainted' : ''}" title="${esc(monName(m))}"><img class="px" src="${artURL('creature', m.species) || icon('egg', 2)}" alt=""><b>${m.level}</b></span>`).join('');
     this.el.hud.innerHTML = `
       <div class="town-hud">
         <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b></div>
@@ -61,11 +61,11 @@ export const TownUI = {
       const m = team[i];
       if (!m) return `<div class="team-slot" data-slot="${i}"><span>Drag a survivalmon here</span></div>`;
       return `<div class="team-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}"><img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="">
-        <div><b>${esc(SPECIES[m.species].name)}</b><span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<div class="sk-row">${skillChips(m)}</div></div><i>Tap to remove</i></div>`;
+        <div><b>${esc(monName(m))}</b><span>${m.hp <= 0 ? 'Fainted: stays home until healed' : `Lv ${m.level}`}</span>${hp(m)}<div class="sk-row">${skillChips(m)}</div></div><i>Tap to remove</i></div>`;
     };
     // each card shows the survivalmon's skills and their grades, so two of the same species can be told apart
-    const card = (m) => `<div class="pool-mon ${Box.inTeam(m.id) ? 'in' : ''} ${m.hp <= 0 ? 'fainted' : ''}" data-mon="${m.id}" title="${esc(SPECIES[m.species].name)}">
-      <img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="" draggable="false"><b>${esc(SPECIES[m.species].name)}</b><span>Lv ${m.level}</span>${hp(m)}
+    const card = (m) => `<div class="pool-mon ${Box.inTeam(m.id) ? 'in' : ''} ${m.hp <= 0 ? 'fainted' : ''}" data-mon="${m.id}" title="${esc(monName(m))}">
+      <img class="px" src="${artURL('creature', m.species) || iconURL('icon', 'egg', 2)}" alt="" draggable="false"><b>${esc(monName(m))}</b><span>Lv ${m.level}</span>${hp(m)}
       <div class="pm-skills">${skillChips(m)}</div></div>`;
     // the same species side by side, best skills and highest level first
     const grade = (m) => m.skills.reduce((s, k) => s + k.t, 0);
@@ -77,7 +77,7 @@ export const TownUI = {
           <div class="team-left panel">
             <div class="team-label">Hero</div>
             <div class="hero-pick">${HEROES.map((h) => `<button class="hero-chip ${h.id === hero ? 'sel' : ''} ${Meta.isHeroUnlocked(h.id) ? '' : 'locked'}" data-pickhero="${h.id}">
-              <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${Meta.isHeroUnlocked(h.id) ? h.name : '🔒'}</span></button>`).join('')}</div>
+              <img class="px" src="${artURL('hero', h.id) || iconURL('hero', h.id, 2)}" alt=""><span>${Meta.isHeroUnlocked(h.id) ? esc(Meta.heroName(h.id)) : '🔒'}</span></button>`).join('')}</div>
             <div class="small hero-boost">${esc(HERO_BOOST[hero].text)}</div>
             ${Meta.data.buffs.length ? `<div class="small buffs">Ready for this run: ${Meta.data.buffs.map((b) => esc(MERCHANT_ITEMS.find((x) => x.id === b)?.name || b)).join(', ')}</div>` : ''}
             <div class="team-label">Team ${team.length}/${size}</div>
@@ -192,12 +192,13 @@ export const TownUI = {
   openTalk(n) {
     const def = NPCS[n.id], lines = npcLines(n.id, this.talkStage());
     const i = def.hello ? -1 : Math.floor(Math.random() * lines.length);
-    this.talk = { n, i, text: def.hello || lines[i] || '...' };
+    this.talk = { n, i, text: this.withName(def.hello || lines[i] || '...') };
     this.g.modal = 'talk';
     this.prompt(null);
     this.renderTalk();
   },
   talkStage() { return npcStage(Meta.data.bestTime || 0, Box.mons.length); },
+  withName(t) { return t.replace(/\{name\}/g, Meta.heroName(Meta.hero)); },
   renderTalk() {
     const { n, text } = this.talk, def = NPCS[n.id];
     this.openModal(`
@@ -217,12 +218,13 @@ export const TownUI = {
     this.el.modal.classList.add('talk-modal');
   },
   talkAct(what) {
+    if (what.startsWith('name-')) { this.nameAct(what); return; }
     if (!this.talk) return;
     const { n } = this.talk, def = NPCS[n.id];
     if (what === 'chat') {
       const lines = npcLines(n.id, this.talkStage());
       this.talk.i = (this.talk.i + 1) % lines.length;
-      this.talk.text = lines[this.talk.i] || '...';
+      this.talk.text = this.withName(lines[this.talk.i] || '...');
       this.renderTalk();
       return;
     }
@@ -233,6 +235,51 @@ export const TownUI = {
     this.g.modal = null;
     Input.endFrame();
     if (what === 'act' && def.act) this[def.act[1]]?.();
+  },
+
+  // ------------------------------------------------------------ the player's name
+  // Ollie at the gate asks who you are, the first time you come to town as the main character;
+  // the town menu can ask again. The name is used everywhere the main character's name shows.
+  openNaming(fromMenu = false) {
+    this.g.modal = 'naming';
+    this.prompt(null);
+    this.namingFromMenu = fromMenu;
+    this.openModal(`
+      <div class="talk-box panel">
+        <img class="px talk-face" src="${npcFaceURL('ollie')}" alt="">
+        <div class="talk-main">
+          <div class="talk-name"><b>Ollie</b><span>Gate guard</span></div>
+          <p class="talk-text">${fromMenu ? 'A new name? Go on, tell me.' : 'Halt! A new face. What do they call you, traveller? Rowan, is it?'}</p>
+          <div class="talk-actions name-row">
+            <input class="name-input" maxlength="14" value="${esc(Meta.playerName)}" aria-label="Your name" autocomplete="off" spellcheck="false" enterkeyhint="done">
+            <button class="btn small" data-talk="name-ok">That's me</button>
+            ${fromMenu ? '<button class="btn small secondary" data-talk="name-cancel">Cancel</button>' : ''}
+          </div>
+        </div>
+      </div>`);
+    this.modalKind = 'naming';
+    this.el.modal.classList.add('talk-modal');
+    const inp = this.el.modal.querySelector('.name-input');
+    setTimeout(() => { inp?.focus(); inp?.select(); }, 60);
+  },
+  nameAct(what) {
+    if (what === 'name-ok') {
+      const first = !this.namingFromMenu;
+      const name = Meta.setName(this.el.modal.querySelector('.name-input')?.value);
+      Audio.play('levelup');
+      this.el.modal.querySelector('.talk-text').textContent = first
+        ? `Welcome to the village, ${name}! Granny Wren keeps the eggs at the Hatchery. Off you go, and mind the Blight.`
+        : `${name} it is. I will tell the others.`;
+      this.el.modal.querySelector('.name-row').innerHTML = '<button class="btn small" data-talk="name-done">Bye <span class="key">E</span></button>';
+      this.modalKind = 'naming-done';
+      return;
+    }
+    // name-cancel or name-done
+    this.closeModal();
+    this.el.modal.classList.remove('talk-modal');
+    this.modalKind = null;
+    this.g.modal = null;
+    Input.endFrame();
   },
 
   // ------------------------------------------------------------ town menu (pause button / Esc)
@@ -249,6 +296,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>
           <button class="btn secondary" data-act="help">How to play</button>
+          <button class="btn secondary" data-act="rename-player">✎ Your name: ${esc(Meta.playerName)}</button>
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>

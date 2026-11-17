@@ -2,11 +2,13 @@
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
 import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, EVO_LEVEL, breedResult } from '../content/species.js';
 import { BASE_ODDS, rollTier, rollPassive, sameSkill } from '../content/skills.js';
-import { Meta } from './meta.js';
+import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
 
 const KEY = Profiles.key('box'); // this player's save
 export const EGG_SLOTS = 3;
+// What a survivalmon is called: the name you gave it, or its species
+export const monName = (m) => (m && (m.nick || SPECIES[m.species]?.name)) || '';
 export const STARTER_HATCH = 60;     // seconds in the wild before the starter egg hatches
 export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
@@ -91,6 +93,14 @@ export const Box = {
     if (joinTeam && this.data.team.length < this.teamSize()) this.data.team.push(mon.id);
     this.save();
     return mon;
+  },
+  // Give a survivalmon its own name (an empty name, or its species' name, takes it away again)
+  rename(id, name) {
+    const m = this.get(id);
+    if (!m) return;
+    const n = cleanName(name);
+    if (n && n !== SPECIES[m.species].name) m.nick = n; else delete m.nick;
+    this.save();
   },
   remove(id) {
     this.data.mons = this.data.mons.filter((m) => m.id !== id);
