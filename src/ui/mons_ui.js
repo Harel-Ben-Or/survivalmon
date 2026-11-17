@@ -217,7 +217,9 @@ export const MonsUI = {
 
   // ------------------------------------------------------------ Hatchery
   showHatchery() {
-    const pick = this.breedPick = (this.breedPick || []).filter((id) => Box.get(id)?.level >= BREED_LEVEL);
+    // two parent slots, A and B; only the 10 species breed (a breed never does)
+    const ok = (id) => { const m = Box.get(id); return m && m.level >= BREED_LEVEL && SPECIES[m.species].stage === 1; };
+    const pick = this.breedPick = [0, 1].map((i) => (ok((this.breedPick || [])[i]) ? this.breedPick[i] : null));
     const nests = Array.from({ length: EGG_SLOTS }, (_, i) => {
       const e = Box.eggs[i];
       if (!e) return '<div class="nest panel"><img class="px" src="' + eggURL(null, 2) + '" style="opacity:.25" alt=""><span>Empty nest</span></div>';
@@ -226,27 +228,48 @@ export const MonsUI = {
       return `<div class="nest panel"><img class="px ${close ? 'egg-ready' : ''}" src="${eggURL(e.species, 2)}" alt=""><b>${known ? `${SPECIES[e.species].name} egg` : 'Mystery egg'}</b>
         <div class="hp-bar warm"><div style="width:${Math.round((e.progress / e.need) * 100)}%"></div></div><span>${mmss(e.progress)} / ${mmss(e.need / 1)} in the wild</span></div>`;
     }).join('');
-    const ready = Box.mons.filter((m) => m.level >= BREED_LEVEL);
-    const result = pick.length === 2 ? breedResult(Box.get(pick[0]).species, Box.get(pick[1]).species) : null;
+    const basics = Box.mons.filter((m) => SPECIES[m.species].stage === 1);
+    const ready = basics.filter((m) => m.level >= BREED_LEVEL), young = basics.length - ready.length;
+    const [A, B] = pick.map((id) => id && Box.get(id));
+    const result = A && B ? breedResult(A.species, B.species) : null;
+    const full = Box.eggs.length >= EGG_SLOTS;
+    // a parent window: the chosen survivalmon's picture, level, types, attack and skills
+    const win = (m, i) => {
+      const label = i ? 'Parent B' : 'Parent A';
+      if (!m) return `<div class="parent-win empty"><span class="pw-label">${label}</span><img class="px" src="${eggURL(null, 2)}" alt=""><span class="small">${i && !A ? 'Pick parent A first' : 'Tap a survivalmon below'}</span></div>`;
+      const sp = SPECIES[m.species], st = monStats(m);
+      return `<div class="parent-win">
+        <span class="pw-label">${label}</span>
+        <button class="pw-x" data-mact="parent-clear" data-slot="${i}" aria-label="Take ${esc(monName(m))} out">✕</button>
+        <div class="pw-head"><img class="px" src="${pic(m.species)}" alt=""><div><b>${esc(monName(m))}</b><div class="small">Lv ${m.level}${m.nick ? ` · ${esc(sp.name)}` : ''}</div><div>${types(sp)} ${atkTag(atkType(m.species), true)}</div></div></div>
+        <div class="pw-stats"><span>HP <b>${st.hp}</b></span><span>Attack <b>${st.atk}</b></span><span>Speed <b>${st.spd}</b></span></div>
+        <div class="pw-skills">${m.skills.map((k) => `<div><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b><span><b>${esc(skillName(k))}</b> <span class="small">${esc(skillDesc(k))}</span></span></div>`).join('')}</div>
+        <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button>
+      </div>`;
+    };
+    const known = result && Box.known(result);
+    const mid = `<div class="breed-mid">
+        <span class="bm-plus">+</span>
+        ${result ? `<img class="px bm-egg" src="${eggURL(known ? result : null, 3)}" alt=""><b>${known ? esc(SPECIES[result].name) : 'Mystery breed'}</b>${known ? atkTag(atkType(result)) : '<span class="small">not found yet</span>'}
+          <button class="btn" data-mact="breed-preview" ${full ? 'disabled' : ''}>Combine</button>${full ? '<span class="small">All nests are full</span>' : ''}`
+        : `<span class="small">${A ? 'Now pick parent B' : 'Pick two parents'}</span>`}
+      </div>`;
     const choose = ready.map((m) => pickTile(m, pick.includes(m.id) ? 'sel' : '', `data-mact="pick-parent" data-id="${m.id}"`)).join('');
     this.page('hatchery', `
       <h2>Hatchery</h2>
       <div class="nests">${nests}</div>
       <div class="panel breed-box">
-        <div class="team-label">Breed two survivalmons (Lv ${BREED_LEVEL}+). Both parents are used up; the egg gets one skill from each and a new skill of its own.</div>
-        ${ready.length < 2 ? `<p class="sub-note">You need two survivalmons at Lv ${BREED_LEVEL} or higher.</p>` : `<div class="pick-tiles breed-pool">${choose}</div>`}
-        <div class="breed-row">
-          <span>${pick.length === 2 ? `${esc(monName(Box.get(pick[0])))} + ${esc(monName(Box.get(pick[1])))} → <b>${result ? (Box.known(result) ? SPECIES[result].name : 'a mystery breed') : 'these two cannot breed'}</b>` : `Pick two parents (${pick.length}/2)`}</span>
-          <button class="btn" data-mact="breed-preview" ${result && Box.eggs.length < EGG_SLOTS ? '' : 'disabled'}>Breed…</button>
-        </div>
-        ${Box.eggs.length >= EGG_SLOTS ? '<p class="sub-note">All nests are full. Run in the wild to hatch them.</p>' : ''}
+        <div class="team-label">Breed two species (Lv ${BREED_LEVEL}+), or two of the same one. Both parents are used up; the egg gets one skill from each and a new attack of its own.</div>
+        <div class="breed-stage">${win(A, 0)}${mid}${win(B, 1)}</div>
+        ${ready.length ? `<div class="pick-tiles breed-pool">${choose}</div>` : `<p class="sub-note">You need species at Lv ${BREED_LEVEL} or higher. Catch them in the wild.</p>`}
+        ${young ? `<p class="sub-note">${young} more ${young === 1 ? 'species is' : 'species are'} below Lv ${BREED_LEVEL}. Breeds and evolutions can't breed.</p>` : '<p class="sub-note">Only species breed; breeds and evolutions never do.</p>'}
       </div>`);
   },
 
   // Before breeding: both parents, what they make, its own attack's tier odds and every skill pair
   // it can inherit, with the chances. Breeding only happens from here.
   showBreedPreview() {
-    const [a, b] = (this.breedPick || []).map((id) => Box.get(id));
+    const [a, b] = (this.breedPick || []).map((id) => id && Box.get(id));
     const pv = a && b && Box.breedPreview(a.id, b.id, Shrine.odds());
     if (!pv) return;
     const known = Box.known(pv.species), sp = SPECIES[pv.species];
@@ -373,18 +396,22 @@ export const MonsUI = {
       }
       case 'sp-up': if (Box.buyUpgrade(el.dataset.line)) Audio.play('levelup'); this.showRanch(); break;
       case 'pick-parent': {
-        const p = this.breedPick;
+        // fills parent A, then B; tapping a chosen one takes it out; with both full it replaces B
+        const p = this.breedPick || [null, null];
         const i = p.indexOf(id);
-        if (i >= 0) p.splice(i, 1); else { if (p.length >= 2) p.shift(); p.push(id); }
+        if (i >= 0) p[i] = null; else p[p[0] == null ? 0 : 1] = id;
+        this.breedPick = p;
+        Audio.play('click');
         this.showHatchery(); break;
       }
+      case 'parent-clear': this.breedPick[+el.dataset.slot] = null; this.showHatchery(); break;
       case 'breed-preview': this.showBreedPreview(); break;
       case 'breed-cancel': this.closeModal(); break;
       case 'breed': {
         if (this.modalKind === 'breedpreview') this.closeModal();
         const [a, b] = this.breedPick;
         const species = Box.breed(a, b, Shrine.odds());
-        if (species) { this.breedPick = []; Audio.play('chest'); this.toast('An egg! It hatches after 3:00 in the wild.'); }
+        if (species) { this.breedPick = [null, null]; Audio.play('chest'); this.toast('An egg! It hatches after 3:00 in the wild.'); }
         this.showHatchery(); break;
       }
       case 'heal': { const m = Box.get(id); if (m && Meta.coins >= healCost(m)) { Meta.data.coins -= healCost(m); Meta.save(); Box.heal(m); Audio.play('heal'); } this.showClinic(); break; }

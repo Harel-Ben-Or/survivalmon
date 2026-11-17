@@ -211,7 +211,8 @@ export const Box = {
   },
   breed(aId, bId, odds = BASE_ODDS) {
     const a = this.get(aId), b = this.get(bId);
-    const species = a && b && aId !== bId ? breedResult(a.species, b.species) : null;
+    // only the 10 species breed (two different survivalmons, either of the same species or of two)
+    const species = a && b && aId !== bId && SPECIES[a.species].stage === 1 && SPECIES[b.species].stage === 1 ? breedResult(a.species, b.species) : null;
     if (!species || this.data.eggs.length >= EGG_SLOTS) return null;
     const pick = (m) => ({ ...m.skills[Math.floor(Math.random() * m.skills.length)] });
     const ia = pick(a), ib = pick(b);

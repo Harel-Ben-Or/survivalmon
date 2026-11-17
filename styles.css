@@ -899,3 +899,39 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 .bp-combo > b { font: 600 15px var(--font-title); color: var(--gold); }
 .breed-preview .odds { font-size: 13px; }
 .bp-parents .pt-info { display: none; }
+
+/* the Hatchery: parent A and parent B windows, and between them what they make and the Combine button */
+.breed-stage { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; align-items: stretch; }
+.parent-win { position: relative; display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 6px 8px 8px;
+  background: rgba(0,0,0,.2); border: 2px solid var(--gold); border-radius: 10px; }
+.parent-win.empty { align-items: center; justify-content: center; gap: 4px; min-height: 120px; border-style: dashed; border-color: var(--muted); text-align: center; }
+.parent-win.empty img { width: 40px; height: 40px; opacity: .35; }
+.pw-label { font: 700 11px var(--font); letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.parent-win.empty .pw-label { color: var(--muted); }
+.pw-x { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; padding: 0; font: 700 12px/18px var(--font); color: var(--ink);
+  background: #ffb0a0; border: 1.5px solid var(--ink); border-radius: 50%; cursor: pointer; }
+.parent-win .pt-info { top: 4px; right: 30px; }
+.pw-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pw-head img { width: 56px; height: 56px; flex: none; object-fit: contain; background: #6dbd48; border: 2px solid var(--ink); border-radius: 8px; }
+.pw-head > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pw-head b { font: 600 16px var(--font-title); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pw-head .type-pill { font-size: 10px; }
+.pw-stats { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; color: var(--muted); }
+.pw-stats b { color: var(--text); }
+.pw-skills { display: flex; flex-direction: column; gap: 3px; }
+.pw-skills > div { display: flex; align-items: flex-start; gap: 5px; font-size: 12px; line-height: 1.25; }
+.pw-skills .tier { flex: none; min-width: 16px; height: 16px; font-size: 10px; border-width: 1px; }
+.breed-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 120px; text-align: center; }
+.bm-plus { font: 600 30px/1 var(--font-title); color: var(--gold); }
+.bm-egg { width: 48px; height: 48px; object-fit: contain; }
+.breed-mid .btn { padding: 6px 14px; font-size: 16px; }
+@media (max-height: 520px), (max-width: 640px) {
+  .breed-mid { width: 96px; }
+  .pw-head img { width: 44px; height: 44px; }
+  .pw-skills .small { display: none; } /* just the skill names on a small screen */
+  .parent-win.empty { min-height: 90px; }
+}
+@media (max-width: 520px) and (orientation: portrait) {
+  .breed-stage { grid-template-columns: 1fr; }
+  .breed-mid { width: auto; flex-direction: row; flex-wrap: wrap; }
+}

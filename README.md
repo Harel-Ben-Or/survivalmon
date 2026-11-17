@@ -118,8 +118,10 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   Area are tough, Support hits softly. Every level adds HP (+12%) and Attack (+8%); passives (Big Heart,
   Swift Strike, Thick Hide) show up in the stats too.
 - **Picking**: the team picker and the Hatchery use small tiles (level, attack type, every skill with its
-  grade); the i button opens the full sheet. Breeding first shows a preview: the breed, its own attack's
-  tier odds and every skill pair it can inherit, with the chances.
+  grade); the i button opens the full sheet.
+- **Hatchery**: only the 10 species breed (Lv 3+). The first one you tap fills the Parent A window, the next
+  Parent B (each shows its picture, level, types, stats and skills); between them is what they make and the
+  Combine button, which first shows a preview: its own attack's tier odds and every skill pair it can inherit.
 - **Evolving**: the 10 species never evolve. Every breed evolves twice, at **Lv 30** and **Lv 55** (the level
   cap is 70), each time with an evolution stone of its type (a mixed breed and its evolutions: either parent's
   type): Cinderhound -> Azureblaze -> Cerberix, Ashbloom -> Infernobloom -> Pyregrove. Each evolution gives 40%
