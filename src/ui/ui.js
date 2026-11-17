@@ -14,6 +14,7 @@ import { playEvolve as playEvolveScene } from './cutscene.js';
 import { CAT_LABEL, itemDef, levelDiff, combosForItem, nameOf, iconOf } from '../systems/loot.js';
 import { SLOTS } from '../entities/player.js';
 import { formatTime } from '../core/util.js';
+import { gateName, gateColor } from '../content/gates.js';
 import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
 import { TouchControls } from './touch.js';
@@ -280,7 +281,9 @@ export class UI {
     this.set('time', H.time, 'text', formatTime(Math.ceil(left)));
     H.time.parentElement.classList.toggle('ending', left < 5.5);
     const m = g.dayMinute;
-    this.set('phase', H.phase, 'text', m < 6 ? '☀ Morning' : m < 11 ? '☀ Afternoon' : m < 16 ? '🌅 Sunset' : m < 21 ? '☾ Dusk' : '☾ Night');
+    const blight = Math.round(((g.dark?.dmg ?? 1) - 1) * 10) * 10; // how much harder monsters hit, to the nearest 10%
+    this.set('phase', H.phase, 'text', `${m < 6 ? '☀ Morning' : m < 11 ? '☀ Afternoon' : m < 16 ? '🌅 Sunset' : m < 21 ? '☾ Dusk' : '☾ Night'} · ${blight === 0 ? 'Blight' : `Blight ${blight > 0 ? '+' : '−'}${Math.abs(blight)}%`}`);
+    H.phase.classList.toggle('dark', blight >= 20);
 
     const sig = [P.weapons, P.spells, P.artifacts].map((l) => l.map((i) => `${i.id}${i.level}`).join(',')).join('|') + '|' + P.pets.map((p) => p.species + p.mon.level).join(',') + '|' + [...g.activeCombos].join(',');
     if (sig !== this.invSig) { this.invSig = sig; this.rebuildInventory(); }
@@ -723,7 +726,8 @@ export class UI {
             <img class="px end-hero" src="${artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 5)}">
             <div class="end-title">
               <h2 style="color:${color}">${title}</h2>
-              <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
+              <div class="end-sub">${esc(Meta.heroName(P.hero.id))} · ${formatTime(rec.time)} survived${g.tier ? ` · <span style="color:${gateColor(g.tier)}">${gateName(g.tier)}</span>` : ''}${newBest ? ' <span class="end-best">New best!</span>' : ''}</div>
+              ${g.gateOpened ? `<div class="end-gate" style="color:${gateColor(g.gateOpened)}">The ground shakes... the ${gateName(g.gateOpened)} has opened in town!</div>` : ''}
               <div class="end-coins"><img class="px" src="${icon('coin', 2)}" alt="">+${earned.toLocaleString()} coins · ${Meta.coins.toLocaleString()} in the bank · <img class="px" src="${icon('spirit', 2)}" alt="">+${(this.g.spiritEarned || 0).toLocaleString()} Spirit${Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => ` · <img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">+${n}`).join('')}</div>
             </div>
           </div>

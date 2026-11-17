@@ -104,6 +104,15 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .timer { font-family: var(--font-title); font-weight: 600; font-size: 30px; text-shadow: 3px 3px 0 var(--ink); }
 .timer small { font-family: var(--font); font-size: 14px; color: var(--muted); margin-left: 6px; }
 .phase { font-size: 14px; color: var(--muted); text-shadow: 1px 1px 0 var(--ink); }
+.phase.dark { color: #ff9a8a; }
+/* the gate picker on the team screen */
+.gate-pick { width: min(100%, 980px); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; }
+.gate-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gate-chip { font: inherit; font-size: 14px; color: var(--gc); background: rgba(0,0,0,.28); border: 2px solid var(--ink); border-radius: 6px; padding: 4px 10px; cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px; }
+.gate-chip small { font-size: 11px; color: var(--muted); }
+.gate-chip.sel { border-color: var(--gc); box-shadow: 0 0 0 2px var(--ink), inset 0 0 0 1px var(--gc); background: rgba(0,0,0,.45); }
+.gate-blurb { color: var(--muted); }
+.end-gate { margin-top: 4px; font-size: 15px; text-shadow: 1px 1px 0 var(--ink); }
 .paused-chip { font-size: 15px; padding: 3px 10px; background: #2a5f8a; border: 2px solid var(--panel-edge); border-radius: 12px; box-shadow: 0 0 0 2px var(--ink); }
 .bossbar { width: min(520px, 70vw); margin-top: 4px; }
 .bossbar .name { font-size: 16px; text-align: center; color: #ff8a7a; text-shadow: 2px 2px 0 var(--ink); }

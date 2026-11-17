@@ -20,6 +20,8 @@ const COLORS = {
 };
 // Survivalmons take this share of a monster's damage (they fight up close; the hero can dodge)
 const PET_HIT = 0.5;
+// How far the hero's lantern light reaches for night creatures
+export const LANTERN = 70;
 // Blight creatures splatter black ink and red sparks
 const BLIGHT_COLORS = ['#1e1424', '#3a2448', '#c0304a'];
 
@@ -33,10 +35,15 @@ export class Enemy {
     this.boss = !!def.boss;
     this.elite = !!opts.elite;
     const hpMul = this.boss ? 1 + g.stage / 1500 : hpScale(g.stage);
-    this.maxHp = this.hp = def.hp * hpMul * (this.elite ? 9 : 1);
-    this.speed = def.speed * (this.boss ? 1 : rand(0.9, 1.1)) * (this.elite ? 1.08 : 1);
-    this.dmg = def.dmg * (this.boss ? 1 : 1 + g.stage / 1200) * (this.elite ? 1.4 : 1);
-    this.xp = def.xp * (this.elite ? 12 : 1) * XP_PACE;
+    // the Blight is weaker in daylight and stronger after dark (Game.darkness); wild survivalmons aren't the Blight
+    this.g = g;
+    this.blight = !opts.wild || !!opts.corrupted;
+    const dk = this.blight ? this.darkMul('hp') : 1;
+    const tier = g.tierMult || { hp: 1, dmg: 1, xp: 1 }; // the gate this run went through
+    this.maxHp = this.hp = def.hp * hpMul * (this.elite ? 9 : 1) * dk * tier.hp;
+    this.baseSpeed = def.speed * (this.boss ? 1 : rand(0.9, 1.1)) * (this.elite ? 1.08 : 1);
+    this.baseDmg = def.dmg * (this.boss ? 1 : 1 + g.stage / 1200) * (this.elite ? 1.4 : 1) * tier.dmg;
+    this.xp = def.xp * (this.elite ? 12 : 1) * XP_PACE * tier.xp;
     this.knockRes = this.elite ? Math.max(0.6, def.knockRes || 0) : def.knockRes || 0;
     this.flying = def.behavior === 'flyer' || !!def.flying;
     const look = opts.wild || def.look || type;
@@ -53,8 +60,8 @@ export class Enemy {
     this.catchable = (!!opts.catchable || !!this.wild) && !this.boss;
     if (this.wild) { this.fleeT = this.corrupted ? Infinity : WILD_TIME; this.wildName = SPECIES[this.wild].name; }
     if (this.catchable) {
-      this.maxHp = this.hp = def.hp * hpMul * 6;
-      this.xp = def.xp * 6 * XP_PACE;
+      this.maxHp = this.hp = def.hp * hpMul * 6 * tier.hp;
+      this.xp = def.xp * 6 * XP_PACE * tier.xp;
       this.knockRes = Math.max(0.5, this.knockRes);
     }
     this.fainted = false; this.faintT = 0; this.moving = false;
@@ -134,6 +141,10 @@ export class Enemy {
     }
     if (this.chill > 0) spd *= 0.5;
     if (this.root > 0) spd *= 0.15;
+    if (this.def.night && dist < LANTERN) {
+      spd *= 0.75; // the hero's lantern burns night creatures: slower, and they take more damage (Combat.lightHurt)
+      if (Math.random() < dt * 6) g.particles.add({ x: this.x + rand(-5, 5), y: this.y - rand(6, 16), vx: 0, vy: -18, life: 0.5, color: Math.random() < 0.5 ? '#e8d8ff' : '#9a70c0' });
+    }
     this.anim += dt * (this.def.anim || 6) * (disabled ? 0 : this.chill > 0 ? 0.5 : 1);
     if (Math.abs(mx) > 0.1) this.face = mx > 0 ? 1 : -1;
     this.moving = !disabled && (Math.abs(mx) + Math.abs(my) > 0.1);
@@ -177,6 +188,15 @@ export class Enemy {
       }
     }
   }
+
+  // How much stronger the dark makes it right now (bosses feel half of it)
+  darkMul(k) {
+    if (!this.blight) return 1;
+    const m = this.g.dark?.[k] ?? 1;
+    return this.boss ? 1 + (m - 1) / 2 : m;
+  }
+  get dmg() { return this.baseDmg * this.darkMul('dmg'); }
+  get speed() { return this.baseSpeed * this.darkMul('speed'); }
 
   draw(ctx, cam, t) {
     if (this.hidden) return;
@@ -325,6 +345,40 @@ const BEHAVIOR = {
     if (dist > d.range) return seek(e, g, dx, dy, dist);
     if (dist < d.range * 0.6) return [-dx / dist, -dy / dist, e.speed * 0.6];
     return [-dy / dist * 0.4, dx / dist * 0.4];
+  },
+
+  // Nightshade Witch: floats at a distance and lobs globs of venom where the hero stands. A red ring
+  // warns where each lands; it leaves a pool of poison that hurts the hero (and survivalmons) inside.
+  witch(e, g, dt, dx, dy, dist) {
+    const d = e.def;
+    e.fireT -= dt;
+    if (e.fireT <= 0 && dist < d.range + 50) {
+      e.fireT = d.fireCd * rand(0.85, 1.15);
+      e.swing();
+      const P = g.player, T = 0.9, R = 22;
+      const sx = e.x, sy = e.y - 12, tx = P.x + rand(-12, 12), ty = P.y + rand(-9, 9);
+      const dmg = d.projDmg * (1 + g.stage / 1200) * (g.tierMult?.dmg || 1) * e.darkMul('dmg');
+      g.spawnZone({ kind: 'hazard', x: tx, y: ty, r: R, life: T, tick: 99, firstTick: T });
+      g.spawnProjectile({
+        x: sx, y: sy, r: 0, dmg: 0, pierce: Infinity, life: T, spr: 'p_spore', fx: 'glob_venewt', fxSpin: true, seed: Math.random(), noHit: true, scale: 1.4,
+        update(g2, p) { const k = Math.min(1, p.age / T); p.x = sx + (tx - sx) * k; p.y = sy + (ty - sy) * k; p.z = 10 + Math.sin(k * Math.PI) * 34; return true; },
+        onExpire(g2) {
+          Audio.play('fire');
+          g2.particles.burst(tx, ty - 4, { n: 16, colors: ['#9af040', '#3a7a20', '#e0ffb0'], speed: 70, life: 0.5 });
+          g2.spawnZone({
+            kind: 'spores', fx: 'zone_venewt', seed: Math.random(), x: tx, y: ty, r: R, life: 4, tick: 0.5, firstTick: 0,
+            onTick(g3, z) {
+              const Q = g3.player;
+              if (dist2(z.x, z.y, Q.x, Q.y) < (z.r + 2) ** 2) Q.hurt(dmg * 0.45, e);
+              for (const pet of Q.pets) if (!pet.fainted && dist2(z.x, z.y, pet.x, pet.y) < z.r * z.r) pet.hurt(dmg * 0.3);
+            },
+          });
+        },
+      });
+    }
+    if (dist > d.range) return seek(e, g, dx, dy, dist);
+    if (dist < d.range * 0.65) return [-dx / dist, -dy / dist, e.speed * 0.8];
+    return [-dy / dist * 0.5, dx / dist * 0.5];
   },
 
   // ---------------------------------------------- bosses

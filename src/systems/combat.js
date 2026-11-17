@@ -3,10 +3,11 @@ import { TAU, rand, dist2, chance, choice } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { SPR } from '../gfx/assets.js';
 import { snap, drawCreature, ANIM_FPS, VFX, drawVfx } from '../gfx/art.js';
-import { SPECIES, STONE_OF } from '../content/species.js';
+import { SPECIES, STONE_OF, MAX_PET_LEVEL } from '../content/species.js';
 import { TIERS, PASSIVES } from '../content/skills.js';
 import { Box, rollSkills } from './collection.js';
 import { Meta } from './meta.js';
+import { LANTERN } from '../entities/enemy.js';
 
 export const Combat = {
   // ------------------------------------------------------------ queries
@@ -350,6 +351,7 @@ export const Combat = {
       if (o.steam && (e.freeze > 0 || e.chill > 0)) dmg *= 2;
       dmg *= rand(0.92, 1.08);
     }
+    if (e.def.night) dmg *= this.lightHurt(e, o);
     e.hp -= dmg;
     e.flash = 0.1;
     if (o.petRef?.pass.vamp) o.petRef.heal(dmg * o.petRef.pass.vamp);
@@ -375,6 +377,15 @@ export const Combat = {
     if (e.hp <= 0) { if (e.wild) this.catchWild(e, o); else this.killEnemy(e, o); }
     else if (!o.silent) Audio.play('hit');
     return { crit, dmg };
+  },
+
+  // Night creatures are weak to light: what's left of the daylight (+100% while the sun is still up,
+  // none at full night), the hero's lantern (+30% near the hero), lightning and Fairy-type attacks (+50%)
+  lightHurt(e, o) {
+    let k = 2 - (this.dark?.night ?? 1);
+    if (dist2(e.x, e.y, this.player.x, this.player.y) < LANTERN * LANTERN) k += 0.3;
+    if (o.element === 'light' || (o.petRef && SPECIES[o.petRef.species]?.types?.includes('fairy'))) k += 0.5;
+    return k;
   },
 
   killEnemy(e, o = {}) {
@@ -406,7 +417,7 @@ export const Combat = {
     }
     if (e.boss) this.onBossDeath(e);
     if (S.healOnKill && chance(S.healOnKill)) P.heal(2);
-    if (o.petRef) o.petRef.gainXp(1);
+    if (o.petRef) o.petRef.gainXp(this.tierMult?.petXp || 1);
     Audio.play('kill');
   },
 
@@ -423,7 +434,7 @@ export const Combat = {
 
   // Every defeated monster pays straight into the run's purse (banked when the run ends).
   gainCoins(n, x, y, show) {
-    const v = n * (this.coinMult || 1);
+    const v = n * (this.coinMult || 1) * (this.tierMult?.coins || 1);
     this.player.coins += v;
     this.runStats.coins += v;
     if (show) this.particles.number(x, y, Math.round(v), 'crit');
@@ -442,7 +453,8 @@ export const Combat = {
     // it faints where it stood, then shrinks away in a flash of light as it's caught
     if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
     // wild ones met later in a run are further grown
-    const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level: 1 + Math.floor(this.time / 60), where: this.world.zoneAtPx(e.x, e.y) });
+    const level = Math.min(MAX_PET_LEVEL, 1 + Math.floor(this.time / 60) + (this.tierMult?.wildLv || 0)); // past the newer gates they're far more grown
+    const mon = Box.add(species, { skills: rollSkills(species, { odds: this.tierOdds }), joinTeam: false, origin: 'wild', level, where: this.world.zoneAtPx(e.x, e.y) });
     P.caught.push(species);
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
@@ -450,7 +462,7 @@ export const Combat = {
     if (e.corrupted) this.banner(`You freed ${SPECIES[species].name} from the Snare!`, '#c8a0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
     else this.banner(`Caught a wild ${SPECIES[species].name}!`, '#7af0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
-    if (Math.random() < 0.04) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
+    if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
     if (o.petRef) o.petRef.gainXp(3);
     Audio.play('hatch'); setTimeout(() => Audio.play('chest'), 250);

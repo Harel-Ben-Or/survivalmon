@@ -10,7 +10,9 @@ import { HEROES } from '../content/heroes.js';
 
 const KEY = Profiles.key('meta'); // this player's save
 export const SPIRIT_START = 100;
-const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
+// gates: the newest gate opened (0 = only the North Gate, see content/gates.js); gateTier: the one
+// picked for the next run; gateNew: a gate that opened and the town hasn't shaken for yet
+const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, gates: 0, gateTier: 0, gateNew: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
   mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, buffs: [] });
 
 // Training Hall upgrades. `mods` turns a level into hero stat mods (same keys as Player.recompute).
@@ -59,6 +61,7 @@ export const Meta = {
   // A hero's name as shown everywhere: the main character (Rowan's place) goes by the player's name
   heroName(id) { return id === 'rowan' ? this.playerName : HEROES.find((h) => h.id === id)?.name || id; },
   get coins() { return this.data.coins; },
+  get gates() { return this.data.gates || 0; },
   get spirit() { return Math.floor(this.data.spirit || 0); },
   addSpirit(n) { this.data.spirit = (this.data.spirit || 0) + n; this.save(); },
   get hero() { return this.data.hero; },

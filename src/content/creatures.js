@@ -41,6 +41,12 @@ export const ENEMIES = {
   cinderimp: { name: 'Cinder Imp', hp: 18, speed: 38, dmg: 7, xp: 3, r: 6, anim: 5, behavior: 'ranged', proj: 'p_imp_fire', range: 125, fireCd: 2.9, projDmg: 7, flying: true },
   snowgolem: { name: 'Snow Golem', hp: 44, speed: 20, dmg: 10, xp: 5, r: 9, anim: 3, behavior: 'tank', knockRes: 0.8 },
   wiltsprite: { name: 'Wilted Sprite', hp: 14, speed: 40, dmg: 5, xp: 2, r: 5, anim: 8, behavior: 'ranged', proj: 'p_spore', range: 110, fireCd: 3.0, projDmg: 5, flying: true },
+  // ---- night creatures: Blight that hides from the sun. They only come out after dark (Director:
+  // Moonfang packs from dusk, Nightshade Witches once it's properly dark), and light hurts them
+  // (Combat.lightHurt): whatever daylight is left, the hero's lantern, lightning and Fairy attacks.
+  moonfang: { name: 'Moonfang', hp: 46, speed: 60, dmg: 12, xp: 5, r: 7, anim: 10, behavior: 'charger', night: true },
+  witch: { name: 'Nightshade Witch', hp: 200, speed: 30, dmg: 14, xp: 16, r: 8, anim: 5, behavior: 'witch', night: true, flying: true,
+    range: 125, fireCd: 3.0, projDmg: 13, knockRes: 0.6 },
   // ---- the Snare: a poacher gang that catches survivalmons and uses the Blight to control them
   poacher: { name: 'Snare Netter', hp: 40, speed: 36, dmg: 9, xp: 5, r: 7, anim: 6, behavior: 'netter', range: 95, fireCd: 3.2, projDmg: 5 },
   slinger: { name: 'Snare Slinger', hp: 28, speed: 38, dmg: 7, xp: 4, r: 6, anim: 6, behavior: 'ranged', proj: 'p_pebble', range: 140, fireCd: 2.0, projDmg: 8 },

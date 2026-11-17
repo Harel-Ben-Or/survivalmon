@@ -42,7 +42,7 @@ export const MOTION = {
 };
 // Monsters that have drawn animation sheets (creatures/anim/<id>.png) like the survivalmons
 export const ENEMY_ANIM = ['blob', 'inkwing', 'hound', 'spitter', 'shardooze', 'bloater', 'thornling', 'bogcrab', 'sawbeetle',
-  'cinderimp', 'snowgolem', 'wiltsprite', 'poacher', 'slinger', 'drone', 'inkking', 'elder', 'snareboss', 'night_lord'];
+  'cinderimp', 'snowgolem', 'wiltsprite', 'poacher', 'slinger', 'drone', 'inkking', 'elder', 'snareboss', 'night_lord', 'moonfang', 'witch'];
 const HAS_SHEET = new Set(ENEMY_ANIM);
 
 const CREATURE_IDS = [
@@ -439,7 +439,7 @@ const WORLD_ART = {
   crate: ['world/crate'], crate_open: ['world/crate_open'], barrel: ['world/barrel'], barrel_open: ['world/barrel_open'],
   pot: ['world/pot'], pot_broken: ['world/pot_broken'], rock: ['world/rock'], rock_big: ['world/rock_big'], stump: ['world/stump'],
   fence_h: ['world/fence_h'], fence_v: ['world/fence_v'],
-  town_gate: ['town/gate'], town_dummy: ['town/dummy'], town_clinic: ['town/clinic'], town_workshop: ['town/workshop'],
+  town_gate: ['town/gate'], town_gate_s: ['town/gate_s'], town_gate_e: ['town/gate_e'], town_gate_w: ['town/gate_w'], town_dummy: ['town/dummy'], town_clinic: ['town/clinic'], town_workshop: ['town/workshop'],
   town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'], town_ranch: ['town/ranch'],
   node_wood: ['world/node_wood'], node_clay: ['world/node_clay'], node_iron: ['world/node_iron'],
   bed_r: ['interior/bed_r'], bed_b: ['interior/bed_b'], bed_g: ['interior/bed_g'], table: ['interior/table'], chair: ['interior/chair'],

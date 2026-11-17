@@ -26,6 +26,42 @@ export class Director {
     this.eliteT = 22;
     this.catchT = 75 / (g.wildMult || 1);
     this.relocateT = 0;
+    this.packT = 0; this.witchT = 0; this.nightSeen = {}; // night creatures (nightSpawns)
+  }
+  // Night creatures come out after dark: Moonfang packs once the sun is down, a Nightshade Witch
+  // once it's properly dark (about 6:00 of the 8 minute run). Short runs end before night.
+  nightSpawns(dt) {
+    const g = this.g, d = g.dark;
+    if (!d) return;
+    const first = (id, text, sub) => {
+      if (this.nightSeen[id]) return;
+      this.nightSeen[id] = true;
+      g.banner(text, '#c49aff', false, sub);
+      Audio.play('boss');
+    };
+    if (d.sunset >= 0.9) {
+      this.packT -= dt;
+      if (this.packT <= 0) {
+        this.packT = rand(18, 26) * (d.night > 0.9 ? 0.75 : 1);
+        const base = this.spawnPos(false);
+        if (base) {
+          const n = d.night > 0.5 ? 4 : 3;
+          for (let i = 0; i < n; i++) {
+            const x = base.x + rand(-24, 24), y = base.y + rand(-24, 24);
+            if (g.world.walkable(x, y)) g.spawnEnemy('moonfang', x, y);
+          }
+          first('moonfang', 'Moonfangs hunt in the dusk!', 'Night creatures: your lantern light slows and burns them');
+        }
+      }
+    }
+    if (d.night >= 0.55) {
+      this.witchT -= dt;
+      const witches = g.enemies.filter((e) => e.type === 'witch' && !e.dead).length;
+      if (this.witchT <= 0 && witches < 3) {
+        this.witchT = rand(28, 38);
+        if (this.spawn('witch')) first('witch', 'A Nightshade Witch comes out!', 'She hid from the light all day. Her venom pools hurt: keep moving');
+      }
+    }
   }
   wave() {
     const t = this.g.stage;
@@ -72,6 +108,7 @@ export class Director {
         this.spawn(weightedChoice(pool).type);
       }
     } else this.acc = 0;
+    this.nightSpawns(dt);
     this.eliteT -= dt;
     if (this.eliteT <= 0) {
       this.eliteT = 20;

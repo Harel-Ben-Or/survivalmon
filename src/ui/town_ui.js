@@ -12,6 +12,7 @@ import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 import { MERCHANT_ITEMS } from '../content/buildings.js';
 import { Meta, TRAINING } from '../systems/meta.js';
+import { GATE_SIDES, gateName, gateColor, gateBlurb } from '../content/gates.js';
 import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
 import { Update } from '../core/update.js';
@@ -48,7 +49,10 @@ export const TownUI = {
   },
 
   // ------------------------------------------------------------ Enter the Wild: choose your team
-  showTeam() {
+  // side: the gate you came in by picks its newest tier (Ollie and "Run again" keep the last one)
+  showTeam(side) {
+    const i = GATE_SIDES.indexOf(side);
+    if (i >= 0 && i <= Meta.gates) { Meta.data.gateTier = i + 4 * Math.floor((Meta.gates - i) / 4); Meta.save(); }
     this.hideScreens();
     this.g.modal = 'screen';
     this.screen = 'team';
@@ -74,6 +78,7 @@ export const TownUI = {
     this.el.select.innerHTML = `
       <div class="team-screen">
         <h2>Choose your team</h2>
+        ${Meta.gates ? this.gatePicker() : ''}
         <div class="team-body">
           <div class="team-left panel">
             <div class="team-label">Hero</div>
@@ -93,7 +98,7 @@ export const TownUI = {
         ${this.buildingPanel('gate')}
         <div class="team-actions">
           <button class="btn secondary" data-act="back">Back to town</button>
-          <button class="btn go-btn" data-act="go">Let's run to the wild! <small>${runTime(Meta.runLength())}</small></button>
+          <button class="btn go-btn" data-act="go">${Meta.gates ? `Through the ${gateName(Math.min(Meta.data.gateTier || 0, Meta.gates))}!` : "Let's run to the wild!"} <small>${runTime(Meta.runLength())}</small></button>
         </div>
       </div>`;
     this.bindTeamDrag();
@@ -151,6 +156,12 @@ export const TownUI = {
       Audio.play('click');
       this.renderTeam();
     }));
+  },
+  // Every gate opened so far, the one picked lit up, with what it does
+  gatePicker() {
+    const sel = Math.min(Meta.data.gateTier || 0, Meta.gates);
+    const chips = Array.from({ length: Meta.gates + 1 }, (_, t) => `<button class="gate-chip ${t === sel ? 'sel' : ''}" data-mact="gate-tier" data-tier="${t}" style="--gc:${gateColor(t)}">${gateName(t)}${t === Meta.gates ? '<small>newest</small>' : ''}</button>`).join('');
+    return `<div class="gate-pick panel"><div class="team-label">Gate</div><div class="gate-chips">${chips}</div><div class="small gate-blurb">${gateBlurb(sel)}</div></div>`;
   },
   pickHero(id) {
     if (!Meta.isHeroUnlocked(id)) { this.toast(`${id[0].toUpperCase() + id.slice(1)}: ${HERO_UNLOCK[id].text} to unlock.`); return; }

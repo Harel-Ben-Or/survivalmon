@@ -20,12 +20,19 @@ import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { NPCS, NPC_IDS } from '../content/npcs.js';
 import { buildTownRoom, TOWN_ROOM_IDS } from './interior.js';
+import { gateSide, gateName, gateColor } from '../content/gates.js';
 
-const GX = 20; // the gate's column: the road to the wild runs north from it
+const GX = 20; // the North Gate's column: the road to the wild runs north from it
+const GSX = 15; // the South Gate's column
 // door = the tile the building's door opens onto; yard = the ground it stands on;
 // always = open from the start, the others unlock as you play
 const BUILDINGS = [
-  { id: 'gate', name: 'Enter the Wild', spr: 'town_gate', door: [GX, 7], always: true },
+  // The gates (content/gates.js): the North Gate from the start, the others as you open them. They
+  // lead to the wild (Choose your team), not into a room.
+  { id: 'gate', name: 'Enter the Wild', spr: 'town_gate', door: [GX, 7], always: true, gate: 'north', tier: 0 },
+  { id: 'gate_s', name: 'South Gate', spr: 'town_gate_s', door: [GSX, 31], always: true, gate: 'south', tier: 1 },
+  { id: 'gate_e', name: 'East Gate', spr: 'town_gate_e', door: [38, 13], always: true, gate: 'east', tier: 2 },
+  { id: 'gate_w', name: 'West Gate', spr: 'town_gate_w', door: [3, 22], always: true, gate: 'west', tier: 3 },
   { id: 'training', name: 'Training Hall', spr: 'town_training', door: [13, 8], always: true, yard: T.DIRT },
   { id: 'workshop', name: 'Workshop', spr: 'town_workshop', door: [27, 8], yard: T.GRAVEL },
   { id: 'shrine', name: 'Spirit Shrine', spr: 'shrine', door: [6, 9], yard: T.STONE },
@@ -54,7 +61,7 @@ const STAND = { shooter: 32, zapper: 34, lobber: 34, slam: 20, aura: 14, support
 
 export class Town {
   constructor() {
-    this.w = 42; this.h = 30;
+    this.w = 42; this.h = 34;
     this.pw = this.w * TILE; this.ph = this.h * TILE;
     this.tiles = new Uint8Array(this.w * this.h);
     this.baked = []; this.bakedTall = []; this.shadows = [];
@@ -101,12 +108,20 @@ export class Town {
     // a soft shadow round the base, darkest right where the walls meet the ground
     this.shadows.push({ x, y: y - 2, rx: s.w * 0.52, ry: 8, a: 0.7 });
     this.shadows.push({ x, y: y - 1, rx: s.w * 0.46, ry: 3, a: 1.1 });
-    if (b.id === 'gate') {
+    if (b.gate === 'north' || b.gate === 'south') {
       // only the two posts block; past the arch the road runs into the forest
       this.solid(x - s.w / 2 + 2, y - 12, 18, 10);
       this.solid(x + s.w / 2 - 20, y - 12, 18, 10);
-      this.solid(x - s.w / 2, 0, s.w, y - 30);
+      if (b.gate === 'north') this.solid(x - s.w / 2, 0, s.w, y - 30);
       this.doors.push({ ...b, x, y: y - 16, py: y - s.h + 6 });
+      return;
+    }
+    if (b.gate) {
+      // east and west: the arch seen side-on, its far post up-left (east) or up-right (west)
+      const m = b.gate === 'east' ? 1 : -1;
+      this.solid(x - m * 13 - 7, y - 26, 14, 8);
+      this.solid(x + m * 14 - 7, y - 10, 14, 8);
+      this.doors.push({ ...b, x: x + m, y: y - 13, py: y - s.h + 4 });
       return;
     }
     // walls: the lower half of the sprite; the roof above it can hide the hero walking behind
@@ -150,7 +165,9 @@ export class Town {
   // in ragged patches, so the woods fade into the grass instead of ending in a straight line.
   forest() {
     const kinds = ['tree_dark_0', 'tree_dark_1', 'tree_green_0', 'tree_green_1', 'pine_0', 'pine_1', 'tree_dark_2'];
-    const gateGap = (side, t) => side === 'n' && t >= GX - 3 && t <= GX + 2;
+    const open = Meta.gates;
+    const gaps = { n: [GX - 3, GX + 2], s: open >= 1 ? [GSX - 3, GSX + 2] : null, e: open >= 2 ? [8, 14] : null, w: open >= 3 ? [17, 23] : null };
+    const gateGap = (side, t) => !!gaps[side] && t >= gaps[side][0] && t <= gaps[side][1];
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       const e = Math.min(x, y, this.w - 1 - x, this.h - 1 - y);
       const side = y <= 1 ? 'n' : y >= this.h - 2 ? 's' : x <= 1 ? 'w' : 'e';
@@ -193,13 +210,20 @@ export class Town {
     this.road(T.DIRT, [[24, 15.5], [30, 16.5], [34, 16]]);                         // Survidex
     this.road(T.DIRT, [[GX + 0.5, 17], [GX, 20.5], [17, 22], [14, 23.5], [11, 24]]); // Hatchery
     this.road(T.DIRT, [[22.5, 17.5], [22.5, 21.5], [24.5, 24]]);                  // Ranch
+    const open = Meta.gates;
+    if (open >= 1) this.road(T.DIRT, [[16.5, 22.6], [15.5, 26], [GSX, 30]]);       // South Gate
+    if (open >= 2) this.road(T.DIRT, [[30, 14.5], [33.5, 13], [37, 12.6]]);         // East Gate
+    if (open >= 3) this.road(T.DIRT, [[7.5, 17], [5.5, 19.5], [4, 21]]);            // West Gate
     this.disc(T.STONE, GX, 13, 4.2);                                                // the square
     this.rect(T.STONE, 25, 14, 30, 15);                                             // the market stall's paving
     // a pond in the south with lily pads on it
     this.disc(T.WATER, 20.5, 25, 1.7);
     for (const [x, y] of [[19.5, 24.3], [21.2, 25.1], [20.1, 25.8]]) this.decal(this.pick(['lily_0', 'lily_1', 'lily_2']), x * TILE, y * TILE);
     this.solid(19 * TILE + 2, 23.6 * TILE + 4, 4 * TILE - 4, 3 * TILE - 4);
-    for (const b of BUILDINGS) {
+    for (const b0 of BUILDINGS) {
+      if (b0.gate && b0.tier > open) continue; // not opened yet
+      // the North Gate is just "Enter the Wild" until there's another gate
+      const b = b0.gate ? { ...b0, name: b0.gate === 'north' && open ? 'North Gate' : b0.name } : b0;
       if (SPR[b.spr]) this.building(b);
       else this.doors.push({ ...b, x: b.door[0] * TILE + 8, y: b.door[1] * TILE + 8, py: b.door[1] * TILE - 26 }); // art missing: the door still works
     }
@@ -216,10 +240,12 @@ export class Town {
     // trees in the gaps behind the buildings, and a few in the open
     for (const [s, x, y] of [
       ['tree_green_0', 9.6, 6.6], ['tree_dark_0', 16.9, 6.1], ['tree_green_1', 24.1, 6.1], ['tree_autumn_0', 31.6, 5.6],
-      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 38.2, 15.8],
-      ['tree_pink_0', 17.2, 27], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 6.4, 26.6], ['pine_1', 36.4, 4.8], ['tree_green_1', 37.6, 9.4],
+      ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.2, 26.4], ['tree_dark_1', 38.2, 15.8],
+      ['tree_pink_0', 24.4, 28.6], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 7.4, 27.4], ['pine_1', 36.4, 4.8], ['tree_green_1', 34.4, 8.2],
+      ['tree_dark_0', 10.6, 30.2], ['tree_green_1', 20.2, 30.6], ['pine_0', 31.4, 29.8], ['tree_autumn_0', 37.2, 29.2], ['tree_green_0', 28.2, 31.2],
     ]) this.tree(s, x * TILE, y * TILE);
-    for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19]]) {
+    for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.6, 15.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19],
+      ['bush_0', 22.6, 29.4], ['rock', 33.6, 30.4], ['stump', 4.8, 29.6]]) {
       this.prop(s, x * TILE, y * TILE, 8, 4); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 });
     }
     this.flowers(150, 2, 2, this.w - 3, this.h - 3);
@@ -231,6 +257,8 @@ export class Town {
     }
     this.spawn = { x: GX * TILE + 8, y: 18.5 * TILE };
     this.gateSpawn = { x: GX * TILE + 8, y: 9 * TILE + 4 };
+    // where you come back from a run through each gate
+    this.gateSpawns = { north: this.gateSpawn, south: { x: GSX * TILE + 8, y: 28.6 * TILE }, east: { x: 35.6 * TILE, y: 13 * TILE }, west: { x: 6.4 * TILE, y: 21.2 * TILE } };
   }
 
   // ---------------------------------------------------------------- the villagers
@@ -527,7 +555,7 @@ export const TownMode = {
     this.resetRunState();
     this.mode = 'town'; this.modal = null; this.boss = null;
     const P = this.player = new Player(this, Meta.hero);
-    const at = fromRun ? this.town.gateSpawn : this.town.spawn;
+    const at = fromRun ? this.town.gateSpawns[gateSide(this.tier || 0)] || this.town.gateSpawn : this.town.spawn;
     P.x = at.x; P.y = at.y; P.dir = 'down'; P.faceAngle = Math.PI / 2;
     for (const mon of Box.team()) P.pets.push(new Pet(this, mon));
     P.pets.forEach((pet, i) => { pet.x = P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)); pet.y = P.y + 6; });
@@ -570,9 +598,9 @@ export const TownMode = {
   },
   // "Run again" from the end screen: hatches, unlocks and research are checked first.
   runAgain() {
-    const hatching = Box.eggs.some((e) => e.progress >= e.need);
+    const hatching = Box.eggs.some((e) => e.progress >= e.need), quake = Meta.data.gateNew; // a new gate: stay for the quake
     this.toTown(true);
-    if (!hatching) this.startRun(Meta.hero);
+    if (!hatching && !quake) this.startRun(Meta.hero);
   },
   // News waiting in town: eggs that hatched, buildings that opened, research that finished.
   townArrival() {
@@ -587,9 +615,12 @@ export const TownMode = {
     // new heroes
     const heroUnlocks = { bram: Meta.data.bestTime >= 120, lyra: Box.linesCaught() >= 3, pip: Object.keys(Box.data.discovered).length > 0 };
     for (const [h, ok] of Object.entries(heroUnlocks)) if (ok && Meta.unlockHero(h)) notes.push(`New hero: ${h[0].toUpperCase() + h.slice(1)}! Pick them at Enter the Wild.`);
+    const opened = Meta.data.gateNew;
+    if (opened) { Meta.data.gateNew = 0; Meta.save(); }
     const show = () => {
       for (const n of notes) this.toast(n);
       this.ui.showTown();
+      if (opened) this.gateQuake(opened);
       if (!Meta.named && Meta.hero === 'rowan') this.ui.openNaming(); // Ollie asks who you are
     };
     if (hatched.length) {
@@ -598,6 +629,19 @@ export const TownMode = {
       for (const mon of hatched) if (Box.inTeam(mon.id) && !P.pets.some((p) => p.mon === mon)) { const pet = new Pet(this, mon); pet.x = P.x; pet.y = P.y + 8; P.pets.push(pet); }
       this.ui.showHatched(hatched, show);
     } else show();
+  },
+
+  // A new gate just opened: the ground shakes and dust bursts up round it
+  gateQuake(tier) {
+    const d = this.town.doors.find((x) => x.gate === gateSide(tier));
+    this.shake(9, 1.8);
+    Audio.play('impact');
+    const burst = () => {
+      if (this.mode !== 'town' || !d) return;
+      for (let i = 0; i < 5; i++) this.particles.burst(d.x + rand(-36, 36), d.y - rand(0, 50), { n: 14, colors: ['#8a7a6a', '#c8b8a0', '#5a4a3a', gateColor(tier)], speed: 70, life: 0.9, up: 12 });
+    };
+    burst(); setTimeout(burst, 500); setTimeout(burst, 1000);
+    this.banner('The ground shakes!', gateColor(tier), true, `The ${gateName(tier)} has opened. Past it the Blight is thicker, and it pays far more.`);
   },
 
   updateTown(dt) {
@@ -639,7 +683,8 @@ export const TownMode = {
     const mags = d.id === 'merchant' && this.town.npcs.find((n) => n.id === 'mags');
     if (mags) { this.talkTo(mags); return; }
     Audio.play('door');
-    const screens = { gate: 'showTeam', merchant: 'showMerchant' };
+    if (d.gate) { this.ui.showTeam(d.gate); return; }
+    const screens = { merchant: 'showMerchant' };
     this.ui[screens[d.id]]?.();
   },
 

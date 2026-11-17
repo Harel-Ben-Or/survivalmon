@@ -14,6 +14,24 @@ Glades. And the **Snare gang** raids now and then: netters whose nets slow you, 
 carry off fainted survivalmons (defeat the drone and your mon gets back up), and a survivalmon they control
 with the Blight: defeat it to free it, and it joins you.
 
+**Day and night.** Every run starts in the morning, and the Blight is weak in daylight: monsters hit 20%
+softer and appear with 15% less health. At sunset (about 3:30) they start to grow; at nightfall (about 6:35,
+"Night has fallen!") they hit 40% harder, appear with 30% more health and move 12% faster. Bosses feel half
+of it; wild survivalmons none. The HUD shows the time of day and the Blight's strength.
+
+**Night creatures** only come out after dark: **Moonfang** packs (fast ink wolves that charge) from dusk, and
+the **Nightshade Witch** from about 6:00, who floats at a distance and lobs venom where you stand (a red ring
+shows where it lands; it leaves a poison pool for 4 seconds). Light hurts them: they take up to double damage
+while some daylight is left, +30% and move slower inside your lantern light (close to the hero), and +50% from
+lightning and Fairy-type attacks.
+
+**Gates.** The North Gate leads to the wild you know. Win a full run (beat the Night Lord) through the newest
+gate and the ground shakes: the next gate opens in town, the South Gate, then the East Gate, the West Gate,
+then North Gate II, South Gate II and on, for ever. Past each new gate the Blight is thicker (a purple haze;
+monsters have 2.2x the health and hit 1.6x harder than at the gate before) and it pays far more: 4x the coins,
+2x the Spirit, more EXP, stones and materials, and wild survivalmons 12 levels more grown. Pick the gate at
+the team screen (walking up to a gate picks its newest one). See content/gates.js.
+
 Runs are **mons-first**: your hero fights with their two weapons (main hand and off hand from their
 gear), and your **survivalmons** do the rest with their own skills. Level-ups take turns: even
 levels (2, 4, 6…) upgrade your **team** (team damage, attack speed, defense, max HP or a full heal) and
@@ -74,6 +92,8 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   or Chat for a line that changes as you get further. Mags serves at the Merchant's stall, Ollie guards the
   gate, and five villagers (Tib, Juniper, Old Fen, Barrow, Moss) wander the town and chat too.
 - **Enter the Wild** (the gate): pick your hero and drag survivalmons into your team, then *Let's run to the wild!*
+  Once more gates are open (South at the bottom of town, East by the Survidex, West by the Clinic), the team
+  screen also picks which gate to run through.
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.
@@ -106,7 +126,7 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Medals and achievements** (systems/achievements.js): each species has 6 medals, won the first time you have
   one among the tallest, shortest, heaviest or lightest 5% of its kind, with an S-grade attack, or at Lv 70.
   Achievements (Survidex, Achievements tab) are goals in tiers (find, catch, breed, evolve, win medals, raise to
-  Lv 70, a perfect all-S survivalmon); each tier pays gold coins. Both pop up as you earn them.
+  Lv 70, a perfect all-S survivalmon, open the gates); each tier pays gold coins. Both pop up as you earn them.
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop**: each hero's 6 gear slots (gear drops in runs) and their levels; set and level bonuses.
 - **Merchant**: items for your next run.

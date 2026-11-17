@@ -29,6 +29,7 @@ import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } f
 import { BASE_ODDS } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
+import { tierMult, gateName, gateColor, gateSide, gateBlurb } from '../content/gates.js';
 import { SETS, SLOTS, SLOT_NAME, offWeaponLevel } from '../content/gear.js';
 import { MATERIALS } from '../content/buildings.js';
 import { UI } from '../ui/ui.js';
@@ -201,6 +202,9 @@ export class Game {
     this.freshWorld = false;
     this.resetRunState();
     this.time = 0;
+    // the gate this run goes through (picked at the gate): how thick the Blight is, and how it pays
+    this.tier = Math.max(0, Math.min(Meta.data.gateTier || 0, Meta.gates));
+    this.tierMult = tierMult(this.tier);
     this.blessing = { dmg: 0, haste: 0, def: 0, end: 0 };
     this.runId = (this.runId || 0) + 1;
     this.activeCombos = new Set();
@@ -241,7 +245,9 @@ export class Game {
     this.snapCamera();
     this.mode = 'world'; this.modal = null;
     this.ui.showHUD();
-    this.banner(`Survive ${formatTime(this.runLength)}! Every monster you defeat pays coins.`, '#ffffff');
+    this.darkStep = 0; this.dark = this.darkness();
+    if (this.tier) this.banner(`${gateName(this.tier)}: survive ${formatTime(this.runLength)}!`, gateColor(this.tier), true, gateBlurb(this.tier));
+    else this.banner(`Survive ${formatTime(this.runLength)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
     if (this.settings.music) Audio.startMusic();
   }
   gameOver() {
@@ -274,6 +280,13 @@ export class Game {
     Box.warmEggs(this.time * this.hatchMult());
     Meta.bankMats(P.mats);
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, this.time);
+    // won through the newest gate: the ground shakes and the next gate opens (the town is rebuilt with it)
+    this.gateOpened = 0;
+    if (won && this.tier >= Meta.gates) {
+      Meta.data.gates = this.tier + 1; Meta.data.gateNew = this.tier + 1;
+      this.gateOpened = this.tier + 1;
+      this.town = null; this.townRooms = null;
+    }
     const earned = Math.floor(P.coins);
     Meta.bank(earned);
     this.spiritEarned = Math.floor(P.spirit);
@@ -355,6 +368,8 @@ export class Game {
   updateWorld(dt) {
     const P = this.player;
     this.time += dt;
+    this.dark = this.darkness();
+    this.darkNews();
     // a support's blessing: sparkles on everyone while it lasts
     if (this.blessed() !== NO_BLESS && Math.random() < dt * 10) {
       const who = [P, ...P.pets.filter((p) => !p.fainted)], o = who[Math.floor(Math.random() * who.length)];
@@ -646,7 +661,7 @@ export class Game {
     const hb = this.heroBonus || { coins: 0, wild: 0 };
     this.coinMult = Meta.coinMult() * (1 + sum('nose') + hb.coins);
     this.wildMult = Meta.wildMult() * (1 + sum('star') + hb.wild) * (1 + Shrine.bonus('wild')) * (this.buffs?.has('horn') ? 1.5 : 1);
-    this.matMult = (this.buffs?.has('pick') ? 2 : 1) * (1 + sum('nose'));
+    this.matMult = (this.buffs?.has('pick') ? 2 : 1) * (1 + sum('nose')) * (this.tierMult?.mats || 1);
   }
   hatchMult() { return (1 + Meta.buildingBonus('hatchery', 'speed') + Shrine.bonus('hatch')) * (this.buffs?.has('warmer') ? 1.5 : 1); }
   // An egg found in a run goes to the Hatchery (or turns into coins if every nest is full).
@@ -752,7 +767,7 @@ export class Game {
     this.addMats({ wood: 4, stone: 4, clay: 2, iron: 2 });
     for (let i = 0; i < 12; i++) this.spawnPickup('coin', e.x + rand(-20, 20), e.y + rand(-14, 14), 3);
     for (let i = 0; i < 6; i++) this.spawnPickup('berry', e.x + rand(-20, 20), e.y + rand(-14, 14));
-    if (Math.random() < 0.4 * this.player.stats.luck) this.spawnPickup('stone', e.x, e.y - 12, this.rollStone());
+    if (Math.random() < 0.4 * this.player.stats.luck * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 12, this.rollStone());
     this.shake(8, 0.5);
     if (this.boss === e) this.boss = null;
     this.ui.bossBar(null);
@@ -912,18 +927,40 @@ export class Game {
     const ss = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
     return { sunset: ss(11, 16, m), night: ss(16, 21, m) };
   }
+  // The Blight grows with the dark: weaker in daylight, as strong as it was written at sunset, much
+  // stronger at night (full night from about 6:40 of the 8 minute run). hp is for monsters as they
+  // appear; dmg and speed count all the time, so a monster from the afternoon hits harder once night
+  // falls. Bosses feel half of it (Enemy). Wild survivalmons aren't the Blight: they stay the same.
+  darkness() {
+    const { sunset, night } = this.nightLevels();
+    return { sunset, night, hp: 0.85 + 0.15 * sunset + 0.3 * night, dmg: 0.8 + 0.2 * sunset + 0.4 * night, speed: 1 + 0.12 * night };
+  }
+  // A banner when the sun starts to set and another when night is complete
+  darkNews() {
+    const d = this.dark;
+    if (this.darkStep < 1 && d.sunset > 0.02) {
+      this.darkStep = 1;
+      this.banner('The sun is setting', '#ffb070', false, 'The Blight stirs: monsters grow stronger as it gets dark');
+    } else if (this.darkStep < 2 && d.night > 0.98) {
+      this.darkStep = 2;
+      this.banner('Night has fallen!', '#c49aff', true, 'The Blight is at full strength');
+      this.shake(4, 0.4);
+    }
+  }
   renderLighting(cam) {
     const { sunset, night } = this.nightLevels();
-    if (sunset < 0.01) return;
+    const haze = this.tierMult?.haze || 0; // past the newer gates the Blight hangs in the air as a purple haze
+    if (sunset < 0.01 && !haze) return;
     const L = this.lightCtx, V = this.view;
     const lerp3 = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
-    let c = lerp3([255, 255, 255], [255, 190, 140], sunset);
+    let c = lerp3([255, 255, 255], [120, 80, 170], haze);
+    c = lerp3(c, [255, 190, 140], sunset * (1 - haze));
     c = lerp3(c, [58, 66, 132], night);
     L.setTransform(WS, 0, 0, WS, 0, 0);
     L.globalCompositeOperation = 'source-over';
     L.fillStyle = `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
     L.fillRect(0, 0, V.w, V.h);
-    const k = Math.max(sunset * 0.4, night);
+    const k = Math.max(sunset * 0.4, night, haze * 1.5);
     const light = (x, y, r, a = 1, warm = false) => {
       const sx = x - cam.x, sy = y - cam.y;
       if (sx < -r || sy < -r || sx > V.w + r || sy > V.h + r) return;

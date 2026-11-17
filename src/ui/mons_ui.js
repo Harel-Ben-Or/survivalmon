@@ -546,6 +546,7 @@ export const MonsUI = {
     if (this.shopAct(act, el)) return;
     const id = +el.dataset.id;
     switch (act) {
+      case 'gate-tier': Meta.data.gateTier = +el.dataset.tier; Meta.save(); this.renderTeam(); break;
       case 'hatch-next': this.hatchNext(); break;
       case 'train':
         if (!Box.toggleTraining(id)) this.toast(`All ${Box.trainSpots()} training spots are taken.`);
