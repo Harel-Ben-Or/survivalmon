@@ -141,7 +141,7 @@ export class Pet {
     this.refresh();
     g.player.recompute();
     g.particles.burst(this.x, this.y - 8, { n: 14, colors: ['#ffe07a', '#ffffff'], speed: 50, life: 0.6, up: 20 });
-    g.toast(`${this.name} grew to Lv ${levels[levels.length - 1]}!`);
+    g.particles.text(this.x, this.y - (this.art?.ch || 20) - 6, `Lv ${levels[levels.length - 1]}!`, '#ffe07a');
     Audio.play('levelup');
     g.checkEvolve();
   }

@@ -215,40 +215,37 @@ export class UI {
     this.hideScreens();
     this.screen = 'hud';
     const P = this.g.player;
+    // The run HUD keeps the screen clear: a thin EXP line and one strip of small text along the top
+    // (level and items left, the clock middle, coins / Spirit / KO right), a small radar with the zone
+    // you're in under it, HP under the hero and each survivalmon (drawn in the world), and news in a
+    // short feed instead of popups. Materials and the team's details are on the pause screen.
     this.el.hud.innerHTML = `
-      <div class="xpbar"><div class="fill"></div><div class="lv">Lv 1</div></div>
-      <div class="hud-left">
-        <div class="status panel">
-          <img class="portrait px" src="${artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 2)}">
-          <div class="bars">
-            <div class="hpbar"><div class="fill"></div><span></span></div>
-            <div class="counters"><span><img class="px" src="${icon('coin', 2)}"><b class="coins">0</b></span><span><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="spirit">0</b></span><span>KO <b class="kills">0</b></span><span class="mats"></span></div>
-            <div class="pets-row"></div>
-          </div>
-        </div>
-        <div class="slot-col weapons"></div>
+      <div class="xpbar"><div class="fill"></div></div>
+      <div class="hud-strip">
+        <div class="hs-left"><span class="hs-lv">Lv 1</span><span class="hs-items"></span></div>
+        <div class="hs-mid"><span class="timer"><span class="t">00:00</span><small>left</small></span><span class="phase"></span><span class="paused-chip hidden">⏸ paused</span></div>
+        <div class="hs-right"><span class="cnt"><img class="px" src="${icon('coin', 2)}" alt="Coins"><b class="coins">0</b></span><span class="cnt hs-spirit"><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="spirit">0</b></span><span class="cnt">KO <b class="kills">0</b></span></div>
       </div>
-      <div class="hud-top">
-        <div class="timer"><span class="t">00:00</span><small>left</small></div>
-        <div class="phase">Morning</div>
-        <div class="paused-chip hidden">⏸ Time paused</div>
-        <div class="bossbar hidden"><div class="name"></div><div class="bar"><div></div></div></div>
-      </div>
-      <div class="minimap panel"><canvas class="px" width="112" height="112"></canvas></div>
+      <div class="bossbar hidden"><div class="name"></div><div class="bar"><div></div></div></div>
+      <div class="minimap" title="Tap to make the map bigger"><canvas class="px" width="112" height="112"></canvas><div class="zone-chip"></div></div>
+      <div class="feed"></div>
+      <div class="catch-card hidden"></div>
       <div class="hud-bottom">
         <div class="dash"><div class="pip"><div></div></div><span>SPACE</span></div>
       </div>
-      <div class="hud-arts"></div>
       <div class="combos-chip"></div>`;
     this.el.hud.classList.remove('hidden');
     const q = (s) => this.el.hud.querySelector(s);
     this.h = {
-      xp: q('.xpbar .fill'), lv: q('.xpbar .lv'), xpbar: q('.xpbar'), hpbar: q('.hpbar'), hp: q('.hpbar .fill'), hpText: q('.hpbar span'),
-      coins: q('.coins'), spirit: q('.spirit'), kills: q('.kills'), mats: q('.mats'), pets: q('.pets-row'), weapons: q('.weapons'),
+      xp: q('.xpbar .fill'), lv: q('.hs-lv'), xpbar: q('.xpbar'), items: q('.hs-items'),
+      coins: q('.coins'), spirit: q('.spirit'), kills: q('.kills'),
       time: q('.timer .t'), phase: q('.phase'), paused: q('.paused-chip'), boss: q('.bossbar'), bossName: q('.bossbar .name'), bossFill: q('.bossbar .bar div'),
-      mini: q('.minimap canvas'), spells: [...this.el.hud.querySelectorAll('.spell')], dash: q('.dash .pip div'),
-      arts: q('.hud-arts'), combos: q('.combos-chip'),
+      mini: q('.minimap canvas'), minimap: q('.minimap'), zone: q('.zone-chip'), feed: q('.feed'), catchCard: q('.catch-card'),
+      spells: [...this.el.hud.querySelectorAll('.spell')], dash: q('.dash .pip div'), combos: q('.combos-chip'),
     };
+    // tap the radar for a bigger map
+    this.h.minimap.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); this.h.minimap.classList.toggle('big'); });
+    this.zoneShown = null;
     this.invSig = '';
     this.last = {};
     this.h.spells.forEach((el, i) => el.addEventListener('pointerdown', (e) => { e.preventDefault(); Input.press(`Digit${i + 1}`); }));
@@ -267,16 +264,19 @@ export class UI {
     this.set('xp', H.xp, 'width', `${Math.min(100, (P.xp / P.xpNext) * 100).toFixed(1)}%`);
     // the bar's colour and label say what the next level-up upgrades
     const next = g.nextLevelKind?.() || 'hero';
-    this.set('lv', H.lv, 'text', P.pets.length ? `Lv ${P.level} · next: ${next === 'team' ? 'team' : 'hero'}` : `Lv ${P.level}`);
+    this.set('lv', H.lv, 'text', P.pets.length ? `Lv ${P.level} › ${next === 'team' ? 'team' : 'hero'}` : `Lv ${P.level}`);
     this.set('xpk', H.xpbar, 'class', `xpbar next-${next}`);
-    this.set('hp', H.hp, 'width', `${Math.max(0, (P.hp / S.maxHp) * 100).toFixed(1)}%`);
-    this.set('hpt', H.hpText, 'text', `${Math.ceil(P.hp)} / ${S.maxHp}`);
-    H.hpbar.classList.toggle('low', P.hp / S.maxHp < 0.3);
     this.set('coins', H.coins, 'text', String(Math.floor(P.coins)));
     this.set('spirit', H.spirit, 'text', String(Math.floor(P.spirit || 0)));
     this.set('kills', H.kills, 'text', String(P.kills));
-    const mats = Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => `<img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="">${n}`).join(' ');
-    if (this.last.mats !== mats) { this.last.mats = mats; H.mats.innerHTML = mats; }
+    // the zone you're in, under the radar; it glows for a moment when you cross into a new one
+    const zid = g.zoneNow, Z = ZONES[zid];
+    if (Z && this.zoneShown !== zid) {
+      const first = this.zoneShown == null;
+      this.zoneShown = zid;
+      H.zone.textContent = Z.name; H.zone.style.setProperty('--zc', Z.color);
+      if (!first) { H.zone.classList.remove('pulse'); void H.zone.offsetWidth; H.zone.classList.add('pulse'); }
+    }
     const left = Math.max(0, g.runLength - g.time);
     this.set('time', H.time, 'text', formatTime(Math.ceil(left)));
     H.time.parentElement.classList.toggle('ending', left < 5.5 && !g.finalStand);
@@ -284,7 +284,8 @@ export class UI {
     this.set('timeLbl', H.time.parentElement.querySelector('small'), 'text', g.finalStand ? 'defeat the Night Lord' : 'left');
     const m = g.dayMinute;
     const blight = Math.round(((g.dark?.dmg ?? 1) - 1) * 10) * 10; // how much harder monsters hit, to the nearest 10%
-    this.set('phase', H.phase, 'text', `${m < 6 ? '☀ Morning' : m < 11 ? '☀ Afternoon' : m < 16 ? '🌅 Sunset' : m < 21 ? '☾ Dusk' : '☾ Night'} · ${blight === 0 ? 'Blight' : `Blight ${blight > 0 ? '+' : '−'}${Math.abs(blight)}%`}`);
+    this.set('phase', H.phase, 'text', `${m < 11 ? '☀' : m < 16 ? '🌅' : '☾'} ${blight === 0 ? '' : `${blight > 0 ? '+' : '−'}${Math.abs(blight)}%`}`.trim());
+    H.phase.title = `${m < 6 ? 'Morning' : m < 11 ? 'Afternoon' : m < 16 ? 'Sunset' : m < 21 ? 'Dusk' : 'Night'}: monsters hit ${blight >= 0 ? `${blight}% harder` : `${-blight}% softer`}`;
     H.phase.classList.toggle('dark', blight >= 20);
 
     const sig = [P.weapons, P.spells, P.artifacts].map((l) => l.map((i) => `${i.id}${i.level}`).join(',')).join('|') + '|' + P.pets.map((p) => p.species + p.mon.level).join(',') + '|' + [...g.activeCombos].join(',');
@@ -312,10 +313,10 @@ export class UI {
 
   rebuildInventory() {
     const g = this.g, P = g.player, H = this.h;
-    const pip = (id, lvl, max, title) => `<div class="inv-icon" title="${esc(title)}"><img class="px" src="${icon(id, 2)}"><span class="lvl">${lvl >= max ? 'MAX' : lvl}</span></div>`;
-    H.weapons.innerHTML = P.weapons.map((w) => pip(WEAPONS[w.id].icon, w.level, WEAPONS[w.id].max, WEAPONS[w.id].name)).join('');
-    H.arts.innerHTML = P.artifacts.map((a) => pip(ARTIFACTS[a.id].icon, a.level, ARTIFACTS[a.id].max, ARTIFACTS[a.id].name)).join('');
-    H.pets.innerHTML = P.pets.map((p) => `<span class="pet-chip" title="${esc(p.name)}"><img class="px" src="${artURL('creature', p.species)}"><b>${p.mon.level}</b></span>`).join('');
+    // weapons, then artifacts: small icons with their level, in the strip
+    const pip = (id, lvl, max, title) => `<span class="hs-item" title="${esc(title)} Lv ${lvl}"><img class="px" src="${icon(id, 2)}" alt=""><b>${lvl >= max ? 'M' : lvl}</b></span>`;
+    H.items.innerHTML = P.weapons.map((w) => pip(WEAPONS[w.id].icon, w.level, WEAPONS[w.id].max, WEAPONS[w.id].name)).join('')
+      + (P.artifacts.length ? '<i class="hs-sep"></i>' : '') + P.artifacts.map((a) => pip(ARTIFACTS[a.id].icon, a.level, ARTIFACTS[a.id].max, ARTIFACTS[a.id].name)).join('');
     H.spells.forEach((el, i) => {
       const s = P.spells[i];
       const img = el.querySelector('img');
@@ -396,9 +397,55 @@ export class UI {
     b.className = `banner${big ? ' big' : ''}`;
     b.style.color = color;
     b.innerHTML = `${esc(text)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}`;
+    // one big moment at a time: a new banner replaces the last
+    while (this.el.banners.firstChild) this.el.banners.firstChild.remove();
     this.el.banners.appendChild(b);
-    while (this.el.banners.children.length > 3) this.el.banners.firstChild.remove();
-    setTimeout(() => b.remove(), 3300);
+    setTimeout(() => b.remove(), 3000);
+  }
+  // In a run, news goes to a short feed at the top-left instead of popups: a few small lines that fade.
+  // The same line again within a few seconds just counts up (×2) instead of adding another.
+  feed(text, color = '#eef6f0') {
+    const box = this.h?.feed;
+    if (!box || this.screen !== 'hud') { this.toast(text); return; }
+    const now = performance.now();
+    const same = [...box.children].find((el) => el.dataset.text === text);
+    if (same) {
+      same.dataset.n = String((+same.dataset.n || 1) + 1);
+      same.querySelector('i').textContent = `×${same.dataset.n}`;
+      same.dataset.until = String(now + 3600);
+      same.classList.remove('out');
+      return;
+    }
+    const el = document.createElement('div');
+    el.className = 'feed-line'; el.dataset.text = text; el.dataset.until = String(now + 3600);
+    el.style.color = color;
+    el.innerHTML = `${esc(text)}<i></i>`;
+    box.appendChild(el);
+    while (box.children.length > 3) box.firstChild.remove();
+  }
+  tickFeed() {
+    const box = this.h?.feed;
+    if (!box) return;
+    const now = performance.now();
+    for (const el of [...box.children]) {
+      const left = +el.dataset.until - now;
+      if (left < 0) el.remove(); else el.classList.toggle('out', left < 600);
+    }
+    const cc = this.h.catchCard;
+    if (cc && !cc.classList.contains('hidden') && now > this.catchUntil) cc.classList.add('hidden');
+  }
+  // A new catch: its picture, level and every skill's grade, for a few seconds at the right edge
+  catchCard(mon, { joined = false, freed = false } = {}) {
+    const cc = this.h?.catchCard;
+    if (!cc) return;
+    const sp = SPECIES[mon.species];
+    const skills = mon.skills.map((k) => `<span class="cc-sk"><b class="tier t${k.t}">${TIERS[k.t]}</b>${esc(k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name)}</span>`).join('');
+    cc.innerHTML = `<img class="px" src="${artURL('creature', mon.species)}" alt="">
+      <div class="cc-main"><div class="cc-top"><b>${freed ? 'Freed' : 'Caught'}: ${esc(sp.name)}</b><span>Lv ${mon.level}</span></div>
+        <div class="cc-skills">${skills}</div>
+        <div class="cc-where">${joined ? 'Joined your team' : 'Waits at your Ranch'}</div></div>`;
+    cc.classList.remove('hidden', 'pop'); void cc.offsetWidth; cc.classList.add('pop');
+    this.catchUntil = performance.now() + 4500;
   }
   toast(text) {
     const t = document.createElement('div');
@@ -665,6 +712,12 @@ export class UI {
     this.openModal(`
       <div class="modal-box panel pause-box">
         <h2>Paused</h2>
+        <div class="pause-run">${(() => {
+          // this run so far: what the HUD strip leaves out (Spirit, materials, the zone, what you caught)
+          const mats = Object.entries(P.mats || {}).filter(([, n]) => n > 0).map(([k, n]) => `<span><img class="px" src="${icon(MATERIALS[k].icon, 2)}" alt="${esc(MATERIALS[k].name)}">${n}</span>`).join('');
+          const caught = P.caught.map((id) => `<img class="px" title="${esc(SPECIES[id].name)}" src="${artURL('creature', id)}" alt="">`).join('');
+          return `<span><img class="px" src="${icon('coin', 2)}" alt="Coins">${Math.floor(P.coins)}</span><span><img class="px" src="${icon('spirit', 2)}" alt="Spirit">${Math.floor(P.spirit || 0)}</span><span>KO ${P.kills}</span>${mats}${ZONES[g.zoneNow] ? `<span style="color:${ZONES[g.zoneNow].color}">${esc(ZONES[g.zoneNow].name)}</span>` : ''}${caught ? `<span class="pr-caught">Caught: ${caught}</span>` : ''}`;
+        })()}</div>
         <div class="pause-body">
         <div class="pause-grid">
           <div class="pause-sec">
@@ -900,6 +953,7 @@ export class UI {
     if (this.g.mode === 'town' && this.screen === 'town') this.updateTownHUD();
     if ((this.g.mode === 'world' || this.g.mode === 'house') && this.screen === 'hud') {
       this.updateHUD();
+      this.tickFeed();
       if (this.g.touchMode) this.touch.update();
     }
     void dt;

@@ -1029,3 +1029,71 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 /* feeding species coins to a survivalmon */
 .feed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 9px; background: rgba(0,0,0,.2); border: 1px solid var(--ink); border-radius: 8px; }
 .feed-row .small { flex: 1 1 200px; }
+
+/* ================================================================ run HUD: the Survivor strip
+   A thin EXP line and one row of small text along the top, a small radar with the zone under it,
+   a feed of news at the top-left instead of popups, and a card for new catches. HP is drawn under
+   the hero and the survivalmons. Sizes by screen height: desktop, phone (<480 px), small viewer (<300 px). */
+:root { --strip: 26px; --mini: 96px; --hud-fs: 14px; }
+@media (max-height: 480px) { :root { --strip: 20px; --mini: 60px; --hud-fs: 12px; } }
+@media (max-height: 300px) { :root { --strip: 22px; --mini: 40px; --hud-fs: 12px; } }
+#hud { pointer-events: none; }
+#hud .xpbar { height: 4px; border-bottom: 1px solid var(--ink); background: #1a2a30; }
+#hud .hud-strip { position: absolute; top: 4px; left: 0; right: 0; height: var(--strip); display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right));
+  font-size: var(--hud-fs); text-shadow: 1px 1px 0 var(--ink), -1px 1px 0 var(--ink); background: linear-gradient(rgba(14,26,29,.55), rgba(14,26,29,0)); }
+#hud .hs-left, #hud .hs-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#hud .hs-lv { color: var(--gold); font-weight: 800; white-space: nowrap; }
+#hud .hs-items { display: flex; align-items: center; gap: 3px; }
+#hud .hs-item { position: relative; display: inline-flex; }
+#hud .hs-item img { width: calc(var(--strip) - 4px); height: calc(var(--strip) - 4px); }
+#hud .hs-item b { position: absolute; right: -3px; bottom: -3px; font-size: 9px; line-height: 9px; color: var(--gold); }
+#hud .hs-sep { width: 1px; height: 60%; background: rgba(255,255,255,.3); margin: 0 3px; }
+#hud .hs-mid { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+#hud .hs-mid .timer { font-family: var(--font-title); font-weight: 600; font-size: calc(var(--hud-fs) + 4px); text-shadow: 2px 2px 0 var(--ink); }
+#hud .hs-mid .timer small { font-family: var(--font); font-size: calc(var(--hud-fs) - 2px); margin-left: 3px; }
+#hud .hs-mid .phase { font-size: calc(var(--hud-fs) - 1px); color: var(--muted); }
+#hud .hs-mid .phase.dark { color: #ff9a8a; }
+#hud .hs-mid .paused-chip { font-size: calc(var(--hud-fs) - 1px); padding: 0 8px; }
+#hud .hs-right .cnt { display: inline-flex; align-items: center; gap: 3px; font-weight: 800; white-space: nowrap; }
+#hud .hs-right img { width: calc(var(--hud-fs) + 1px); height: calc(var(--hud-fs) + 1px); }
+#hud .bossbar { position: absolute; left: 50%; transform: translateX(-50%); top: calc(var(--strip) + 6px); width: min(360px, 44vw); margin: 0; }
+#hud .bossbar .name { font-size: 11px; text-align: center; }
+#hud .bossbar .bar { height: 7px; border-width: 2px; }
+#hud .minimap { position: absolute; top: calc(var(--strip) + 8px + env(safe-area-inset-top)); right: max(6px, env(safe-area-inset-right)); padding: 0; background: none; border: none; box-shadow: none; pointer-events: auto; cursor: pointer; }
+#hud .minimap canvas { display: block; width: var(--mini); height: var(--mini); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 0 0 0 1px rgba(255,255,255,.15); transition: width .15s, height .15s; }
+#hud .minimap.big canvas { width: min(200px, 55vh); height: min(200px, 55vh); }
+#hud .zone-chip { position: absolute; right: 0; top: calc(100% + 2px); white-space: nowrap; font-size: 11px; font-weight: 800; color: var(--zc, #fff); text-shadow: 1px 1px 0 var(--ink), -1px 1px 0 var(--ink), 1px -1px 0 var(--ink); }
+#hud .zone-chip.pulse { animation: zpulse 1.4s ease-out; }
+@keyframes zpulse { 0% { transform: scale(1.5); filter: brightness(1.8); } 100% { transform: scale(1); filter: none; } }
+#hud .feed { position: absolute; left: max(6px, env(safe-area-inset-left)); top: calc(var(--strip) + 8px + env(safe-area-inset-top)); max-width: 46vw; display: flex; flex-direction: column; gap: 2px; }
+#hud .feed-line { font-size: 12px; font-weight: 800; line-height: 1.3; padding: 1px 7px; background: rgba(14,26,29,.6); border-radius: 4px; text-shadow: 1px 1px 0 var(--ink); transition: opacity .5s; }
+#hud .feed-line i { font-style: normal; color: var(--gold); margin-left: 5px; }
+#hud .feed-line.out { opacity: 0; }
+#hud .catch-card { position: absolute; right: max(6px, env(safe-area-inset-right)); top: calc(var(--strip) + var(--mini) + 72px + env(safe-area-inset-top)); width: 220px; display: flex; gap: 8px; align-items: center;
+  padding: 6px 8px; background: rgba(31,58,64,.92); border: 2px solid #7af0ff; border-radius: 8px; box-shadow: 0 0 0 2px var(--ink); }
+#hud .catch-card.pop { animation: pop .3s ease-out; }
+#hud .catch-card img { width: 44px; height: 44px; object-fit: contain; flex: none; }
+#hud .cc-main { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#hud .cc-top { display: flex; justify-content: space-between; gap: 6px; font-size: 13px; }
+#hud .cc-top b { color: #7af0ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#hud .cc-top span { color: var(--muted); font-size: 12px; white-space: nowrap; }
+#hud .cc-skills { display: flex; flex-direction: column; gap: 1px; font-size: 11px; }
+#hud .cc-sk { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; }
+#hud .cc-sk .tier { min-width: 16px; height: 16px; font-size: 11px; line-height: 14px; }
+#hud .cc-where { font-size: 11px; color: var(--muted); }
+body .tbtn.pause-btn { top: calc(var(--strip) + var(--mini) + 28px + env(safe-area-inset-top)); width: 38px; height: 38px; }
+@media (max-height: 300px) {
+  #hud .hs-items, #hud .hs-spirit, #hud .hs-mid .timer small { display: none; }
+  #hud .zone-chip { font-size: 10px; }
+  #hud .catch-card { right: calc(var(--mini) + 64px + env(safe-area-inset-right)); top: calc(var(--strip) + 8px); width: 196px; }
+  #hud .feed { max-width: 40vw; }
+  #hud .feed-line { font-size: 11px; }
+  body .tbtn.pause-btn { width: 34px; height: 34px; }
+}
+
+/* the pause screen's "this run" line */
+.pause-run { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
+.pause-run span { display: inline-flex; align-items: center; gap: 4px; }
+.pause-run img { width: 16px; height: 16px; }
+.pause-run .pr-caught img { width: 24px; height: 24px; object-fit: contain; }

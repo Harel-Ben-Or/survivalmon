@@ -36,7 +36,7 @@ export class Director {
     const first = (id, text, sub) => {
       if (this.nightSeen[id]) return;
       this.nightSeen[id] = true;
-      g.banner(text, '#c49aff', false, sub);
+      g.feed(`${text} ${sub}`, '#c49aff');
       Audio.play('boss');
     };
     if (d.sunset >= 0.9) {
@@ -124,7 +124,7 @@ export class Director {
         const zone = ZONES[g.world.zoneAtPx(g.player.x, g.player.y)];
         const sp = Math.random() < 0.65 ? zone.mons[(Math.random() * zone.mons.length) | 0] : weightedChoice(WILD_POOL).type;
         if (this.spawn('wild', { wild: sp })) {
-          g.banner(`A wild ${SPECIES[sp].name} appeared!`, '#7af0ff', false, 'Defeat it within 25 seconds to catch it');
+          g.feed(`A wild ${SPECIES[sp].name} appeared! Catch it within 25 s`, '#7af0ff'); // an arrow at the screen's edge points to it
           Audio.play('combo');
         } else this.catchT = 2; // no free spot right now: try again shortly
       }
@@ -154,7 +154,7 @@ export class Director {
       return;
     }
     if (ev.type === 'snare') { this.raid(); return; }
-    if (ev.msg) g.banner(ev.msg, '#ffd84a');
+    if (ev.msg) g.feed(ev.msg, '#ffd84a');
     const enemy = ev.enemy === 'native' ? this.native() : ev.enemy;
     if (ev.type === 'ring') {
       const R = 175, gap = Math.floor(rand(0, ev.count));
@@ -179,7 +179,7 @@ export class Director {
   raid() {
     const g = this.g, base = this.spawnPos(false);
     if (!base) return;
-    g.banner('The Snare gang is here!', '#ff6a5a', false, 'Poachers who catch survivalmons and control them with the Blight');
+    g.feed('The Snare gang is here!', '#ff8a7a');
     Audio.play('combo');
     // the first raid is a small one; later ones bring more of the gang
     const squad = g.stage < 300 ? ['poacher', 'slinger', 'drone'] : ['poacher', 'poacher', 'slinger', 'drone'];

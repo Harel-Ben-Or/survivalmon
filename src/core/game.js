@@ -489,7 +489,7 @@ export class Game {
     Audio.play('door');
     const NAMES = { home: 'Cottage', bedroom: 'Cottage', library: 'Library', kitchen: 'Kitchen', storeroom: 'Storeroom', hayloft: 'Hayloft', stable: 'Stable', storehouse: 'Storehouse', altar: 'Old Shrine', crypt: 'Crypt' };
     const name = NAMES[this.room.theme] || (h.kind === 'shrine' ? 'Old Shrine' : h.kind === 'barn' ? 'Barn' : 'Cottage');
-    this.banner(`${name} — the clock is paused`, '#bfeaff');
+    this.feed(`${name}: the clock is paused`, '#bfeaff');
   }
   // Down the trapdoor into the house's basement (made the first time), and back up the ladder
   enterBasement() {
@@ -500,7 +500,7 @@ export class Game {
     Audio.play('door');
     if (!up.cellar.seen) {
       up.cellar.seen = true;
-      this.banner('A hidden basement!', '#ffd84a', false, 'Gold glitters in the dark');
+      this.feed('A hidden basement! Gold glitters in the dark', '#ffd84a');
     }
   }
   leaveBasement() {
@@ -556,16 +556,14 @@ export class Game {
     Audio.play('chest');
     this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood' }), P.x, P.y - 14);
   }
-  // Entering a new zone shows its name (checked twice a second).
+  // The zone you're in (checked twice a second); the HUD shows it under the radar.
   updateZone(dt) {
     this.zoneT -= dt;
     if (this.zoneT > 0) return;
     this.zoneT = 0.5;
     const z = this.world.zoneAtPx(this.player.x, this.player.y);
     if (z === this.zoneNow) return;
-    const first = !this.zoneNow;
     this.zoneNow = z;
-    if (!first) this.banner(ZONES[z].name, ZONES[z].color, false, ZONES[z].note);
   }
   applyDrops(res, cx, cy) {
     const P = this.player;
@@ -608,7 +606,7 @@ export class Game {
     P.mats[k] += n;
     this.world.removeObject(o);
     this.particles.burst(o.x, o.y - 6, { n: 14, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 60, life: 0.5, up: 20 });
-    this.toast(`+${n} ${MATERIALS[k].name}`);
+    this.particles.text(o.x, o.y - 14, `+${n} ${MATERIALS[k].name}`, '#ffe07a');
     Audio.play('coin');
   }
   addMats(m) { for (const [k, v] of Object.entries(m)) this.player.mats[k] += Math.max(1, Math.round(v * (this.matMult || 1))); }
@@ -631,7 +629,7 @@ export class Game {
     const set = SETS[v.hero], heroName = v.hero[0].toUpperCase() + v.hero.slice(1);
     if (!Meta.addGear(v.hero, v.slot)) { this.addMats({ iron: 2, wood: 3 }); this.toast(`You already have ${set[v.slot]}: broke it down for materials`); return; }
     const locked = !Meta.isHeroUnlocked(v.hero);
-    this.banner(`Gear: ${heroName}'s ${set[v.slot]}!`, '#ffd84a', true, `${SLOT_NAME[v.slot]} · ${locked ? `it waits until you unlock ${heroName}` : 'level it up at the Workshop'}`);
+    this.feed(`Gear: ${heroName}'s ${set[v.slot]}! ${SLOT_NAME[v.slot]}${locked ? ` (waits until you unlock ${heroName})` : ''}`, '#ffd84a');
     if (Meta.unlock('workshop')) this.toast('The Workshop is open in town!');
     Audio.play('chest');
   }
@@ -678,7 +676,7 @@ export class Game {
   findEgg(x, y) {
     const species = choice([...BASE_IDS, ...BASE_IDS.slice(0, 5)]);
     if (Box.addEgg({ species, skills: rollSkills(species, { odds: this.tierOdds }), need: FOUND_HATCH, kind: 'found' })) {
-      this.banner('An egg!', '#ffe07a', false, 'It waits in your Hatchery and hatches after time in the wild');
+      this.feed('An egg! It waits in your Hatchery', '#ffe07a');
     } else {
       this.player.coins += 30;
       this.toast('Your Hatchery is full, so the egg became 30 coins.');
@@ -699,7 +697,7 @@ export class Game {
   }
   gainStone(id) {
     Box.addItem(id);
-    this.banner(`Rare find: ${STONES[id].name}!`, '#c88aff', true, `Kept at your Ranch. Evolves a ${TYPES[STONES[id].type].name}-type breed at Lv 30 or Lv 55.`);
+    this.feed(`Rare find: ${STONES[id].name}! Kept at your Ranch`, '#c88aff');
     Audio.play('chest');
     this.checkEvolve();
   }
@@ -737,7 +735,7 @@ export class Game {
     for (const id of now) {
       if (!this.activeCombos.has(id) && (this.mode === 'world' || this.mode === 'house')) {
         const c = COMBOS.find((x) => x.id === id);
-        this.banner(`COMBO! ${c.name}`, '#ffd84a', true, c.desc);
+        this.feed(`Combo: ${c.name}! ${c.desc}`, '#ffd84a');
         Audio.play('combo');
       }
     }
@@ -795,7 +793,10 @@ export class Game {
   }
   sprite(name) { return SPR[name].frames[0]; }
   shake(a, t) { if (!this.settings.shake) return; this.shakeAmt = Math.max(this.shakeT > 0 ? this.shakeAmt : 0, a); this.shakeT = Math.max(this.shakeT, t); }
+  // Banners are for the big moments only (a run starting, a boss arriving or falling, nightfall, the
+  // final fight). Everything else in a run goes to the feed: small lines at the top-left that fade.
   banner(text, color, big = false, sub = '') { this.ui.banner(text, color, big, sub); }
+  feed(text, color) { this.ui.feed(text, color); }
   // Medals just won and achievement tiers just reached: a banner for the first, toasts for the rest
   // (just toasts over a town page, where banners don't show)
   checkNews() {
@@ -803,10 +804,11 @@ export class Game {
       ...checkAchievements().map((a) => ({ title: `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} coins`, color: '#ffd84a' }))];
     if (!out.length) return;
     const page = this.mode !== 'world' || this.modal;
-    out.forEach((n, i) => (i === 0 && !page ? this.banner(n.title, n.color, false, n.sub) : this.toast(`${n.title} ${n.sub}`)));
+    if (this.mode === 'world' || this.mode === 'house') out.forEach((n) => this.feed(n.title, n.color)); // the details wait for town
+    else out.forEach((n, i) => (i === 0 && !page ? this.banner(n.title, n.color, false, n.sub) : this.toast(`${n.title} ${n.sub}`)));
     Audio.play('levelup');
   }
-  toast(text) { this.ui.toast(text); }
+  toast(text) { if (this.mode === 'world' || this.mode === 'house') this.ui.feed(text); else this.ui.toast(text); }
   bossBar(e) { this.boss = e; this.ui.bossBar(e); }
 
   // ------------------------------------------------------------ camera
@@ -905,6 +907,7 @@ export class Game {
       P.drawHpBar(ctx, cam);
       this.renderLighting(cam);
       this.particles.drawNumbers(ctx, cam);
+      this.drawEdgeArrows(ctx, cam);
     }
   }
 
@@ -951,11 +954,30 @@ export class Game {
     const d = this.dark;
     if (this.darkStep < 1 && d.sunset > 0.02) {
       this.darkStep = 1;
-      this.banner('The sun is setting', '#ffb070', false, 'The Blight stirs: monsters grow stronger as it gets dark');
+      this.feed('The sun is setting: monsters grow stronger', '#ffb070');
     } else if (this.darkStep < 2 && d.night > 0.98) {
       this.darkStep = 2;
       this.banner('Night has fallen!', '#c49aff', true, 'The Blight is at full strength');
       this.shake(4, 0.4);
+    }
+  }
+  // A small arrow at the edge of the screen points to each wild survivalmon and boss out of view
+  drawEdgeArrows(ctx, cam) {
+    if (this.mode !== 'world') return;
+    const V = this.view, top = 18, m = 10;
+    for (const e of this.enemies) {
+      if (e.dead || !(e.wild || e.boss)) continue;
+      const sx = e.x - cam.x, sy = e.y - 10 - cam.y;
+      if (sx > 0 && sx < V.w && sy > top && sy < V.h) continue;
+      const cx = V.w / 2, cy = V.h / 2, dx = sx - cx, dy = sy - cy;
+      const k = Math.min((V.w / 2 - m) / Math.abs(dx || 1e-6), (V.h / 2 - m - top / 2) / Math.abs(dy || 1e-6));
+      const ax = cx + dx * k, ay = cy + dy * k + (dy < 0 ? top / 2 : 0), a = Math.atan2(dy, dx);
+      const pulse = 1 + Math.sin(this.realTime * 6) * 0.15;
+      ctx.save(); ctx.translate(Math.round(ax), Math.round(ay)); ctx.rotate(a); ctx.scale(pulse, pulse);
+      ctx.fillStyle = '#0e1a1d'; ctx.beginPath(); ctx.moveTo(7, 0); ctx.lineTo(-5, -6); ctx.lineTo(-5, 6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = e.boss ? '#ff5a4a' : e.corrupted ? '#c8a0ff' : '#5ae8ff';
+      ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-3, -4); ctx.lineTo(-3, 4); ctx.closePath(); ctx.fill();
+      ctx.restore();
     }
   }
   renderLighting(cam) {

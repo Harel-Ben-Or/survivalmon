@@ -428,7 +428,7 @@ export const Combat = {
     if (!pet.fainted) return;
     pet.fainted = false; pet.hp = pet.maxHp * 0.35; pet.faintT = 0;
     this.player.recompute(); this.applyTeamPassives?.();
-    this.banner(`You rescued ${pet.name}!`, '#9af08a', false, 'It got back on its feet');
+    this.feed(`You rescued ${pet.name}!`, '#9af08a');
     this.particles.burst(pet.x, pet.y - 8, { n: 20, colors: ['#9af08a', '#ffffff'], speed: 60, life: 0.6, up: 20 });
     Audio.play('heal');
   },
@@ -460,8 +460,7 @@ export const Combat = {
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
     const skills = mon.skills.map((k) => `${k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name} ${TIERS[k.t]}`).join(' · ');
-    if (e.corrupted) this.banner(`You freed ${SPECIES[species].name} from the Snare!`, '#c8a0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
-    else this.banner(`Caught a wild ${SPECIES[species].name}!`, '#7af0ff', true, `${skills}${joined ? ' · it joins your team' : ' · it waits at your Ranch'}`);
+    this.ui.catchCard(mon, { joined, freed: e.corrupted }); // its grades at a glance, instead of a banner
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);

@@ -147,7 +147,7 @@ export class Player {
         this.reviveUsed = true;
         this.hp = Math.round(this.stats.maxHp * Math.min(1, this.stats.reviveHp));
         this.iframes = 2.5;
-        this.g.banner('Phoenix Feather! You rise again!', '#f6a03a');
+        this.g.feed('Phoenix Feather! You rise again!', '#f6a03a');
         this.g.explode(this.x, this.y, 110, 200, { element: 'fire', big: true, knock: 300 });
       } else {
         this.hp = 0;
@@ -281,13 +281,13 @@ export class Player {
   }
 
   drawHpBar(ctx, cam) {
-    const S = this.stats;
-    if (this.hp >= S.maxHp) return;
-    const w = 18, x = snap(this.x) - cam.x - w / 2, y = snap(this.y) - cam.y + 3;
-    ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 1, y - 1, w + 2, 4);
-    ctx.fillStyle = '#5a2a2a'; ctx.fillRect(x, y, w, 2);
-    ctx.fillStyle = this.hp / S.maxHp < 0.3 ? '#ff5a5a' : '#7af08a';
-    ctx.fillRect(x, y, Math.max(0, Math.round((w * this.hp) / S.maxHp)), 2);
+    // the hero's HP lives here (not in a panel): always shown under the feet, flashing when low
+    const S = this.stats, f = Math.max(0, this.hp / S.maxHp);
+    const w = 22, x = snap(this.x) - cam.x - w / 2, y = snap(this.y) - cam.y + 3;
+    ctx.fillStyle = '#2b1d24'; ctx.fillRect(x - 1, y - 1, w + 2, 5);
+    ctx.fillStyle = '#5a2a2a'; ctx.fillRect(x, y, w, 3);
+    ctx.fillStyle = f < 0.3 ? (Math.floor(this.g.realTime * 6) % 2 ? '#ff5a5a' : '#ffd0c8') : '#7af08a';
+    ctx.fillRect(x, y, Math.round(w * f), 3);
   }
 }
 

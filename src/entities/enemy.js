@@ -504,7 +504,7 @@ const BEHAVIOR = {
       const tx = target.x - e.x, ty = target.y - e.y, td = Math.hypot(tx, ty) || 1;
       if (td < 9) {
         e.carry = target; target.carriedBy = e; e.escT = 0; e.swing();
-        g.banner(`A Cage Drone grabbed ${target.name}!`, '#ff6a5a', false, 'Defeat it to get your survivalmon back on its feet');
+        g.feed(`A Cage Drone grabbed ${target.name}! Defeat it to get it back`, '#ff8a7a');
         Audio.play('zap');
         return [0, 0];
       }
@@ -527,7 +527,7 @@ const BEHAVIOR = {
     }
     if (e.t3 <= 0) {
       e.t3 = 12; e.swing();
-      g.banner('Grimjaw calls the gang!', '#ff6a5a');
+      g.feed('Grimjaw calls the gang!', '#ff8a7a');
       for (const type of ['poacher', 'poacher', 'slinger', 'drone']) {
         const p = g.director.spawnPos(type === 'drone');
         if (p) g.spawnEnemy(type, p.x, p.y);
@@ -545,7 +545,7 @@ const BEHAVIOR = {
     e.t3 -= dt;
     if (e.t3 <= 0) {
       e.t3 = 11;
-      g.banner('The Alpha howls!', '#c8a8ff');
+      g.feed('The Alpha howls!', '#c8a8ff');
       for (let i = 0; i < 6; i++) { const p = g.director.spawnPos(false); if (p) g.spawnEnemy(e.def.minion || 'wolf', p.x, p.y); }
     }
     const r = BEHAVIOR.charger(e, g, dt, dx, dy, dist);

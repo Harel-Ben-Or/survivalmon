@@ -5,7 +5,7 @@ import { snap } from '../gfx/art.js';
 
 export class Particles {
   constructor() { this.list = []; this.nums = []; }
-  clear() { this.list.length = 0; this.nums.length = 0; }
+  clear() { this.list.length = 0; this.nums.length = 0; if (this.texts) this.texts.length = 0; }
   add(p) {
     if (this.list.length > 900) return;
     p.age = 0; p.size = p.size ?? 1; p.gravity = p.gravity ?? 0; p.z = p.z ?? 0;
@@ -17,11 +17,16 @@ export class Particles {
       this.add({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s * 0.75 - up, life: rand(life * 0.6, life), color: colors ? colors[i % colors.length] : color, size, gravity });
     }
   }
+  text(x, y, str, color = '#ffffff') {
+    (this.texts ||= []).push({ x, y, str, color, age: 0, life: 1.3 });
+    if (this.texts.length > 30) this.texts.shift();
+  }
   number(x, y, value, kind = 'white') {
     if (this.nums.length > 120) this.nums.shift();
     this.nums.push({ x: x + rand(-4, 4), y, value, kind, age: 0, life: kind === 'crit' ? 0.8 : 0.6 });
   }
   update(dt) {
+    if (this.texts) for (const n of this.texts) n.age += dt;
     const L = this.list;
     for (let i = L.length - 1; i >= 0; i--) {
       const p = L[i];
@@ -49,6 +54,18 @@ export class Particles {
     ctx.globalAlpha = 1;
   }
   drawNumbers(ctx, cam) {
+    if (this.texts?.length) {
+      ctx.save();
+      ctx.font = '800 7px Nunito, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+      this.texts = this.texts.filter((n) => n.age < n.life);
+      for (const n of this.texts) {
+        const k = n.age / n.life, x = Math.round(n.x - cam.x), y = Math.round(n.y - cam.y - k * 10);
+        ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
+        ctx.lineWidth = 2.5; ctx.strokeStyle = '#0e1a1d'; ctx.strokeText(n.str, x, y);
+        ctx.fillStyle = n.color; ctx.fillText(n.str, x, y);
+      }
+      ctx.restore();
+    }
     for (const n of this.nums) {
       const k = n.age / n.life;
       const rise = Math.min(1, k * 3) * 10 + k * 4;
