@@ -11,6 +11,8 @@ import { Audio } from '../core/audio.js';
 import { armorCut } from '../systems/armor.js';
 
 const TEAM0 = { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 };
+// A roller's tuck into a ball before it sets off, and its unrolling after (seconds)
+const CURL_T = 0.16, UNCURL_T = 0.16;
 
 // A skill's numbers at its tier. S tier also gets a small twist that depends on how it attacks.
 function tiered(sp, t) {
@@ -193,10 +195,36 @@ export class Pet {
 
   updateRoll(dt) {
     const g = this.g, q = this.rollQ || this.q;
+    this.moving = true;
+    if (this.rollPhase === 'curl') {
+      // tucking in on the spot; then off at the foe (wherever it has got to)
+      this.phaseT -= dt;
+      if (this.phaseT > 0) return;
+      const t = this.rollTarget, sp = Math.hypot(this.vx, this.vy);
+      if (t && !t.dead && t.hp > 0) { const a = Math.atan2(t.y - this.y, t.x - this.x); this.vx = Math.cos(a) * sp; this.vy = Math.sin(a) * sp; }
+      this.face = this.vx >= 0 ? 1 : -1;
+      this.rollPhase = 'roll'; this.rollTarget = null;
+      g.particles.burst(this.x - this.face * 4, this.y - 1, { n: 6, colors: ['#d8c8a0', '#b8a888'], speed: 40, life: 0.3, up: 6 });
+      return;
+    }
+    if (this.rollPhase === 'uncurl') {
+      // the last bit of speed runs out as it unrolls
+      this.phaseT -= dt;
+      const k = Math.exp(-10 * dt);
+      this.vx *= k; this.vy *= k;
+      this.x += this.vx * dt; this.y += this.vy * dt;
+      this.spinA += (Math.hypot(this.vx, this.vy) * dt) / Math.max(4, this.art.ch / 2);
+      if (this.phaseT <= 0) { this.state = 'follow'; this.rollPhase = null; }
+      return;
+    }
     this.rollT -= dt;
     this.x += this.vx * dt; this.y += this.vy * dt;
     this.anim += dt * 12;
-    this.moving = true;
+    if (this.spinA != null) {
+      // turns as far as it travels, like a real ball, and kicks up dust behind it
+      this.spinA += (Math.hypot(this.vx, this.vy) * dt) / Math.max(4, this.art.ch / 2);
+      if (Math.random() < 30 * dt) g.particles.add({ x: this.x - this.face * 5 + rand(-2, 2), y: this.y - rand(0, 3), vx: -this.vx * 0.15 + rand(-8, 8), vy: rand(-14, -4), life: 0.35, color: Math.random() < 0.5 ? '#d8c8a0' : '#b8a888', size: Math.random() < 0.3 ? 2 : 1 });
+    }
     if (!q.leap) g.enemiesInRadius(this.x, this.y, 12, (e) => {
       if (this.hits.has(e.id)) return;
       this.hits.add(e.id);
@@ -214,7 +242,8 @@ export class Pet {
       }
     });
     if (this.rollT <= 0) {
-      this.state = 'follow';
+      if (this.rollPhase === 'roll' && this.spinA != null && q.spin && this.art?.anim?.curl) { this.rollPhase = 'uncurl'; this.phaseT = UNCURL_T; }
+      else { this.state = 'follow'; this.rollPhase = null; }
       if (q.splash) {
         g.explode(this.x, this.y, q.splash, q.dmg * this.power * 0.5, { pet: true, petRef: this, small: true, element: 'water' });
         g.addEffect({ type: 'ring', x: this.x, y: this.y, R: q.splash, life: 0.3, color: '#8fe0ff' });
@@ -254,7 +283,16 @@ export class Pet {
     if (this.atkT >= 0 && a.anim?.attack) { m.anim = 'attack'; m.frame = Math.floor(this.atkT * ANIM_FPS.attack); }
     if (this.state === 'roll' && this.rollQ?.hop) m.bob += Math.sin(Math.max(0, this.rollT) / (this.rollQ.time || 0.6) * Math.PI) * (this.rollQ.leap ? 14 : 10);
     if (this.hopT > 0) m.bob += Math.sin(this.hopT / 0.3 * Math.PI) * 8;
-    if (this.state === 'roll' && this.rollQ?.spin) {
+    if (this.state === 'roll' && this.rollQ?.spin && a.anim?.ball && this.spinA != null) {
+      // tucks in, rolls as a turning ball (bouncing a little over the ground), then unrolls
+      const n = a.anim.curl.length, left = this.face < 0;
+      if (this.rollPhase === 'curl') drawCreature(ctx, a, x, y, { left, anim: 'curl', frame: Math.floor((1 - this.phaseT / CURL_T) * n) });
+      else if (this.rollPhase === 'uncurl') drawCreature(ctx, a, x, y, { left, anim: 'curl', frame: Math.floor((this.phaseT / UNCURL_T) * n) });
+      else {
+        const i = Math.floor(this.spinA / (TAU / a.anim.ball.length));
+        drawCreature(ctx, a, x, y, { left, anim: 'ball', frame: ((i % a.anim.ball.length) + a.anim.ball.length) % a.anim.ball.length, bob: Math.abs(Math.sin(this.spinA * 0.5)) * 1.5 });
+      }
+    } else if (this.state === 'roll' && this.rollQ?.spin) {
       ctx.save(); ctx.translate(x, Math.round(y - a.ch / 2)); ctx.rotate(this.anim);
       drawCreature(ctx, a, 0, a.ch / 2, { left: this.face < 0 });
       ctx.restore();
@@ -327,6 +365,9 @@ const ARCH = {
     pet.state = 'roll'; pet.rollT = q.time || 0.6; pet.hits.clear(); pet.rollQ = q; pet.rollFx = fx; pet.crashed = false;
     pet.vx = Math.cos(a) * (q.speed || 220); pet.vy = Math.sin(a) * (q.speed || 220);
     pet.face = pet.vx >= 0 ? 1 : -1;
+    // one with drawn curl-up frames tucks into a ball first, then sets off at its foe
+    if (q.spin && pet.art?.anim?.curl) { pet.rollPhase = 'curl'; pet.phaseT = CURL_T; pet.rollTarget = t; pet.spinA = 0; }
+    else { pet.rollPhase = 'roll'; pet.spinA = null; }
     return pet.id === 'pebblet' && g.combo('rockslide') ? q.cd / 2 : q.cd;
   },
   aura(pet, g, q, fx) {

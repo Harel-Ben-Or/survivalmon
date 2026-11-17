@@ -450,7 +450,7 @@ export class Game {
     this.mode = 'house';
     P.worldX = P.x; P.worldY = P.y;
     P.x = this.room.spawn.x; P.y = this.room.spawn.y - 6; P.dir = 'up'; P.faceAngle = -Math.PI / 2; P.d8 = null;
-    P.trail = []; P.dashT = 0;
+    P.trail = []; P.dashT = 0; P.dashA = null; P.ghosts.length = 0;
     const pw = this.room.pw;
     P.pets.forEach((pet, i) => { pet.x = clamp(P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)), 16, pw - 16); pet.y = P.y + 4; pet.state = 'follow'; });
     this.ui.prompt(null);
@@ -481,7 +481,7 @@ export class Game {
   placeInRoom(x, y, dir) {
     const P = this.player;
     P.x = x; P.y = y; P.dir = dir; P.faceAngle = dir === 'up' ? -Math.PI / 2 : Math.PI / 2; P.d8 = null;
-    P.trail = []; P.dashT = 0;
+    P.trail = []; P.dashT = 0; P.dashA = null; P.ghosts.length = 0;
     const pw = this.room.pw;
     P.pets.forEach((pet, i) => { pet.x = clamp(P.x + (i % 2 ? -1 : 1) * 16 * (1 + (i >> 1)), 16, pw - 16); pet.y = P.y + 4; pet.state = 'follow'; });
     this.ui.prompt(null);

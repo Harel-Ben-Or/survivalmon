@@ -426,14 +426,14 @@ function trainStep(t, dt, g) {
       hitDummy(t, g);
       break;
     case 'roller':
-      t.dash = 0.6;
+      t.dash = CREATURE[t.species]?.anim?.ball ? 0.75 : 0.6; // one that curls up first takes a moment more
       break;
   }
 }
 // Where a trainee stands right now (a charger rushes at its dummy and back)
 function traineePos(t) {
   if (t.dash > 0) {
-    const reach = t.d.x - 10 * t.d.face - t.x, k = t.dash > 0.4 ? 1 - (t.dash - 0.4) / 0.2 : t.dash / 0.4;
+    const reach = t.d.x - 10 * t.d.face - t.x, k = t.dash > 0.6 ? 0 : t.dash > 0.4 ? 1 - (t.dash - 0.4) / 0.2 : t.dash / 0.4;
     return [t.x + reach * k, t.y];
   }
   return [t.x, t.y];
@@ -449,6 +449,16 @@ function drawTrainee(ctx, t, cam, now) {
   if (t.atkT >= 0 && a.anim?.attack) { o.anim = 'attack'; o.frame = Math.floor(t.atkT * ANIM_FPS.attack); }
   else o.anim = a.motion === 'fly' || t.dash > 0 ? 'move' : 'idle';
   if (t.hop > 0) o.bob = (o.bob || 0) + Math.sin((t.hop / 0.25) * Math.PI) * 5;
+  if (t.dash > 0 && a.anim?.ball) {
+    // a roller tucks into a ball, rolls at the dummy and back, and unrolls
+    const n = a.anim.curl.length, nb = a.anim.ball.length;
+    if (t.dash > 0.6) { o.anim = 'curl'; o.frame = Math.floor(((0.75 - t.dash) / 0.15) * n); }
+    else if (t.dash < 0.12) { o.anim = 'curl'; o.frame = Math.floor((t.dash / 0.12) * n); }
+    else {
+      const turn = ((px - t.x) * t.d.face) / Math.max(4, a.ch / 2), i = Math.floor(turn / (TAU / nb));
+      o.anim = 'ball'; o.frame = ((i % nb) + nb) % nb; o.bob = Math.abs(Math.sin(turn * 0.5)) * 1.5;
+    }
+  }
   drawCreature(ctx, a, x, y, o);
 }
 // The shot (or lobbed blob) on its way to the dummy
@@ -650,7 +660,7 @@ export const TownMode = {
     this.townRoom = room; this.room = room; this.townDoor = d;
     this.roomOff = { x: Math.floor((this.view.w - room.pw) / 2), y: Math.floor((this.view.h - room.ph) / 2) };
     P.x = room.spawn.x; P.y = room.spawn.y - 6; P.dir = 'up'; P.faceAngle = -Math.PI / 2; P.d8 = null;
-    P.trail = []; P.dashT = 0;
+    P.trail = []; P.dashT = 0; P.dashA = null; P.ghosts.length = 0;
     P.pets.forEach((pet, i) => { pet.x = Math.max(16, Math.min(room.pw - 16, P.x + (i % 2 ? -1 : 1) * 18 * (1 + (i >> 1)))); pet.y = P.y + 4; pet.state = 'follow'; });
     for (const n of room.npcs) { n.talking = false; n.dir = 'south'; }
     this.ui.prompt(null);

@@ -121,7 +121,9 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
   grade); the i button opens the full sheet. Breeding first shows a preview: the breed, its own attack's
   tier odds and every skill pair it can inherit, with the chances.
 - Mixed breeds evolve at Lv 10 with an evolution stone of either parent's type.
-- Every species and breed hatches from its own egg, and has walk, attack and faint animations.
+- Every species and breed hatches from its own egg, and has walk, attack and faint animations. Rollers
+  (Pebblet and its breeds and evolutions) tuck into a ball, roll at their foe turning like a real ball and
+  kicking up dust, then unroll.
 - Species and breeds fire basic attacks of their own (a projectile, coloured lightning, a lobbed blob that
   leaves a pool, a ground ring). An evolution's own skill is one big animated signature move: a missile that
   bursts, a strike from the sky, an eruption, a ground quake, a burst around it, or a crash after its roll.
@@ -167,7 +169,11 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   (spells.js and artifacts.js are no longer used in runs.)
   Tweak numbers here to rebalance.
 - `assets/sprites/` — all PixelLab art. Replace a file with the same name to change a sprite:
-  - `heroes/<id>/<direction>.png` (8 directions) and `heroes/<id>/walk/<direction>_<frame>.png` (walk cycles, counts in `walk/frames.json`)
+  - `heroes/<id>/<direction>.png` (8 directions), `heroes/<id>/walk.png` (walk cycles, one row per direction)
+    and `heroes/<id>/dash.png` (the dash: one row per direction, 8 frames in 96px cells with the 64px
+    standing sprite 16px in)
+  - `creatures/anim/<id>.png` — survivalmon and monster animation sheets (rows: move, idle, attack, faint;
+    a roller's attack row is its curl-up, ending as the ball it rolls as)
   - `creatures/<id>.png` — critters, monsters, evolved forms, bosses
   - `tiles/` — ground tilesets (grass, dirt, stone, farm, water, dark grass) with `tiles.json`
   - `world/` — trees, houses, barn, shrine, props; `decals/decals.png` — flowers, tufts, crops, lily pads (one sheet)

@@ -59,7 +59,12 @@ const HEROES = ['rowan', 'bram', 'lyra', 'pip'];
 // sprite's own size, 8 cells across): row 0 = moving (8 frames), row 1 = idle (6), row 2 = attack (6,
 // played once each time it attacks), row 3 = faint (8, played once, ending lying down). Frame 0 of
 // the moving row is the still sprite. A missing or empty attack/faint row just isn't used.
-const ANIM_FRAMES = { move: 8, idle: 6, attack: 6, faint: 8 };
+// A survivalmon that rolls into foes has its curl-up instead of an attack in row 2 (6 frames, ending
+// as a ball); the ball then turns as it rolls (anim.ball, made from that last frame).
+const ANIM_FRAMES = { move: 8, idle: 6, attack: 6, curl: 6, faint: 8 };
+const BALL_STEPS = 8;
+// A hero's dash (heroes/<id>/dash.png): 96px cells, with the 64px standing sprite 16px in
+const DASH_CELL = 96, DASH_PAD = 16;
 const ANIM_ROWS = [['move', 0], ['idle', 1], ['attack', 2], ['faint', 3]];
 export const ANIM_FPS = { move: 10, fly: 12, idle: 7, attack: 14, faint: 10 };
 
@@ -158,13 +163,30 @@ function animatedCreature(id, sheet) {
   const frame = (i, row) => { const f = cut(sheet, i * c, row * c, c, c); return mirror ? flip(f) : f; };
   const a = makeCreature(id, frame(0, 0));
   a.anim = {};
-  for (const [k, row] of ANIM_ROWS) {
+  const roller = SPECIES[id]?.q?.spin;
+  for (const [kind, row] of ANIM_ROWS) {
     if (row >= rows) continue;
+    const k = roller && kind === 'attack' ? 'curl' : kind;
     const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
-    if (row >= 2 && frames.every(blank)) continue; // e.g. rollers have no attack frames
+    if (row >= 2 && frames.every(blank)) continue; // e.g. a roller still without its curl-up
     a.anim[k] = frames.map((R) => ({ R, L: flip(R) }));
   }
+  if (a.anim.curl) a.anim.ball = ballTurns(a.anim.curl[a.anim.curl.length - 1].R).map((R) => ({ R, L: flip(R) }));
   return a;
+}
+// A curled-up survivalmon turning as it rolls: BALL_STEPS turns of one frame, clockwise, about the
+// ball's middle, pixel for pixel (no smoothing), so moving right it rolls forward. Each turn gets a
+// margin all round, so a ball that fills its cell keeps its edges when turned (drawCreature centres
+// a padded image).
+function ballTurns(src) {
+  const b = bbox(src), cx = (b.x0 + b.x1 + 1) / 2, cy = (b.y0 + b.y1 + 1) / 2;
+  const p = Math.ceil(Math.max(src.width, src.height) * 0.21);
+  return Array.from({ length: BALL_STEPS }, (_, i) => {
+    const c = canvasOf(src.width + 2 * p, src.height + 2 * p), g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    g.translate(cx + p, cy + p); g.rotate((i * Math.PI * 2) / BALL_STEPS); g.drawImage(src, -cx, -cy);
+    return c;
+  });
 }
 // True if a frame has nothing drawn in it
 function blank(c) {
@@ -213,8 +235,18 @@ export async function loadArt(base = 'assets/sprites') {
       const imgs = await Promise.all(Array.from({ length: meta[d] || 0 }, (_, i) => loadImage(`${base}/heroes/${id}/walk/${d}_${i}.png`)));
       if (imgs.length && imgs.every(Boolean)) { walk[d] = imgs.map(fromImage); walkFlash[d] = walk[d].map((c) => silhouette(c, '#ffffff')); }
     }));
+    // heroes/<id>/dash.png: the dash, one row per direction (DIR8 order), DASH_CELL px cells
+    const dash = {}, dashFlash = {};
+    const dsheet = await loadImage(`${base}/heroes/${id}/dash.png`);
+    if (dsheet) {
+      const n = Math.floor(dsheet.width / DASH_CELL);
+      DIR8.forEach((d, r) => {
+        const fr = Array.from({ length: n }, (_, i) => cut(dsheet, i * DASH_CELL, r * DASH_CELL, DASH_CELL, DASH_CELL)).filter((f) => !blank(f));
+        if (fr.length) { dash[d] = fr; dashFlash[d] = fr.map((f) => silhouette(f, '#ffffff')); }
+      });
+    }
     const b = bbox(dirs.south);
-    HERO_ART[id] = { dirs, flash, walk, walkFlash, w: dirs.south.width, h: dirs.south.height, ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1, ch: (b.y1 - b.y0 + 1) / WS };
+    HERO_ART[id] = { dirs, flash, walk, walkFlash, dash, dashFlash, w: dirs.south.width, h: dirs.south.height, ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1, ch: (b.y1 - b.y0 + 1) / WS };
   }));
 }
 
@@ -272,6 +304,13 @@ export function drawCreature(ctx, s, x, y, o = {}) {
 }
 
 export function drawHero(ctx, h, x, y, dir, o = {}) {
+  // o.dash = which dash frame (it plays once); its cells are bigger, with the standing sprite DASH_PAD in
+  const dcyc = o.dash != null && (o.flash ? h.dashFlash : h.dash)?.[dir];
+  if (dcyc) {
+    const img = dcyc[Math.max(0, Math.min(dcyc.length - 1, Math.floor(o.dash)))];
+    ctx.drawImage(img, snap(x - (h.ax + DASH_PAD) / WS), snap(y - (o.bob || 0) - (h.ay + DASH_PAD) / WS), img.width / WS, img.height / WS);
+    return;
+  }
   const cycle = o.walk != null && (o.flash ? h.walkFlash : h.walk)?.[dir];
   const img = cycle ? cycle[Math.floor(o.walk) % cycle.length] : (o.flash ? h.flash : h.dirs)[dir] || h.dirs.south;
   const sx = o.sx ?? 1, sy = o.sy ?? 1;

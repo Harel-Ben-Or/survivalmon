@@ -10,6 +10,10 @@ import { ARTIFACTS } from '../content/artifacts.js';
 import { TAU, rand } from '../core/util.js';
 import { armorCut } from '../systems/armor.js';
 
+// The dash: how long it moves you and how fast, how long its animation runs (it ends as you land),
+// and how long each after-image takes to fade
+const DASH_T = 0.2, DASH_SPEED = 225, DASH_ANIM = 0.3, GHOST_LIFE = 0.24;
+
 export const SLOTS = { weapon: 4, spell: 3, artifact: 6, pet: 3 };
 export const xpFor = (L) => Math.floor(4 + L * 4 + Math.pow(L, 1.75));
 
@@ -28,6 +32,7 @@ export class Player {
     this.caught = [];
     this.iframes = 0; this.flash = 0;
     this.dashCd = 0; this.dashT = 0; this.dashVx = 0; this.dashVy = 0;
+    this.dashA = null; this.ghosts = []; // time into the dash animation; fading after-images left behind
     this.regenBoost = null;
     this.reviveUsed = false;
     this.trail = [];
@@ -160,6 +165,9 @@ export class Player {
     this.iframes = Math.max(0, this.iframes - dt);
     this.flash = Math.max(0, this.flash - dt);
     this.dashCd = Math.max(0, this.dashCd - dt);
+    if (this.dashA != null && (this.dashA += dt) >= DASH_ANIM) this.dashA = null;
+    for (const gh of this.ghosts) gh.t += dt;
+    while (this.ghosts.length && this.ghosts[0].t > GHOST_LIFE) this.ghosts.shift();
 
     const mv = Input.moveVector();
     this.moving = !!(mv.x || mv.y);
@@ -174,9 +182,11 @@ export class Player {
       if (off > Math.PI / 8 + 0.15) this.d8 = dir8(this.faceAngle);
     }
     if (Input.wasPressed('Space') && this.dashCd <= 0 && this.dashT <= 0) {
-      const a = this.moving ? this.faceAngle : this.faceAngle;
-      this.dashT = 0.16; this.dashCd = 2.0 * S.cooldown;
-      this.dashVx = Math.cos(a) * 270; this.dashVy = Math.sin(a) * 270;
+      const a = this.faceAngle;
+      this.dashT = DASH_T; this.dashCd = 2.0 * S.cooldown; this.dashA = 0; this.ghostT = 0;
+      this.dashVx = Math.cos(a) * DASH_SPEED; this.dashVy = Math.sin(a) * DASH_SPEED;
+      this.d8 = dir8(a); // faces the way it dashes
+      g.particles.burst(this.x - Math.cos(a) * 4, this.y - 1, { n: 7, colors: ['#d8c8a0', '#ffffff'], speed: 35, life: 0.3, up: 6 });
       Audio.play('dash');
     }
     let vx = mv.x * S.speed, vy = mv.y * S.speed;
@@ -188,6 +198,7 @@ export class Player {
     if (this.dashT > 0) {
       this.dashT -= dt;
       vx = this.dashVx; vy = this.dashVy;
+      if ((this.ghostT -= dt) <= 0) { this.ghostT = 0.045; this.ghosts.push({ x: this.x, y: this.y, d8: this.d8, a: this.dashA, t: 0 }); }
       if (Math.random() < 60 * dt) g.particles.add({ x: this.x + rand(-3, 3), y: this.y - rand(2, 14), vx: 0, vy: 0, life: 0.25, color: '#ffffff', size: 1 });
     }
     if (solids) moveInRoom(this, vx * dt, vy * dt, solids);
@@ -245,8 +256,17 @@ export class Player {
     ctx.globalAlpha = 0.3; ctx.fillStyle = '#1a2a10';
     ctx.beginPath(); ctx.ellipse(x, y, art ? 8 : 6, art ? 3 : 2.5, 0, 0, TAU); ctx.fill();
     ctx.globalAlpha = 1;
+    const dashing = art && this.dashA != null && art.dash[this.d8 || dir8(this.faceAngle)];
+    // after-images trail the dash, fading out
+    if (art) for (const gh of this.ghosts) {
+      if (!art.dash[gh.d8]) continue;
+      ctx.globalAlpha = 0.55 * (1 - gh.t / GHOST_LIFE);
+      drawHero(ctx, art, snap(gh.x) - cam.x, snap(gh.y) - cam.y, gh.d8, { dash: (gh.a / DASH_ANIM) * art.dash[gh.d8].length });
+    }
+    ctx.globalAlpha = 1;
     if (this.iframes > 0 && this.flash <= 0 && Math.floor(this.iframes * 20) % 2 === 0) ctx.globalAlpha = 0.45;
-    if (art) {
+    if (dashing) drawHero(ctx, art, x, y, this.d8 || dir8(this.faceAngle), { flash: this.flash > 0, dash: (this.dashA / DASH_ANIM) * dashing.length });
+    else if (art) {
       // Walk cycle frames when we have them (frame 0 doubles as the standing pose so the size never
       // pops); otherwise a small step bounce stands in.
       const d8 = this.d8 || dir8(this.faceAngle), step = Math.sin(this.anim * Math.PI / 2);
