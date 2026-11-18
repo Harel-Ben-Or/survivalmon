@@ -78,11 +78,13 @@ export const Meta = {
   markTip(id) { const G = (this.data.guide ||= { on: true, seen: {} }); (G.seen ||= {})[id] = true; this.save(); },
   setGuide(on) { (this.data.guide ||= { seen: {} }).on = !!on; this.save(); },
 
-  // The main character's name: Rowan until the player gives their own (asked at the gate)
-  get playerName() { return this.data.name || 'Rowan'; },
+  // The main character: a name and a look (boy or girl), asked when a new game starts
+  get playerName() { return this.data.name || 'Ranger'; },
+  get gender() { return this.data.gender || null; },
+  setGender(gd) { this.data.gender = gd === 'girl' ? 'girl' : 'boy'; this.save(); },
   get named() { return !!this.data.named; },
   setName(n) {
-    this.data.name = cleanName(n) || 'Rowan';
+    this.data.name = cleanName(n) || 'Ranger';
     this.data.named = true;
     this.save();
     return this.data.name;

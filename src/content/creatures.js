@@ -54,7 +54,7 @@ export const ENEMIES = {
 
   king_slime: { name: 'King Slime', hp: 1100, speed: 30, dmg: 20, xp: 120, r: 20, anim: 4, boss: true, behavior: 'kingslime', knockRes: 1 },
   treant: { name: 'Elder Treant', hp: 2600, speed: 22, dmg: 24, xp: 220, r: 18, anim: 3, boss: true, behavior: 'treant', knockRes: 1 },
-  colossus: { name: 'Stone Colossus', hp: 4800, speed: 21, dmg: 28, xp: 350, r: 20, anim: 2, boss: true, behavior: 'colossus', knockRes: 1 },
+  colossus: { name: 'The Star Colossus', hp: 4800, speed: 21, dmg: 28, xp: 350, r: 20, anim: 2, boss: true, behavior: 'colossus', knockRes: 1 },
   alpha_wolf: { name: 'Alpha Wolf', hp: 7000, speed: 50, dmg: 30, xp: 500, r: 16, anim: 10, boss: true, behavior: 'alpha', knockRes: 1, minion: 'hound' },
   night_lord: { name: 'The Night Lord', hp: 13000, speed: 34, dmg: 34, xp: 1000, r: 14, anim: 3, boss: true, behavior: 'nightlord', knockRes: 1, flying: true, minion: 'inkwing' },
   inkking: { name: 'The Ink King', hp: 1100, speed: 30, dmg: 20, xp: 120, r: 20, anim: 4, boss: true, behavior: 'kingslime', knockRes: 1, minion: 'blob' },
@@ -83,21 +83,21 @@ export const WAVES = [
   { t: 1440, rate: 12, pool: { native: 8, shardooze: 6, hound: 7, inkwing: 6, bloater: 5 } },
 ];
 
-// type 'snare' = a Snare gang raid (netters, a slinger, a cage drone and a survivalmon they control)
+// type 'turned' = a survivalmon the star turned strange comes for you (beat it to free it)
 export const EVENTS = [
   { t: 170, type: 'ring', enemy: 'blob', count: 16, msg: 'The Blight closes in!' },
-  { t: 210, type: 'snare' },
+  { t: 210, type: 'swarm', enemy: 'hound', count: 12, msg: 'A pack of shade hounds!' },
   { t: 240, type: 'swarm', enemy: 'inkwing', count: 22, msg: 'A swarm of Inkwings!' },
   { t: 300, type: 'boss', enemy: 'inkking' },
   { t: 420, type: 'swarm', enemy: 'hound', count: 14, msg: 'Shade hounds on the hunt!' },
-  { t: 480, type: 'snare' },
+  { t: 480, type: 'turned' },
   { t: 540, type: 'ring', enemy: 'native', count: 26, msg: 'The monsters of this land surround you!' },
   { t: 600, type: 'boss', enemy: 'elder' },
-  { t: 690, type: 'snare' },
+  { t: 690, type: 'swarm', enemy: 'spitter', count: 14, msg: 'Spitters crawl out of the dark!' },
   { t: 780, type: 'swarm', enemy: 'inkwing', count: 36, msg: 'Inkwings pour out of the dark...' },
-  { t: 900, type: 'boss', enemy: 'snareboss' },
+  { t: 900, type: 'boss', enemy: 'colossus' },
   { t: 1020, type: 'ring', enemy: 'shardooze', count: 22, msg: 'Shard Oozes surround you!' },
-  { t: 1080, type: 'snare' },
+  { t: 1080, type: 'turned' },
   { t: 1140, type: 'swarm', enemy: 'bloater', count: 18, msg: 'Bloaters! Keep your distance!' },
   { t: 1200, type: 'boss', enemy: 'alpha_wolf' },
   { t: 1320, type: 'ring', enemy: 'blob', count: 40, msg: 'The ground boils with ink!' },

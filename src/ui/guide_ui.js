@@ -48,11 +48,13 @@ export const GuideUI = {
     this.guideFocus = focus;
     const r = focus[0]?.getBoundingClientRect();
     el.className = `guide-layer${r && r.top + r.height / 2 > window.innerHeight * 0.55 ? ' at-top' : ''}`;
+    // Moss guides you in town; out in the wild the tips are plain hints, with no one talking
+    const wild = this.g.mode === 'world' || this.g.mode === 'house';
     el.innerHTML = `
-      <div class="guide-box panel" role="dialog" aria-label="A tip from ${GUIDE.name}">
-        <img class="px guide-face" src="${npcFaceURL(GUIDE.npc)}" alt="">
+      <div class="guide-box panel ${wild ? 'plain-hint' : ''}" role="dialog" aria-label="${wild ? 'A hint' : `A tip from ${GUIDE.name}`}">
+        ${wild ? '' : `<img class="px guide-face" src="${npcFaceURL(GUIDE.npc)}" alt="">`}
         <div class="guide-main">
-          <div class="guide-name"><b>${GUIDE.name}</b><span>${GUIDE.role}</span>${pages.length > 1 ? `<i>${G.page + 1}/${pages.length}</i>` : ''}</div>
+          <div class="guide-name">${wild ? '<b>Hint</b>' : `<b>${GUIDE.name}</b><span>${GUIDE.role}</span>`}${pages.length > 1 ? `<i>${G.page + 1}/${pages.length}</i>` : ''}</div>
           <p class="guide-text">${esc(guideText(page.t, this.g.touchMode, Meta.playerName))}</p>
           <div class="guide-actions">
             <button class="guide-off" data-guide="off">Turn off tips</button>
@@ -98,7 +100,7 @@ export const GuideUI = {
   toggleGuide(btn) {
     const on = !Meta.guideOn;
     Meta.setGuide(on);
-    this.toast(on ? 'Tips are on: Moss explains things the first time you see them.' : 'Tips are off.');
+    this.toast(on ? 'Tips are on: Moss shows you round town, and hints explain things in the wild.' : 'Tips are off.');
     if (btn) btn.textContent = this.guideLabel();
   },
   guideLabel() { return `💬 Tips: ${Meta.guideOn ? 'On' : 'Off'}`; },

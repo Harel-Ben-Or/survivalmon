@@ -307,7 +307,7 @@ export class Pet {
 // cooldown until the next attack. An evolution's own skill (fx.sig) is one big animated signature move.
 const ARCH = {
   shooter(pet, g, q, fx) {
-    const t = g.nearestEnemy(pet.x, pet.y, q.range || 150);
+    const t = g.petTarget(pet.x, pet.y, q.range || 150);
     if (!t) return 0.3;
     if (fx.sig) return sigShot(pet, g, q, fx, t);
     let n = q.count || 1;
@@ -334,7 +334,7 @@ const ARCH = {
     return q.cd;
   },
   zapper(pet, g, q, fx) {
-    const first = g.nearestEnemy(pet.x, pet.y, q.range || 150);
+    const first = g.petTarget(pet.x, pet.y, q.range || 150);
     if (!first) return 0.3;
     const n = (q.chains || 3) + (pet.id === 'voltowl' && g.combo('stormwings') ? 4 : 0);
     const extra = { burn: q.burn, chill: q.chill, stun: q.stun };
@@ -354,7 +354,7 @@ const ARCH = {
     return q.cd;
   },
   roller(pet, g, q, fx) {
-    const t = g.nearestEnemy(pet.x, pet.y, q.range || 140);
+    const t = g.petTarget(pet.x, pet.y, q.range || 140);
     if (!t) return 0.3;
     const a = Math.atan2(t.y - pet.y, t.x - pet.x);
     pet.state = 'roll'; pet.rollT = q.time || 0.6; pet.hits.clear(); pet.rollQ = q; pet.rollFx = fx; pet.crashed = false;
@@ -383,7 +383,7 @@ const ARCH = {
     // an evolution also bursts out in its big signature move every few seconds
     if (fx.sig) {
       pet.novaT = (pet.novaT || 0) + (q.tick || 0.5);
-      if (pet.novaT >= 3.2 && g.nearestEnemy(pet.x, pet.y, R * 1.6)) {
+      if (pet.novaT >= 3.2 && g.petTarget(pet.x, pet.y, R * 1.6)) {
         pet.novaT = 0; pet.swing();
         landSig(pet, g, fx.sig, pet.x, pet.y, R * 1.7, q.dmg * pet.power * 3, { ...q, knock: 30 });
       }
@@ -402,9 +402,9 @@ const ARCH = {
   },
   slam(pet, g, q, fx) {
     const R = q.radius || 36;
-    if (!g.nearestEnemy(pet.x, pet.y, R * 1.2)) {
+    if (!g.petTarget(pet.x, pet.y, R * 1.2)) {
       // nobody close: leap onto a foe a little further off; the slam follows right after it lands
-      const t = g.nearestEnemy(pet.x, pet.y, 120);
+      const t = g.petTarget(pet.x, pet.y, 120);
       if (!t) return 0.3;
       const T = 0.5, a = Math.atan2(t.y - pet.y, t.x - pet.x), d = Math.hypot(t.x - pet.x, t.y - pet.y);
       pet.state = 'roll'; pet.rollT = T; pet.hits.clear(); pet.rollQ = { ...q, hop: true, leap: true, time: T }; pet.rollFx = fx; pet.crashed = true;

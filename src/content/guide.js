@@ -27,24 +27,33 @@ export function guideText(s, touch, name) {
 export const TIPS = {
   // ---------------------------------------------------------------- the wild
   run_start: [
-    "Psst! Up here! I'm Moss. I saw the star come down and ran all the way out here. Those ink blobs are the Blight, and they're after you!",
-    '{Move} to run. Your weapon fires all by itself, so just keep moving. {Dash} for a quick dodge.',
-    { t: "Hold out until the clock at the top runs out and you'll reach our village. Every monster you beat pays coins!", focus: '.hud-strip .timer' },
+    'Run! Those ink blobs crawled out of the star, and they are after you.',
+    '{Move} to run. Your bow fires all by itself, so just keep moving. {Dash} for a quick dodge.',
+    { t: 'Your egg is warm: it will hatch any moment. Hold out until the clock at the top runs out to reach Hearthvale.', focus: '.hud-strip .timer' },
   ],
   levelup: [
     'Level up! The blue gems are EXP, and a full bar lets you pick one card. Each card shows the stat now and after.',
-    'Once you have survivalmons, levels take turns: one makes your hero stronger, the next your team. The colour of the EXP bar shows which is next.',
+    'Sometimes one card trains your weapon. At weapon level 3 it says "Evolve the weapon": take it to choose how your weapon changes!',
   ],
+  teambar: [
+    { t: "Berries! They fill the thin teal line under your EXP bar: that is your team's berry bar.", focus: '.teambar' },
+    'When it fills up, your survivalmons get an upgrade card. Berries drop from monsters and berry bushes.',
+  ],
+  evolve: [
+    'Your weapon evolves! Pick one of the two. Each choice changes what the next evolve offers.',
+    'At weapon level 12 you choose an element: fire, ice, poison, lightning or light. It works on every hit.',
+  ],
+  house_card: ['A chest in a building! Move speed, pickup range and EXP gain only come from chests like this one.'],
   house: ["A house! {Act} at the door to step inside. The clock stops in there, so take your time."],
   house_in: ['Walk up to shelves, crates and chests and {act} to search them: coins, berries, materials, eggs and more. Leave through the door.'],
   gather: ['Stand still next to trees, rocks and clay to gather wood, stone and clay. Buildings in town are upgraded with them.'],
   egg: ['An egg! It goes to the Hatchery in town. Eggs warm up while you are out in the wild, then hatch when you get home.'],
   wild: [
-    'A wild survivalmon! Follow the arrow at the edge of the screen.',
-    'Beat it within 25 seconds and it joins you. Monsters never join, only survivalmons.',
+    'A survivalmon, turned strange by the star! Follow the arrow at the edge of the screen.',
+    'Beat it and it is freed: it runs to your Ranch in town. Dark creatures never join, only survivalmons.',
   ],
   caught: [
-    'You caught it! It joins your team if there is room, or waits at the Ranch.',
+    'You freed it! It joins your team if there is room, or waits at the Ranch.',
     'See the letters on its card? Every skill has a grade from D up to S. Better grades hit harder.',
   ],
   faint: ['Oh no, it fainted! It sits out the rest of this run. Doc Poppy at the Clinic in town can heal it.'],
@@ -55,10 +64,7 @@ export const TIPS = {
   ],
   skillpick: ['A skill pick! One survivalmon skill goes up a grade for the rest of this run: D, C, B, A, then S.'],
   sunset: ["The sun is setting. The Blight grows stronger in the dark, and night creatures come out. They hate light: stay close to your lantern's glow."],
-  snare: [
-    'The Snare gang! Their nets slow you down, and their Cage Drones carry off fainted survivalmons.',
-    'Beat a drone and the survivalmon it carries gets back up. If they have one under the Blight, beat it to free it!',
-  ],
+  swarm: ['A swarm of dark creatures! They come in a pack from one side. Keep moving and let them bunch up.'],
   gear: ['Gear for your hero! Tamsin at the Workshop in town levels it up. Wear 2, 4 or 6 pieces of one set for its bonuses.'],
   stone: ['An evolution stone! Breeds evolve at Lv 30 and Lv 55 with a stone of their type. It waits at your Ranch.'],
   bag: [{ t: 'You have items in your bag! Open it with {bag} and tap one to use it. The run waits while the bag is open.', focus: '.bag-btn' }],
@@ -69,7 +75,7 @@ export const TIPS = {
 
   // ---------------------------------------------------------------- town
   town: [
-    "Welcome to Hearthvale, {name}! It's me, Moss, from the crater road. This village is home now: here you grow stronger between runs.",
+    "Hi, {name}! I'm Moss. Granny Wren told me to show you round. Hearthvale is home now: here you grow stronger between runs.",
     'Walk up to a door and {act} to go in. Every building has a keeper inside. Talk to them and pick their button to use it.',
     { t: 'Up here is what you brought home. Coins pay for almost everything. Spirit pays for the Spirit Shrine. Skyfall Shards are rare treasure.', focus: '.town-hud .town-chip:first-child' },
     "First stop: Coach Hale's Training Hall. Spend your coins on Run time so your next run lasts longer. Then talk to Ollie at the North Gate to head out!",

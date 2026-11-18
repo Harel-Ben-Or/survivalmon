@@ -54,7 +54,14 @@ const CREATURE_IDS = [
 ];
 // Enemy colour variants made by shifting the hue of an existing sprite
 const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom_blue: ['shroom', 185] };
-const HEROES = ['rowan', 'bram', 'lyra', 'pip'];
+// art key -> folder under heroes/. 'rowan' (you) is set from you_boy / you_girl by setHeroLook.
+const HEROES = ['you_boy', 'you_girl', 'rowanf', 'bram', 'lyra', 'pip'];
+const HERO_FOLDER = { rowanf: 'rowan' };
+// Your look: the boy or the girl ranger trainee (Meta.data.gender)
+export function setHeroLook(gender) {
+  const a = HERO_ART[gender === 'girl' ? 'you_girl' : 'you_boy'];
+  if (a) HERO_ART.rowan = a;
+}
 // Survivalmons with drawn animation: creatures/anim/<id>.png holds one cell per frame (cell = the
 // sprite's own size, 8 cells across): row 0 = moving (8 frames), row 1 = idle (6), row 2 = attack (6,
 // played once each time it attacks), row 3 = faint (8, played once, ending lying down). Frame 0 of
@@ -227,14 +234,14 @@ export async function loadArt(base = 'assets/sprites') {
   await Promise.all(HEROES.map(async (id) => {
     const dirs = {}, flash = {};
     await Promise.all(DIR8.map(async (d) => {
-      const img = await loadImage(`${base}/heroes/${id}/${d}.png`);
+      const img = await loadImage(`${base}/heroes/${HERO_FOLDER[id] || id}/${d}.png`);
       if (img) { dirs[d] = fromImage(img); flash[d] = silhouette(dirs[d], '#ffffff'); }
     }));
     if (!dirs.south) return;
     // Walk cycles: heroes/<id>/walk/<dir>_<n>.png, frames counted from walk/frames.json
     const walk = {}, walkFlash = {};
     // heroes/<id>/walk.png: one row per direction (DIR8 order), one 64px cell per frame
-    const sheet = await loadImage(`${base}/heroes/${id}/walk.png`);
+    const sheet = await loadImage(`${base}/heroes/${HERO_FOLDER[id] || id}/walk.png`);
     if (sheet) {
       const c = dirs.south.width, n = Math.floor(sheet.width / c);
       DIR8.forEach((d, r) => {
@@ -249,7 +256,7 @@ export async function loadArt(base = 'assets/sprites') {
     }));
     // heroes/<id>/dash.png: the dash, one row per direction (DIR8 order), DASH_CELL px cells
     const dash = {}, dashFlash = {};
-    const dsheet = await loadImage(`${base}/heroes/${id}/dash.png`);
+    const dsheet = await loadImage(`${base}/heroes/${HERO_FOLDER[id] || id}/dash.png`);
     if (dsheet) {
       const n = Math.floor(dsheet.width / DASH_CELL);
       DIR8.forEach((d, r) => {

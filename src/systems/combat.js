@@ -9,6 +9,7 @@ import { SHARD_DROP } from '../content/shop.js';
 import { Box, rollSkills } from './collection.js';
 import { Meta } from './meta.js';
 import { LANTERN } from '../entities/enemy.js';
+import { dmgMarks } from '../content/wcore.js';
 
 export const Combat = {
   // ------------------------------------------------------------ queries
@@ -20,6 +21,12 @@ export const Combat = {
       if (d < bd) { bd = d; best = e; }
     });
     return best;
+  },
+  // A survivalmon's target: a Beacon Shot's glowing target when it's in reach, else the nearest foe
+  petTarget(x, y, maxD, filter) {
+    const b = this.beacon;
+    if (b && !b.dead && b.glow > 0 && !b.hidden && dist2(x, y, b.x, b.y) < maxD * maxD && (!filter || filter(b))) return b;
+    return this.nearestEnemy(x, y, maxD, filter);
   },
   enemiesInRadius(x, y, r, fn) {
     this.enemyHash.query(x, y, r + 24, (e) => {
@@ -107,7 +114,8 @@ export const Combat = {
           if (p.hitSet.has(e.id)) return;
           p.hitSet.add(e.id);
         }
-        const res = this.damageEnemy(e, p.dmg, {
+        // a main weapon's shot handles its own hit (its element and evolves); others hit plainly
+        const res = p.hit ? p.hit(this, p, e) : this.damageEnemy(e, p.dmg, {
           element: p.element, knock: p.knock, kx, ky, fromX: P.x, fromY: P.y,
           burn: p.burn, chill: p.chill, freeze: p.freeze, stun: p.stun, pet: p.pet, petRef: p.petRef, src: p.src,
         });
@@ -210,6 +218,17 @@ export const Combat = {
           const a = i * 0.785 + this.time * 0.6, d = z.r * (0.3 + ((i * 37) % 60) / 100);
           ctx.fillStyle = i % 2 ? '#e6c8ff' : '#9af08a';
           ctx.fillRect(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.75 - ((this.time * 8 + i * 3) % 6)), 1, 1);
+        }
+      } else if (z.kind === 'poison' || z.kind === 'ice') {
+        const poison = z.kind === 'poison';
+        ctx.globalAlpha = 0.22 * fade; ctx.fillStyle = poison ? '#6ab03a' : '#9fdcff';
+        ctx.beginPath(); ctx.ellipse(x, y, z.r, z.r * 0.75, 0, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 0.85 * fade;
+        const n = Math.max(3, Math.floor(z.r / 3));
+        for (let i = 0; i < n; i++) {
+          const a = i * 2.4 + (poison ? this.time * 0.5 : 0), d = z.r * (0.25 + ((i * 41) % 70) / 100);
+          ctx.fillStyle = poison ? (i % 2 ? '#b8f070' : '#4a8a2a') : (i % 2 ? '#ffffff' : '#c8eeff');
+          ctx.fillRect(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.75 - (poison ? (this.time * 6 + i * 2) % 5 : 0)), 1, 1);
         }
       } else if (z.kind === 'hazard') {
         const k = Math.min(1, z.age / (z.firstTick || 0.8));
@@ -340,12 +359,14 @@ export const Combat = {
   damageEnemy(e, base, o = {}) {
     if (e.dead || e.hidden || e.fainted) return { crit: false, dmg: 0 };
     const S = this.player.stats;
-    let dmg = base;
+    let dmg = base * dmgMarks(this, e, o); // the main weapon's evolves: foes that take more from everything
     let crit = false;
     if (!o.raw) {
       dmg *= (o.pet ? S.petPower : S.might) * (1 + this.blessed().dmg);
-      const critChance = S.crit + (o.pet ? (o.petRef?.pass.claw || 0) + (this.team?.crit || 0) : 0);
-      if (!o.noCrit && Math.random() < critChance) { crit = true; dmg *= S.critMult; }
+      const critChance = S.crit + (o.critAdd || 0) + (o.pet ? (o.petRef?.pass.claw || 0) + (this.team?.crit || 0) : 0);
+      if (!o.noCrit && Math.random() < critChance) { crit = true; dmg *= S.critMult + (o.critMultAdd || 0); }
+      // a glowing foe (the Light element) takes more from your survivalmons
+      if (o.pet && e.glow > 0) dmg *= 1 + (e.glowK || 0.25);
       if (o.element === 'fire') dmg *= S.burnMult;
       if (o.element === 'light') dmg *= S.lightning;
       if (o.shatter && e.freeze > 0) dmg *= 3;
@@ -377,6 +398,9 @@ export const Combat = {
     this.runStats.damage += dmg;
     if (e.hp <= 0) { if (e.wild) this.catchWild(e, o); else this.killEnemy(e, o); }
     else if (!o.silent) Audio.play('hit');
+    // a weapon evolve that adds to your survivalmons' hits (Pip's sling)
+    const h = this.wPetHit;
+    if (o.pet && h && h.w === this.player?.main && dmg > 0) h.fn(this, e, { crit, dmg }, o);
     return { crit, dmg };
   },
 
@@ -409,7 +433,8 @@ export const Combat = {
     if (chance(0.01 * S.luck)) this.spawnPickup('heart', cx, cy);
     if (chance(0.0018 * S.luck)) this.spawnPickup('magnet', cx, cy);
     if (chance(0.0012 * S.luck)) this.spawnPickup('bomb', cx, cy);
-    if (chance(0.03 * S.luck)) this.spawnPickup('berry', cx + rand(-4, 4), cy);
+    // berries fill the team bar: 1 from 12% of monsters, 3 from an elite, 10 from a boss
+    if (chance(0.12)) this.spawnPickup('berry', cx + rand(-4, 4), cy);
     if (e.elite) {
       this.spawnPickup('chest', cx, cy, 1);
       if (Math.random() < 0.08) this.dropGear(cx + 8, cy);
@@ -420,7 +445,10 @@ export const Combat = {
     if (this.tier >= 4) this.dropShards(e, cx, cy);
     if (e.boss) this.onBossDeath(e);
     if (S.healOnKill && chance(S.healOnKill)) P.heal(2);
-    if (o.petRef) o.petRef.gainXp(this.tierMult?.petXp || 1);
+    // what your survivalmons defeat goes into the run's mon EXP pool, split between them at the end
+    // (2 EXP for every mon on the team, so once it's split each one gets 2 EXP per kill the team makes:
+    // berries used to feed every survivalmon EXP; now the kills carry it all)
+    if (o.petRef) this.monPool = (this.monPool || 0) + 2 * Math.max(1, P.pets.length) * (this.tierMult?.petXp || 1);
     Audio.play('kill');
   },
 
@@ -479,7 +507,9 @@ export const Combat = {
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
-    if (o.petRef) o.petRef.gainXp(3);
+    if (o.petRef) this.monPool = (this.monPool || 0) + 8 * Math.max(1, P.pets.length);
+    // a freed survivalmon leaves 5 berries as its thanks
+    for (let i = 0; i < 5; i++) this.spawnPickup('berry', e.x + rand(-12, 12), e.y + rand(-8, 8));
     Audio.play('hatch'); setTimeout(() => Audio.play('chest'), 250);
   },
 

@@ -1363,3 +1363,23 @@ body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
   .guide-text { font-size: 12px; line-height: 1.25; }
   .guide-actions .btn.small { padding: 3px 9px; font-size: 12px; }
 }
+
+/* The team's berry bar: a thin teal line right under the hero's EXP line */
+#hud .teambar { position: absolute; left: 0; right: 0; top: 5px; height: 3px; background: #10302c; border-bottom: 1px solid var(--ink); }
+#hud .teambar .fill { height: 100%; width: 0; background: linear-gradient(#b4fff4, #3ac8b8); transition: width .15s; }
+#hud .teambar:not(.hidden) ~ .hud-strip { top: 9px; }
+/* Weapon cards on a level-up, and the evolve choices */
+.card.wpn-card { border-color: #ffd84a; }
+.card.evo-card { border-color: #ff9a3a; box-shadow: 0 0 0 2px #ff9a3a55, 0 0 14px #ff9a3a55; }
+.card.evo-card .val { font-weight: 700; }
+
+/* Who are you? A boy or a girl, and your name (a new game, or the town menu) */
+.creator-box { max-width: 460px; text-align: center; }
+.creator-looks { display: flex; justify-content: center; gap: 14px; margin: 10px 0; }
+.creator-look { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 14px; background: rgba(255,255,255,.06); border: 3px solid var(--ink); border-radius: 8px; color: inherit; font: inherit; cursor: pointer; }
+.creator-look img { width: 96px; height: 96px; }
+.creator-look.sel { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); background: rgba(255,216,74,.12); }
+.creator-name { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 6px 0 10px; }
+/* Out in the wild a tip is a plain hint: no one talking */
+.guide-box.plain-hint { grid-template-columns: 1fr; }
+.guide-box.plain-hint .guide-name b { color: var(--gold); }

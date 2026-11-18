@@ -622,8 +622,9 @@ export const TownMode = {
     if (hatched.length && Meta.unlock('merchant')) notes.push('The Merchant opened a stall by the square.');
     if (Box.mons.length >= 3 && Meta.unlock('shrine')) notes.push('The Spirit Shrine is open: upgrades for every survivalmon.');
     // new heroes
-    const heroUnlocks = { bram: Meta.data.bestTime >= 120, lyra: Box.linesCaught() >= 3, pip: Object.keys(Box.data.discovered).length > 0 };
-    for (const [h, ok] of Object.entries(heroUnlocks)) if (ok && Meta.unlockHero(h)) notes.push(`New hero: ${h[0].toUpperCase() + h.slice(1)}! Pick them at Enter the Wild.`);
+    // your friends: one is found past each gate, the first time you win at its Lv 1 (old saves keep theirs)
+    const found = [];
+    for (const [h, tier] of [['rowanf', 0], ['bram', 1], ['lyra', 2], ['pip', 3]]) if (Meta.gates > tier && Meta.unlockHero(h)) found.push(h);
     const opened = Meta.data.gateNew;
     if (opened) {
       Meta.data.gateNew = 0; Meta.save();
@@ -633,6 +634,8 @@ export const TownMode = {
     const show = () => {
       for (const n of notes) this.toast(n);
       this.ui.showTown();
+      // the story: Hearthvale's gate the first time, a friend you found, the Scar after the last gate
+      if (this.ui.storyBeats(found)) return;
       if (!Meta.named && Meta.hero === 'rowan') this.ui.openNaming(); // Ollie asks who you are (then Moss shows you round)
       else this.ui.tip('town');
       // the beginner's guide: a first survivalmon, a new gate, an achievement earned out in the wild

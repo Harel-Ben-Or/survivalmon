@@ -4,7 +4,7 @@ import { Audio } from './audio.js';
 import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
-import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART } from '../gfx/art.js';
+import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART, setHeroLook } from '../gfx/art.js';
 import { NPC_IDS } from '../content/npcs.js';
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
@@ -17,14 +17,13 @@ import { Particles } from '../systems/particles.js';
 import { Combat } from '../systems/combat.js';
 import { Pickups } from '../systems/pickups.js';
 import { Director, RUN_LENGTH, PACE } from '../systems/director.js';
-import { rollContainer, levelUpOptions, levelKind, applyLevelCard, rollStone } from '../systems/loot.js';
+import { rollContainer, levelUpOptions, applyLevelCard, rollStone } from '../systems/loot.js';
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { WEAPONS } from '../content/weapons.js';
-import { COMBOS } from '../content/artifacts.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
 import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
@@ -138,6 +137,7 @@ export class Game {
     await Promise.all([loadProjArt(SPR), loadVfxArt(), loadNpcArt(NPC_IDS), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
     this.tileGround = await TileGround.load();
     Meta.load();
+    setHeroLook(Meta.gender); // your look: the boy or the girl ranger trainee
     Shrine.load();
     Box.load();
     this.bankClosedRun();
@@ -229,14 +229,20 @@ export class Game {
     P.shards = 0;
     P.recompute();
     P.hp = P.stats.maxHp;
-    P.addItem('weapon', P.hero.weapon);
+    P.setMain(P.hero.weapon); // the hero's own weapon: 12 levels with three evolves
     const off = Meta.offWeapon(heroId);
     if (off) P.addItem('weapon', off, offWeaponLevel(Meta.slotLevel(heroId, 'off')));
     this.team = this.teamBonus();
+    // the berry bar: berries you pick up fill it; when it's full the team gets an upgrade
+    P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; P.houseBonus = 0; P.evolvePicks = 0;
+    this.monPool = 0; this.poolShare = null; this.beacon = null; this.evolveTier = 0;
     // type cards picked this run (n), and their damage, which starts at what the hero's sets give
     this.typeUp = Object.fromEntries(ATK_TYPE_IDS.map((t) => [t, { dmg: this.heroBonus.types[t] || 0, n: 0 }]));
     this.tierOdds = Shrine.odds();
     this.canCatch = Box.data.firstHatch;
+    // the story's first run, out of the ruins: the egg Hollis gave you hatches on the way (about 10 s in)
+    this.storyRun = !Meta.data.runs && !Box.mons.length && Box.eggs.some((e) => e.kind === 'starter');
+    this.storyHatched = false;
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
     this.applyTeamPassives();
     this.director.catchT = 75 / (this.wildMult || 1);
@@ -284,6 +290,14 @@ export class Game {
     if (this.mode === 'house') { P.x = P.worldX; P.y = P.worldY; this.ui.setPaused(false); this.snapCamera(); }
     this.mode = 'end'; this.modal = null; this.endWon = won;
     this.timers = []; this.shakeT = 0; // attacks still on their way don't land (or shake) after the run
+    // the mon EXP pool (what your survivalmons defeated) is split evenly between everyone on the team
+    const pool = Math.round((this.monPool || 0) * P.stats.petXp);
+    if (pool > 0 && P.pets.length) {
+      const share = Math.max(1, Math.floor(pool / P.pets.length));
+      for (const p of P.pets) Box.addXp(p.mon, share);
+      this.poolShare = { pool, share };
+      this.checkEvolve();
+    }
     const hurt = Box.afterRun(P.pets, 0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest'));
     if (hurt && Meta.unlock('clinic')) this.unlockNote = 'The Clinic is open: heal your hurt survivalmons there.';
     Box.warmEggs(this.time * this.hatchMult());
@@ -417,6 +431,7 @@ export class Game {
         Audio.play('boss');
       }
     }
+    if (this.storyRun && !this.storyHatched && this.time >= 10) this.hatchOnTheRoad();
     this.director.update(dt);
     this.enemyHash.clear();
     for (const e of this.enemies) if (!e.dead && !e.hidden && !e.fainted) this.enemyHash.insert(e);
@@ -459,10 +474,21 @@ export class Game {
 
     this.updateGathering(dt);
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
-    if (P.pendingLevels > 0 && !this.modal && !this.ui.tip('levelup')) this.openLevelUp();
-    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
-    if (P.skillPicks > 0 && !this.modal && !this.ui.tip('skillpick')) this.openLevelUp('skill');
+    this.openPicks();
     Box.saveIfDirty();
+  }
+
+  // Whatever is waiting to be picked, one at a time: an evolve right after its card, hero level-ups,
+  // team upgrades from the berry bar, chest picks, then a boss's skill pick
+  openPicks() {
+    const P = this.player;
+    if (this.modal) return;
+    if (P.evolvePicks > 0) { if (!this.ui.tip('evolve')) this.openLevelUp('evolve'); }
+    else if (P.pendingLevels > 0 && !this.ui.tip('levelup')) this.openLevelUp();
+    else if (P.teamPicks > 0 && !this.modal && !this.ui.tip('teambar')) this.openLevelUp('team');
+    else if (P.houseBonus > 0 && !this.ui.tip('house_card')) this.openLevelUp('house');
+    else if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
+    else if (P.skillPicks > 0 && !this.modal && !this.ui.tip('skillpick')) this.openLevelUp('skill');
   }
 
   updateHouse(dt) {
@@ -497,9 +523,7 @@ export class Game {
     } else this.ui.prompt(null);
     if (room.doorX != null && P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
-    if (P.pendingLevels > 0 && !this.modal && !this.ui.tip('levelup')) this.openLevelUp();
-    if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
-    if (P.skillPicks > 0 && !this.modal && !this.ui.tip('skillpick')) this.openLevelUp('skill');
+    this.openPicks();
   }
 
   // ------------------------------------------------------------ houses
@@ -605,7 +629,11 @@ export class Game {
       else if (d.kind === 'xp') { P.addXp(d.value); this.particles.number(cx, cy + 18, d.value, 'xp'); }
       else if (d.kind === 'berry') this.feedTeam(d.value);
       else if (d.kind === 'stone') this.gainStone(d.value);
-      else if (d.kind === 'card') { P.bonusPicks = (P.bonusPicks || 0) + d.value; this.toast('Treasure! A bonus upgrade to pick'); }
+      else if (d.kind === 'card') {
+        // a chest inside a building offers a chest-only card (move speed, pickup range, EXP gain)
+        if (this.mode === 'house') P.houseBonus = (P.houseBonus || 0) + d.value; else P.bonusPicks = (P.bonusPicks || 0) + d.value;
+        this.toast('Treasure! A bonus upgrade to pick');
+      }
       else if (d.kind === 'mats') {
         this.addMats(d.value);
         this.toast(Object.entries(d.value).map(([k, v]) => `+${Math.max(1, Math.round(v * (this.matMult || 1)))} ${MATERIALS[k].name}`).join(' · '));
@@ -735,11 +763,11 @@ export class Game {
       for (let i = 0; i < v; i++) {
         const zone = ZONES[this.world.zoneAtPx(P.x, P.y)];
         const sp = Math.random() < 0.65 ? choice(zone.mons) : choice(BASE_IDS);
-        const e = this.director.spawn('wild', { wild: sp });
+        const e = this.director.spawn('wild', { wild: sp, corrupted: true });
         if (e) { n++; if (g >= 2) e.lure = g >= 4 ? 2 : 1; }
       }
       if (!n) return no('No room for a wild survivalmon here. Try again in a moment.');
-      this.feed(`The horn calls ${n === 1 ? 'a wild survivalmon' : `${n} wild survivalmons`}! Catch them within 25 s`, '#7af0ff');
+      this.feed(`The horn calls ${n === 1 ? 'a survivalmon' : `${n} survivalmons`} turned by the star! Beat them to free them`, '#c8a0ff');
     } else if (id === 'warm') {
       if (!Box.eggs.length) return no('No eggs in your Hatchery to warm.');
       Box.warmEggs(v);
@@ -764,6 +792,22 @@ export class Game {
     this.wildMult = Meta.wildMult() * (1 + sum('star') + hb.wild) * (1 + Shrine.bonus('wild'));
     this.matMult = (1 + sum('nose') + (hb.mats || 0)) * (this.tierMult?.mats || 1);
   }
+  // The first run: your egg hatches in your arms and your first survivalmon fights beside you
+  hatchOnTheRoad() {
+    this.storyHatched = true;
+    const egg = Box.eggs.find((e) => e.kind === 'starter');
+    if (!egg) return;
+    egg.progress = egg.need;
+    const P = this.player;
+    for (const mon of Box.hatchReady()) {
+      if (!Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
+      const pet = this.addPet(mon);
+      if (pet) { pet.x = P.x + 10; pet.y = P.y + 6; }
+      this.particles.burst(P.x + 10, P.y - 4, { n: 30, colors: ['#ffe07a', '#ffffff', '#9af08a'], speed: 80, life: 0.7, up: 30 });
+      this.banner(`Your egg hatched! ${SPECIES[mon.species].name} fights at your side!`, '#ffe07a', true);
+    }
+    Audio.play('hatch');
+  }
   hatchMult() { return 1 + Meta.buildingBonus('hatchery', 'speed') + Shrine.bonus('hatch'); }
   // An egg found in a run goes to the Hatchery (or turns into coins if every nest is full).
   findEgg(x, y) {
@@ -778,15 +822,15 @@ export class Game {
     this.particles.burst(x, y - 6, { n: 16, colors: ['#ffe07a', '#ffffff'], speed: 60, life: 0.5, up: 20 });
     Audio.play('chest');
   }
+  // Berries heal a little and fill the team's berry bar; a full bar is a team upgrade (5, 7, 9... berries)
   feedTeam(n) {
     const P = this.player;
     P.heal(2 * n);
-    if (!P.pets.length) { this.toast('Berries! (+HP) Bring survivalmons to feed them too.'); return; }
-    for (const pet of P.pets) {
-      pet.gainXp(BERRY_XP * n);
-      pet.heal(3 * n);
-      this.particles.number(pet.x, pet.y - 4, BERRY_XP * n, 'heal');
-    }
+    if (!P.pets.length) { this.toast('Berries! (+HP) Bring survivalmons: berries power them up.'); return; }
+    for (const pet of P.pets) pet.heal(3 * n);
+    if (P.berries == null) { P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; }
+    P.berries += n;
+    while (P.berries >= P.teamNext) { P.berries -= P.teamNext; P.teamNext += 2; P.teamPicks++; }
     Audio.play('gem');
   }
   gainStone(id) {
@@ -820,44 +864,34 @@ export class Game {
     if (pet) { pet.refresh(); this.player.recompute(); }
     return true;
   }
-  refreshCombos() {
-    const P = this.player;
-    if (!P) return;
-    const now = new Set();
-    for (const c of COMBOS) {
-      if (c.pieces.every((p) => (p === 'pet:any' ? P.pets.some((x) => !x.fainted) : P.has(p)))) now.add(c.id);
-    }
-    for (const id of now) {
-      if (!this.activeCombos.has(id) && (this.mode === 'world' || this.mode === 'house')) {
-        const c = COMBOS.find((x) => x.id === id);
-        this.feed(`Combo: ${c.name}! ${c.desc}`, '#ffd84a');
-        Audio.play('combo');
-      }
-    }
-    this.activeCombos = now;
-  }
-  combo(id) { return this.activeCombos.has(id); }
+  refreshCombos() { /* combos came from artifacts and spells, which are gone */ }
+  combo() { return false; }
 
-  // Level-ups alternate between your survivalmons and your hero (see levelKind); bonus picks from
-  // chests offer both; a beaten boss gives a skill pick. The level shown is the one this pick is for.
+  // Hero level-ups (gems), team upgrades (the berry bar), evolves (after an "Evolve the weapon" card),
+  // chest picks and a boss's skill pick all open here. The level shown is the one this pick is for.
   openLevelUp(extra = null) {
     const P = this.player;
-    const level = P.level - P.pendingLevels + 1;
-    const cards = levelUpOptions(P, extra || levelKind(P, level));
+    const want = extra || 'hero';
+    const cards = levelUpOptions(P, want);
     // a skill pick with no skill left to raise turns into a bonus pick
-    const kind = this.levelKindNow = extra === 'skill' && cards[0]?.kind !== 'skill' ? 'bonus' : extra || levelKind(P, level);
+    const kind = this.levelKindNow = want === 'skill' && cards[0]?.kind !== 'skill' ? 'bonus' : want;
+    const level = kind === 'hero' ? P.level - P.pendingLevels + 1 : kind === 'team' ? P.teamLevel + 1 : kind === 'evolve' ? this.evolveTier : 0;
+    if (!cards.length) { this.donePick(want); return; }
     this.modal = 'levelup';
     this.ui.prompt(null);
-    Audio.play('levelup');
+    Audio.play(kind === 'evolve' ? 'combo' : 'levelup');
     this.ui.showLevelUp(cards, (card) => {
       applyLevelCard(P, card);
-      if (extra === 'bonus') P.bonusPicks--; else if (extra === 'skill') P.skillPicks--; else P.pendingLevels--;
+      this.donePick(want);
       this.modal = null;
     }, kind, level);
   }
+  donePick(kind) {
+    const P = this.player;
+    if (kind === 'bonus') P.bonusPicks--; else if (kind === 'house') P.houseBonus--; else if (kind === 'skill') P.skillPicks--;
+    else if (kind === 'team') { P.teamPicks--; P.teamLevel++; } else if (kind === 'evolve') P.evolvePicks--; else P.pendingLevels--;
+  }
   rerollLevelUp() { return levelUpOptions(this.player, this.levelKindNow); }
-  // which kind the next level-up will be (for the EXP bar)
-  nextLevelKind() { return levelKind(this.player, this.player.level + 1); }
 
   onBossDeath(e) {
     // a skill pick for your team (not after the last boss: the run is won then)
@@ -869,7 +903,7 @@ export class Game {
     this.dropGear(e.x - 14, e.y + 6);
     this.addMats({ wood: 4, stone: 4, clay: 2, iron: 2 });
     for (let i = 0; i < 12; i++) this.spawnPickup('coin', e.x + rand(-20, 20), e.y + rand(-14, 14), 3);
-    for (let i = 0; i < 6; i++) this.spawnPickup('berry', e.x + rand(-20, 20), e.y + rand(-14, 14));
+    for (let i = 0; i < 10; i++) this.spawnPickup('berry', e.x + rand(-20, 20), e.y + rand(-14, 14));
     if (Math.random() < 0.4 * this.player.stats.luck * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 12, this.rollStone());
     this.shake(8, 0.5);
     if (this.boss === e) this.boss = null;

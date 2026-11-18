@@ -1,26 +1,35 @@
 // Playable heroes and level-up stat cards.
 export const HEROES = [
+  // You: the main character (id 'rowan' for old saves), a ranger trainee from Brightnest, boy or girl.
+  // Your own perk is still to be decided, so for now you have none.
   {
-    id: 'rowan', name: 'Rowan', title: 'Ranger', weapon: 'bow', color: '#d8473b',
-    desc: 'A quick-footed scout who never misses a shot.',
+    id: 'rowan', name: 'You', title: 'Ranger trainee', weapon: 'bow', color: '#5aa84a',
+    desc: 'A ranger trainee from Brightnest, with a hunter bow.',
+    perks: [],
+    mods: {},
+  },
+  // Your four friends, found past the gates
+  {
+    id: 'rowanf', name: 'Rowan', title: 'Ranger trainee', weapon: 'boomerang', color: '#d8473b',
+    desc: 'Quick on his feet. His boomerang always comes back.',
     perks: ['+10% move speed', '+4% crit chance'],
     mods: { speed: 0.10, crit: 0.04 },
   },
   {
-    id: 'bram', name: 'Bram', title: 'Farmhand', weapon: 'pitchfork', color: '#4c7fbf',
-    desc: 'Sturdy as an oak. Hits like a hay cart.',
+    id: 'bram', name: 'Bram', title: 'Ranger trainee', weapon: 'pitchfork', color: '#4c7fbf',
+    desc: 'Sturdy as an oak. Her spear hits like a hay cart.',
     perks: ['+40 max HP', '+2 armor', '-5% move speed'],
     mods: { maxHp: 40, armor: 2, speed: -0.05 },
   },
   {
-    id: 'lyra', name: 'Lyra', title: 'Apprentice', weapon: 'emberwand', color: '#6c4bc4',
-    desc: 'Studied three spells. Mastered one. Burns the rest.',
+    id: 'lyra', name: 'Lyra', title: 'Ranger trainee', weapon: 'emberwand', color: '#6c4bc4',
+    desc: 'Studied three spells. Mastered one: her magic wand.',
     perks: ['-10% cooldowns', '+10% area', '-15 max HP'],
     mods: { haste: 0.10, area: 0.10, maxHp: -15 },
   },
   {
-    id: 'pip', name: 'Pip', title: 'Critter Tamer', weapon: 'sling', color: '#2fa39a',
-    desc: 'Born to befriend critters.',
+    id: 'pip', name: 'Pip', title: 'Ranger trainee', weapon: 'sling', color: '#2fa39a',
+    desc: 'Born to befriend survivalmons. Looks after the whole team.',
     perks: ['+50% pet power', '+50% pet EXP', '+10% luck'],
     mods: { petPower: 0.5, petXp: 0.5, luck: 0.1 },
   },

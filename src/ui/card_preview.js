@@ -4,7 +4,7 @@ import { SPECIES } from '../content/species.js';
 import { TYPE_PERK } from '../entities/pet.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { armorCut } from '../systems/armor.js';
-import { levelRows } from '../systems/loot.js';
+import { wStats } from '../content/evolve.js';
 
 const pct = (v) => `${Math.round(v * 100)}%`;
 const plus = (v) => `+${Math.round(v * 100)}%`;
@@ -36,9 +36,16 @@ const S_TWIST = { shooter: '+1 shot', lobber: '+1 shot', zapper: '+2 jumps', rol
 
 export function cardRows(g, c) {
   const P = g.player, S = P.stats;
-  if (c.kind === 'train') {
-    const cur = P.find(c.cat, c.id);
-    return levelRows(c.cat, c.id, cur.level, cur.level + 1);
+  if (c.kind === 'wcard') {
+    // a weapon step: what changes between this level and the next
+    const w = c.w, a = wStats(w), b = wStats({ id: w.id, level: c.next.to, path: w.path });
+    const rows = [];
+    const num = (v) => (v === Infinity ? 'all' : `${Math.round(v * 10) / 10}`);
+    const keys = [['dmg', 'Damage'], ['n', 'Shots'], ['pierce', 'Pierce'], ['shards', 'Shards'], ['rainN', 'Falling arrows'], ['ringN', 'Ring arrows'], ['bounces', 'Bounces'], ['blastR', 'Blast'], ['luckyN', 'Free arrows']];
+    for (const [k, label] of keys) if (a[k] !== b[k] && b[k] != null) rows.push([label, a[k] == null ? '' : num(a[k]), num(b[k])]);
+    if (a.cd !== b.cd) rows.push(['Shots a second', (1 / a.cd).toFixed(2), (1 / b.cd).toFixed(2)]);
+    if (a.critAdd !== b.critAdd) rows.push(['Weapon crit', pct(a.critAdd), pct(b.critAdd)]);
+    return rows.slice(0, 3);
   }
   if (c.kind === 'skill') {
     const { pet, skill: s, from } = c, to = from + 1;

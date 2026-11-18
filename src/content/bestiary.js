@@ -6,12 +6,10 @@ export const FOE_GROUPS = [
     ids: ['blob', 'droplet', 'inkwing', 'hound', 'spitter', 'shardooze', 'bloater'] },
   { id: 'zone', name: 'Zone monsters', note: 'The Blight made them out of each zone\'s own creatures. Each one lives in its own zone.',
     ids: ['thornling', 'bogcrab', 'sawbeetle', 'cinderimp', 'snowgolem', 'wiltsprite'] },
-  { id: 'snare', name: 'The Snare gang', note: 'Poachers who catch survivalmons and control them with the Blight. They raid a few times a run.',
-    ids: ['poacher', 'slinger', 'drone'] },
   { id: 'night', name: 'Night creatures', note: 'Blight that hides from the sun. They only come out after dark, and light hurts them.',
     ids: ['moonfang', 'witch'] },
   { id: 'boss', name: 'Bosses', note: 'One comes every two minutes or so of a full run. The Night Lord is the last, and the one you must defeat to win.',
-    ids: ['inkking', 'elder', 'snareboss', 'night_lord'] },
+    ids: ['inkking', 'elder', 'colossus', 'night_lord'] },
 ];
 export const FOE_IDS = FOE_GROUPS.flatMap((g) => g.ids);
 export const FOE_GROUP_OF = Object.fromEntries(FOE_GROUPS.flatMap((g) => g.ids.map((id) => [id, g])));
@@ -38,6 +36,7 @@ export const FOES = {
   witch: { when: 'Only when it\'s properly dark (about 6:00)', desc: 'Floats at a distance and lobs globs of venom where you stand. Each leaves a pool of poison for a few seconds.', tip: 'Keep moving out of the red rings. Light hurts it: daylight, your lantern, lightning and Fairy attacks.' },
   inkking: { when: 'Around 2:00', desc: 'A huge ink slime. It leaps high and lands with a crash, spilling Ink Blobs.', tip: 'Get out from under it when it leaps.' },
   elder: { when: 'Around 4:00', desc: 'A blighted old tree. Roots burst up where you stand, and it calls Thornlings to its side.', tip: 'Keep moving: the roots strike where the red rings show.' },
+  colossus: { when: 'Around 6:00', desc: 'Rock from the Night Star, given a body. Slow, huge and very hard to stop.', tip: 'Keep moving: it hits hard but turns slowly.' },
   snareboss: { when: 'Around 6:00', desc: 'The Snare gang\'s boss. Throws nets, slams the ground when you\'re close, and calls the gang.', tip: 'Get out of the red ring before it slams.' },
   night_lord: { when: 'At 7:30 of a full run', desc: 'The last boss of a full run. It fires rings of dark orbs, vanishes and reappears beside you, and calls flocks of Inkwings.', tip: 'Slip through the gaps in its orb rings. It doesn\'t leave at 8:00: defeat it to win the run.' },
 };

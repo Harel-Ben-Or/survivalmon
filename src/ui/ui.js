@@ -2,8 +2,7 @@
 import { iconURL, HERO } from '../gfx/assets.js';
 import { HEROES } from '../content/heroes.js';
 import { WEAPONS } from '../content/weapons.js';
-import { SPELLS } from '../content/spells.js';
-import { ARTIFACTS, COMBOS } from '../content/artifacts.js';
+import { wName, wIcon, ELEMENTS, MAX_WLV } from '../content/evolve.js';
 import { SPECIES, STONES, TYPES, petXpFor, ATK_TYPES, atkType } from '../content/species.js';
 import { MonsUI, atkTag } from './mons_ui.js';
 import { ShopUI } from './shop_ui.js';
@@ -11,7 +10,7 @@ import { MATERIALS } from '../content/buildings.js';
 import { Box, monName } from '../systems/collection.js';
 import { HERO_ART, artURL } from '../gfx/art.js';
 import { playEvolve as playEvolveScene } from './cutscene.js';
-import { CAT_LABEL, itemDef, levelDiff, combosForItem, nameOf, iconOf } from '../systems/loot.js';
+import { CAT_LABEL, itemDef, nameOf, iconOf } from '../systems/loot.js';
 import { SLOTS } from '../entities/player.js';
 import { formatTime } from '../core/util.js';
 import { gateName, gateColor } from '../content/gates.js';
@@ -153,7 +152,7 @@ export class UI {
             <canvas class="px" width="64" height="64"></canvas>
             <div class="name">${esc(Meta.heroName(h.id))}</div><div class="role">${h.title}</div>
             <div class="desc">${esc(h.desc)}</div>
-            <div class="weapon"><img class="px" width="24" height="24" src="${icon(WEAPONS[h.weapon].icon, 2)}">${WEAPONS[h.weapon].name}</div>
+            <div class="weapon"><img class="px" width="24" height="24" src="${icon(WEAPONS[h.weapon].icon, 2)}">${wName({ id: h.weapon, level: 1, path: [] }) || WEAPONS[h.weapon].name}</div>
             <ul>${h.perks.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
             <span class="key">${i + 1}</span>
           </div>`).join('')}
@@ -226,7 +225,7 @@ export class UI {
     // you're in under it, HP under the hero and each survivalmon (drawn in the world), and news in a
     // short feed instead of popups. Materials and the team's details are on the pause screen.
     this.el.hud.innerHTML = `
-      <div class="xpbar"><div class="fill"></div></div>
+      <div class="xpbar"><div class="fill"></div></div><div class="teambar hidden"><div class="fill"></div></div>
       <div class="hud-strip">
         <div class="hs-left"><span class="hs-lv">Lv 1</span><span class="hs-boosts"></span><span class="hs-items"></span></div>
         <div class="hs-mid"><span class="timer"><span class="t">00:00</span><small>left</small></span><span class="phase"></span><span class="paused-chip hidden">⏸ paused</span></div>
@@ -244,7 +243,7 @@ export class UI {
     this.el.hud.classList.remove('hidden');
     const q = (s) => this.el.hud.querySelector(s);
     this.h = {
-      xp: q('.xpbar .fill'), lv: q('.hs-lv'), xpbar: q('.xpbar'), items: q('.hs-items'),
+      xp: q('.xpbar .fill'), lv: q('.hs-lv'), xpbar: q('.xpbar'), team: q('.teambar .fill'), teambar: q('.teambar'), items: q('.hs-items'),
       coins: q('.coins'), spirit: q('.spirit'), kills: q('.kills'),
       time: q('.timer .t'), phase: q('.phase'), paused: q('.paused-chip'), boss: q('.bossbar'), bossName: q('.bossbar .name'), bossFill: q('.bossbar .bar div'),
       mini: q('.minimap canvas'), minimap: q('.minimap'), zone: q('.zone-chip'), feed: q('.feed'), catchCard: q('.catch-card'),
@@ -271,10 +270,12 @@ export class UI {
     const g = this.g, P = g.player, S = P.stats, H = this.h;
     if (!H) return;
     this.set('xp', H.xp, 'width', `${Math.min(100, (P.xp / P.xpNext) * 100).toFixed(1)}%`);
-    // the bar's colour and label say what the next level-up upgrades
-    const next = g.nextLevelKind?.() || 'hero';
-    this.set('lv', H.lv, 'text', P.pets.length ? `Lv ${P.level} › ${next === 'team' ? 'team' : 'hero'}` : `Lv ${P.level}`);
-    this.set('xpk', H.xpbar, 'class', `xpbar next-${next}`);
+    // the gold line is your hero's EXP (gems); the thin teal line under it is the team's berry bar
+    this.set('lv', H.lv, 'text', `Lv ${P.level}`);
+    this.set('xpk', H.xpbar, 'class', 'xpbar next-hero');
+    const teamOn = P.pets.length > 0;
+    this.set('teamOn', H.teambar, 'class', teamOn ? 'teambar' : 'teambar hidden');
+    if (teamOn) this.set('team', H.team, 'width', `${Math.min(100, ((P.berries || 0) / (P.teamNext || 5)) * 100).toFixed(1)}%`);
     this.set('coins', H.coins, 'text', String(Math.floor(P.coins)));
     this.set('spirit', H.spirit, 'text', String(Math.floor(P.spirit || 0)));
     this.set('kills', H.kills, 'text', String(P.kills));
@@ -302,18 +303,9 @@ export class UI {
     H.phase.title = `${m < 6 ? 'Morning' : m < 11 ? 'Afternoon' : m < 16 ? 'Sunset' : m < 21 ? 'Dusk' : 'Night'}: monsters hit ${blight >= 0 ? `${blight}% harder` : `${-blight}% softer`}`;
     H.phase.classList.toggle('dark', blight >= 20);
 
-    const sig = [P.weapons, P.spells, P.artifacts].map((l) => l.map((i) => `${i.id}${i.level}`).join(',')).join('|') + '|' + P.pets.map((p) => p.species + p.mon.level).join(',') + '|' + [...g.activeCombos].join(',');
+    const sig = `${P.main ? `${P.main.id}${P.main.level}${P.main.path.join('')}` : ''}|${P.weapons.map((i) => `${i.id}${i.level}`).join(',')}|${P.pets.map((p) => p.species + p.mon.level).join(',')}`;
     if (sig !== this.invSig) { this.invSig = sig; this.rebuildInventory(); }
 
-    P.spells.forEach((s, i) => {
-      const el = H.spells[i];
-      if (!el) return;
-      const max = SPELLS[s.id].stats(s.level).cd * S.cooldown;
-      const frac = s.cd > 0 ? s.cd / max : 0;
-      this.set(`sp${i}`, el.querySelector('.cd'), 'height', `${(frac * 100).toFixed(0)}%`);
-      this.set(`spt${i}`, el.querySelector('.cdt'), 'text', s.cd > 0 ? String(Math.ceil(s.cd)) : '');
-      el.classList.toggle('ready', s.cd <= 0);
-    });
     this.set('dash', H.dash, 'width', `${(100 * (1 - P.dashCd / (2 * S.cooldown))).toFixed(0)}%`);
 
     if (g.boss && !g.boss.dead) {
@@ -329,16 +321,10 @@ export class UI {
     const g = this.g, P = g.player, H = this.h;
     // weapons, then artifacts: small icons with their level, in the strip
     const pip = (id, lvl, max, title) => `<span class="hs-item" title="${esc(title)} Lv ${lvl}"><img class="px" src="${icon(id, 2)}" alt=""><b>${lvl >= max ? 'M' : lvl}</b></span>`;
-    H.items.innerHTML = P.weapons.map((w) => pip(WEAPONS[w.id].icon, w.level, WEAPONS[w.id].max, WEAPONS[w.id].name)).join('')
-      + (P.artifacts.length ? '<i class="hs-sep"></i>' : '') + P.artifacts.map((a) => pip(ARTIFACTS[a.id].icon, a.level, ARTIFACTS[a.id].max, ARTIFACTS[a.id].name)).join('');
-    H.spells.forEach((el, i) => {
-      const s = P.spells[i];
-      const img = el.querySelector('img');
-      el.classList.toggle('empty', !s);
-      if (s) { img.src = icon(SPELLS[s.id].icon, 3); img.classList.remove('hidden'); el.title = `${SPELLS[s.id].name} Lv ${s.level}`; }
-      else { img.classList.add('hidden'); el.title = 'Empty spell slot — find spells in houses'; }
-    });
-    H.combos.innerHTML = [...g.activeCombos].map((id) => `<div>★ ${COMBOS.find((c) => c.id === id).name}</div>`).join('');
+    const main = P.main ? `<span class="hs-item hs-main" title="${esc(wName(P.main))} Lv ${P.main.level}"><img class="px" src="${icon(wIcon(P.main), 2)}" alt=""><b>${P.main.level >= MAX_WLV ? 'M' : P.main.level}</b></span>` : '';
+    H.items.innerHTML = main + P.weapons.map((w) => pip(WEAPONS[w.id].icon, w.level, WEAPONS[w.id].max, WEAPONS[w.id].name)).join('');
+    H.spells.forEach((el) => el.classList.add('hidden')); // spells are gone from runs
+    H.combos.innerHTML = '';
   }
 
   // Radar of the land around you (one pixel per tile): zones, water, houses, gathering spots,
@@ -425,7 +411,8 @@ export class UI {
     const same = [...box.children].find((el) => el.dataset.text === text);
     if (same) {
       same.dataset.n = String((+same.dataset.n || 1) + 1);
-      same.querySelector('i').textContent = `×${same.dataset.n}`;
+      const n = same.querySelector('i') || same.appendChild(document.createElement('i'));
+      n.textContent = `×${same.dataset.n}`;
       same.dataset.until = String(now + 3600);
       same.classList.remove('out');
       return;
@@ -492,13 +479,23 @@ export class UI {
     const g = this.g, P = g.player;
     const cost = 10 + 5 * (g.rerolls || 0);
     const cards = this.levelCards.map((c, i) => {
-      if (c.kind === 'train') {
-        const def = itemDef(c.cat, c.id), cur = P.find(c.cat, c.id);
-        return `<div class="card clickable" data-pick="${i}">
-          <span class="rar" style="background:#ffd84a">Training</span>
-          <img class="px" src="${icon(def.icon, 4)}">
-          <div class="title">${def.name}</div><div class="cat">${CAT_LABEL[c.cat]} · Lv ${cur.level} → ${cur.level + 1}</div>
-          ${cardRowsHTML(g, c)}
+      if (c.kind === 'wcard') {
+        const w = c.w, ev = c.next.evolve;
+        return `<div class="card wpn-card ${ev ? 'evo-card' : ''} clickable" data-pick="${i}">
+          <span class="rar" style="background:${ev ? '#ff9a3a' : '#ffd84a'}">${ev ? 'Evolve' : 'Weapon'}</span>
+          <img class="px" src="${icon(wIcon(w), 4)}">
+          <div class="title">${esc(wName(w))}</div><div class="cat">Lv ${w.level} → ${c.next.to}</div>
+          <div class="val">${ev ? (ev === 3 ? 'Evolve the weapon: choose its element' : 'Evolve the weapon') : esc(c.next.text)}</div>
+          ${ev ? '' : cardRowsHTML(g, c)}
+          <span class="key kb">${i + 1}</span></div>`;
+      }
+      if (c.kind === 'wpath') {
+        const el = c.el ? ELEMENTS[c.el] : null;
+        return `<div class="card wpn-card evo-card clickable" data-pick="${i}">
+          <span class="rar" style="background:${el ? el.color : '#ff9a3a'};color:#1a1a1a">${el ? el.name : `Evolve ${c.tier}`}</span>
+          <img class="px" src="${icon(wIcon(c.w), 4)}">
+          <div class="title">${esc(c.name)}</div><div class="cat">${esc(wName(c.w))} · Lv ${[4, 8, 12][c.tier - 1]}</div>
+          <div class="val">${esc(c.desc)}</div>
           <span class="key kb">${i + 1}</span></div>`;
       }
       if (c.kind === 'skill') {
@@ -523,20 +520,23 @@ export class UI {
         <span class="key kb">${i + 1}</span></div>`;
     }).join('');
     const kind = this.levelKind || 'hero';
-    const head = kind === 'team' ? `Survivalmons level up! <small>Lv ${this.levelNum}</small>`
-      : kind === 'bonus' ? 'Treasure! <small>Bonus pick</small>'
+    const head = kind === 'team' ? `Team upgrade! <small>Berry bar ${this.levelNum}</small>`
+      : kind === 'evolve' ? `${esc(P.main ? wName(P.main) : 'Weapon')} evolves! <small>${this.levelNum === 3 ? 'Choose its element' : `Evolve ${this.levelNum}`}</small>`
+      : kind === 'bonus' || kind === 'house' ? 'Treasure! <small>Bonus pick</small>'
       : kind === 'skill' ? 'Boss defeated! <small>Skill up</small>'
       : `${esc(Meta.heroName(P.hero.id))} levels up! <small>Lv ${this.levelNum}</small>`;
-    const sub = kind === 'team' ? 'Pick an upgrade for your team. Next level: your hero.'
+    const sub = kind === 'team' ? 'Your berries filled the team bar. Pick an upgrade for your survivalmons.'
+      : kind === 'evolve' ? (this.levelNum === 3 ? 'Pick one element. It works on every hit and gives your weapon its final form.' : 'Pick how your weapon evolves. Each choice changes what comes next.')
+      : kind === 'house' ? 'From the chest: pick one. Move speed, pickup range and EXP gain only come from chests like this one.'
       : kind === 'bonus' ? 'From the chest: pick one, for your hero or your team.'
       : kind === 'skill' ? 'Pick one skill to go up a grade for the rest of this run. Each skill can go up once per run.'
-      : P.pets.length ? 'Pick an upgrade for your hero. Next level: your survivalmons.' : 'Pick an upgrade for your hero.';
+      : 'Pick an upgrade for your hero.';
     this.openModal(`
       <div class="modal-box panel lvl-${kind}">
         <h2 class="lvl-head">${head}</h2>
         <div class="lvl-sub">${sub}</div>
         <div class="cards">${cards}</div>
-        <div class="reroll"><button class="btn small secondary" data-act="reroll" ${P.coins < cost ? 'disabled' : ''}>Reroll — ${cost} coins</button>
+        <div class="reroll ${kind === 'evolve' ? 'hidden' : ''}"><button class="btn small secondary" data-act="reroll" ${P.coins < cost ? 'disabled' : ''}>Reroll — ${cost} coins</button>
         <span style="font-size:14px;color:var(--muted)">You have ${Math.floor(P.coins)} coins<span class="hint-keys"> · press <span class="key">1</span><span class="key">2</span><span class="key">3</span></span></span></div>
       </div>`);
     this.modalKind = 'levelup';
@@ -591,8 +591,7 @@ export class UI {
     const from = owned ? owned.level : 0;
     const to = Math.min(def.max, from + it.levels);
     const desc = it.cat === 'artifact' ? def.desc(to) : def.desc;
-    const stats = it.cat === 'artifact' ? '' : levelDiff(it.cat, it.id, from, to);
-    const combos = combosForItem(P, it.id).map((c) => `<div class="combo-hint ${c.done ? 'done' : ''}">${c.done ? '★' : '☆'} Combo with ${esc(c.names.join(' + '))} → <b>${esc(c.combo.name)}</b></div>`).join('');
+    const stats = '', combos = '';
     const full = !owned && P.list(it.cat).length >= SLOTS[it.cat];
     const xpGain = 20 + 15 * it.levels;
     let actions;
@@ -704,6 +703,7 @@ export class UI {
     const g = this.g, P = g.player, S = P.stats, T = g.team || { dmg: 0, haste: 0, def: 0, hp: 0 };
     g.modal = 'pause';
     this.prompt(null);
+    const mainRow = P.main ? `<div class="inv-item"><img class="px" src="${icon(wIcon(P.main), 2)}">${esc(wName(P.main))} <b>Lv ${P.main.level}</b></div>` : '';
     const row = (cat, list) => list.length ? list.map((i) => {
       const d = itemDef(cat, i.id);
       return `<div class="inv-item"><img class="px" src="${icon(d.icon, 2)}">${esc(d.name)} <b>Lv ${i.level}</b></div>`;
@@ -735,7 +735,7 @@ export class UI {
         <div class="pause-body">
         <div class="pause-grid">
           <div class="pause-sec">
-            <h3>Weapons</h3><div class="inv-row">${row('weapon', P.weapons)}</div>
+            <h3>Weapons</h3><div class="inv-row">${mainRow}${P.weapons.length ? row('weapon', P.weapons) : ''}</div>
             <h3 style="margin-top:10px">Team ${P.pets.length}/${Box.teamSize()}</h3><div class="inv-row">${pets}</div>
           </div>
           <div class="pause-sec"><h3>Stats</h3><div class="stat-list">${stats}</div>
@@ -871,7 +871,7 @@ export class UI {
     Audio.play('click');
     switch (t.dataset.act) {
       case 'profiles': this.closeModal(); this.showProfiles(); break;
-      case 'rename-player': this.closeModal(); this.openNaming(true); break;
+      case 'rename-player': this.closeModal(); this.openCreator(true); break;
       case 'opening': this.replayOpening(); break;
       case 'install': {
         const p = window.__install;
@@ -973,6 +973,8 @@ export class UI {
       return;
     }
     if (this.modalKind === 'naming-done') { if (k === 'Enter' || k === 'KeyE' || k === 'Escape') this.nameAct('name-done'); return; }
+    if (this.modalKind === 'talkseq') { if (k === 'Enter' || k === 'KeyE' || k === 'Space') { e.preventDefault(); this.seqNext?.(); } return; }
+    if (this.modalKind === 'creator') { if (k === 'Enter' || k === 'NumpadEnter') { e.preventDefault(); this.creatorAct('creator-ok'); } else if (k === 'Escape' && this.creatorFromMenu) this.creatorAct('creator-cancel'); return; }
     if (this.modalKind === 'talk') {
       if (k === 'Escape') this.talkAct('bye');
       else if (k === 'KeyE' || k === 'Enter') this.talkAct(this.talk && NPCS_ACT(this.talk.n.id) && !this.gateBlocked(this.talk.n.id) ? 'act' : 'chat');

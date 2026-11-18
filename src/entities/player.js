@@ -1,12 +1,11 @@
-// The player-controlled hero: movement, stats, inventory, weapons and spells.
+// The player-controlled hero: movement, stats, its main weapon (with evolves) and an off-hand weapon.
 import { Input } from '../core/input.js';
 import { Audio } from '../core/audio.js';
 import { HERO } from '../gfx/assets.js';
 import { HERO_ART, drawHero, dir8, DIR8, snap } from '../gfx/art.js';
 import { HEROES } from '../content/heroes.js';
 import { WEAPONS } from '../content/weapons.js';
-import { SPELLS } from '../content/spells.js';
-import { ARTIFACTS } from '../content/artifacts.js';
+import { updateMain, hasTree } from '../content/evolve.js';
 import { TAU, rand } from '../core/util.js';
 import { armorCut } from '../systems/armor.js';
 
@@ -14,7 +13,9 @@ import { armorCut } from '../systems/armor.js';
 // and how long each after-image takes to fade
 const DASH_T = 0.2, DASH_SPEED = 225, DASH_ANIM = 0.3, GHOST_LIFE = 0.24;
 
-export const SLOTS = { weapon: 4, spell: 3, artifact: 6, pet: 3 };
+export const SLOTS = { weapon: 4, pet: 3 };
+// EXP for each hero level (every level is the hero's now; the team has its own berry bar). A strong full
+// run passes level 30, enough for 40% weapon cards to take the weapon to level 12.
 export const xpFor = (L) => Math.floor(4 + L * 4 + Math.pow(L, 1.75));
 
 export class Player {
@@ -26,7 +27,9 @@ export class Player {
     this.dir = 'down'; this.faceAngle = Math.PI / 2; this.anim = 0; this.moving = false;
     this.level = 1; this.xp = 0; this.xpNext = xpFor(1); this.pendingLevels = 0; this.bonusPicks = 0; this.skillPicks = 0;
     this.bonus = {};
-    this.weapons = []; this.spells = []; this.artifacts = []; this.pets = [];
+    this.main = null; // the hero's own weapon: { id, level 1-12, path: [evolve 1, evolve 2, element], cd }
+    this.weapons = []; this.pets = []; // weapons: the off-hand one from gear (plain, levels 1-5)
+    this.spells = []; this.artifacts = []; // no longer found in runs
     this.coins = 0; this.kills = 0; this.spirit = 0; // Spirit earned this run, banked at the end
     this.caught = [];
     this.iframes = 0; this.flash = 0;
@@ -41,20 +44,23 @@ export class Player {
 
   // ------------------------------------------------------------ inventory
   find(cat, id) {
-    const list = cat === 'weapon' ? this.weapons : cat === 'spell' ? this.spells : cat === 'artifact' ? this.artifacts : this.pets;
-    return list.find((i) => i.id === id);
+    return this.list(cat).find((i) => i.id === id);
   }
-  list(cat) { return cat === 'weapon' ? this.weapons : cat === 'spell' ? this.spells : cat === 'artifact' ? this.artifacts : this.pets; }
+  list(cat) { return cat === 'weapon' ? this.weapons : cat === 'pet' ? this.pets : []; }
   has(id) {
-    return this.weapons.some((w) => w.id === id) || this.spells.some((s) => s.id === id) ||
-      this.artifacts.some((a) => a.id === id) || this.pets.some((p) => p.id === id && !p.fainted);
+    return this.main?.id === id || this.weapons.some((w) => w.id === id) || this.pets.some((p) => p.id === id && !p.fainted);
+  }
+  // The hero's own weapon: a tree weapon starts at level 1 with no evolves yet
+  setMain(id) {
+    if (hasTree(id)) this.main = { id, level: 1, path: [], cd: 0.3 };
+    else this.addItem('weapon', id);
   }
   addItem(cat, id, levels = 1) {
     const owned = this.find(cat, id);
-    const max = cat === 'weapon' ? WEAPONS[id].max : cat === 'spell' ? SPELLS[id].max : ARTIFACTS[id].max;
+    const max = WEAPONS[id].max;
     if (owned) owned.level = Math.min(max, owned.level + levels);
     else {
-      const item = { id, level: Math.min(max, levels), cd: cat === 'spell' ? 0 : 0.3 };
+      const item = { id, level: Math.min(max, levels), cd: 0.3 };
       this.list(cat).push(item);
     }
     this.recompute();
@@ -80,7 +86,6 @@ export class Player {
     const add = (mods) => { for (const [k, v] of Object.entries(mods)) m[k] = (m[k] || 0) + v; };
     add(this.hero.mods);
     add(this.bonus);
-    for (const a of this.artifacts) add(ARTIFACTS[a.id].mods(a.level));
     for (const p of this.pets) if (!p.fainted) add(p.passives());
     if (extra) add(extra);
     const g = (k) => m[k] || 0;
@@ -219,7 +224,8 @@ export class Player {
     if (this.regenBoost) { regen += this.regenBoost.amount; this.regenBoost.t -= dt; if (this.regenBoost.t <= 0) this.regenBoost = null; }
     if (regen > 0) this.hp = Math.min(S.maxHp, this.hp + regen * dt);
 
-    // weapons
+    // the main weapon (with its evolves), then the off-hand weapon
+    if (this.main) updateMain(g, this.main, dt);
     for (const w of this.weapons) {
       const def = WEAPONS[w.id];
       const st = def.stats(w.level);
@@ -229,23 +235,6 @@ export class Player {
         const r = def.fire(g, w, st);
         w.cd = r === false ? 0.15 : st.cd * S.cooldown;
       }
-    }
-    // spells
-    this.spells.forEach((s, i) => {
-      s.cd = Math.max(0, s.cd - dt);
-      const key = ['Digit1', 'Digit2', 'Digit3'][i];
-      const want = Input.wasPressed(key) || Input.wasPressed(['Numpad1', 'Numpad2', 'Numpad3'][i]) ||
-        (g.settings.autoCast && g.nearestEnemy(this.x, this.y, 130));
-      if (want && s.cd <= 0) this.cast(s);
-    });
-  }
-
-  cast(s) {
-    const def = SPELLS[s.id];
-    const st = def.stats(s.level);
-    if (def.cast(this.g, s, st) !== false) {
-      s.cd = st.cd * this.stats.cooldown;
-      this.g.runStats.casts++;
     }
   }
 

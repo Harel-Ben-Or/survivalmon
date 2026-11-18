@@ -7,7 +7,7 @@ import { ZONES } from '../world/world.js';
 
 // The longest run. Waves, bosses and monster scaling were written for a 25 minute run; PACE
 // plays them faster (Game.stage = time * PACE), so the longest run covers their first 20 minutes:
-// the Ink King (2:00), the Blighted Elder (4:00), Snare Boss Grimjaw (6:00) and the Night Lord 30 s before the end.
+// the Ink King (2:00), the Blighted Elder (4:00), the Star Colossus (6:00) and the Night Lord 30 s before the end.
 export const RUN_LENGTH = 8 * 60;
 export const PACE = 2.5;
 const FINAL_BOSS_AT = RUN_LENGTH - 30;
@@ -123,8 +123,9 @@ export class Director {
         // most wild survivalmons belong to the zone you're in
         const zone = ZONES[g.world.zoneAtPx(g.player.x, g.player.y)];
         const sp = Math.random() < 0.65 ? zone.mons[(Math.random() * zone.mons.length) | 0] : weightedChoice(WILD_POOL).type;
-        if (this.spawn('wild', { wild: sp })) {
-          g.feed(`A wild ${SPECIES[sp].name} appeared! Catch it within 25 s`, '#7af0ff'); // an arrow at the screen's edge points to it
+        // the star turned every survivalmon strange: beat one to free it
+        if (this.spawn('wild', { wild: sp, corrupted: true })) {
+          g.feed(`A ${SPECIES[sp].name} turned by the star! Beat it to free it`, '#c8a0ff'); // an arrow at the screen's edge points to it
           g.ui.tip('wild');
           Audio.play('combo');
         } else this.catchT = 2; // no free spot right now: try again shortly
@@ -155,7 +156,7 @@ export class Director {
       g.ui.tip('boss');
       return;
     }
-    if (ev.type === 'snare') { this.raid(); return; }
+    if (ev.type === 'turned') { this.turned(); return; }
     if (ev.msg) g.feed(ev.msg, '#ffd84a');
     const enemy = ev.enemy === 'native' ? this.native() : ev.enemy;
     if (ev.type === 'ring') {
@@ -176,23 +177,15 @@ export class Director {
       }
     }
   }
-  // A Snare gang raid: netters, a slinger, a cage drone, and (once you can catch survivalmons)
-  // one they control with the Blight. Defeating that one frees it and it joins you.
-  raid() {
+  // A survivalmon the star turned strange comes for you (once your first egg has hatched): beat it to free it
+  turned() {
     const g = this.g, base = this.spawnPos(false);
-    if (!base) return;
-    g.feed('The Snare gang is here!', '#ff8a7a');
+    if (!base || !g.canCatch) return;
+    const zone = ZONES[g.world.zoneAtPx(g.player.x, g.player.y)];
+    const sp = Math.random() < 0.6 ? zone.mons[(Math.random() * zone.mons.length) | 0] : weightedChoice(WILD_POOL).type;
+    g.spawnEnemy('wild', base.x, base.y, { wild: sp, corrupted: true });
+    g.feed(`A ${SPECIES[sp].name} turned by the star attacks! Beat it to free it`, '#c8a0ff');
     Audio.play('combo');
-    g.ui.tip('snare');
-    // the first raid is a small one; later ones bring more of the gang
-    const squad = g.stage < 300 ? ['poacher', 'slinger', 'drone'] : ['poacher', 'poacher', 'slinger', 'drone'];
-    if (g.stage > 600) squad.push('poacher', 'slinger');
-    for (const type of squad) g.spawnEnemy(type, base.x + rand(-28, 28), base.y + rand(-18, 18));
-    if (g.canCatch) {
-      const zone = ZONES[g.world.zoneAtPx(g.player.x, g.player.y)];
-      const sp = Math.random() < 0.6 ? zone.mons[(Math.random() * zone.mons.length) | 0] : weightedChoice(WILD_POOL).type;
-      g.spawnEnemy('wild', base.x, base.y, { wild: sp, corrupted: true });
-      g.toast(`They have a ${SPECIES[sp].name} under the Blight's control. Defeat it to free it!`);
-    }
+    g.ui.tip('wild');
   }
 }

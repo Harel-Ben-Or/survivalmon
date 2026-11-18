@@ -20,7 +20,9 @@ export const NPCS = {
       { max: 0, text: 'That egg you carried in is warm. Take it with you into the wild: eggs hatch with time spent out there.' },
       { text: 'Eggs warm up while you are out in the wild. Bring them home safe and they hatch.' },
       { text: 'Every egg carries a bit of both parents. Luck decides which skills come through.' },
-      { text: 'Since the star fell, the wild ones hide. The ones that trust you are worth more than gold.' },
+      { text: 'Since the star fell, the wild ones have turned strange. Every one you free is a little mon saved.' },
+      { min: 1, text: 'Hollis was the best student I ever had. Stubborn as a mule. You have his look about you, {name}.' },
+      { min: 3, text: 'I had a mon once, a long time ago. When I lost it I swore off all of them. You are making an old woman change her mind.' },
       { min: 2, text: 'The Blight is thick past the meadow now. Keep your little ones close.' },
       { min: 3, text: 'I have kept eggs for sixty summers. I have never seen the wild this frightened.' },
     ],
@@ -33,7 +35,7 @@ export const NPCS = {
       { text: 'Coins in, muscle out. Every level you train here stays with you for good.' },
       { text: 'Those dummies by the Ranch? Your mons practise on them all day long.' },
       { min: 2, text: 'You beat the Ink King? Ha! Then we train harder.' },
-      { min: 4, text: 'Grimjaw fights dirty. So do I. Again!' },
+      { min: 4, text: 'That Star Colossus hits like a landslide. So do I. Again!' },
     ],
   },
   tamsin: {
@@ -45,7 +47,7 @@ export const NPCS = {
       { text: 'Four sets for every hero. Wear four pieces of one and it starts to hum. Six, and it sings.' },
       { text: 'A sharp axe brings home twice the wood. Let me fix your tools.' },
       { text: 'Iron from the crater glows at night. I do not touch it with bare hands.' },
-      { min: 1, text: 'The Snare gang\'s nets are good steel. Shame what they use them for.' },
+      { min: 1, text: 'Star rock is the hardest thing I have ever hammered. Bring me more of it.' },
     ],
   },
   sol: {
@@ -105,7 +107,7 @@ export const NPCS = {
     lines: [
       { text: 'The wild is past this gate. Pick your team, then go.' },
       { text: 'When the clock runs out, come home. Nothing good walks at the end.' },
-      { min: 1, text: 'Snare raids are getting bolder. Watch out for nets.' },
+      { min: 1, text: 'Packs of shade hounds out there now. Stay sharp past the gate.' },
       { min: 2, text: 'I heard you made it past two minutes out there. Not bad!' },
     ],
   },
@@ -156,7 +158,7 @@ export const NPCS = {
     lines: [
       { text: 'When I grow up I am getting a Voltowl. A big one!' },
       { text: 'Mum says I cannot go past the gate. The Blight is out there.' },
-      { text: 'Did you see the star fall? It was purple!' },
+      { text: 'Did you see the star fall? It was purple! Is it true your mon came from Brightnest?' },
       { text: '{name}! {name}! Can I see your survivalmons? Please?' },
     ],
   },

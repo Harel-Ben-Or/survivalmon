@@ -18,6 +18,7 @@ export async function sim(cfg = {}) {
   Meta.data.training = { runtime: 18, ...(cfg.training || {}) };
   Meta.data.gear = cfg.gear || {}; Meta.data.slots = cfg.slots || {}; Meta.data.buffs = [];
   Meta.data.unlocked.clinic = true;
+  if (Meta.data.guide) Meta.data.guide.on = false; // no tips in the middle of a simulated run
   if (Shrine.data) Shrine.data.nodes = {};
   Box.data.mons = []; Box.data.team = []; Box.data.upgrades = {}; Box.data.firstHatch = false;
   for (const [sp, lv, extra] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }, ...(extra || [])] });
@@ -75,12 +76,12 @@ export async function sim(cfg = {}) {
     const opts = g.ui.levelCards || [];
     let i = (Math.random() * cards.length) | 0;
     if (cfg.pick && opts.length === cards.length) {
-      const want = cfg.pick === 'mons' ? ['team', 'skill'] : ['stat', 'train'];
+      const want = cfg.pick === 'mons' ? ['team', 'skill'] : cfg.pick === 'weapon' ? ['wcard', 'wpath'] : ['stat', 'wcard'];
       const j = opts.findIndex((c) => want.includes(c.kind));
       if (j >= 0) i = j;
     }
     const c = opts[i];
-    if (c) { const k = c.up?.id || c.kind; out.cards[k] = (out.cards[k] || 0) + 1; }
+    if (c) { const k = c.kind === 'wpath' ? `evolve:${c.key}` : c.up?.id || c.kind; out.cards[k] = (out.cards[k] || 0) + 1; }
     cards[i].click();
   };
   let steps = 0;
@@ -105,6 +106,7 @@ export async function sim(cfg = {}) {
   g.damageEnemy = dmgFn;
   Object.assign(out, {
     t: Math.round(g.time), dead: P.hp <= 0, lv: P.level, kills: P.kills,
+    weapon: P.main ? `${P.main.id} Lv ${P.main.level} ${P.main.path.join('>')}` : '', teamUps: P.teamLevel || 0, monPool: Math.round(g.monPool || 0),
     heroDmg: Math.round(out.heroDmg), monDmg: Math.round(out.monDmg), rawIn: Math.round(out.rawIn), taken: Math.round(out.taken),
     armor: P.stats.armor, maxHp: P.stats.maxHp, might: +P.stats.might.toFixed(2),
     petHp: P.pets.map((p) => `${p.species}:${Math.round(p.maxHp)}`).join(' '),

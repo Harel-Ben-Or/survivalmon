@@ -127,6 +127,25 @@ export class Enemy {
       if (this.burn && this.burn.t <= 0) this.burn = null;
       if (this.dead) return;
     }
+    // poison stacks (the Poison element): each stack hurts every second until it wears off
+    if (this.poison) {
+      const p = this.poison;
+      p.t -= dt;
+      this.poisonAcc = (this.poisonAcc || 0) + p.dps * p.stacks * dt;
+      if (Math.random() < dt * 5) g.particles.add({ x: this.x + rand(-4, 4), y: this.y - rand(4, 12), vx: 0, vy: -14, life: 0.4, color: Math.random() < 0.5 ? '#8ad04a' : '#c8f080' });
+      if ((this.poisonTick = (this.poisonTick ?? 0.5) - dt) <= 0) {
+        this.poisonTick = 0.5;
+        if (this.poisonAcc > 0) g.damageEnemy(this, this.poisonAcc, { raw: true, small: true, silent: true, element: 'poison' });
+        this.poisonAcc = 0;
+      }
+      if (p.t <= 0) this.poison = null;
+      if (this.dead) return;
+    }
+    // glowing (the Light element): a few sparkles while it lasts
+    if (this.glow > 0) {
+      this.glow -= dt;
+      if (Math.random() < dt * 6) g.particles.add({ x: this.x + rand(-6, 6), y: this.y - rand(4, 16), vx: 0, vy: -10, life: 0.4, color: Math.random() < 0.5 ? '#fff6c8' : '#ffe07a' });
+    }
 
     const dx = P.x - this.x, dy = P.y - this.y;
     const dist = Math.hypot(dx, dy) || 1;

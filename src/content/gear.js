@@ -11,14 +11,16 @@ export const SLOT_ICON = { helmet: 'gear_helmet', armor: 'gear_armor', gloves: '
 // Each hero's set. main/off name the weapon held in that hand.
 export const SETS = {
   rowan: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Hunter Bow', off: 'Ranger Boomerang', mainW: 'bow', offW: 'boomerang' },
+  rowanf: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Ranger Boomerang', off: 'Hunter Bow', mainW: 'boomerang', offW: 'bow' },
   bram: { name: 'Farmhand set', hue: 190, helmet: 'Straw Hat', armor: 'Patched Overalls', gloves: 'Work Gloves', boots: 'Muddy Boots', main: 'Pitchfork', off: 'Harvest Scythe', mainW: 'pitchfork', offW: 'scythe' },
-  lyra: { name: 'Apprentice set', hue: 250, helmet: 'Pointed Hat', armor: 'Star Robe', gloves: 'Silk Gloves', boots: 'Velvet Slippers', main: 'Ember Wand', off: 'Storm Rod', mainW: 'emberwand', offW: 'lightrod' },
+  lyra: { name: 'Apprentice set', hue: 250, helmet: 'Pointed Hat', armor: 'Star Robe', gloves: 'Silk Gloves', boots: 'Velvet Slippers', main: 'Magic Wand', off: 'Storm Rod', mainW: 'emberwand', offW: 'lightrod' },
   pip: { name: 'Tamer set', hue: 120, helmet: 'Feather Cap', armor: 'Tamer Vest', gloves: 'Tamer Gloves', boots: 'Trail Boots', main: 'Pebble Sling', off: 'Leaf Charm', mainW: 'sling', offW: 'leaves' },
 };
 
 // The 4 sets of each hero: the first is the hero's own set (its pieces are named in SETS above).
 export const HERO_SETS = {
   rowan: ['ranger', 'hawkeye', 'gale', 'prospector'],
+  rowanf: ['ranger', 'hawkeye', 'gale', 'prospector'],
   bram: ['farmhand', 'bulwark', 'stampede', 'harvest'],
   lyra: ['apprentice', 'storm', 'moon', 'starlit'],
   pip: ['tamer', 'wildheart', 'nurture', 'lucky'],
@@ -110,15 +112,17 @@ export const offWeaponLevel = (L) => Math.min(8, 1 + Math.floor(L / 4));
 // The hero's boost for the whole survivalmon team (added to the team bonus at the start of a run).
 export const HERO_BOOST = {
   rowan: { text: 'Survivalmons attack 15% faster', team: { haste: 0.15 } },
+  rowanf: { text: 'Survivalmons attack 15% faster', team: { haste: 0.15 } },
   bram: { text: 'Survivalmons get 20% more HP and take 10% less damage', team: { hp: 0.2, def: 0.1 } },
   lyra: { text: 'Survivalmon skills hit 15% harder', team: { dmg: 0.15 } },
   pip: { text: 'Survivalmons gain 25% more EXP; wild survivalmons appear 20% more often', team: {}, petXp: 0.25, wild: 0.2 },
 };
 export const HERO_UNLOCK = {
-  rowan: { text: 'Your first hero' },
-  bram: { text: 'Survive 2:00 in a run' },
-  lyra: { text: 'Own survivalmons of 3 species' },
-  pip: { text: 'Hatch your first breed' },
+  rowan: { text: 'You' },
+  rowanf: { text: 'Find Rowan past the North Gate (win at North Gate Lv 1)' },
+  bram: { text: 'Find Bram past the South Gate (win at South Gate Lv 1)' },
+  lyra: { text: 'Find Lyra past the East Gate (win at East Gate Lv 1)' },
+  pip: { text: 'Find Pip past the West Gate (win at West Gate Lv 1)' },
 };
 
 // Every slot of a hero at least this level

@@ -1,39 +1,13 @@
 // Loot tables, level-up card rolls and item descriptions.
-import { WEAPONS, WEAPON_IDS } from '../content/weapons.js';
-import { SPELLS, SPELL_IDS } from '../content/spells.js';
-import { ARTIFACTS, ARTIFACT_IDS, COMBOS } from '../content/artifacts.js';
+import { WEAPONS } from '../content/weapons.js';
 import { SPECIES, STONES, STONE_OF, ATK_TYPES, ATK_TYPE_IDS } from '../content/species.js';
 import { UPGRADES, RARITIES } from '../content/heroes.js';
 import { weightedChoice, randInt, chance, shuffle } from '../core/util.js';
-import { SLOTS } from '../entities/player.js';
+import { nextCard, evolveChoices, MAX_WLV } from '../content/evolve.js';
 
-export const CAT_DEFS = { weapon: WEAPONS, spell: SPELLS, artifact: ARTIFACTS };
-const CAT_IDS = { weapon: WEAPON_IDS, spell: SPELL_IDS, artifact: ARTIFACT_IDS };
-export const CAT_LABEL = { weapon: 'Weapon', spell: 'Spell', artifact: 'Artifact', egg: 'Egg', pet: 'Pet' };
-
+export const CAT_DEFS = { weapon: WEAPONS };
+export const CAT_LABEL = { weapon: 'Weapon', egg: 'Egg', pet: 'Pet' };
 export function itemDef(cat, id) { return CAT_DEFS[cat]?.[id]; }
-
-// Roll one item the player could use. exclude: Set of "cat:id" already offered.
-export function rollItem(P, { cat, levels = 1, exclude = new Set(), allowEgg = true } = {}) {
-  const cats = cat ? [cat] : ['weapon', 'spell', 'artifact', 'egg'];
-  const cw = { weapon: 32, spell: 24, artifact: 36, egg: allowEgg ? 3 : 0 };
-  for (let tries = 0; tries < 12; tries++) {
-    const c = cats.length === 1 ? cats[0] : weightedChoice(cats.map((k) => ({ k, weight: cw[k] }))).k;
-    if (c === 'egg') return { cat: 'egg', id: 'egg', levels: 1 };
-    const pool = CAT_IDS[c].filter((id) => {
-      if (exclude.has(`${c}:${id}`)) return false;
-      const owned = P.find(c, id);
-      return !owned || owned.level < CAT_DEFS[c][id].max;
-    }).map((id) => {
-      const owned = P.find(c, id);
-      // favour upgrades of owned items a little, and new items when slots are open
-      const full = P.list(c).length >= SLOTS[c];
-      return { id, weight: owned ? 1.4 : full ? 0.5 : 1 };
-    });
-    if (pool.length) return { cat: c, id: weightedChoice(pool).id, levels };
-  }
-  return null;
-}
 
 // What a container gives: coins, EXP, hearts, berries (survivalmon EXP), materials, eggs,
 // evolution stones and gear. Returns { items: [], drops: [{ kind, value }], text }.
@@ -124,8 +98,13 @@ export function rollStone(P) {
   return all[(Math.random() * all.length) | 0];
 }
 
-// Hero cards: plain stat boosts for this run (pet power, luck and the old spell stats are gone)
-const HERO_CARDS = UPGRADES.filter((u) => !['luck', 'velocity', 'endurance', 'bond'].includes(u.id));
+// Hero cards on a level-up: seven plain stats. Move speed, pickup range and EXP gain only come from
+// chests inside buildings (CHEST_CARDS); multishot and area are gone (the weapon evolves add those).
+const HERO_IDS = ['vitality', 'regen', 'power', 'armor', 'haste', 'precision', 'ferocity'];
+const HERO_CARDS = UPGRADES.filter((u) => HERO_IDS.includes(u.id));
+export const CHEST_CARDS = UPGRADES.filter((u) => ['swift', 'magnet', 'wisdom'].includes(u.id));
+// the weapon card: 40% of hero level-ups show one (never more than one), until the weapon is maxed
+export const WEAPON_CARD_CHANCE = 0.4;
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
@@ -150,8 +129,8 @@ const teamTypes = (P) => new Set(P.pets.filter((p) => !p.fainted).flatMap((p) =>
 const rollRarity = (used) => weightedChoice(RARITIES, (r) => r.w * (r.id === 'common' ? (used.lucky ? 0.3 : 1) : used.P.stats.luck));
 const hurtTeam = (P) => P.pets.some((p) => p.fainted || p.hp < p.maxHp * 0.6);
 
-function heroCard(used) {
-  const pool = HERO_CARDS.filter((u) => !used.has(u.id) && !(u.cap !== undefined && (used.P.bonus[u.key] || 0) >= u.cap));
+function heroCard(used, list = HERO_CARDS) {
+  const pool = list.filter((u) => !used.has(u.id) && !(u.cap !== undefined && (used.P.bonus[u.key] || 0) >= u.cap));
   const u = weightedChoice(pool, (x) => x.w);
   if (!u) return null;
   used.add(u.id);
@@ -189,25 +168,25 @@ export function skillCards(P, n = 3) {
   return picks.map(({ pet, skill }) => ({ kind: 'skill', pet, skill, from: pet.tierOf(skill) }));
 }
 
-// What a level-up upgrades: levels alternate between your survivalmons (even levels: 2, 4, 6...)
-// and your hero (odd levels: 3, 5, 7...). With no survivalmons in the run, every level is the hero's.
-export function levelKind(P, level) { return P.pets.length && level % 2 === 0 ? 'team' : 'hero'; }
 
 // Three cards of one kind:
-//   hero:  hero stat cards, and sometimes a training card for one of the hero's weapons
-//   team:  survivalmon cards (team boosts, a heal when someone's hurt)
-//   bonus: (from chests) one hero card, one team card, and one of either, at better rarity
-//   skill: (from bosses) up to three of your survivalmons' skills, one grade up each
+//   hero:   hero stat cards, and 40% of the time one weapon card (a step, or "Evolve the weapon")
+//   team:   survivalmon cards (from the berry bar: team boosts, attack types, a heal when someone's hurt)
+//   bonus:  (chests from elites and bosses) one hero card, one team card, one of either, at better rarity
+//   house:  (chests inside buildings) one of the chest-only cards (move speed, pickup range, EXP gain),
+//           a hero card and a team card (or another hero card), at better rarity
+//   skill:  (from bosses) up to three of your survivalmons' skills, one grade up each
+//   evolve: the evolve choices once you took an "Evolve the weapon" card (2 of 3, or 3 of 5 elements)
 export function levelUpOptions(P, kind = 'hero') {
   if (kind === 'skill') { const s = skillCards(P); if (s.length) return s; kind = 'bonus'; }
+  if (kind === 'evolve') {
+    const w = P.main, tier = P.g.evolveTier || 1;
+    return evolveChoices(w, tier).map((o) => ({ kind: 'wpath', w, tier, ...o }));
+  }
   const picks = [];
   const used = new Set();
   used.P = P;
-  used.lucky = kind === 'bonus';
-  const train = () => {
-    const trainable = P.weapons.filter((w) => w.level < WEAPONS[w.id].max);
-    return trainable.length ? { kind: 'train', cat: 'weapon', id: trainable[(Math.random() * trainable.length) | 0].id } : null;
-  };
+  used.lucky = kind === 'bonus' || kind === 'house';
   const add = (c) => { if (c) picks.push(c); };
   if (kind === 'team' && P.pets.length) {
     for (let i = 0; i < 6 && picks.length < 3; i++) add(monCard(used));
@@ -215,14 +194,32 @@ export function levelUpOptions(P, kind = 'hero') {
     add(heroCard(used));
     if (P.pets.length) add(monCard(used));
     add(P.pets.length && chance(0.5) ? monCard(used) : heroCard(used));
-  } else if (chance(0.45)) add(train());
+  } else if (kind === 'house') {
+    add(heroCard(used, CHEST_CARDS));
+    add(heroCard(used));
+    add(P.pets.length ? monCard(used) : heroCard(used));
+  } else if (P.main && P.main.level < MAX_WLV && chance(WEAPON_CARD_CHANCE)) {
+    add({ kind: 'wcard', w: P.main, next: nextCard(P.main) });
+  }
   while (picks.length < 3) { const c = heroCard(used); if (!c) break; picks.push(c); }
   return shuffle(picks);
 }
 
 export function applyLevelCard(P, card) {
   const g = P.g;
-  if (card.kind === 'train') { P.addItem(card.cat, card.id, 1); return; }
+  if (card.kind === 'wcard') {
+    // "Evolve the weapon" opens the evolve choice next (Game.openLevelUp('evolve')); a step just levels it
+    if (card.next.evolve) { g.evolveTier = card.next.evolve; P.evolvePicks = (P.evolvePicks || 0) + 1; }
+    else card.w.level = card.next.to;
+    return;
+  }
+  if (card.kind === 'wpath') {
+    const w = card.w;
+    w.path[card.tier - 1] = card.key;
+    w.level = [4, 8, 12][card.tier - 1];
+    g.feed(`${card.name}!`, '#ffd84a');
+    return;
+  }
   if (card.kind === 'skill') {
     card.pet.boost.set(card.skill, (card.pet.boost.get(card.skill) || 0) + 1);
     card.pet.refresh();
@@ -251,13 +248,7 @@ export function applyLevelCard(P, card) {
   P.recompute();
 }
 
-// Human readable stat changes between two levels of a weapon/spell
-export function levelDiff(cat, id, from, to) {
-  const def = CAT_DEFS[cat][id];
-  if (cat === 'artifact') return def.desc(to);
-  return levelRows(cat, id, from, to).map(([label, a, b]) => (a === '' ? `${label} ${b}` : `${label} ${a} → ${b}`)).join(' · ');
-}
-// The same as rows of [label, before, after] (before is '' for a new item)
+// The old plain weapons (the off-hand weapon from gear): stat rows between two levels
 export function levelRows(cat, id, from, to) {
   const def = CAT_DEFS[cat][id];
   const a = from ? def.stats(from) : null, b = def.stats(to);
@@ -273,17 +264,8 @@ function fmt(k, v) {
   if (k === 'heal') return `${Math.round(v * 100)}%`;
   return `${v}`;
 }
-
-export function combosForItem(P, id) {
-  return COMBOS.filter((c) => c.pieces.includes(id)).map((c) => {
-    const others = c.pieces.filter((p) => p !== id);
-    const names = others.map((p) => (p === 'pet:any' ? 'any pet' : nameOf(p)));
-    const done = c.pieces.every((p) => (p === 'pet:any' ? P.pets.length > 0 : p === id || P.has(p)));
-    return { combo: c, names, done };
-  });
-}
 export function nameOf(id) {
-  return WEAPONS[id]?.name || SPELLS[id]?.name || ARTIFACTS[id]?.name || SPECIES[id]?.name || id;
+  return WEAPONS[id]?.name || SPECIES[id]?.name || id;
 }
 export function iconOf(cat, id) {
   if (cat === 'egg') return 'egg';

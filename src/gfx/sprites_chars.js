@@ -5,6 +5,7 @@ import { shade } from '../core/util.js';
 export const OUT = '#2b1d24';
 
 export const HERO_LOOKS = {
+  get rowanf() { return this.rowan; },
   rowan: {
     skin: '#f5c99b', hair: '#6b3e26', hairDark: '#4a2a1a', hairStyle: 'short',
     hat: 'cowboy', hatC: '#b06a32', hatD: '#7a4420', band: '#4a2a1a',

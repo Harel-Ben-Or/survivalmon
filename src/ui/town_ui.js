@@ -1,9 +1,10 @@
 // Town screens, mixed into UI: the town HUD, "Choose your team" at Enter the Wild (drag or tap
 // survivalmons into the slots), the Training Hall and the town menu.
 import { iconURL } from '../gfx/assets.js';
-import { artURL, npcFaceURL } from '../gfx/art.js';
+import { artURL, npcFaceURL, setHeroLook } from '../gfx/art.js';
 import { NPCS, npcLines, npcStage } from '../content/npcs.js';
-import { playOpening } from './story.js';
+import { playOpening, playEnding } from './story.js';
+import { GATE_SCENE, FRIEND_SCENES, ENDING_TALK } from '../content/story_lines.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
@@ -161,7 +162,7 @@ export const TownUI = {
   },
   heroToggle() { this.heroOpen = !this.heroOpen; Audio.play('click'); this.renderTeam(); },
   pickHero(id) {
-    if (!Meta.isHeroUnlocked(id)) { this.toast(`${id[0].toUpperCase() + id.slice(1)}: ${HERO_UNLOCK[id].text} to unlock.`); return; }
+    if (!Meta.isHeroUnlocked(id)) { this.toast(`${HERO_UNLOCK[id].text}.`); return; }
     Meta.setHero(id);
     Audio.play('click');
     this.heroOpen = false;
@@ -238,6 +239,8 @@ export const TownUI = {
   },
   talkAct(what) {
     if (what.startsWith('name-')) { this.nameAct(what); return; }
+    if (what.startsWith('look-') || what.startsWith('creator-')) { this.creatorAct(what); return; }
+    if (what === 'seq-next') { this.seqNext?.(); return; }
     if (!this.talk) return;
     const { n } = this.talk, def = NPCS[n.id];
     if (what === 'chat') {
@@ -268,7 +271,7 @@ export const TownUI = {
         <img class="px talk-face" src="${npcFaceURL('ollie')}" alt="">
         <div class="talk-main">
           <div class="talk-name"><b>Ollie</b><span>Gate guard</span></div>
-          <p class="talk-text">${fromMenu ? 'A new name? Go on, tell me.' : (Meta.data.runs || 0) <= 1 ? 'Halt! You came up the crater road? Then you have seen it: the wild is not safe any more. What do they call you, traveller? Rowan, is it?' : 'Halt! A new face. What do they call you, traveller? Rowan, is it?'}</p>
+          <p class="talk-text">${fromMenu ? 'A new name? Go on, tell me.' : (Meta.data.runs || 0) <= 1 ? 'Halt! You came up the crater road? Then you have seen it: the wild is not safe any more. What do they call you, traveller?' : 'Halt! A new face. What do they call you, traveller?'}</p>
           <div class="talk-actions name-row">
             <input class="name-input" maxlength="14" value="${esc(Meta.playerName)}" aria-label="Your name" autocomplete="off" spellcheck="false" enterkeyhint="done">
             <button class="btn small" data-talk="name-ok">That's me</button>
@@ -302,10 +305,119 @@ export const TownUI = {
     if (what === 'name-done' && !this.namingFromMenu) this.tip('town'); // Moss shows a new player round
   },
 
+  // ------------------------------------------------------------ who you are: a boy or a girl, and a name
+  // Asked at the start of every new game (a new player), and again from the town menu. Your friends and
+  // everything you've earned stay; only your look and name change.
+  openCreator(fromMenu = false) {
+    return new Promise((resolve) => {
+      this.creatorDone = resolve;
+      this.creatorFromMenu = fromMenu;
+      this.creatorLook = Meta.gender || 'boy';
+      this.g.modal = 'creator';
+      this.prompt(null);
+      this.renderCreator();
+    });
+  },
+  renderCreator() {
+    const look = (gd, label) => `<button class="creator-look ${this.creatorLook === gd ? 'sel' : ''}" data-talk="look-${gd}"><img class="px" src="${artURL('hero', gd === 'girl' ? 'you_girl' : 'you_boy')}" alt=""><span>${label}</span></button>`;
+    const name = this.el.modal.querySelector('.name-input')?.value ?? (Meta.data.name || '');
+    this.openModal(`
+      <div class="modal-box panel creator-box">
+        <h2>${this.creatorFromMenu ? 'Your character' : 'Who are you?'}</h2>
+        <div class="lvl-sub">A ranger trainee from Brightnest. Are you a boy or a girl?</div>
+        <div class="creator-looks">${look('boy', 'Boy')}${look('girl', 'Girl')}</div>
+        <div class="name-row creator-name"><span>Your name</span><input class="name-input" maxlength="14" value="${esc(name)}" placeholder="Your name" aria-label="Your name" autocomplete="off" spellcheck="false" enterkeyhint="done"></div>
+        <div class="loot-actions"><button class="btn" data-talk="creator-ok">${this.creatorFromMenu ? 'Done' : 'Begin'} <span class="key">Enter</span></button>${this.creatorFromMenu ? '<button class="btn secondary" data-talk="creator-cancel">Cancel</button>' : ''}</div>
+      </div>`);
+    this.modalKind = 'creator';
+  },
+  creatorAct(what) {
+    if (what === 'look-boy' || what === 'look-girl') { this.creatorLook = what.slice(5); this.renderCreator(); return; }
+    if (what === 'creator-ok') {
+      const v = this.el.modal.querySelector('.name-input')?.value;
+      Meta.setGender(this.creatorLook);
+      Meta.setName(v || Meta.data.name || 'Ranger');
+      setHeroLook(Meta.gender);
+      Audio.play('levelup');
+    }
+    this.closeModal();
+    this.modalKind = null;
+    this.g.modal = null;
+    Input.endFrame();
+    const done = this.creatorDone; this.creatorDone = null;
+    if (this.g.mode === 'town') this.showTown();
+    done?.(what === 'creator-ok');
+  },
+
+  // ------------------------------------------------------------ story scenes in the talk box
+  // lines: [{ who: an NPC id, a hero id, 'you' or 'crowd', text }] shown one at a time
+  talkSeq(lines, done) {
+    let i = 0;
+    this.g.modal = 'talkseq';
+    this.prompt(null);
+    const show = () => {
+      const L = lines[i], who = L.who;
+      const npc = NPCS[who], hero = who === 'you' ? 'rowan' : HEROES.some((h) => h.id === who) ? who : null;
+      const face = npc ? npcFaceURL(who) : hero ? artURL('hero', hero) : npcFaceURL(L.face || 'tib');
+      const name = who === 'you' ? Meta.playerName : npc ? npc.name : hero ? Meta.heroName(hero) : L.name || 'Townsfolk';
+      const role = L.role ?? (npc ? npc.role : hero && who !== 'you' ? 'Your friend' : who === 'you' ? 'You' : 'A crowd at the gate');
+      this.openModal(`
+        <div class="talk-box panel">
+          <img class="px talk-face" src="${face}" alt="">
+          <div class="talk-main">
+            <div class="talk-name"><b>${esc(name)}</b><span>${esc(role)}</span></div>
+            <p class="talk-text">${esc(this.withName ? this.withName(L.text) : L.text)}</p>
+            <div class="talk-actions"><button class="btn small" data-talk="seq-next">${i < lines.length - 1 ? 'Next' : 'OK'} <span class="key">E</span></button></div>
+          </div>
+        </div>`);
+      this.el.modal.classList.add('talk-modal');
+      this.modalKind = 'talkseq';
+    };
+    this.seqNext = () => {
+      i++;
+      if (i < lines.length) { show(); return; }
+      this.seqNext = null;
+      this.closeModal();
+      this.el.modal.classList.remove('talk-modal');
+      this.modalKind = null;
+      this.g.modal = null;
+      Input.endFrame();
+      done?.();
+    };
+    show();
+  },
+  // On arriving in town: the story's next beat, if there is one. Returns true when one started.
+  storyBeats(found = []) {
+    const after = (fn) => () => { Meta.save(); fn(); };
+    // an old save that has no look yet: ask once
+    if (!Meta.gender && Meta.data.runs) { this.openCreator(false).then(() => this.storyBeats(found)); return true; }
+    // the first time at Hearthvale: the crowd, Hollis's name, and Granny Wren
+    if (!Meta.data.metWren && Meta.data.sawOpening && (Meta.data.runs || 0) <= 2) {
+      Meta.data.metWren = true;
+      this.talkSeq(GATE_SCENE, after(() => { if (!this.storyBeats(found)) this.tip('town'); }));
+      return true;
+    }
+    // a friend found past a gate
+    if (found.length) {
+      const id = found[0];
+      this.talkSeq(FRIEND_SCENES[id] || [], after(() => { this.storyBeats(found.slice(1)); }));
+      return true;
+    }
+    // past the West Gate Lv 4: the Scar
+    if (Meta.data.allGates && !Meta.data.sawEnding) {
+      Meta.data.sawEnding = true;
+      this.g.modal = 'story';
+      playEnding({ root: this.root }).then(() => { this.g.modal = null; this.showTown(); this.talkSeq(ENDING_TALK, after(() => {})); });
+      return true;
+    }
+    return false;
+  },
+
   // ------------------------------------------------------------ the opening story
   // A new game: the opening plays, the egg is picked inside it, and its escape is the first run
   // (which ends at the village gate, where Ollie asks your name).
   async startOpening() {
+    if (!Meta.gender) await this.openCreator(false); // a new game: boy or girl, and your name, first
     this.hideScreens();
     this.screen = 'story';
     await playOpening({ root: this.root, onPick: (id) => this.chooseStarter(id, true) });
@@ -341,7 +453,7 @@ export const TownUI = {
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>
           <button class="btn secondary" data-act="help">How to play</button>
           <button class="btn secondary" data-act="opening">▶ Watch the opening</button>
-          <button class="btn secondary" data-act="rename-player">✎ Your name: ${esc(Meta.playerName)}</button>
+          <button class="btn secondary" data-act="rename-player">✎ Your character: ${esc(Meta.playerName)}</button>
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>
