@@ -561,7 +561,6 @@ export const TownMode = {
         this.townGround.attach(this.town);
       });
     }
-    Audio.stopMusic();
     this.resetRunState();
     this.mode = 'town'; this.modal = null; this.boss = null;
     const P = this.player = new Player(this, Meta.hero);

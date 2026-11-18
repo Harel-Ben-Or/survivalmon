@@ -334,6 +334,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
           ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+          <button class="btn small secondary" data-act="music">${this.musicLabel()}</button>
           <button class="btn small secondary" data-act="guide">${this.guideLabel()}</button>
         </div>
         <div class="loot-actions">

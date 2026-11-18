@@ -197,7 +197,6 @@ export class Game {
   // ------------------------------------------------------------ flow
   toTitle() {
     this.mode = 'title'; this.modal = null;
-    Audio.stopMusic();
     this.ui.showTitle();
   }
   startRun(heroId = Meta.hero) {
@@ -259,7 +258,6 @@ export class Game {
     };
     if (!Meta.data.runs) this.ui.tip('run_start', banner); else banner(); // a new player's first run: Moss first
     if (Meta.bagSize()) this.ui.tip('bag');
-    if (this.settings.music) Audio.startMusic();
   }
   gameOver() {
     if (this.mode === 'end') return;
@@ -303,7 +301,6 @@ export class Game {
     Meta.bank(earned);
     this.spiritEarned = Math.floor(P.spirit);
     Meta.addSpirit(this.spiritEarned);
-    Audio.stopMusic();
     Audio.play(kind === 'won' || kind === 'timeup' ? 'victory' : kind === 'quit' ? 'door' : 'gameover');
     const rec = { time: this.time, kills: P.kills, level: P.level };
     const newBest = this.time > this.best.time;
@@ -353,6 +350,7 @@ export class Game {
       if ((this.playSaveT = (this.playSaveT || 0) + dt) >= 30) { this.playSaveT = 0; Meta.save(); }
     }
     this.shakeT = Math.max(0, this.shakeT - dt); // in every mode, so a shake can never get stuck on
+    this.updateMusic();
     this.checkOrientation();
     // once a second: medals and achievements to announce (in a run, a house or the town)
     if (['world', 'house', 'town'].includes(this.mode) && (this.newsT = (this.newsT || 0) - dt) <= 0) { this.newsT = 1; this.checkNews(); }
@@ -383,6 +381,20 @@ export class Game {
       this.updateEffects(dt);
     }
     this.ui.tick(dt);
+  }
+
+  // The music for where you are: the town (and the title), a run's day, its night after sunset, a boss
+  // while one is alive, and the Night Lord's own; none on the run's end screen or in the opening story.
+  updateMusic() {
+    let want = null;
+    if (this.mode === 'town' || this.mode === 'title') want = 'town';
+    else if (this.mode === 'world' || this.mode === 'house') {
+      const b = this.boss && !this.boss.dead ? this.boss : null;
+      want = this.finalStand || b?.type === 'night_lord' ? 'final' : b ? 'boss' : this.dayMinute > 17 ? 'night' : 'day';
+      if (this.time > 100 && !b) Audio.preload(this.dayMinute > 15 ? 'night' : 'boss'); // the next one, ready in time
+    }
+    if (this.ui.screen === 'story' || this.modal === 'story' || !this.settings.music) want = null;
+    Audio.music(want);
   }
 
   updateWorld(dt) {
@@ -446,7 +458,6 @@ export class Game {
     } else this.ui.prompt(null);
 
     this.updateGathering(dt);
-    Audio.setNight(this.dayMinute > 17);
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     if (P.pendingLevels > 0 && !this.modal && !this.ui.tip('levelup')) this.openLevelUp();
     if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');

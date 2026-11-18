@@ -101,6 +101,21 @@ blobs crawl out of the smoke. That escape is the first run, and it ends at the v
 asks your name. Watch it again from the town menu (▶ Watch the opening). The rest of the story is
 planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Night Lord).
 
+## Sound
+
+All music and sound effects were made with PixelLab (2026-11-18) and play through WebAudio (`src/core/audio.js`).
+- **Music** (`assets/audio/music/`): five tracks that the game picks as you play (`Game.updateMusic`): **town** (the
+  village and the title screen), **day** (a run), **night** (after sunset), **boss** (while a boss is alive) and
+  **final** (the Night Lord). Each is an intro that plays once and a part that loops seamlessly (PixelLab's
+  make_music_loop gives the loop points; the files are cut just after the loop end, at an MP3 frame, with the
+  header patched so the timing stays exact, and the game blends the last 20 ms into the loop start). Tracks
+  cross-fade; the day and night music carry on where they were after a boss. Music on/off: the town menu and
+  the pause screen.
+- **Effects** (`assets/audio/sfx/`): 25 short clips (mono 32 kHz WAV, trimmed and levelled to the same loudness);
+  `VOL` in audio.js sets each one's volume, `VARY` a slight random pitch for the frequent ones, `MAX` how many can
+  ring at once. Until a clip has loaded, the old synthesized beep plays instead.
+- Everything pauses while the app is in the background.
+
 ## The beginner's guide
 
 A new player meets **Moss** (the village's creature fan, who ran out to see the star fall), who explains each

@@ -87,6 +87,7 @@ export class UI {
     else { this.selIdx = 0; this.showTitle(); }
   }
 
+  musicLabel() { return `🎵 Music: ${this.g.settings.music ? 'On' : 'Off'}`; }
   controlsLabel() {
     const s = this.g.settings.controls;
     return s === 'auto' ? `Controls: Auto (${this.g.touchMode ? 'touch' : 'keyboard'})` : `Controls: ${CONTROL_NAMES[s]}`;
@@ -755,8 +756,7 @@ export class UI {
     this.modalKind = 'pause';
     this.el.modal.querySelectorAll('[data-set]').forEach((cb) => cb.addEventListener('change', () => {
       st[cb.dataset.set] = cb.checked;
-      g.saveSettings();
-      if (cb.dataset.set === 'music') { if (cb.checked) Audio.startMusic(); else Audio.stopMusic(); }
+      g.saveSettings(); // music on or off: Game.updateMusic follows the setting
     }));
   }
   closePause() {
@@ -911,6 +911,7 @@ export class UI {
         break;
       case 'fullscreen': this.toggleFullscreen(); break;
       case 'guide': this.toggleGuide(t); break;
+      case 'music': g.settings.music = !g.settings.music; g.saveSettings(); t.textContent = this.musicLabel(); break;
       case 'portrait': g.allowPortrait = true; g.checkOrientation(); break;
     }
   }
