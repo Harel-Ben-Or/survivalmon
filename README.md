@@ -170,7 +170,8 @@ planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Nig
 - **Spirit Shrine**: upgrades for every survivalmon, and timed research that improves skill tier odds.
 - **Workshop** (Tamsin): **Gear**: each hero has 4 sets (their own and 3 more, content/gear.js GEAR_SETS), each
   with a helmet, armor, gloves, boots and two weapons. A slot wears one piece at a time (tap a piece to wear it)
-  and keeps its level when you swap. Wearing 4 and 6 pieces of a set gives its two bonuses: team damage, HP,
+  and keeps its level when you swap. Wearing 2, 4 and 6 pieces of a set gives its bonuses (they add up, and
+  sets mix: 4 + 2 or 2 + 2 + 2 all count): team damage, HP,
   speed, defense or crits, the hero's own stats, extra damage for one attack type, coins, materials, EXP, wild
   survivalmons or Skyfall Shard luck. Drops pick any piece you don't have yet. **Tools**: an axe (wood), a
   pickaxe (stone and iron) and a spade (clay), +15% from gathering spots a level, and Quick hands (gathering
