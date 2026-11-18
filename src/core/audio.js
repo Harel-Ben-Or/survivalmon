@@ -23,9 +23,9 @@ const VOL = {
 const VARY = { shoot: 0.06, hit: 0.08, kill: 0.07, gem: 0.05, swing: 0.06, zap: 0.06, fire: 0.05, coin: 0.03, click: 0.03, hurt: 0.04, open: 0.05, dash: 0.05 };
 const MAX = { shoot: 4, hit: 4, kill: 4, gem: 3, swing: 3, zap: 3, fire: 3, coin: 3 };
 const TRACKS = {
-  town: { loopStart: 42.794, loopEnd: 124.4333, vol: 0.8 },
-  day: { loopStart: 44.931, loopEnd: 124.7939, vol: 0.85 },
-  night: { loopStart: 48.112, loopEnd: 120.0938, vol: 0.9 },
+  town: { loopStart: 42.794, loopEnd: 124.4333, vol: 0.75 }, // vol levels the tracks (measured), town a little softer
+  day: { loopStart: 44.931, loopEnd: 124.7939, vol: 0.95 },
+  night: { loopStart: 48.112, loopEnd: 120.0938, vol: 0.78 },
   boss: { loopStart: 39.288, loopEnd: 103.8861, vol: 1, fresh: true },
   final: { loopStart: 43.746, loopEnd: 115.7716, vol: 1, fresh: true },
 };
