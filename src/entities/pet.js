@@ -118,6 +118,7 @@ export class Pet {
     this.atkT = -1;
     this.state = 'follow';
     this.g.toast(`${this.name} fainted! Heal it at the Clinic.`);
+    if (this.g.mode === 'world') this.g.ui.tip('faint');
     this.g.player.recompute();
     this.g.applyTeamPassives?.();
     this.g.particles.burst(this.x, this.y - 6, { n: 12, color: '#ffffff', speed: 40, life: 0.5 });

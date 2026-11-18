@@ -108,6 +108,7 @@ export const Pickups = {
       case 'shard':
         P.shards = (P.shards || 0) + k.value;
         this.feed(`+${k.value} Skyfall Shard`, '#c8a8ff');
+        this.ui.tip('shard');
         this.particles.burst(k.x, k.y - 6, { n: 14, colors: ['#c8a8ff', '#8fd0ff', '#ffffff'], speed: 60, life: 0.5, up: 20 });
         Audio.play('gem'); break;
     }

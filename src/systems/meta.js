@@ -17,8 +17,9 @@ export const MAT_KEYS = ['wood', 'stone', 'clay', 'iron'];
 // gear[hero][slot] = { own: { set: true }, on: set } (the pieces found for that slot, and the one worn)
 // items: the bag, { "id:grade": count }; builds: upgrades being built, { building: { to, done } }
 // tools: Workshop tool levels; shards: Skyfall Shards; bought: Skyfall counter buys, { day, n: { offer: count } }
+// guide: the beginner's guide (content/guide.js), { on, seen: { tip: true } }
 const empty = () => ({ v: 1, coins: 0, spirit: SPIRIT_START, shards: 0, gates: 0, gateTier: 0, gateNew: 0, training: {}, hero: 'rowan', runs: 0, unlocked: {}, buildings: {}, bestTime: 0,
-  mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, items: {}, builds: {}, tools: {}, bought: { day: '', n: {} } });
+  mats: { wood: 0, stone: 0, clay: 0, iron: 0 }, gear: {}, slots: {}, heroes: { rowan: true }, items: {}, builds: {}, tools: {}, bought: { day: '', n: {} }, guide: { on: true, seen: {} } });
 // The old Merchant's "next run" goods become bag items (grade I); the Time Candle is refunded
 const OLD_BUFFS = { snack: 'power', tonic: 'iron', horn: 'horn', pick: 'pick', feather: 'feather', warmer: 'warm' };
 
@@ -50,15 +51,17 @@ export const Meta = {
       if (d && d.v === 1) {
         const e = empty();
         this.data = { ...e, ...d, spirit: d.spirit ?? SPIRIT_START, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes },
-          items: { ...d.items }, builds: { ...d.builds }, tools: { ...d.tools }, bought: d.bought || e.bought };
-        this.migrate();
+          items: { ...d.items }, builds: { ...d.builds }, tools: { ...d.tools }, bought: d.bought || e.bought, guide: d.guide || e.guide };
+        this.migrate(!d.guide);
       }
     } catch { /* storage unavailable: start fresh */ }
     return this;
   },
   // Older saves: a gear slot was just `true` (the hero's own set's piece); Merchant buffs were for the next run
-  migrate() {
+  // A save from before the beginner's guide keeps playing without it (unless it never finished a run)
+  migrate(noGuide = false) {
     const D = this.data;
+    if (noGuide) D.guide = { on: !(D.runs > 0 || D.named), seen: {} };
     for (const [hero, slots] of Object.entries(D.gear || {})) {
       for (const s of SLOTS) if (slots[s] === true) slots[s] = { own: { [HERO_SETS[hero][0]]: true }, on: HERO_SETS[hero][0] };
     }
@@ -68,6 +71,12 @@ export const Meta = {
     }
   },
   save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
+
+  // ---------------------------------------------------------- the beginner's guide
+  get guideOn() { return !!this.data.guide?.on; },
+  tipSeen(id) { return !!this.data.guide?.seen?.[id]; },
+  markTip(id) { const G = (this.data.guide ||= { on: true, seen: {} }); (G.seen ||= {})[id] = true; this.save(); },
+  setGuide(on) { (this.data.guide ||= { seen: {} }).on = !!on; this.save(); },
 
   // The main character's name: Rowan until the player gives their own (asked at the gate)
   get playerName() { return this.data.name || 'Rowan'; },

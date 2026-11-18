@@ -125,6 +125,7 @@ export class Director {
         const sp = Math.random() < 0.65 ? zone.mons[(Math.random() * zone.mons.length) | 0] : weightedChoice(WILD_POOL).type;
         if (this.spawn('wild', { wild: sp })) {
           g.feed(`A wild ${SPECIES[sp].name} appeared! Catch it within 25 s`, '#7af0ff'); // an arrow at the screen's edge points to it
+          g.ui.tip('wild');
           Audio.play('combo');
         } else this.catchT = 2; // no free spot right now: try again shortly
       }
@@ -151,6 +152,7 @@ export class Director {
       g.bossBar(boss);
       g.banner(`${ENEMIES[ev.enemy].name} appears!`, '#ff6a5a', true);
       Audio.play('boss');
+      g.ui.tip('boss');
       return;
     }
     if (ev.type === 'snare') { this.raid(); return; }
@@ -181,6 +183,7 @@ export class Director {
     if (!base) return;
     g.feed('The Snare gang is here!', '#ff8a7a');
     Audio.play('combo');
+    g.ui.tip('snare');
     // the first raid is a small one; later ones bring more of the gang
     const squad = g.stage < 300 ? ['poacher', 'slinger', 'drone'] : ['poacher', 'poacher', 'slinger', 'drone'];
     if (g.stage > 600) squad.push('poacher', 'slinger');

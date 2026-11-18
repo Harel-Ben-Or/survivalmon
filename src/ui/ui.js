@@ -20,6 +20,7 @@ import { Input } from '../core/input.js';
 import { TouchControls } from './touch.js';
 import { TownUI } from './town_ui.js';
 import { ProfilesUI } from './profiles_ui.js';
+import { GuideUI } from './guide_ui.js';
 import { NPCS } from '../content/npcs.js';
 
 const NPCS_ACT = (id) => !!NPCS[id]?.act;
@@ -390,7 +391,7 @@ export class UI {
   // ------------------------------------------------------------ prompt, banners, toasts
   prompt(label, wx, wy) {
     const el = this.el.prompt;
-    if (!label || this.g.modal) {
+    if (!label || this.g.modal || this.guide) {
       if (this.promptLabel !== null) this.touch?.setAction(null);
       el.classList.add('hidden'); this.promptLabel = null; return;
     }
@@ -743,6 +744,7 @@ export class UI {
               <div class="loot-actions" style="justify-content:flex-start;margin-top:6px">
                 <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
                 ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+                <button class="btn small secondary" data-act="guide">${this.guideLabel()}</button>
               </div>
             </div>
           </div>
@@ -833,15 +835,18 @@ export class UI {
           </div>
         </div>`);
       this.modalKind = 'end';
+      this.tip('end');
     }, won || kind === 'timeup' ? 600 : quit ? 150 : 900);
   }
 
   // ------------------------------------------------------------ input
   onClick(e) {
-    const t = e.target.closest('[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact],[data-pact],[data-talk]');
+    const t = e.target.closest('[data-guide],[data-act],[data-hero],[data-pick],[data-swap],[data-starter],[data-evolve],[data-buy],[data-pickhero],[data-mact],[data-pact],[data-talk]');
     if (!t) return;
     Audio.unlock();
     const g = this.g;
+    if (t.dataset.guide) { Audio.play('click'); this.guideAct(t.dataset.guide); return; }
+    if (this.guide) return; // the guide's box is open: it has to be answered first
     if (t.dataset.hero) {
       Audio.play('click');
       if (g.touchMode) this.enterFullscreen();
@@ -905,11 +910,17 @@ export class UI {
         t.textContent = `📱 ${this.controlsLabel()}`;
         break;
       case 'fullscreen': this.toggleFullscreen(); break;
+      case 'guide': this.toggleGuide(t); break;
       case 'portrait': g.allowPortrait = true; g.checkOrientation(); break;
     }
   }
   onKey(e) {
     const k = e.code;
+    if (this.guide) { // the guide's box takes the keys while it's open
+      if (e.repeat) return;
+      if (k === 'KeyE' || k === 'Enter' || k === 'NumpadEnter' || k === 'Space') { e.preventDefault(); this.guideAct('next'); } else if (k === 'Escape') this.guideAct('skip');
+      return;
+    }
     if (e.repeat && this.modalKind) return;
     if (this.screen === 'profiles' && !this.modalKind) {
       if (e.target.classList?.contains('prof-input')) { if (k === 'Enter' || k === 'NumpadEnter') this.profAct('save-name', e.target); else if (k === 'Escape') this.showProfiles(); return; }
@@ -999,6 +1010,6 @@ export class UI {
   }
 }
 
-Object.assign(UI.prototype, TownUI, MonsUI, ShopUI, ProfilesUI);
+Object.assign(UI.prototype, TownUI, MonsUI, ShopUI, ProfilesUI, GuideUI);
 
 export { iconOf };

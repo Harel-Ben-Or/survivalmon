@@ -299,6 +299,7 @@ export const TownUI = {
     this.modalKind = null;
     this.g.modal = null;
     Input.endFrame();
+    if (what === 'name-done' && !this.namingFromMenu) this.tip('town'); // Moss shows a new player round
   },
 
   // ------------------------------------------------------------ the opening story
@@ -333,6 +334,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
           ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+          <button class="btn small secondary" data-act="guide">${this.guideLabel()}</button>
         </div>
         <div class="loot-actions">
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>

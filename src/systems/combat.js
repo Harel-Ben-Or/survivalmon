@@ -475,6 +475,7 @@ export const Combat = {
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
     const skills = mon.skills.map((k) => `${k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name} ${TIERS[k.t]}`).join(' · ');
     this.ui.catchCard(mon, { joined, freed: e.corrupted }); // its grades at a glance, instead of a banner
+    this.ui.tip('caught', () => { this.ui.catchUntil = Math.max(this.ui.catchUntil, performance.now() + 3000); }); // the card stays a moment after Moss explains it
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);

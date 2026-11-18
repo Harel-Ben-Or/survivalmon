@@ -190,6 +190,7 @@ export const NPCS = {
       { text: 'Every breed evolves twice, at Lv 30 and Lv 55, with a stone of its type. I have read every page!' },
       { text: 'Your team looks strong, {name}! Mine would be all Glimmoths.' },
       { text: 'Quill lets me sort the drawings in the Survidex sometimes.' },
+      { text: 'I shout a tip the first time you see something new. Talking too much? Turn my tips off in the menu.' },
     ],
   },
 };

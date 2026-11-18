@@ -634,7 +634,12 @@ export const TownMode = {
     const show = () => {
       for (const n of notes) this.toast(n);
       this.ui.showTown();
-      if (!Meta.named && Meta.hero === 'rowan') this.ui.openNaming(); // Ollie asks who you are
+      if (!Meta.named && Meta.hero === 'rowan') this.ui.openNaming(); // Ollie asks who you are (then Moss shows you round)
+      else this.ui.tip('town');
+      // the beginner's guide: a first survivalmon, a new gate, an achievement earned out in the wild
+      if (hatched.length) this.ui.tip('hatched');
+      if (opened) this.ui.tip('gates');
+      if (this.achvTip) { this.achvTip = false; this.ui.tip('achv'); }
     };
     if (hatched.length) {
       this.fillTownRanch();

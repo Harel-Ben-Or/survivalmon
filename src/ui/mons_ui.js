@@ -169,6 +169,7 @@ export const MonsUI = {
     this.el.select.classList.add('as-page');
     const body = this.el.select.querySelector('.pg-body');
     if (body) body.scrollTop = top;
+    this.pageTip(screen); // the beginner's guide, the first time this page opens
   },
 
   // ------------------------------------------------------------ starter eggs

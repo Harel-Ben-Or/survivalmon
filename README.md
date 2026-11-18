@@ -101,6 +101,17 @@ blobs crawl out of the smoke. That escape is the first run, and it ends at the v
 asks your name. Watch it again from the town menu (▶ Watch the opening). The rest of the story is
 planned in the story doc (chapters at the 2:00, 4:00 and 6:00 bosses and the Night Lord).
 
+## The beginner's guide
+
+A new player meets **Moss** (the village's creature fan, who ran out to see the star fall), who explains each
+thing the first time it comes up: moving and the clock on the first run, level-ups, houses, gathering, eggs,
+wild survivalmons and catching, bosses and skill picks, sunset, the Snare gang, fainting, low health, gear,
+stones, the bag and Skyfall Shards; in town the village and its currencies, every building's page, building
+levels, the first hatch, a new gate and the first achievement. Each tip is a small talk box (one to four short
+pages) with Next, Skip and **Turn off tips**; the game waits while it's open. Tips show once each. The town menu
+and the pause screen switch them back on (💬 Tips). Saves from before the guide (anyone who had finished a run)
+start with it off. The lines are in `src/content/guide.js`, the box in `src/ui/guide_ui.js`.
+
 ## Town
 
 - A small village in a forest clearing: the buildings stand close round the square, each on its own
@@ -303,6 +314,7 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `src/world/` — map generation, ground painter, house interiors (`interior.js`: the random rooms, the
   basements and the hand-made rooms of the town's buildings), collision, monster pathing.
 - `src/content/npcs.js` — the village's people: who keeps which building, their buttons and talk lines.
+- `src/content/guide.js` — the beginner's guide: Moss's tips and when each shows; `src/ui/guide_ui.js` — its talk box.
 - `src/entities/`, `src/systems/` — player, monsters, pets, combat, loot, spawning.
 - `src/ui/` — HUD, menus and all modal screens (DOM overlay).
 - `src/systems/loot.js` — level-up cards (which kind each level is, chest bonus picks, boss skill picks) and container loot;

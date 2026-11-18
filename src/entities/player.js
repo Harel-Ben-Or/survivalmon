@@ -142,6 +142,7 @@ export class Player {
     this.g.shake(3, 0.15);
     this.g.runStats.taken += d;
     Audio.play('hurt');
+    if (this.hp > 0 && this.hp < this.stats.maxHp * 0.35) this.g.ui.tip('lowhp');
     if (this.hp <= 0) {
       if (this.stats.reviveHp > 0 && !this.reviveUsed) {
         this.reviveUsed = true;

@@ -1331,3 +1331,35 @@ body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
   .sky-egg { padding: 4px; }
 }
 .ms-train { color: var(--muted); margin: 2px 0; font-size: 12px; }
+
+/* the beginner's guide: Moss's tip box (ui/guide_ui.js); the game waits while it's open */
+.guide-layer { position: absolute; inset: 0; z-index: 40; pointer-events: auto; display: flex; align-items: flex-end; justify-content: center;
+  padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(20,12,16,.16); }
+.guide-layer.at-top { align-items: flex-start; padding-top: max(36px, env(safe-area-inset-top)); }
+.guide-box { width: 100%; max-width: 600px; display: flex; gap: 12px; padding: 10px 12px; align-items: flex-start; border-color: #9af08a; box-shadow: 0 4px 0 rgba(0,0,0,.35); animation: guide-in .18s ease-out; }
+.guide-face { width: 64px; height: 64px; image-rendering: pixelated; background: rgba(154,240,138,.12); border-radius: 10px; flex: none; }
+.guide-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.guide-name { display: flex; align-items: baseline; gap: 8px; }
+.guide-name b { font-size: 16px; color: #9af08a; }
+.guide-name span { color: var(--muted); font-size: 12px; }
+.guide-name i { margin-left: auto; font-style: normal; color: var(--muted); font-size: 12px; }
+.guide-text { margin: 0; font-size: 15px; line-height: 1.35; }
+.guide-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.guide-off { margin-right: auto; background: none; border: 0; padding: 4px 2px; color: var(--muted); font: 700 12px var(--font); text-decoration: underline; cursor: pointer; }
+.guide-focus { outline: 3px solid #9af08a; outline-offset: 2px; animation: guide-pulse 1s ease-in-out infinite; }
+@keyframes guide-pulse { 50% { outline-color: rgba(154,240,138,.25); } }
+@keyframes guide-in { from { transform: translateY(8px); opacity: 0; } }
+@media (max-height: 420px) {
+  .guide-box { padding: 8px 10px; gap: 10px; max-width: 580px; }
+  .guide-face { width: 48px; height: 48px; }
+  .guide-name b { font-size: 14px; }
+  .guide-text { font-size: 13px; line-height: 1.3; }
+}
+@media (max-height: 300px) {
+  .guide-layer { padding: 6px; }
+  .guide-layer.at-top { padding-top: 30px; }
+  .guide-box { gap: 8px; padding: 6px 8px; }
+  .guide-face { width: 36px; height: 36px; }
+  .guide-text { font-size: 12px; line-height: 1.25; }
+  .guide-actions .btn.small { padding: 3px 9px; font-size: 12px; }
+}

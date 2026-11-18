@@ -252,8 +252,13 @@ export class Game {
     this.darkStep = 0; this.dark = this.darkness(); this.finalStand = false;
     // a full run is won by defeating the Night Lord; a shorter one by lasting until its time is up
     const goal = this.runLength >= RUN_LENGTH ? 'defeat the Night Lord' : `survive ${formatTime(this.runLength)}`;
-    if (this.tier) this.banner(`${gateName(this.tier)}: ${goal}!`, gateColor(this.tier), true, gateBlurb(this.tier));
-    else this.banner(`${goal[0].toUpperCase()}${goal.slice(1)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
+    const banner = () => {
+      if (this.mode !== 'world') return;
+      if (this.tier) this.banner(`${gateName(this.tier)}: ${goal}!`, gateColor(this.tier), true, gateBlurb(this.tier));
+      else this.banner(`${goal[0].toUpperCase()}${goal.slice(1)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
+    };
+    if (!Meta.data.runs) this.ui.tip('run_start', banner); else banner(); // a new player's first run: Moss first
+    if (Meta.bagSize()) this.ui.tip('bag');
     if (this.settings.music) Audio.startMusic();
   }
   gameOver() {
@@ -352,7 +357,8 @@ export class Game {
     // once a second: medals and achievements to announce (in a run, a house or the town)
     if (['world', 'house', 'town'].includes(this.mode) && (this.newsT = (this.newsT || 0) - dt) <= 0) { this.newsT = 1; this.checkNews(); }
     if (Input.wasPressed('KeyM')) { const m = Audio.toggleMute(); this.toast(m ? 'Sound off' : 'Sound on'); }
-    if (this.mode === 'world' || this.mode === 'house') {
+    if (this.ui.guide) { /* the guide's box is open: the run and the town wait */ }
+    else if (this.mode === 'world' || this.mode === 'house') {
       if (Input.anyPressed('Escape', 'KeyP')) {
         if (this.modal === 'pause') this.ui.closePause();
         else if (this.modal === 'bag') this.ui.closeBag();
@@ -433,6 +439,7 @@ export class Game {
       if (dist2(P.x, P.y, h.doorX, h.doorY) < 20 * 20) { near = h; break; }
     }
     if (near) {
+      if (!near.looted) this.ui.tip('house');
       const label = near.looted ? 'Enter (searched)' : near.kind === 'shrine' ? 'Enter Shrine' : near.kind === 'barn' ? 'Enter Barn' : 'Enter House';
       this.ui.prompt(label, near.doorX, near.doorY - 30);
       if (act) this.enterHouse(near);
@@ -441,9 +448,9 @@ export class Game {
     this.updateGathering(dt);
     Audio.setNight(this.dayMinute > 17);
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
-    if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
+    if (P.pendingLevels > 0 && !this.modal && !this.ui.tip('levelup')) this.openLevelUp();
     if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
-    if (P.skillPicks > 0 && !this.modal) this.openLevelUp('skill');
+    if (P.skillPicks > 0 && !this.modal && !this.ui.tip('skillpick')) this.openLevelUp('skill');
     Box.saveIfDirty();
   }
 
@@ -479,9 +486,9 @@ export class Game {
     } else this.ui.prompt(null);
     if (room.doorX != null && P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
     if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
-    if (P.pendingLevels > 0 && !this.modal) this.openLevelUp();
+    if (P.pendingLevels > 0 && !this.modal && !this.ui.tip('levelup')) this.openLevelUp();
     if (P.bonusPicks > 0 && !this.modal) this.openLevelUp('bonus');
-    if (P.skillPicks > 0 && !this.modal) this.openLevelUp('skill');
+    if (P.skillPicks > 0 && !this.modal && !this.ui.tip('skillpick')) this.openLevelUp('skill');
   }
 
   // ------------------------------------------------------------ houses
@@ -503,6 +510,7 @@ export class Game {
     const NAMES = { home: 'Cottage', bedroom: 'Cottage', library: 'Library', kitchen: 'Kitchen', storeroom: 'Storeroom', hayloft: 'Hayloft', stable: 'Stable', storehouse: 'Storehouse', altar: 'Old Shrine', crypt: 'Crypt' };
     const name = NAMES[this.room.theme] || (h.kind === 'shrine' ? 'Old Shrine' : h.kind === 'barn' ? 'Barn' : 'Cottage');
     this.feed(`${name}: the clock is paused`, '#bfeaff');
+    this.ui.tip('house_in');
   }
   // Down the trapdoor into the house's basement (made the first time), and back up the ladder
   enterBasement() {
@@ -610,6 +618,7 @@ export class Game {
     for (const o of this.world.nodes) {
       const near = dist2(P.x, P.y, o.x, o.y - 2) < 20 * 20;
       o.node.t = near ? o.node.t + dt : Math.max(0, o.node.t - dt * 2);
+      if (near && o.node.t > 0.4) this.ui.tip('gather');
       if (o.node.t >= GATHER_TIME * this.gatherTime()) this.gather(o);
     }
   }
@@ -648,6 +657,7 @@ export class Game {
     this.feed(`Gear: ${heroName}'s ${name}! ${GEAR_SETS[set].name}${locked ? ` (waits until you unlock ${heroName})` : ''}`, GEAR_SETS[set].color);
     if (Meta.unlock('workshop')) this.toast('The Workshop is open in town!');
     Audio.play('chest');
+    this.ui.tip('gear');
   }
 
   // ------------------------------------------------------------ survivalmons: team, eggs, evolving
@@ -749,6 +759,7 @@ export class Game {
     const species = choice([...BASE_IDS, ...BASE_IDS.slice(0, 5)]);
     if (Box.addEgg({ species, skills: rollSkills(species, { odds: this.tierOdds }), need: FOUND_HATCH, kind: 'found' })) {
       this.feed('An egg! It waits in your Hatchery', '#ffe07a');
+      this.ui.tip('egg');
     } else {
       this.player.coins += 30;
       this.toast('Your Hatchery is full, so the egg became 30 coins.');
@@ -771,6 +782,7 @@ export class Game {
     Box.addItem(id);
     this.feed(`Rare find: ${STONES[id].name}! Kept at your Ranch`, '#c88aff');
     Audio.play('chest');
+    this.ui.tip('stone');
     this.checkEvolve();
   }
   rollStone() { return rollStone(this.player); }
@@ -880,8 +892,10 @@ export class Game {
       Box.settleTrainingSkills();
       if ((built.length || research) && this.ui.screen !== 'town') this.ui.rerender(); // the open page shows the new level
     }
+    const achv = checkAchievements();
+    if (achv.some((a) => a.name !== 'Skyfall Shards')) { if (this.mode === 'town') this.ui.tip('achv'); else this.achvTip = true; } // told in town
     const out = [...Box.news.splice(0).map((n) => this.newsLine(n)).filter(Boolean),
-      ...checkAchievements().map((a) => ({ title: a.name === 'Skyfall Shards' ? `+${a.pay} Skyfall Shards!` : `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} Skyfall Shards`, color: '#c8a8ff' }))];
+      ...achv.map((a) => ({ title: a.name === 'Skyfall Shards' ? `+${a.pay} Skyfall Shards!` : `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} Skyfall Shards`, color: '#c8a8ff' }))];
     if (!out.length) return;
     const page = this.mode !== 'world' || this.modal;
     if (this.mode === 'world' || this.mode === 'house') out.forEach((n) => this.feed(n.title, n.color)); // the details wait for town
@@ -1048,6 +1062,7 @@ export class Game {
     if (this.darkStep < 1 && d.sunset > 0.02) {
       this.darkStep = 1;
       this.feed('The sun is setting: monsters grow stronger', '#ffb070');
+      this.ui.tip('sunset');
     } else if (this.darkStep < 2 && d.night > 0.98) {
       this.darkStep = 2;
       this.banner('Night has fallen!', '#c49aff', true, 'The Blight is at full strength');
