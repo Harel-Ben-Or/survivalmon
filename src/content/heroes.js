@@ -30,8 +30,8 @@ export const HEROES = [
   {
     id: 'pip', name: 'Pip', title: 'Ranger trainee', weapon: 'sling', color: '#2fa39a',
     desc: 'Born to befriend survivalmons. Looks after the whole team.',
-    perks: ['+50% pet power', '+50% pet EXP', '+10% luck'],
-    mods: { petPower: 0.5, petXp: 0.5, luck: 0.1 },
+    perks: ['+35% pet power', '+50% pet EXP', '+10% luck'],
+    mods: { petPower: 0.35, petXp: 0.5, luck: 0.1 }, // pet power 35% (from 50%): at the South Gate Pip lasted 70% longer than the other friends
   },
 ];
 
