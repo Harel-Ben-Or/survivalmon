@@ -856,6 +856,7 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 .story-cap.ready .story-next { opacity: 1; animation: storyBlink 1s infinite; }
 @keyframes storyBlink { 50% { opacity: .3; } }
 /* the arrow in town to the next place to go (TownUI.updatePlaceArrow) */
+.place-arrow[hidden] { display: none; } /* its display: flex would otherwise beat the hidden attribute */
 .place-arrow { position: absolute; z-index: 30; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; }
 .place-arrow .pa-name { display: flex; flex-direction: column; align-items: center; padding: 3px 9px 4px; background: rgba(30,20,28,.86); border: 2px solid #ffd84a; border-radius: 9px; white-space: nowrap; line-height: 1.1; }
 .place-arrow .pa-name b { color: #ffd84a; font: 700 13px var(--font); }
