@@ -338,6 +338,7 @@ export class Game {
     save(PENDING_KEY, {
       coins: Math.floor(P.coins), spirit: Math.floor(P.spirit), shards: P.shards || 0, mats: { ...P.mats }, time: this.time, kills: P.kills,
       pets: P.pets.map((p) => ({ id: p.mon.id, hp: p.fainted ? 0 : p.hp / p.maxHp })),
+      pool: Math.round((this.monPool || 0) * P.stats.petXp), // the mon EXP pool, split as at a run's end
     });
   }
   clearPending() { try { localStorage.removeItem(PENDING_KEY); } catch { /* ignore */ } }
@@ -346,6 +347,10 @@ export class Game {
     if (!r) return;
     this.clearPending();
     for (const p of r.pets || []) { const mon = Box.get(p.id); if (mon) mon.hp = Math.max(0, Math.min(1, p.hp)); }
+    // the team's EXP from the run is split evenly, as it would have been at the end
+    const mons = (r.pets || []).map((p) => Box.get(p.id)).filter(Boolean);
+    const share = r.pool > 0 && mons.length ? Math.max(1, Math.floor(r.pool / mons.length)) : 0;
+    for (const mon of mons) if (share) Box.addXp(mon, share);
     Box.warmEggs(r.time || 0);
     Box.save();
     Meta.bankMats(r.mats || {});
@@ -353,7 +358,7 @@ export class Game {
     Meta.data.bestTime = Math.max(Meta.data.bestTime || 0, r.time || 0);
     Meta.bank(r.coins || 0);
     Meta.addSpirit(r.spirit || 0);
-    this.unlockNote = `Your last run was closed before it ended. You kept its ${r.coins || 0} coins, ${r.spirit || 0} Spirit and the materials you gathered.`;
+    this.unlockNote = `Your last run was closed before it ended. You kept its ${r.coins || 0} coins, ${r.spirit || 0} Spirit${share ? `, ${share} EXP for each survivalmon` : ''} and the materials you gathered.`;
   }
 
   // ------------------------------------------------------------ update
