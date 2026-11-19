@@ -823,7 +823,7 @@ export class UI {
           <div class="end-body">
             <div class="end-tiles">${tiles}</div>
             <div class="end-side">
-              <div class="end-label">Your team${g.poolShare ? ` · +${g.poolShare.share.toLocaleString()} EXP each` : ''}</div>
+              <div class="end-label end-pool">Your team${g.poolShare ? ` · +${g.poolShare.share.toLocaleString()} EXP each` : ''}</div>
               <div class="end-team">${team}</div>
               ${caught ? `<div class="end-label">Caught this run · now at your Ranch</div><div class="end-caught">${caught}</div>` : ''}
             </div>
@@ -836,6 +836,7 @@ export class UI {
         </div>`);
       this.modalKind = 'end';
       this.tip('end');
+      if (g.poolShare) this.tip('monpool'); // waits its turn after 'end' (a player who saw 'end' before the EXP split still gets it)
     }, won || kind === 'timeup' ? 600 : quit ? 150 : 900);
   }
 

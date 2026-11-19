@@ -72,6 +72,7 @@ export const TIPS = {
   end: [
     { t: 'Made it! Everything you picked up comes home with you: coins, Spirit and the materials you gathered.', focus: '.end-coins' },
   ],
+  monpool: [{ t: 'Every monster your survivalmons defeat earns them EXP. At the end of a run it is shared evenly by the whole team, so a helper grows too.', focus: '.end-pool' }],
 
   // ---------------------------------------------------------------- town
   town: [
