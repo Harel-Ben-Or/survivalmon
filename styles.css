@@ -833,6 +833,15 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 .story-next { position: absolute; right: 14px; bottom: 10px; color: #ffd84a; opacity: 0; font-size: 14px; }
 .story-cap.ready .story-next { opacity: 1; animation: storyBlink 1s infinite; }
 @keyframes storyBlink { 50% { opacity: .3; } }
+/* the arrow in town to the next place to go (TownUI.updatePlaceArrow) */
+.place-arrow { position: absolute; z-index: 30; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; }
+.place-arrow .pa-name { display: flex; flex-direction: column; align-items: center; padding: 3px 9px 4px; background: rgba(30,20,28,.86); border: 2px solid #ffd84a; border-radius: 9px; white-space: nowrap; line-height: 1.1; }
+.place-arrow .pa-name b { color: #ffd84a; font: 700 13px var(--font); }
+.place-arrow .pa-name small { color: #fff6e8; font: 600 10.5px var(--font); }
+.place-arrow .pa-tip { color: #ffd84a; font-size: 18px; line-height: 1; text-shadow: 0 2px 0 #2b1d24; animation: paBob 0.9s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
+.place-arrow.edge { transform: translate(-50%, -50%); }
+.place-arrow.edge .pa-tip { position: absolute; left: 50%; top: 50%; animation: none; font-size: 20px; transform: translate(-50%, -50%) translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--rot, 0deg)); }
+@keyframes paBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 4px; } }
 .scene-layer { position: absolute; inset: 0; z-index: 55; touch-action: none; pointer-events: auto; } /* a tap moves the talk on (#ui lets taps through) */
 .scene-say { position: absolute; max-width: min(66vw, 330px); min-width: 120px; padding: 6px 26px 8px 10px; background: #fff6e8; color: #2b1d24;
   border: 3px solid #2b1d24; border-radius: 10px; box-shadow: 0 3px 0 rgba(43,29,36,.45); pointer-events: none; }

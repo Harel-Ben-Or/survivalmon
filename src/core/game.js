@@ -22,6 +22,7 @@ import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
 import { SceneMode } from '../world/scene.js';
+import { StoryRoad } from '../world/story_road.js';
 import { reunionScene, FRIEND_AT_TIER } from '../content/story_scenes.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
@@ -203,7 +204,12 @@ export class Game {
   }
   startRun(heroId = Meta.hero) {
     if (this.scene) this.endScene(true); // a story scene can never carry over into a new run
-    if (!this.freshWorld) this.newWorld();
+    // the story's first run, out of the ruins: the road to Hearthvale, no clock; the egg Hollis gave
+    // you hatches on the way
+    // (until you reach Hearthvale: a road closed half way, or lost, is walked again)
+    const story = Meta.data.sawOpening && !Meta.data.metWren && !Box.mons.length && Box.eggs.some((e) => e.kind === 'starter');
+    if (story) { this.world = new World(undefined, { story: true }); this.tileGround?.attach(this.world); this.zoneNow = null; this.zoneT = 0; }
+    else if (!this.freshWorld) this.newWorld();
     this.freshWorld = false;
     this.resetRunState();
     this.time = 0;
@@ -215,7 +221,7 @@ export class Game {
     this.activeCombos = new Set();
     // the hero's sets and gear: team bonuses, hero stats, attack types, coins, materials, shard luck
     this.heroBonus = Meta.heroTeamBonus(heroId);
-    this.runLength = Meta.runLength();
+    this.runLength = story ? Infinity : Meta.runLength();
     this.coinMult = Meta.coinMult();
     this.wildMult = Meta.wildMult();
     this.matMult = 1;
@@ -241,9 +247,9 @@ export class Game {
     this.typeUp = Object.fromEntries(ATK_TYPE_IDS.map((t) => [t, { dmg: this.heroBonus.types[t] || 0, n: 0 }]));
     this.tierOdds = Shrine.odds();
     this.canCatch = Box.data.firstHatch;
-    // the story's first run, out of the ruins: the egg Hollis gave you hatches on the way (about 10 s in)
-    this.storyRun = !Meta.data.runs && !Box.mons.length && Box.eggs.some((e) => e.kind === 'starter');
+    this.storyRun = story;
     this.storyHatched = false;
+    if (story) this.startStoryRoad();
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
     this.applyTeamPassives();
     this.director.catchT = 75 / (this.wildMult || 1);
@@ -260,7 +266,8 @@ export class Game {
     const goal = this.runLength >= RUN_LENGTH ? 'defeat the Night Lord' : `survive ${formatTime(this.runLength)}`;
     const banner = () => {
       if (this.mode !== 'world') return;
-      if (this.tier) this.banner(`${gateName(this.tier)}: ${goal}!`, gateColor(this.tier), true, gateBlurb(this.tier));
+      if (story) this.banner('Run to Hearthvale!', '#ffffff', false, 'Follow the road south. Hollis said Granny Wren would help.');
+      else if (this.tier) this.banner(`${gateName(this.tier)}: ${goal}!`, gateColor(this.tier), true, gateBlurb(this.tier));
       else this.banner(`${goal[0].toUpperCase()}${goal.slice(1)}! Every monster you defeat pays coins.`, '#ffffff', false, 'The Blight is weak in daylight. It grows stronger after sunset.');
     };
     if (!Meta.data.runs) this.ui.tip('run_start', banner); else banner(); // a new player's first run: Moss first
@@ -285,7 +292,8 @@ export class Game {
     for (const e of this.enemies) if (!e.dead) { this.particles.burst(e.x, e.y - 6, { n: 6, colors: e.colors, speed: 60 }); e.dead = true; }
     this.enemies = [];
   }
-  // kind: 'timeup' | 'won' | 'died' | 'quit' (ended from the pause menu). Coins are banked either way.
+  // kind: 'timeup' | 'won' | 'died' | 'quit' (ended from the pause menu) | 'arrived' (the story's road:
+  // you reached Hearthvale's gate and walk straight into town). Coins are banked either way.
   endRun(kind) {
     const P = this.player, won = kind === 'won';
     if (this.mode === 'house') { P.x = P.worldX; P.y = P.worldY; this.ui.setPaused(false); this.snapCamera(); }
@@ -317,7 +325,7 @@ export class Game {
     Meta.bank(earned);
     this.spiritEarned = Math.floor(P.spirit);
     Meta.addSpirit(this.spiritEarned);
-    Audio.play(kind === 'won' || kind === 'timeup' ? 'victory' : kind === 'quit' ? 'door' : 'gameover');
+    if (kind !== 'arrived') Audio.play(kind === 'won' || kind === 'timeup' ? 'victory' : kind === 'quit' ? 'door' : 'gameover');
     const rec = { time: this.time, kills: P.kills, level: P.level };
     const newBest = this.time > this.best.time;
     this.best = {
@@ -326,6 +334,7 @@ export class Game {
     };
     save(BEST_KEY, this.best);
     this.clearPending();
+    if (kind === 'arrived') { this.storyRun = false; this.fromRoad = true; this.toTown(true); return; } // through the gate: Ollie is waiting
     this.ui.showEnd(kind, rec, newBest, earned);
   }
 
@@ -439,8 +448,8 @@ export class Game {
         Audio.play('boss');
       }
     }
-    if (this.storyRun && !this.storyHatched && this.time >= 10) this.hatchOnTheRoad();
-    this.director.update(dt);
+    if (this.storyRun) this.updateStoryRoad(dt); // the road to Hearthvale: its own monsters and moments
+    else this.director.update(dt);
     this.enemyHash.clear();
     for (const e of this.enemies) if (!e.dead && !e.hidden && !e.fainted) this.enemyHash.insert(e);
     P.update(dt);
@@ -991,7 +1000,8 @@ export class Game {
   }
   followCamera(dt) {
     const P = this.player;
-    const tx = P.x - this.view.w / 2, ty = P.y - 8 - this.view.h / 2;
+    // on the road to Hearthvale the camera looks a little ahead, down the road
+    const tx = P.x - this.view.w / 2, ty = P.y - 8 + (this.storyRun && this.mode === 'world' ? 28 : 0) - this.view.h / 2;
     const k = 1 - Math.exp(-10 * dt);
     this.cam.x += (tx - this.cam.x) * k; this.cam.y += (ty - this.cam.y) * k;
     this.clampCamera();
@@ -1057,10 +1067,12 @@ export class Game {
       for (const p of P.pets) list.push({ y: p.y, pet: p });
       list.push({ y: P.y, player: P });
       for (const a of this.sceneActors || []) list.push({ y: a.y, actor: a });
+      if (this.storyRun && this.world.story) this.drawStoryRoad(ctx, cam, list);
     }
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
       if (it.actor) { this.drawSceneActor(ctx, it.actor, cam, this.realTime || 0); continue; }
+      if (it.draw) { it.draw(); continue; }
       if (it.o) {
         let alpha = 1;
         if (P && it.o.fade && P.y < it.o.sortY - 1 && P.y > it.top + 6 && P.x > it.left + 3 && P.x < it.left + it.s.w - 3) alpha = 0.55;
@@ -1263,5 +1275,5 @@ export class Game {
   }
 }
 
-Object.assign(Game.prototype, Combat, Pickups, TownMode, SceneMode);
+Object.assign(Game.prototype, Combat, Pickups, TownMode, SceneMode, StoryRoad);
 export { HEROES, TAU };

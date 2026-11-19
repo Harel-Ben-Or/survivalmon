@@ -39,6 +39,7 @@ async function loadStoryArt(base = 'assets/sprites/story') {
   for (const [k, f] of Object.entries(FALLBACK)) if (!A[k]) A[k] = A[f];
   return (art = { ...A, P });
 }
+export const storyArt = () => loadStoryArt(); // the story pictures (the road to Hearthvale draws Hollis)
 
 // The scenes. t = seconds into the scene. text = the words; at = when they start typing;
 // auto = moves on by itself after that long. Positions are in backdrop units.

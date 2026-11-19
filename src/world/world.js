@@ -44,13 +44,19 @@ const LOOK = {
   fairy: { forest: 0.66, trees: 0.04, ponds: 0.3, house: 0.4, flowers: 34, rocks: 4, nodes: { wood: 1, clay: 1 } },
 };
 
+// The story's first run: the road from the ruins of Brightnest south to Hearthvale's North Gate, a
+// straight dirt road between walls of forest (tiles). x: the road's middle; hw: the clearing's half
+// width; things happen as you pass hatchY, ambushY, signY and chaseY; gateY: the arch at the end.
+export const STORY_ROAD = { x: 16, ruinY: 12, ruinR: 10, spawnY: 15, hw: 6, hatchY: 40, ambushY: 72, signY: 100, chaseY: 128, gateY: 164 };
+
 const key = (cx, cy) => (cx + 32768) * 65536 + (cy + 32768);
 const ihash = (a, b, c) => { let h = Math.imul(a ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(b + 0x632be5ab, 0xc2b2ae35) ^ Math.imul(c + 0x27d4eb2f, 0x165667b1); h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d); h ^= h >>> 12; return h >>> 0; };
 
 export class World {
-  constructor(seed = (Math.random() * 1e9) | 0) {
+  constructor(seed = (Math.random() * 1e9) | 0, opts = {}) {
     this.seed = seed;
     this.infinite = true;
+    this.story = opts.story ? STORY_ROAD : null; // the road to Hearthvale instead of the open wild
     this.chunks = new Map();
     this.objects = []; this.houses = []; this.nodes = []; this.lights = [];
     this.activeKey = null;
@@ -58,6 +64,7 @@ export class World {
     // the village plaza is in the middle of chunk (0, 0)
     this.center = { tx: CHUNK / 2, ty: CHUNK / 2 };
     this.spawn = { x: this.center.tx * TILE + 8, y: (this.center.ty + 3) * TILE };
+    if (this.story) this.spawn = { x: STORY_ROAD.x * TILE + 8 - 14, y: STORY_ROAD.spawnY * TILE };
     this.flowDist = new Int16Array(FLOW * FLOW);
     this.flowX0 = 0; this.flowY0 = 0;
     this.flowFrom = -1;
@@ -108,6 +115,7 @@ export class World {
 
   // ------------------------------------------------------------ zones
   zoneAt(tx, ty) {
+    if (this.story) return 'grass';
     if (Math.hypot(tx - this.center.tx, ty - this.center.ty) < 22) return 'grass'; // around the village
     const ci = Math.floor(tx / ZONE_CELL), cj = Math.floor(ty / ZONE_CELL);
     let best = Infinity, zone = 'grass';
@@ -263,6 +271,7 @@ class Chunk {
   // ------------------------------------------------------------ generation
   generate() {
     const W = this.world, s = this.seed;
+    if (W.story) { this.generateStory(); return; }
     const village = this.cx === 0 && this.cy === 0;
     // ground
     for (let ty = this.ty0; ty < this.ty0 + CHUNK; ty++) for (let tx = this.tx0; tx < this.tx0 + CHUNK; tx++) {
@@ -287,6 +296,53 @@ class Chunk {
     this.placeNodes();
   }
   look() { return LOOK[this.zone(this.tx0 + CHUNK / 2, this.ty0 + CHUNK / 2)]; }
+
+  // The road to Hearthvale: a scorched clearing round the crater where Brightnest stood, then a straight
+  // road south between walls of forest, to the town's North Gate. Small things lying about don't block.
+  generateStory() {
+    const R = this.world.story, s = this.seed;
+    for (let ty = this.ty0; ty < this.ty0 + CHUNK; ty++) for (let tx = this.tx0; tx < this.tx0 + CHUNK; tx++) {
+      const wob = (fbm(tx * 0.13, ty * 0.13, s + 3) - 0.5) * 4; // the forest's edge wanders a little
+      const dx = Math.abs(tx - R.x), dr = Math.hypot(tx - R.x, (ty - R.ruinY) * 1.15);
+      const ruins = dr <= R.ruinR + wob, road = ty > R.ruinY && ty < R.gateY && dx <= R.hw + wob;
+      const arch = ty >= R.gateY && ty <= R.gateY + 1 && dx <= 1;
+      let t = T.GRASS;
+      if (!ruins && !road && !arch) t = T.DARK;
+      else if (ruins && dr < R.ruinR - 3 && fbm(tx * 0.23, ty * 0.23, s + 9) > 0.53) t = T.ASH; // scorched patches
+      if (t !== T.DARK && dx <= 1 && ty >= R.ruinY + 1 && ty <= R.gateY + 1) t = T.DIRT;
+      const k = this.idx(tx, ty);
+      this.tiles[k] = t;
+      // the middle of the way stays clear (trees only near the forest's edge)
+      if (t !== T.DARK && (dx < R.hw - 1 || dr < R.ruinR - 2)) this.reserved[k] = 1;
+    }
+    // what's left of Brightnest: things scattered round the clearing (none of them block)
+    if (this.inb(R.x, R.ruinY)) {
+      const junk = ['crate_open', 'pot_broken', 'barrel_open', 'cart', 'hay', 'crate_open', 'pot_broken', 'barrel'];
+      junk.forEach((spr, i) => {
+        const a = i * 2.4 + 0.6, d = 5 + (i % 3) * 1.6;
+        const tx = Math.round(R.x + Math.cos(a) * d * 1.2), ty = Math.round(R.ruinY + Math.sin(a) * d * 0.8);
+        if (Math.abs(tx - R.x) <= 1 && ty > R.ruinY) return; // not on the road out
+        this.prop(spr, tx, ty, false);
+      });
+    }
+    // the signpost halfway, and berry bushes to brush past
+    if (this.inb(R.x + 3, R.signY)) this.prop('sign', R.x + 3, R.signY, false);
+    for (const [ox, oy] of [[-4, R.signY + 2], [4, R.signY - 3], [-3, R.ambushY - 6], [5, R.chaseY - 8]]) {
+      const tx = R.x + ox, ty = oy;
+      if (!this.inb(tx, ty)) continue;
+      this.add({ spr: 'bush_1', x: tx * TILE + 8, y: ty * TILE + 13, sortY: ty * TILE + 13 });
+    }
+    // Hearthvale's North Gate in the wall of trees at the end of the road
+    if (this.inb(R.x, R.gateY + 1)) {
+      const y = (R.gateY + 2) * TILE + 4;
+      this.add({ spr: 'town_gate', x: R.x * TILE + 8, y, sortY: y });
+      this.shadows.push({ x: R.x * TILE + 8, y: y - 2, rx: 46, ry: 7 });
+    }
+    this.placeTrees();
+    this.placeDecor();
+    // the forest is a wall here: the road is the only way
+    for (let k = 0; k < this.tiles.length; k++) if (this.tiles[k] === T.DARK && !this.solid[k]) this.solid[k] = SOLID.WALL;
+  }
 
   makeVillage() {
     const { tx: cx, ty: cy } = this.world.center;

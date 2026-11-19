@@ -23,6 +23,9 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const icon = (id, s = 3) => iconURL('icon', id, s);
 const runTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
+// What the arrow says about each stop of the tour
+const PLACE_WHY = { training: 'Spend coins on Run time', hatchery: 'Granny Wren is waiting', ranch: 'Where your survivalmons rest' };
+
 export const TownUI = {
   // ------------------------------------------------------------ town HUD
   showTown() {
@@ -43,6 +46,46 @@ export const TownUI = {
     this.last = {};
     this.touch.setVisible(this.g.touchMode);
     Input.endFrame();
+  },
+  // The arrow to the next place to go (Meta.nextPlace): over its door, with its name, or at the edge
+  // of the screen pointing the way when it's off screen. Hidden while anything else is going on.
+  updatePlaceArrow() {
+    const g = this.g, id = Meta.nextPlace();
+    let el = this.placeArrow;
+    const hide = () => { if (el) el.hidden = true; };
+    if (!id || g.mode !== 'town' || this.screen !== 'town' || g.townRoom || g.scene || g.modal || this.guide || this.modalKind) return hide();
+    let at = null, name = '', why = '';
+    if (id === 'gate') {
+      const n = g.town.npcs.find((x) => x.id === 'ollie');
+      if (n) { at = [n.x, n.y - 30]; name = 'Ollie, North Gate'; why = 'Head out on a run'; }
+    } else {
+      const d = g.town.doors.find((x) => x.id === id);
+      if (d) { at = [d.x, d.py - 4]; name = d.name; why = PLACE_WHY[id] || 'Just opened!'; }
+    }
+    if (!at) { Meta.visitPlace(id); return hide(); } // nowhere to point (no such door): skip it
+    if (!el) {
+      el = this.placeArrow = document.createElement('div');
+      el.className = 'place-arrow';
+      el.innerHTML = '<span class="pa-name"><b></b><small></small></span><span class="pa-tip">▼</span>';
+      this.root.appendChild(el);
+    }
+    el.hidden = false;
+    if (el.dataset.id !== id) { el.dataset.id = id; el.querySelector('b').textContent = name; el.querySelector('small').textContent = why; }
+    const p = g.worldToScreen(at[0], at[1]), W = this.root.clientWidth, H = this.root.clientHeight;
+    // kept clear of the HUD: the chips along the top, and taller stacks in the top corners
+    const mx = 70, bottom = H - 70, safeTop = (sx) => (sx < 140 || sx > W - 140 ? 92 : 50);
+    const on = p.x > 24 && p.x < W - 24 && p.y - 52 > safeTop(p.x) && p.y < H - 40;
+    let x = p.x, y = p.y;
+    if (!on) { x = Math.max(mx, Math.min(W - mx, x)); y = Math.max(safeTop(x) + 22, Math.min(bottom, y)); }
+    el.classList.toggle('edge', !on);
+    el.style.left = `${Math.round(x)}px`; el.style.top = `${Math.round(y)}px`;
+    // off screen, the tip sits on the side of the label facing the place, and points at it
+    if (on) { el.style.setProperty('--rot', '0deg'); el.style.setProperty('--dx', '0px'); el.style.setProperty('--dy', '0px'); }
+    else {
+      const a = Math.atan2(p.y - y, p.x - x), w = el.querySelector('.pa-name').offsetWidth / 2 + 10, h = 26;
+      el.style.setProperty('--rot', `${Math.round(a * 180 / Math.PI - 90)}deg`);
+      el.style.setProperty('--dx', `${Math.round(Math.cos(a) * w)}px`); el.style.setProperty('--dy', `${Math.round(Math.sin(a) * h)}px`);
+    }
   },
   updateTownHUD() {
     this.set('tcoins', this.th.coins, 'text', String(Meta.coins));
@@ -393,8 +436,10 @@ export const TownUI = {
     // an old save that has no look yet: ask once
     if (!Meta.gender && Meta.data.runs) { this.openCreator(false).then(() => this.storyBeats(found)); return true; }
     // the first time at Hearthvale: the townsfolk gather round you at the gate, Hollis's name, Granny Wren
-    if (!Meta.data.metWren && Meta.data.sawOpening && (Meta.data.runs || 0) <= 2) {
+    if (!Meta.data.metWren && Meta.data.sawOpening && ((Meta.data.runs || 0) <= 2 || this.g.fromRoad)) {
+      this.g.fromRoad = false;
       Meta.data.metWren = true;
+      Meta.data.tour = ['training', 'hatchery', 'ranch', 'gate']; // the arrow shows the way round town
       this.g.playScene(gateArrivalScene(this.g)).then(after(() => { if (!this.storyBeats(found)) this.tip('town'); }));
       return true;
     }

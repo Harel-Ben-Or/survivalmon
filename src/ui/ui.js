@@ -293,10 +293,11 @@ export class UI {
       if (!first) { H.zone.classList.remove('pulse'); void H.zone.offsetWidth; H.zone.classList.add('pulse'); }
     }
     const left = Math.max(0, g.runLength - g.time);
-    this.set('time', H.time, 'text', formatTime(Math.ceil(left)));
-    H.time.parentElement.classList.toggle('ending', left < 5.5 && !g.finalStand);
+    // the story's road has no clock: how far it still is to Hearthvale instead
+    this.set('time', H.time, 'text', g.storyRun ? `${g.roadLeft()} m` : formatTime(Math.ceil(left)));
+    H.time.parentElement.classList.toggle('ending', !g.storyRun && left < 5.5 && !g.finalStand);
     H.time.parentElement.classList.toggle('final', !!g.finalStand);
-    this.set('timeLbl', H.time.parentElement.querySelector('small'), 'text', g.finalStand ? 'defeat the Night Lord' : 'left');
+    this.set('timeLbl', H.time.parentElement.querySelector('small'), 'text', g.storyRun ? 'to Hearthvale' : g.finalStand ? 'defeat the Night Lord' : 'left');
     const m = g.dayMinute;
     const blight = Math.round(((g.dark?.dmg ?? 1) - 1) * 10) * 10; // how much harder monsters hit, to the nearest 10%
     this.set('phase', H.phase, 'text', `${m < 11 ? '☀' : m < 16 ? '🌅' : '☾'} ${blight === 0 ? '' : `${blight > 0 ? '+' : '−'}${Math.abs(blight)}%`}`.trim());
@@ -1005,6 +1006,7 @@ export class UI {
     }
     if (this.screen === 'select' && this.heroCanvases) this.drawSelect();
     if (this.g.mode === 'town' && this.screen === 'town') this.updateTownHUD();
+    this.updatePlaceArrow(); // the arrow to the next place in town (hides itself everywhere else)
     if ((this.g.mode === 'world' || this.g.mode === 'house') && this.screen === 'hud') {
       this.updateHUD();
       this.tickFeed();

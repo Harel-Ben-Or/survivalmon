@@ -292,7 +292,13 @@ export function moveInRoom(ent, dx, dy, rects) {
       const ox = ent.x - nx, oy = ent.y - ny;
       const d2 = ox * ox + oy * oy;
       if (d2 >= r * r) continue;
-      if (d2 === 0) { if (axis === 'x') ent.x -= d; else ent.y -= d; continue; }
+      if (d2 === 0) {
+        // the middle is inside the box (it never should be, but if so): out the shortest way, so you
+        // can't get stuck in it
+        const l = ent.x - R.x, rr = R.x + R.w - ent.x, t = ent.y - R.y, b = R.y + R.h - ent.y, m = Math.min(l, rr, t, b);
+        if (m === l) ent.x = R.x - r; else if (m === rr) ent.x = R.x + R.w + r; else if (m === t) ent.y = R.y - r; else ent.y = R.y + R.h + r;
+        continue;
+      }
       const dd = Math.sqrt(d2);
       ent.x = nx + (ox / dd) * r; ent.y = ny + (oy / dd) * r;
     }

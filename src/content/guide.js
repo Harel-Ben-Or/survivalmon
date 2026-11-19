@@ -29,7 +29,7 @@ export const TIPS = {
   run_start: [
     'Run! Those ink blobs crawled out of the star, and they are after you.',
     '{Move} to run. Your bow fires all by itself, so just keep moving. {Dash} for a quick dodge.',
-    { t: 'Your egg is warm: it will hatch any moment. Hold out until the clock at the top runs out to reach Hearthvale.', focus: '.hud-strip .timer' },
+    { t: 'Follow the road south to Hearthvale: the top of the screen shows how far it still is. Your egg is warm, and it will hatch on the way.', focus: '.hud-strip .timer' },
   ],
   levelup: [
     'Level up! The blue gems are EXP, and a full bar lets you pick one card. Each card shows the stat now and after.',
@@ -79,7 +79,7 @@ export const TIPS = {
     "Hearthvale is home now, {name}! Here you grow stronger between runs, and I know where everything is.",
     'Walk up to a door and {act} to go in. Every building has a keeper inside. Talk to them and pick their button to use it.',
     { t: 'Up here is what you brought home. Coins pay for almost everything. Spirit pays for the Spirit Shrine. Skyfall Shards are rare treasure.', focus: '.town-hud .town-chip:first-child' },
-    "First stop: Coach Hale's Training Hall. Spend your coins on Run time so your next run lasts longer. Then talk to Ollie at the North Gate to head out!",
+    "Follow the arrow and I'll show you round! First stop: Coach Hale's Training Hall. Spend your coins on Run time so your next run lasts longer.",
   ],
   b_training: [
     "Coach Hale's upgrades make your hero stronger for good. Run time is the big one: longer runs bring more coins.",

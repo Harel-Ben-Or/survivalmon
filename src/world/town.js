@@ -108,7 +108,7 @@ export class Town {
     this.objects.push({ spr, x, y, sortY: y, fade });
     if (fw) this.solid(x - fw / 2, y - fh, fw, fh);
   }
-  tree(spr, x, y) { this.prop(spr, x, y, 10, 5, true); this.shadows.push({ x, y: y - 1, rx: 13, ry: 5 }); }
+  tree(spr, x, y) { this.prop(spr, x, y, 6, 3, true); this.shadows.push({ x, y: y - 1, rx: 13, ry: 5 }); } // only the trunk blocks
   decal(name, x, y) { this.baked.push({ name, pc: PC[name], x: Math.round(x), y: Math.round(y) }); }
 
   building(b) {
@@ -134,8 +134,9 @@ export class Town {
       this.doors.push({ ...b, x: x + m * 2.5, y: y - 30, py: y - s.h + 4, mid: [x + m * 2.5, y - 30], toTown: [-m, 0], baseY: y });
       return;
     }
-    // walls: the lower half of the sprite; the roof above it can hide the hero walking behind
-    this.solid(x - s.w * 0.42, y - s.h * 0.5, s.w * 0.84, s.h * 0.5 - 5);
+    // walls: the lower half of the sprite, a little in from its corners (eaves and bushes don't snag
+    // you); the roof above it can hide the hero walking behind
+    this.solid(x - s.w * 0.38, y - s.h * 0.5, s.w * 0.76, s.h * 0.5 - 5);
     this.doors.push({ ...b, x, y: y + 4, py: y - 30 });
     this.skirt(b, x, y, s);
   }
@@ -154,7 +155,7 @@ export class Town {
       this.decal(this.r() < 0.55 ? this.pick(FLOWERS) : this.pick(['tuft', 'tuft', 'tuft_d']), px - 3, y - 2 + this.r() * 5);
     }
     for (const [spr, dx, dy] of DECOR[b.id] || []) {
-      this.prop(spr, x + dx, y + dy, spr === 'town_dummy' || spr === 'hay' ? 10 : 8, 4);
+      this.prop(spr, x + dx, y + dy, 0); // barrels, hay, dummies by the doors: you walk past them, never stuck
       this.shadows.push({ x: x + dx, y: y + dy - 1, rx: Math.max(5, (SPR[spr]?.w || 10) * 0.4), ry: 2.5 });
     }
   }
@@ -227,20 +228,21 @@ export class Town {
     // a pond in the south with lily pads on it
     this.disc(T.WATER, 20.5, 25, 1.7);
     for (const [x, y] of [[19.5, 24.3], [21.2, 25.1], [20.1, 25.8]]) this.decal(this.pick(['lily_0', 'lily_1', 'lily_2']), x * TILE, y * TILE);
-    this.solid(19 * TILE + 2, 23.6 * TILE + 4, 4 * TILE - 4, 3 * TILE - 4);
+    // the water only (two boxes round the oval, so you can walk past its grassy corners)
+    this.solid(19 * TILE + 2, 24.4 * TILE, 4 * TILE - 4, 1.6 * TILE); this.solid(19.6 * TILE + 2, 23.6 * TILE + 4, 2.8 * TILE - 4, 3 * TILE - 4);
     for (const b of BUILDINGS) {
       if (SPR[b.spr]) this.building(b);
       else if (b.door) this.doors.push({ ...b, x: b.door[0] * TILE + 8, y: b.door[1] * TILE + 8, py: b.door[1] * TILE - 26 }); // art missing: the door still works
     }
     // the square: the well in the middle and a lamp at each corner
-    const [wx, wy] = at(GX, 13); this.prop('well', wx, wy, 26, 9);
+    const [wx, wy] = at(GX, 13); this.prop('well', wx, wy, 22, 7);
     this.shadows.push({ x: wx, y: wy - 2, rx: 16, ry: 5 });
-    for (const [x, y] of [[16, 9.6], [24.6, 9.6], [15.6, 17], [21.4, 19.6]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 6, 4); }
+    for (const [x, y] of [[16, 9.6], [24.6, 9.6], [15.6, 17], [21.4, 19.6]]) { const [px, py] = at(x, y); this.prop('lamp', px, py, 0); }
     // Ranch: the pasture beside the Ranch house, where every survivalmon you own roams, with the
     // training dummies in it (you go in through the house)
     this.fenceRect(27, 18, 38, 26); // its west side runs into the house's wall
     this.pasture = { x0: 28 * TILE + 4, y0: 19 * TILE + 8, x1: 38 * TILE - 4, y1: 26 * TILE + 2 };
-    for (const [x, y] of [[28.8, 25.6], [29.9, 25.8]]) this.prop('hay', x * TILE, y * TILE, 16, 6);
+    for (const [x, y] of [[28.8, 25.6], [29.9, 25.8]]) this.prop('hay', x * TILE, y * TILE, 0);
     this.nests = [[15.4, 23.3], [16.6, 23.7], [17.8, 23.3]].map(([x, y]) => ({ x: x * TILE, y: y * TILE }));
     // trees in the gaps behind the buildings, and a few in the open
     for (const [s, x, y] of [
@@ -251,7 +253,7 @@ export class Town {
     ]) this.tree(s, x * TILE, y * TILE);
     for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19],
       ['bush_0', 22.6, 29.4], ['rock', 33.6, 30.4], ['stump', 4.8, 29.6]]) {
-      this.prop(s, x * TILE, y * TILE, 8, 4); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 });
+      this.prop(s, x * TILE, y * TILE, 0); this.shadows.push({ x: x * TILE, y: y * TILE - 1, rx: 7, ry: 2.5 }); // walk-through
     }
     this.flowers(150, 2, 2, this.w - 3, this.h - 3);
     // a flower meadow round the Hatchery
@@ -694,6 +696,7 @@ export const TownMode = {
     }
     if (!d.open) { this.toast(`${d.name}: ${UNLOCK_TEXT[d.id] || 'opens later'}.`); return; }
     this.ui.prompt(null);
+    Meta.visitPlace(d.id);
     // most buildings are rooms with their keeper inside; the Merchant is the stall, served by Mags
     if (TOWN_ROOM_IDS.includes(d.id)) { this.enterTownRoom(d); return; }
     const mags = d.id === 'merchant' && this.town.npcs.find((n) => n.id === 'mags');
@@ -711,6 +714,7 @@ export const TownMode = {
     n.dir = dir8(Math.atan2(P.y - n.y, P.x - n.x));
     n.talking = true;
     this.ui.prompt(null);
+    if (NPCS[n.id]?.gate === 'north') Meta.visitPlace('gate'); // the tour's last stop: Ollie lets you out
     Audio.play('click');
     this.ui.openTalk(n);
   },

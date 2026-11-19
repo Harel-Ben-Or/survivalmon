@@ -120,10 +120,19 @@ export const Meta = {
 
   // ---------------------------------------------------------- buildings
   isUnlocked(id) { return !!this.data.unlocked[id]; },
+  // The arrow in town: the next stop of a new player's tour (tour: building ids, 'gate' = Ollie at the
+  // North Gate), else a building that just opened. visitPlace ticks one off.
+  nextPlace() { return this.data.tour?.[0] || this.data.newPlaces?.[0] || null; },
+  visitPlace(id) {
+    let changed = false;
+    for (const k of ['tour', 'newPlaces']) if (this.data[k]?.includes(id)) { this.data[k] = this.data[k].filter((x) => x !== id); changed = true; }
+    if (changed) this.save();
+  },
   // Returns true the first time a building opens.
   unlock(id) {
     if (this.data.unlocked[id]) return false;
     this.data.unlocked[id] = true;
+    (this.data.newPlaces ||= []).push(id); // the arrow in town points at it until you go in
     this.save();
     return true;
   },
