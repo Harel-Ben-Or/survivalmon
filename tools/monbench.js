@@ -1,6 +1,7 @@
 // Survivalmon species bench: for each species, a team of 3 of it at the same level, with the same
 // skill grade (B) and a passive that does nothing in a fight, against a crowd that is topped up, with
-// the hero immortal, standing still and unarmed. Reports the team's damage per second (no overkill),
+// the hero immortal, standing still and unarmed. Reports the team's damage per second (no overkill, burns
+// and poison included),
 // how much of the time its members spent fainted, and its kills.
 // Use it in the dev page console ON A THROWAWAY PROFILE (it adds survivalmons and removes them again):
 //   const { monbench } = await import('/tools/monbench.js'); const r = await monbench({ level: 30, gate: 1 })
@@ -26,29 +27,35 @@ export async function monbench(cfg = {}) {
       P.hurt = () => false;
       g.director.update = () => {};
       const spawn = (n) => { for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, d = 70 + Math.random() * 120; g.spawnEnemy(types[(Math.random() * types.length) | 0], P.x + Math.cos(a) * d, P.y + Math.sin(a) * d); } };
-      spawn(crowd);
+      // cfg.boss: one huge foe that never dies, 60 px away, alone (only damage to it counts)
+      let boss = null;
+      if (cfg.boss) { boss = g.spawnEnemy('golem', P.x + 60, P.y); boss.boss = true; boss.maxHp = boss.hp = 1e9; boss.knockRes = 1; }
+      else spawn(crowd);
       let dmg = 0, faintT = 0, kills0 = P.kills;
       const proto = Object.getPrototypeOf(g), base = proto.damageEnemy;
-      proto.damageEnemy = function (e, b, o = {}) { const before = Math.max(0, e.hp); const r = base.call(this, e, b, o); if (o.pet) dmg += Math.min(r.dmg, before); return r; };
+      // the hero is unarmed, so every hit (burns and poison ticks too, which aren't marked as the
+      // survivalmons') is the team's
+      proto.damageEnemy = function (e, b, o = {}) { const before = Math.max(0, e.hp); const r = base.call(this, e, b, o); if (!boss || e === boss) dmg += Math.min(r.dmg, before); return r; };
       try {
         for (let f = 0; f < secs * 30 && g.mode === 'world'; f++) {
           if (g.modal) { g.ui.closeModal(); g.modal = null; }
-          if (f % 60 === 0) { const alive = g.enemies.filter((e) => !e.dead).length; if (alive < crowd) spawn(crowd - alive); }
+          if (boss) { boss.x = P.x + 60; boss.y = P.y; boss.hp = 1e9; }
+          else if (f % 60 === 0) { const alive = g.enemies.filter((e) => !e.dead).length; if (alive < crowd) spawn(crowd - alive); }
           g.update(1 / 30);
           faintT += P.pets.filter((p) => p.fainted).length / 30;
           if (f % 300 === 0) await sleep(0);
         }
       } finally { proto.damageEnemy = base; }
-      const kills = P.kills - kills0;
+      const kills = P.kills - kills0, pool = Math.round(g.monPool || 0);
       g.endRun('quit'); g.ui.closeModal(); g.modal = null;
       for (const m of mons) Box.remove(m.id);
-      out.push({ sp, name: SPECIES[sp].name, arch: SPECIES[sp].arch, type: SPECIES[sp].type, dps: Math.round(dmg / secs), down: +(faintT / (3 * secs)).toFixed(2), kills });
+      out.push({ sp, name: SPECIES[sp].name, arch: SPECIES[sp].arch, type: SPECIES[sp].type, dps: Math.round(dmg / secs), down: +(faintT / (3 * secs)).toFixed(2), kills, pool });
       await sleep(0);
     }
   }
   Box.data.team = team0; Meta.data.gateTier = tier0; Box.save(); Meta.save();
   // average the repeats
   const by = {};
-  for (const r of out) { const o = (by[r.sp] ||= { ...r, dps: 0, down: 0, kills: 0, n: 0 }); o.dps += r.dps; o.down += r.down; o.kills += r.kills; o.n++; }
-  return Object.values(by).map((o) => ({ sp: o.sp, name: o.name, arch: o.arch, type: o.type, dps: Math.round(o.dps / o.n), down: +(o.down / o.n).toFixed(2), kills: Math.round(o.kills / o.n) })).sort((a, b) => b.dps - a.dps);
+  for (const r of out) { const o = (by[r.sp] ||= { ...r, dps: 0, down: 0, kills: 0, pool: 0, n: 0 }); o.dps += r.dps; o.down += r.down; o.kills += r.kills; o.pool += r.pool; o.n++; }
+  return Object.values(by).map((o) => ({ sp: o.sp, name: o.name, arch: o.arch, type: o.type, dps: Math.round(o.dps / o.n), down: +(o.down / o.n).toFixed(2), kills: Math.round(o.kills / o.n), pool: Math.round(o.pool / o.n) })).sort((a, b) => b.dps - a.dps);
 }

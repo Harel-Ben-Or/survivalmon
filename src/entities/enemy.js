@@ -121,7 +121,7 @@ export class Enemy {
       if (Math.random() < dt * 8) g.particles.add({ x: this.x + rand(-4, 4), y: this.y - rand(4, 12), vx: 0, vy: -20, life: 0.35, color: Math.random() < 0.5 ? '#f6a03a' : '#e0483e' });
       if (this.burnTick <= 0) {
         this.burnTick = 0.5;
-        if (this.burnAcc > 0) g.damageEnemy(this, this.burnAcc, { raw: true, small: true, silent: true, element: 'fire' });
+        if (this.burnAcc > 0) g.damageEnemy(this, this.burnAcc, { raw: true, small: true, silent: true, element: 'fire', by: this.burnBy || null });
         this.burnAcc = 0;
       }
       if (this.burn && this.burn.t <= 0) this.burn = null;

@@ -386,7 +386,7 @@ export const Combat = {
     e.hp -= dmg;
     e.flash = 0.1;
     if (o.petRef?.pass.vamp) o.petRef.heal(dmg * o.petRef.pass.vamp);
-    if (o.burn) e.burn = { dps: o.burn * S.burnMult * S.might, t: 3 * S.duration };
+    if (o.burn) { e.burn = { dps: o.burn * S.burnMult * S.might, t: 3 * S.duration }; e.burnBy = o.petRef || null; } // whose burn it is (enemy.js passes it back as o.by)
     if (o.chill) e.chill = Math.max(e.chill, o.chill * S.duration);
     if (S.chillChance && Math.random() < S.chillChance) e.chill = Math.max(e.chill, 1.5);
     if (o.freeze) { if (e.boss) e.chill = Math.max(e.chill, o.freeze); else e.freeze = Math.max(e.freeze, o.freeze); }
@@ -407,7 +407,7 @@ export const Combat = {
     this.runStats.damage += dmg;
     // who did the damage (no overkill counted): your hero's weapons or your survivalmons
     const dealt = Math.min(dmg, hpBefore);
-    if (o.pet) this.runStats.monDmg = (this.runStats.monDmg || 0) + dealt; else this.runStats.heroDmg = (this.runStats.heroDmg || 0) + dealt;
+    if (o.pet || o.by) this.runStats.monDmg = (this.runStats.monDmg || 0) + dealt; else this.runStats.heroDmg = (this.runStats.heroDmg || 0) + dealt;
     if (e.hp <= 0) { if (e.wild) this.catchWild(e, o); else this.killEnemy(e, o); }
     else if (!o.silent) Audio.play('hit');
     // a weapon evolve that adds to your survivalmons' hits (Pip's sling)
@@ -431,7 +431,7 @@ export const Combat = {
     const P = this.player, S = P.stats;
     P.kills++;
     Box.foeKilled(e.type, this.tier || 0);
-    if (o.pet) P.spirit += (e.boss ? 20 : e.elite ? 2 : 0.2) * (this.tierMult?.spirit || 1); // Spirit for what your survivalmons defeat
+    if (o.pet || o.by) P.spirit += (e.boss ? 20 : e.elite ? 2 : 0.2) * (this.tierMult?.spirit || 1); // Spirit for what your survivalmons defeat (their burns too)
     const cx = e.x, cy = e.y - 4;
     this.particles.burst(cx, cy - 4, { n: e.boss ? 60 : 8, colors: e.colors, speed: e.boss ? 140 : 70, life: 0.45, size: e.boss ? 2 : 1 });
     if (e.art?.anim?.faint && (e.boss || this.effects.length < 160)) {
@@ -461,7 +461,8 @@ export const Combat = {
     // (1 EXP for every mon on the team, so once it's split each one gets 1 EXP per kill the team makes:
     // berries used to feed every survivalmon EXP; now the kills carry it all. This matches the old game's
     // pace; at 2 the bots' teams earned about 1.9x the old EXP per kill and neared Lv 70 by run 50)
-    if (o.petRef) this.monPool = (this.monPool || 0) + Math.max(1, P.pets.length) * (this.tierMult?.petXp || 1);
+    // (a survivalmon's burn that finishes a foe counts too: o.by)
+    if (o.petRef || o.by) this.monPool = (this.monPool || 0) + Math.max(1, P.pets.length) * (this.tierMult?.petXp || 1);
     Audio.play('kill');
   },
 
@@ -520,7 +521,7 @@ export const Combat = {
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
-    if (o.petRef) this.monPool = (this.monPool || 0) + 4 * Math.max(1, P.pets.length);
+    if (o.petRef || o.by) this.monPool = (this.monPool || 0) + 4 * Math.max(1, P.pets.length);
     // a freed survivalmon leaves 5 berries as its thanks
     for (let i = 0; i < 5; i++) this.spawnPickup('berry', e.x + rand(-12, 12), e.y + rand(-8, 8));
     Audio.play('hatch'); setTimeout(() => Audio.play('chest'), 250);
