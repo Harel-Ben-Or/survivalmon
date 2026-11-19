@@ -159,8 +159,10 @@ export class Pet {
     const side = P.faceAngle + (index % 2 ? -0.8 : 0.8);
     let tp = trail.length > need ? trail[need]
       : { x: P.x - Math.cos(side) * 22 * (index + 1), y: P.y - Math.sin(side) * 9 * (index + 1) };
+    // in a story scene, stand beside the hero (on the trail it can end up right in front, hiding them)
+    if (g.scene) tp = { x: P.x + (g.scene.petSide || 1) * (index % 2 ? -1 : 1) * 20 * (1 + (index >> 1)), y: P.y + 3 };
     // an aura survivalmon steps into foes that come close to the hero, so its aura has something to hit
-    if (this.guard && !this.fainted && !inRoom) { const e = g.nearestEnemy(P.x, P.y, 80); if (e) tp = e; }
+    else if (this.guard && !this.fainted && !inRoom) { const e = g.nearestEnemy(P.x, P.y, 80); if (e) tp = e; }
     this.hopT = Math.max(0, this.hopT - dt);
     if (this.state === 'roll' && !this.fainted) { this.updateRoll(dt); return; }
     const dx = tp.x - this.x, dy = tp.y - this.y;

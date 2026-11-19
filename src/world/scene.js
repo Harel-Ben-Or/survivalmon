@@ -174,6 +174,12 @@ export const SceneMode = {
     else if (b?.all && !movers.some((a) => a.walking)) this.nextSceneStep();
     else if (b?.wait && (S.waitT -= dt) <= 0) this.nextSceneStep();
     else if (b?.say) {
+      // someone who starts talking on the way over: you keep turning to them (they face where they walk,
+      // and turn to you once they stop)
+      if (!b.say.you) {
+        if (b.say.walking) { this.faceActor(this.sceneActor('you'), b.say.x, b.say.y); b.say.wasWalking = true; }
+        else if (b.say.wasWalking) { b.say.wasWalking = false; this.faceActor(b.say, P.x, P.y); this.faceActor(this.sceneActor('you'), b.say.x, b.say.y); }
+      }
       S.typed = Math.min(b.text.length, S.typed + dt * TYPE_SPEED);
       this.placeSceneBubble(b.say, Math.floor(S.typed));
     }
@@ -187,7 +193,18 @@ export const SceneMode = {
     }
     this.updateEffects(dt);
     this.particles.update(dt);
-    this.followCamera(dt);
+    this.sceneCamera(dt);
+  },
+  // The camera frames you and whoever is talking (halfway between, a little higher for their bubble),
+  // and holds that framing between lines instead of swinging back to you.
+  sceneCamera(dt) {
+    const P = this.player, S = this.scene, s = S.block?.say;
+    if (s && !s.you && Math.abs(s.x - P.x) < this.view.w * 0.7 && Math.abs(s.y - P.y) < this.view.h * 0.7) S.focus = { x: (P.x + s.x) / 2, y: (P.y + s.y) / 2 - 12 };
+    else if (s?.you) S.focus = null;
+    const f = S.focus || { x: P.x, y: P.y - 8 };
+    const tx = f.x - this.view.w / 2, ty = f.y - this.view.h / 2, k = 1 - Math.exp(-4 * dt);
+    this.cam.x += (tx - this.cam.x) * k; this.cam.y += (ty - this.cam.y) * k;
+    this.clampCamera();
   },
 
   // ---------------------------------------------------------------- drawing (renderTown / renderWorld add these to their y-sorted lists)
@@ -263,9 +280,15 @@ export const SceneMode = {
     const x = a.you ? this.player.x : a.x, y = a.you ? this.player.y : a.y;
     const p = this.worldToScreen(x, y - 38), W = this.ui.root.clientWidth, H = this.ui.root.clientHeight;
     const w = el.offsetWidth, h = el.offsetHeight;
-    let left = Math.round(p.x - w / 2), top = Math.round(p.y - h - 6);
+    let left = Math.round(p.x - w / 2);
     left = Math.max(8, Math.min(W - w - 8, left));
-    if (top < 8) top = Math.round(this.worldToScreen(x, y + 8).y + 6); // no room above: under them instead
+    // over their head; but someone standing in front of you (lower on the screen) talks from under
+    // their feet, so the bubble doesn't cover you and the others behind them
+    const above = Math.round(p.y - h - 6), below = Math.round(this.worldToScreen(x, y + 8).y + 6);
+    const front = !a.you && y > this.player.y + 12;
+    let top = front ? below : above;
+    if (front && top + h > H - 8 && above >= 8) top = above; // no room under them
+    if (!front && top < 8) top = below;                       // no room above
     top = Math.max(8, Math.min(H - h - 8, top));
     el.style.left = `${left}px`; el.style.top = `${top}px`;
     // the little tail points at the speaker

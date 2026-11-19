@@ -100,6 +100,7 @@ export async function playOpening({ root = document.body, replay = false, onPick
       ${choosing ? `<div class="story-egg-info"><b>${esc(SPECIES[choosing].name)} egg</b> ${SPECIES[choosing].types.map((ty) => `<span class="rar type-pill" style="background:${TYPES[ty].color}">${TYPES[ty].name}</span>`).join(' ')} <span>${esc(SPECIES[choosing].desc)}</span></div>
         <button class="btn story-carry">Carry the ${esc(SPECIES[choosing].name)} egg</button>` : '<div class="story-egg-info"><span>Tap an egg to look at it.</span></div>'}`;
     pickEl.classList.remove('hidden');
+    el.classList.add('picking'); // Skip hides while you choose (it would only sit under the eggs)
   };
   const go = (n) => {
     i = n; t = 0; shown = 0; cueDone.clear();
@@ -133,7 +134,7 @@ export async function playOpening({ root = document.body, replay = false, onPick
   const choose = (id) => {
     picked = id;
     Audio.play('hatch');
-    pickEl.classList.add('hidden');
+    pickEl.classList.add('hidden'); el.classList.remove('picking');
     onPick?.(id);
     go(i + 1);
   };

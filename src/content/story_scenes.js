@@ -19,8 +19,8 @@ const guardOf = (side) => NPC_IDS.find((i) => NPCS[i].gate === side);
 // stops you, the townsfolk gather round, frightened; you say Hollis's name; Granny Wren comes through
 // the crowd and vouches for you; then Moss runs up to meet your survivalmon.
 export function gateArrivalScene(g) {
-  const at = gateFrame(g, 'north'), L = GATE_LINES, pet = g.player.pets[0];
-  const near = pet ? [Math.round(pet.x), Math.round(pet.y)] : at(16, 18);
+  const at = gateFrame(g, 'north'), L = GATE_LINES, P = g.player;
+  const near = [Math.round(P.x + 20), Math.round(P.y + 3)]; // where your survivalmon stands in a scene (Pet.update)
   return [
     { wait: 0.7 },
     { emote: 'ollie', icon: '!' },
@@ -30,6 +30,7 @@ export function gateArrivalScene(g) {
     { walk: 'tib', from: at(165, 80), to: at(30, 36), run: true, wait: false },
     { walk: 'fen', from: at(200, -12), to: at(52, -10), wait: false },
     { wait: 0.5 },
+    { face: 'you', to: at(40, 0) }, // you turn to the crowd coming at you
     { say: 'ollie', text: L.ollie },
     { together: true },
     { emote: 'juniper', icon: '!' },
@@ -57,7 +58,7 @@ export function gateArrivalScene(g) {
     { walk: 'juniper', to: at(150, -120), wait: false },
     { wait: 1.0 },
     // and Moss can't wait any longer
-    { walk: 'moss', from: at(60, -190), to: [near[0] - 16, near[1] + 2], run: true },
+    { walk: 'moss', from: at(60, -190), to: [near[0] + 18, near[1] + 2], run: true },
     { face: 'moss', to: near },
     { emote: 'moss', icon: '♥' },
     { say: 'moss', text: L.moss },
@@ -68,12 +69,14 @@ export function gateArrivalScene(g) {
 // A friend found out in the wild, right after the Night Lord of that gate's Lv 1 falls: they come
 // running from the edge of the screen. id: rowanf, bram, lyra or pip.
 export function reunionScene(g, id) {
-  const P = g.player, s = Math.random() < 0.5 ? -1 : 1, far = Math.round(g.view.w / 2 + 30);
+  const P = g.player, s = -1, far = Math.round(g.view.w / 2 + 30); // from your left: your survivalmon stands on your right
   const lines = FRIEND_REUNION[id] || [];
   return [
     { wait: 0.8 },
     { spawn: id, at: [P.x + s * far, P.y + 6], art: 'hero' },
     { walk: id, to: [P.x + s * 26, P.y + 4], run: true },
+    { face: 'you', to: id },
+    { face: id, to: 'you' },
     { emote: id, icon: '!' },
     { wait: 0.4 },
     ...lines.map(([who, text]) => ({ say: who === 'friend' ? id : who, text })),
@@ -84,13 +87,25 @@ export function reunionScene(g, id) {
 
 // Back in town with a friend you found: they walk in with you, the gate's guard and Tib come up
 export function friendTownScene(g, id, side) {
-  const at = gateFrame(g, side), guard = guardOf(side), T = FRIEND_TOWN;
+  const at = gateFrame(g, side), guard = guardOf(side), T = FRIEND_TOWN, P = g.player;
+  // Around you on the screen, kept clear of the gate's posts: your friend on one side, your survivalmon
+  // on the other (pet: which side), the guard and Tib on the town side of you. [dx, dy] from you.
+  const L = {
+    north: { pet: 1, friend: [-24, -2], guard: [-10, 30], tib: [30, 28] },
+    south: { pet: 1, friend: [-24, -2], guard: [-10, -30], tib: [30, -32] },
+    east: { pet: 1, friend: [-24, -2], guard: [8, 30], tib: [-30, 28] },
+    west: { pet: -1, friend: [24, -2], guard: [-8, 30], tib: [30, 28] },
+  }[side] || { pet: 1, friend: [-24, -2], guard: [-10, 30], tib: [30, 28] };
+  const by = ([dx, dy]) => [Math.round(P.x + dx), Math.round(P.y + dy)];
   return [
-    { spawn: id, at: at(4, -22), art: 'hero' },
+    { run: (gm) => { gm.scene.petSide = L.pet; } },
+    { spawn: id, at: by(L.friend), art: 'hero' },
+    { face: 'you', to: at(40, 0) },
+    { face: id, to: at(40, 0) },
     { wait: 0.6 },
-    guard && { walk: guard, to: at(16, 26) },
+    guard && { walk: guard, to: by(L.guard) },
     guard && { say: guard, text: T.guard },
-    { walk: 'tib', from: at(170, 40), to: at(34, 10), run: true },
+    { walk: 'tib', from: at(170, -40), to: by(L.tib), run: true },
     { emote: 'tib', icon: '!' },
     { say: 'tib', text: T.tib },
     { say: id, text: T[id] },
@@ -104,7 +119,8 @@ export function endingScene(g, side) {
   const at = gateFrame(g, side);
   return [
     { spawn: 'wren', at: at(180, 0) },
-    { walk: 'wren', to: at(24, 0) },
+    { face: 'you', to: at(40, 0) },
+    { walk: 'wren', to: [Math.round(g.player.x - 6), Math.round(g.player.y + (side === 'south' ? -28 : 28))] }, // on the town side of you, clear of your survivalmon
     ...ENDING_TALK.map((l) => ({ say: l.who, text: l.text })),
     { walk: 'wren', to: at(180, 0), wait: false },
     { wait: 1.2 },
