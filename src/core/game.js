@@ -822,12 +822,13 @@ export class Game {
     this.particles.burst(x, y - 6, { n: 16, colors: ['#ffe07a', '#ffffff'], speed: 60, life: 0.5, up: 20 });
     Audio.play('chest');
   }
-  // Berries heal a little and fill the team's berry bar; a full bar is a team upgrade (5, 7, 9... berries)
+  // Berries heal a little and fill the team's berry bar; a full bar is a team upgrade (5, 7, 9... berries).
+  // They drop about 4 times as often as before the berry bar, so each one heals a quarter as much.
   feedTeam(n) {
     const P = this.player;
-    P.heal(2 * n);
+    P.heal(0.5 * n);
     if (!P.pets.length) { this.toast('Berries! (+HP) Bring survivalmons: berries power them up.'); return; }
-    for (const pet of P.pets) pet.heal(3 * n);
+    for (const pet of P.pets) pet.heal(0.75 * n);
     if (P.berries == null) { P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; }
     P.berries += n;
     while (P.berries >= P.teamNext) { P.berries -= P.teamNext; P.teamNext += 2; P.teamPicks++; }
