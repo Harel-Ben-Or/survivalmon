@@ -9,7 +9,7 @@ import { SHARD_DROP } from '../content/shop.js';
 import { Box, rollSkills } from './collection.js';
 import { Meta } from './meta.js';
 import { LANTERN } from '../entities/enemy.js';
-import { dmgMarks } from '../content/wcore.js';
+import { dmgMarks, tryFreeze } from '../content/wcore.js';
 
 export const Combat = {
   // ------------------------------------------------------------ queries
@@ -389,7 +389,7 @@ export const Combat = {
     if (o.burn) { e.burn = { dps: o.burn * S.burnMult * S.might, t: 3 * S.duration }; e.burnBy = o.petRef || null; } // whose burn it is (enemy.js passes it back as o.by)
     if (o.chill) e.chill = Math.max(e.chill, o.chill * S.duration);
     if (S.chillChance && Math.random() < S.chillChance) e.chill = Math.max(e.chill, 1.5);
-    if (o.freeze) { if (e.boss) e.chill = Math.max(e.chill, o.freeze); else e.freeze = Math.max(e.freeze, o.freeze); }
+    if (o.freeze) tryFreeze(e, o.freeze); // a boss is only chilled; no freeze again right after a thaw
     if (o.stun && !e.boss) e.stun = Math.max(e.stun, o.stun);
     if (o.root) e.root = Math.max(e.root, o.root);
     if (o.knock) {

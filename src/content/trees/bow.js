@@ -1,7 +1,7 @@
 // The Hunter Bow's tree (see evolve.js for how trees work, and the weapons doc for the design).
 import { Audio } from '../../core/audio.js';
 import { TAU, rand } from '../../core/util.js';
-import { ELEMENTS, addPoison, wHit, strongest, biggestGroup, fireZone, poisonZone, iceZone, lineHit, fanAngles, step } from '../wcore.js';
+import { ELEMENTS, addPoison, wHit, strongest, biggestGroup, fireZone, poisonZone, iceZone, lineHit, fanAngles, step, tryFreeze } from '../wcore.js';
 
 // ------------------------------------------------------------ the bow
 export const BOW = {
@@ -351,12 +351,12 @@ function bowHit(g, p, e) {
   if (st.r2 === 'blast' && p.target0 === e && !p.blasted) { p.blasted = true; blastAt(g, st, e.x, e.y); }
   if (st.r2 === 'hunt' && p.target0 === e && st.el === 'bolt') { g.strike(e.x, e.y); g.damageEnemy(e, dmg * 0.5, { element: 'light', small: true, silent: true }); }
   if (hawk?.full) {
-    if (st.el === 'ice') { e.freeze = Math.max(e.freeze, e.boss ? 0 : 1); if (e.boss) e.chill = Math.max(e.chill, 1); hawk.n = 0; }
+    if (st.el === 'ice') { tryFreeze(e, 1); hawk.n = 0; }
     if (st.el === 'bolt') { g.strike(e.x, e.y); g.damageEnemy(e, dmg * 0.5, { element: 'light', small: true, silent: true }); }
   }
   if (p.ring && st.el === 'glow' && g.ringHeal?.id === p.ring && g.ringHeal.n < 10) { g.ringHeal.n++; P.heal(1); }
   if (st.r2 === 'luck' && res.crit) {
-    if (st.el === 'ice') { if (e.boss) e.chill = Math.max(e.chill, 1); else e.freeze = Math.max(e.freeze, 1); }
+    if (st.el === 'ice') tryFreeze(e, 1);
     if (st.el === 'poison') addPoison(e, 0.15 * dmg, 2, 5);
     if (st.el === 'bolt') { g.strike(e.x, e.y); g.damageEnemy(e, dmg, { element: 'light', small: true, silent: true }); }
     if (st.el === 'glow' && (g.gleamT || 0) <= g.time) { g.gleamN = (g.gleamT || 0) + 1 > g.time ? (g.gleamN || 0) : 0; if ((g.gleamN = (g.gleamN || 0) + 1) >= 5) g.gleamT = g.time + 1; P.heal(1); }

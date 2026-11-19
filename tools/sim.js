@@ -2,7 +2,7 @@
 // Use it in the dev page console ON A THROWAWAY PROFILE (it overwrites that save):
 //   const { sim } = await import('/tools/sim.js');
 //   await sim({ training: { armor: 10 }, team: [['voltowl', 6], ['emberpup', 6]], seconds: 300 })
-// cfg: training (Training Hall levels), team ([species, level] pairs), hero, seconds (run length),
+// cfg: training (Training Hall levels), team ([species, level] pairs), hero, main (a fixed main weapon), seconds (run length),
 //      pick ('random' | 'hero' | 'mons': which level-up card the bot takes), seed (repeat runs).
 //      idle (true: the hero stands still the whole run), lazy (true: walks to EXP and coins, never dodges), skills ([[k, id|sp, tier]] extra skills per mon).
 // The bot dodges like tools/bot.js: away from nearby monsters, harder from bosses.
@@ -24,6 +24,7 @@ export async function sim(cfg = {}) {
   Box.data.mons = []; Box.data.team = []; Box.data.upgrades = {}; Box.data.firstHatch = false;
   for (const [sp, lv, extra] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }, ...(extra || [])] });
   g.startRun(cfg.hero || 'rowan');
+  if (cfg.main) g.player.main = { ...cfg.main, path: [...(cfg.main.path || [])], cd: 0.2 }; // a fixed main weapon, e.g. { id: 'bow', level: 12, path: ['volley', 'rain', 'ice'] }
   if (cfg.seconds) g.runLength = cfg.seconds;
   g.director.catchT = 1e9; // no wild survivalmons: they'd change the numbers
   const P = g.player;

@@ -101,8 +101,18 @@ export const step = (text, apply) => ({ text, apply });
 // ------------------------------------------------------------ more helpers (boomerang, spear, wand, sling)
 // The push direction from a point to a foe (wHit's kx, ky)
 export function away(x, y, e) { const dx = e.x - x, dy = e.y - y, d = Math.hypot(dx, dy) || 1; return { kx: dx / d, ky: dy / d }; }
-// Freezes a foe for t s (a boss is only chilled)
-export function freezeE(e, t) { if (e.dead) return; if (e.boss) e.chill = Math.max(e.chill || 0, t); else e.freeze = Math.max(e.freeze || 0, t); }
+// Freezes a foe for t s (a boss is only chilled). A foe that's frozen, or thawed less than THAW_GUARD s
+// ago, can't be frozen again: fast area hits used to keep whole crowds frozen for good (an Ice final on
+// the spear's Wave or the wand's Nova lasted about 70% longer than any other element). Returns whether it froze.
+export const THAW_GUARD = 1.5;
+export function tryFreeze(e, t) {
+  if (e.dead || !(t > 0)) return false;
+  if (e.boss) { e.chill = Math.max(e.chill || 0, t); return false; }
+  if (e.freeze > 0 || e.freezeGuard > 0) return false;
+  e.freeze = t; e.freezeGuard = t + THAW_GUARD;
+  return true;
+}
+export function freezeE(e, t) { tryFreeze(e, t); }
 // A lightning strike at (x, y): every foe within r takes dmg
 export function strikeAt(g, x, y, r, dmg) {
   g.strike(x, y);

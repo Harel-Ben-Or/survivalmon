@@ -100,6 +100,7 @@ export class Enemy {
     this.flash = Math.max(0, this.flash - dt);
     this.chill = Math.max(0, this.chill - dt);
     this.freeze = Math.max(0, this.freeze - dt);
+    if (this.freezeGuard > 0) this.freezeGuard -= dt; // see wcore.tryFreeze
     this.stun = Math.max(0, this.stun - dt);
     this.root = Math.max(0, this.root - dt);
     this.contactCd = Math.max(0, this.contactCd - dt);
