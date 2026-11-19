@@ -455,7 +455,7 @@ export const Combat = {
       if (chance(0.03 * S.luck)) this.spawnPickup('stone', cx - 8, cy, this.rollStone());
     }
     if (this.tier >= 4) this.dropShards(e, cx, cy);
-    if (e.boss) this.onBossDeath(e);
+    if (e.boss) { Meta.data.bossKills = (Meta.data.bossKills || 0) + 1; this.onBossDeath(e); } // (for the goals)
     if (S.healOnKill && chance(S.healOnKill)) P.heal(2);
     // what your survivalmons defeat goes into the run's mon EXP pool, split between them at the end
     // (1 EXP for every mon on the team, so once it's split each one gets 1 EXP per kill the team makes:

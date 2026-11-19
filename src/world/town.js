@@ -5,7 +5,7 @@
 import { Input } from '../core/input.js';
 import { Audio } from '../core/audio.js';
 import { SPR, PC } from '../gfx/assets.js';
-import { CREATURE, creatureMotion, drawCreature, drawVfx, vfxHitTime, ANIM_FPS, snap, WS, NPC_ART, drawNpcArt, dir8 } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, drawStarShine, drawVfx, vfxHitTime, ANIM_FPS, snap, WS, NPC_ART, drawNpcArt, dir8 } from '../gfx/art.js';
 import { eggCanvas, EGG_SIZE } from '../gfx/eggs.js';
 import { UNLOCK_TEXT } from '../content/buildings.js';
 import { SPECIES } from '../content/species.js';
@@ -372,7 +372,7 @@ export class Town {
     this.ranch = mons.filter((m) => !training.includes(m)).slice(0, RANCH_MAX).map((m) => {
       const r = home(), spot = () => [rand(r.x0, r.x1), rand(r.y0, r.y1)];
       const [x, y] = spot(), [tx, ty] = spot();
-      return { species: m.species, x, y, tx, ty, spot, wait: rand(0, 3), left: Math.random() < 0.5, seed: rand(0, 10), moving: false };
+      return { species: m.species, stars: m.stars || 0, x, y, tx, ty, spot, wait: rand(0, 3), left: Math.random() < 0.5, seed: rand(0, 10), moving: false };
     });
     return dirt;
   }
@@ -792,7 +792,9 @@ export const TownMode = {
         ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
         ctx.beginPath(); ctx.ellipse(x, y, Math.max(5, a.cw * 0.34), Math.max(2, a.cw * 0.12), 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
+        if (m.stars >= 5) drawStarShine(ctx, x, y, a.ch, now, m.seed, 'glow');
         drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, now, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: now + m.seed });
+        if (m.stars >= 5) drawStarShine(ctx, x, y, a.ch, now, m.seed);
       } else if (it.dummy) drawDummy(ctx, it.dummy, cam);
       else if (it.trainee) drawTrainee(ctx, it.trainee, cam, now);
       else if (it.actor) this.drawSceneActor(ctx, it.actor, cam, now);
@@ -822,4 +824,4 @@ export const TownMode = {
   },
 };
 // What the Ranch shows depends on who rests there, who trains and how many dummies there are
-const ranchKey = (resting) => `${resting.map((m) => `${m.id}:${m.species}${Box.isTraining(m.id) ? 't' : ''}`).join()}|${Box.trainSpots()}`;
+const ranchKey = (resting) => `${resting.map((m) => `${m.id}:${m.species}:${m.stars || 0}${Box.isTraining(m.id) ? 't' : ''}`).join()}|${Box.trainSpots()}`;

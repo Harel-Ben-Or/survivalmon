@@ -19,7 +19,7 @@ export function monPassives(m, tierOf = (s) => s.t) {
   return pass;
 }
 export function monStats(m) {
-  const sp = SPECIES[m.species], sh = statShape(m), pass = monPassives(m), mul = Box.speciesMul(sp.id), L = m.level - 1;
+  const sp = SPECIES[m.species], sh = statShape(m), pass = monPassives(m), mul = Box.speciesMul(sp.id) * Box.starMul(m), L = m.level - 1;
   return {
     hp: Math.round(sp.hp * sh.hp * (1 + LEVEL_HP * L) * (1 + (pass.heart || 0)) * mul),
     atk: Math.round(100 * sh.atk * (1 + LEVEL_ATK * L) * mul),
@@ -29,6 +29,13 @@ export function monStats(m) {
     next: { hp: Math.round(sp.hp * sh.hp * LEVEL_HP * (1 + (pass.heart || 0)) * mul), atk: Math.round(100 * sh.atk * LEVEL_ATK * mul) },
   };
 }
+// Star levels: on top of its level, a survivalmon can earn up to 5 stars, paid for with the coins of
+// its kind (what freeing survivalmons gives). Each star: +10% damage and HP. At 3 stars its own attack
+// goes up a grade; at 5 it shines gold. Stars stay through evolving; a baby starts with none.
+export const STAR_MAX = 5;
+export const STAR_COST = [10, 30, 80, 180, 400]; // coins for star 1..5
+export const STAR_BONUS = 0.1;
+export const STAR_GRADE_AT = 3;
 export const STARTER_HATCH = 60;     // seconds in the wild before the starter egg hatches
 export const FOUND_HATCH = 120;      // eggs found in runs
 export const BRED_HATCH = 180;       // eggs from the Hatchery
@@ -358,6 +365,7 @@ export const Box = {
     if (!mon || mon.locked) return null; // locked: kept safe
     const got = this.freeValue(mon);
     for (const [l, n] of Object.entries(got)) this.data.coins[l] = (this.data.coins[l] || 0) + n;
+    this.data.freed = (this.data.freed || 0) + 1; // for the goals
     this.remove(id);
     this.save();
     return got;
@@ -380,22 +388,30 @@ export const Box = {
     const ls = SPECIES[species].lines;
     return 1 + ls.reduce((s, l) => s + this.upBonus(l), 0) / ls.length;
   },
-  // Feeding species coins: each coin of its own kind (a mix: either parent's) gives 1% of the EXP its
-  // current level needs, so 100 coins are a level at any level. Takes from the kind you have most of.
-  // Returns the levels gained.
-  feedCoins(mon, coins) {
+  // The coins a survivalmon's stars are paid with: its own kind's (a mix: either parent's)
+  coinsFor(mon) { return [...new Set(SPECIES[mon.species].lines)].reduce((s, l) => s + this.speciesCoins(l), 0); },
+  // ---------------------------------------------------------- star levels (STAR_COST above)
+  stars(mon) { return mon.stars || 0; },
+  starCost(mon) { const s = this.stars(mon); return s >= STAR_MAX ? null : STAR_COST[s]; },
+  starMul(mon) { return 1 + STAR_BONUS * this.stars(mon); },
+  // One star up: paid from the kind you have most of first. Returns the new star level, or 0.
+  starUp(mon) {
+    const c = this.starCost(mon);
+    if (c === null || this.coinsFor(mon) < c) return 0;
     const ls = [...new Set(SPECIES[mon.species].lines)];
-    let left = coins, levels = [];
-    while (left > 0 && mon.level < MAX_PET_LEVEL) {
+    let left = c;
+    while (left > 0) {
       const line = ls.reduce((a, b) => (this.speciesCoins(b) > this.speciesCoins(a) ? b : a));
-      if (this.speciesCoins(line) <= 0) break;
-      this.data.coins[line]--; left--;
-      levels = levels.concat(this.addXp(mon, petXpFor(mon.level) / 100));
+      const take = Math.min(left, this.speciesCoins(line));
+      this.data.coins[line] -= take; left -= take;
     }
+    mon.stars = this.stars(mon) + 1;
+    const u = mon.skills.find((k) => k.k === 'u');
+    if (mon.stars === STAR_GRADE_AT && u && u.t < 4) u.t++; // its own attack, a grade higher
+    this.data.starUps = (this.data.starUps || 0) + 1;
     this.save();
-    return levels;
+    return mon.stars;
   },
-  feedCoinsHave(mon) { return [...new Set(SPECIES[mon.species].lines)].reduce((s, l) => s + this.speciesCoins(l), 0); },
 
   // ---------------------------------------------------------- Ranch training (offline)
   trainSpots() { return 2 + Meta.buildingBonus('ranch', 'spots'); },

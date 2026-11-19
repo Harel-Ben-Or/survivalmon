@@ -10,7 +10,7 @@ import { ENEMIES } from '../content/creatures.js';
 import { FOE_GROUPS, FOE_IDS, FOE_GROUP_OF, FOES } from '../content/bestiary.js';
 import { gateName } from '../content/gates.js';
 import { TIERS, PASSIVES, TIER_POWER } from '../content/skills.js';
-import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats } from '../systems/collection.js';
+import { Box, STARTER_HATCH, EGG_SLOTS, monName, monStats, STAR_MAX, STAR_BONUS, STAR_GRADE_AT } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { Shrine, SHRINE_NODES, RESEARCH_ODDS } from '../systems/shrine.js';
 import { Audio } from '../core/audio.js';
@@ -33,12 +33,15 @@ export const atkTag = (t, short = false) => {
   if (!T) return '';
   return `<span class="atk-tag" style="--c:${T.color}" title="${esc(`${T.name}: ${T.desc}`)}"><img class="px" src="${icon(T.icon, 1)}" alt="">${short ? '' : esc(T.name)}</span>`;
 };
+// Star levels: five stars, the earned ones gold (stars(m)); or, on a small tile, a gold "★3" (starBadge)
+export const stars = (m) => `<span class="stars ${(m.stars || 0) >= STAR_MAX ? 'max' : ''}" title="${m.stars || 0} of ${STAR_MAX} stars">${'★'.repeat(m.stars || 0)}<i>${'★'.repeat(STAR_MAX - (m.stars || 0))}</i></span>`;
+export const starBadge = (m) => (m.stars ? `<b class="star-badge ${m.stars >= STAR_MAX ? 'max' : ''}">★${m.stars}</b>` : '');
 // Skill chips: grade, name and, for attack skills, the attack type
 export const skillChips = (mon) => mon.skills.map((k) => `<span class="sk" title="${esc(skillDesc(k))}"><b class="tier t${k.t}">${TIERS[k.t]}</b>${esc(skillName(k))}${k.k === 'u' ? atkTag(atkType(k.sp)) : ''}</span>`).join('');
 // A small tile for picking survivalmons: the picture with its level and attack type, the name, and
 // every skill as a grade badge and its name. The i button opens its sheet (stats and skills).
 export const pickTile = (m, cls = '', attrs = '') => `<div class="pick-tile ${cls} ${m.hp <= 0 ? 'fainted' : ''}" ${attrs} title="${esc(monName(m))}">
-    <span class="pt-pic"><img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="mt-lv">${m.level}</b>${atkTag(atkType(m.species), true)}</span>
+    <span class="pt-pic"><img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="mt-lv">${m.level}</b>${starBadge(m)}${atkTag(atkType(m.species), true)}</span>
     <span class="pt-name">${esc(monName(m))}</span>
     <span class="pt-skills">${m.skills.map((k) => `<span><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>${esc(skillName(k))}</span>`).join('')}</span>
     ${m.hp < 1 ? `<span class="mt-hp ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><i style="width:${Math.round(m.hp * 100)}%"></i></span>` : ''}
@@ -57,7 +60,7 @@ export const statBlock = (m) => {
 // ---------------------------------------------------------------- sorting and filtering
 // Every list of survivalmons (Ranch, team picker, Hatchery, Clinic) has the same bar: how to sort it,
 // and filters by type, group and attack type. Each list remembers its own choice on this device.
-const SORTS = { name: 'Name A to Z', grade: 'Best skills first', level: 'Highest level first', new: 'Newest first', old: 'Oldest first', stage: 'Most evolved first' };
+const SORTS = { name: 'Name A to Z', grade: 'Best skills first', level: 'Highest level first', stars: 'Most stars first', new: 'Newest first', old: 'Oldest first', stage: 'Most evolved first' };
 const GROUPS = { all: 'All groups', species: 'Species', breed: 'Breeds', evo1: 'First evolutions', evo2: 'Final evolutions' };
 const LIST_SORT = { ranch: 'level', team: 'name', hatchery: 'name', clinic: 'level' };
 const groupOf = (m) => ['', 'species', 'breed', 'evo1', 'evo2'][SPECIES[m.species].stage];
@@ -67,6 +70,7 @@ const BY = {
   name: (a, b) => monName(a).localeCompare(monName(b)) || bestTier(b) - bestTier(a) || b.level - a.level,
   grade: (a, b) => bestTier(b) - bestTier(a) || tierSum(b) - tierSum(a) || b.level - a.level,
   level: (a, b) => b.level - a.level || bestTier(b) - bestTier(a) || a.id - b.id,
+  stars: (a, b) => (b.stars || 0) - (a.stars || 0) || b.level - a.level || a.id - b.id,
   new: (a, b) => (b.caughtAt || 0) - (a.caughtAt || 0) || b.id - a.id,
   old: (a, b) => (a.caughtAt || 0) - (b.caughtAt || 0) || a.id - b.id,
   stage: (a, b) => SPECIES[b.species].stage - SPECIES[a.species].stage || b.level - a.level || a.id - b.id,
@@ -97,7 +101,7 @@ export function listBar(key, shown, all, { groups = true } = {}) {
 // (team: gold frame; T training; ! ready to evolve; a lock; an HP bar when hurt). The whole tile is
 // the tap target.
 export const gridTile = (m, { act = 'mon-open', cls = '', check = null, attrs = '' } = {}) => `<div class="g-tile ${Box.inTeam(m.id) ? 'in-team' : ''} ${m.hp <= 0 ? 'out' : ''} ${cls}" data-mact="${act}" data-id="${m.id}" ${attrs} title="${esc(monName(m))} · Lv ${m.level}">
-    <img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="g-lv">${m.level}</b>
+    <img class="px" src="${pic(m.species)}" alt="" draggable="false"><b class="g-lv">${m.level}</b>${starBadge(m)}
     <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>`).join('')}</span>
     ${Box.isTraining(m.id) ? '<i class="g-flag train" title="Training">T</i>' : Box.canEvolve(m) ? '<i class="g-flag evo" title="Ready to evolve">!</i>' : ''}
     ${m.locked ? '<i class="g-lock" title="Locked">🔒</i>' : ''}
@@ -327,7 +331,7 @@ export const MonsUI = {
           <div class="ms-pic ${m.hp <= 0 ? 'out' : ''}"><img class="px" src="${pic(m.species)}" alt=""></div>
           <div class="ms-info">
             ${nameRow}
-            <div class="ms-sub">${m.nick ? `${esc(sp.name)} · ` : ''}<b class="lv">Lv ${m.level}</b> ${types(sp)} ${atkTag(atkType(m.species))}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div>
+            <div class="ms-sub">${m.nick ? `${esc(sp.name)} · ` : ''}<b class="lv">Lv ${m.level}</b> ${stars(m)} ${types(sp)} ${atkTag(atkType(m.species))}${Box.inTeam(m.id) ? ' <span class="badge">Team</span>' : ''}${Box.isTraining(m.id) ? ' <span class="badge">Training</span>' : ''}</div>
             <div class="bar-row"><span>HP</span>${hpBar(m)}<span class="num">${Math.round(m.hp * maxHp)}/${maxHp}</span></div>
             <div class="bar-row"><span>EXP</span><div class="xp"><div style="width:${Math.min(100, (m.xp / need) * 100).toFixed(0)}%"></div></div><span class="num">${Math.floor(m.xp)}/${need}</span></div>
             <div class="small ms-size">${(() => { const z = monSize(m.species, m.sz || 1, m.wz || 1); return `<b>${sizeLabel(m.sz || 1)}</b> ${fmtH(z.h)} · <b>${weightLabel(weightOf(m))}</b> ${fmtW(z.w)}`; })()}</div>
@@ -339,10 +343,13 @@ export const MonsUI = {
         <div class="ms-skills">${skills}</div>
         ${evoLine}
         ${(() => {
-          const have = Box.feedCoinsHave(m), kinds = [...new Set(sp.lines)].map((l) => `${Box.speciesCoins(l)} ${SPECIES[l].name}`).join(' + ');
-          if (m.level >= MAX_PET_LEVEL) return '';
-          const btn = (n, label) => `<button class="btn small secondary" data-mact="feed" data-id="${m.id}" data-n="${n}" ${have >= n ? '' : 'disabled'}>${label}</button>`;
-          return `<div class="feed-row"><span class="small">Feed species coins: each gives 1% of a level (you have ${kinds})</span>${btn(10, '+10% · 10')}${btn(100, '+1 level · 100')}${btn(Math.min(have, 100 * (MAX_PET_LEVEL - m.level)), `All · ${Math.min(have, 100 * (MAX_PET_LEVEL - m.level))}`)}</div>`;
+          // star levels, paid with the coins of its kind (from freeing survivalmons)
+          const s = Box.stars(m), cost = Box.starCost(m), have = Box.coinsFor(m);
+          const kinds = [...new Set(sp.lines)].map((l) => `${Box.speciesCoins(l)} ${SPECIES[l].name}`).join(' + ');
+          const now = s ? `+${Math.round(s * STAR_BONUS * 100)}% damage and HP${s >= STAR_GRADE_AT ? ', its attack a grade higher' : ''}` : 'No stars yet';
+          const next = s + 1 === STAR_GRADE_AT ? 'next star: its attack goes up a grade too' : s + 1 === STAR_MAX ? 'the last star: it shines gold' : `next star: +${Math.round(STAR_BONUS * 100)}% more`;
+          return `<div class="star-row">${stars(m)}<span class="small"><b>${now}</b>${cost === null ? ' · all five stars!' : ` · ${next}`}</span>
+            ${cost === null ? '' : `<button class="btn small" data-mact="star" data-id="${m.id}" ${have >= cost ? '' : 'disabled'}>Star up · ${cost} coins</button><span class="small star-have">You have ${kinds} coins. Free survivalmons of its kind for more.</span>`}</div>`;
         })()}
         ${m.skills.some((k) => k.t < 4) ? `<p class="small ms-train">Training at the Ranch: every 2 hours there's a ${(Box.trainSkillChance(m) * 100).toFixed(1).replace('.0', '')}% chance one of its skills (not S yet) goes up a grade.${Box.isTraining(m.id) ? ' It is training now.' : ''}</p>` : ''}
         <div class="loot-actions ms-actions">
@@ -739,7 +746,7 @@ export const MonsUI = {
         const got = Box.free(id);
         if (got) this.toast(`Freed! +${Object.entries(got).map(([l, n]) => `${n} ${SPECIES[l].name} coins`).join(', ')}`);
         this.closeMonSheet();
-        this.showRanch(); break;
+        this.showRanch(); this.tip('stars'); break; // what those coins are for
       }
       // Free several
       case 'free-mode': this.freeSel = new Set(); this.freeSure = false; this.closeMonSheet(); this.showRanch(); break;
@@ -757,14 +764,14 @@ export const MonsUI = {
         this.freeSel = null; this.freeSure = false;
         Audio.play('coin');
         this.toast(`Freed ${n} survivalmon${n === 1 ? '' : 's'}! +${Object.entries(got).map(([l, c]) => `${c} ${SPECIES[l].name}`).join(', ')} coins`);
-        this.showRanch(); break;
+        this.showRanch(); this.tip('stars'); break;
       }
-      case 'feed': {
-        const m = Box.get(id), n = +el.dataset.n;
-        if (!m || !n) break;
-        const lv = Box.feedCoins(m, n);
-        Audio.play(lv.length ? 'levelup' : 'coin');
-        if (lv.length) this.toast(`${monName(m)} grew to Lv ${m.level}!`);
+      case 'star': {
+        const m = Box.get(id);
+        const s = m && Box.starUp(m);
+        if (!s) break;
+        Audio.play('levelup');
+        this.toast(s >= STAR_MAX ? `${monName(m)} has all five stars, and shines gold!` : s === STAR_GRADE_AT ? `${monName(m)}: ${s} stars! Its attack went up a grade.` : `${monName(m)}: ${s} star${s > 1 ? 's' : ''}!`);
         this.monsRefresh(); break;
       }
       case 'mon-open': this.showMonSheet(id); break;

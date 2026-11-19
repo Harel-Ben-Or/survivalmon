@@ -9,7 +9,10 @@ import { gateSide } from '../content/gates.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
-import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer } from './mons_ui.js';
+import { Goals } from '../systems/goals.js';
+import { MATERIALS } from '../content/buildings.js';
+import { ITEMS } from '../content/shop.js';
+import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge } from './mons_ui.js';
 import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 
@@ -40,9 +43,10 @@ export const TownUI = {
         <div class="town-chip panel"><img class="px" src="${icon('coin', 2)}" alt=""><b class="t-coins">${Meta.coins}</b><img class="px" src="${icon('spirit', 2)}" alt="Spirit"><b class="t-spirit">${Meta.spirit}</b><img class="px" src="${icon('shard', 2)}" alt="Skyfall Shards"><b class="t-shards">${Meta.shards}</b></div>
         <div class="town-chip panel t-team">${team || '<em>No team yet</em>'}</div>
       </div>
-      <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>`;
+      <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>
+      <button class="town-chip panel t-goals" data-act="goals">📜 Goals <b class="t-goals-n"></b></button>`;
     this.el.hud.classList.remove('hidden');
-    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen') };
+    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen'), goals: this.el.hud.querySelector('.t-goals') };
     this.last = {};
     this.touch.setVisible(this.g.touchMode);
     Input.endFrame();
@@ -87,11 +91,55 @@ export const TownUI = {
       el.style.setProperty('--dx', `${Math.round(Math.cos(a) * w)}px`); el.style.setProperty('--dy', `${Math.round(Math.sin(a) * h)}px`);
     }
   },
+  // ------------------------------------------------------------ goals (systems/goals.js)
+  openGoals() {
+    this.g.modal = 'goals';
+    this.prompt(null);
+    const act = Goals.active();
+    const rew = (r) => {
+      const chip = (ic, text) => `<span class="g-rew">${ic ? `<img class="px" src="${icon(ic, 2)}" alt="">` : ''}${esc(text)}</span>`;
+      const out = [];
+      if (r.coins) out.push(chip('coin', r.coins.toLocaleString()));
+      if (r.spirit) out.push(chip('spirit', String(r.spirit)));
+      for (const [k, n] of Object.entries(r.mats || {})) out.push(chip(MATERIALS[k]?.icon, `${n} ${MATERIALS[k]?.name || k}`));
+      if (r.item) { const it = ITEMS.find((x) => x.id === r.item[0]); if (it) out.push(chip(it.icon, it.name)); }
+      if (r.evo) out.push(chip('stone_fairy', r.evo > 1 ? `${r.evo} evolution stones` : 'Evolution stone'));
+      if (r.egg) out.push(chip('egg', r.egg > 1 ? `${r.egg} eggs` : 'An egg'));
+      return out.join('');
+    };
+    const card = (g) => {
+      const done = Goals.done(g), pct = Math.min(100, Math.round((Goals.have(g) / g.need) * 100));
+      return `<div class="goal ${done ? 'done' : ''}">
+        <div class="goal-top"><span class="goal-n">${Goals.number(g)}</span><b>${esc(g.text)}</b><span class="goal-p">${done ? 'Done!' : Goals.progressText(g)}</span></div>
+        <div class="goal-bar"><i style="width:${pct}%"></i></div>
+        <div class="goal-foot"><span class="goal-rews">${rew(g.rew)}</span>${done ? `<button class="btn small" data-act="goal-claim" data-id="${g.id}">Claim</button>` : ''}</div>
+      </div>`;
+    };
+    this.openModal(`
+      <div class="modal-box panel goals-box">
+        <div class="ms-bar"><h2>Goals</h2><button class="btn small secondary ms-x" data-act="close" aria-label="Close">✕</button></div>
+        ${act.length ? act.map(card).join('') : '<p>Every goal is done. You are a true ranger!</p>'}
+        <p class="small goals-note">Goal ${act.length ? Goals.number(act[0]) : Goals.total} of ${Goals.total}. A new one comes up each time you claim one. (Achievements in the Survidex pay Skyfall Shards.)</p>
+      </div>`);
+    this.modalKind = 'goals';
+  },
+  claimGoal(id) {
+    const got = Goals.claim(id);
+    if (!got) return;
+    Audio.play('coin'); Audio.play('levelup');
+    this.toast(`Goal claimed! ${got.join(', ')}`);
+    this.last.tgoals = null;
+    this.updateTownHUD?.();
+    this.openGoals();
+  },
   updateTownHUD() {
     this.set('tcoins', this.th.coins, 'text', String(Meta.coins));
     if (this.th.spirit) this.set('tspirit', this.th.spirit, 'text', String(Meta.spirit));
     if (this.th.shards) this.set('tshards', this.th.shards, 'text', String(Meta.shards));
     this.set('trun', this.th.run, 'text', runTime(Meta.runLength()));
+    // the Goals button lights up with how many are ready to claim
+    const ready = Goals.ready();
+    if (this.th.goals && this.last.tgoals !== ready) { this.last.tgoals = ready; this.th.goals.classList.toggle('ready', ready > 0); this.th.goals.querySelector('b').textContent = ready ? String(ready) : ''; }
   },
 
   // ------------------------------------------------------------ Enter the Wild: choose your team
@@ -112,7 +160,7 @@ export const TownUI = {
       if (!m) return `<div class="team-slot t2-slot empty" data-slot="${i}"><span>+ empty slot</span></div>`;
       return `<div class="team-slot t2-slot filled ${m.hp <= 0 ? 'fainted' : ''}" data-slot="${i}">
         <img class="px" src="${artURL('creature', m.species)}" alt="">
-        <div class="t2-main"><b>${esc(monName(m))}</b><span class="small">${m.hp <= 0 ? 'Fainted' : `Lv ${m.level}`}</span>
+        <div class="t2-main"><b>${esc(monName(m))}</b><span class="small">${m.hp <= 0 ? 'Fainted' : `Lv ${m.level}`} ${starBadge(m)}</span>
           <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span>
           <div class="hp-bar ${m.hp <= 0 ? 'out' : m.hp < 0.3 ? 'low' : ''}"><div style="width:${Math.round(m.hp * 100)}%"></div></div></div>
         <button class="pt-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button><i class="t2-x" aria-hidden="true">✕</i></div>`;

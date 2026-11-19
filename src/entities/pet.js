@@ -1,7 +1,7 @@
 // A survivalmon in a run: trails the hero, fights with every attack skill it has (its own unique
 // skill plus any it inherited), carries its passive skills, and has its own HP. It can faint; the
 // HP it ends the run with is saved, and the Clinic heals it.
-import { CREATURE, creatureMotion, drawCreature, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
+import { CREATURE, creatureMotion, drawCreature, drawStarShine, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
 import { attackFx } from '../content/attack_fx.js';
 import { SPECIES, archType, LEVEL_HP, LEVEL_ATK } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
@@ -81,7 +81,7 @@ export class Pet {
     this.guard = this.attacks.some((a) => a.arch === 'aura');
     this.shape = statShape(this.mon); // HP, Attack, Speed and Defense by attack type
     const prev = this.maxHp;
-    this.maxHp = Math.round(sp.hp * this.shape.hp * (1 + LEVEL_HP * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * (1 + this.team.hp));
+    this.maxHp = Math.round(sp.hp * this.shape.hp * (1 + LEVEL_HP * (this.mon.level - 1)) * (1 + (this.pass.heart || 0)) * Box.speciesMul(sp.id) * Box.starMul(this.mon) * (1 + this.team.hp));
     if (prev && this.hp > 0) this.hp = Math.min(this.maxHp, this.hp * (this.maxHp / prev));
   }
   // A skill's tier in this run: its rolled tier plus any level-up boosts (S is the top)
@@ -92,7 +92,7 @@ export class Pet {
     return this.shape.atk * this.growth * (1 + 0.02 * (this.g.player.level - 1)) * (1 + this.team.dmg + (this.g.cry || 0));
   }
   // Level and species upgrades, without the attack-type shape (heals use this)
-  get growth() { return (1 + LEVEL_ATK * (this.mon.level - 1)) * Box.speciesMul(this.species); }
+  get growth() { return (1 + LEVEL_ATK * (this.mon.level - 1)) * Box.speciesMul(this.species) * Box.starMul(this.mon); }
   // Added to the hero's stats while this survivalmon is on the team
   passives() {
     let armor = 0, magnet = 0;
@@ -277,6 +277,8 @@ export class Pet {
       return;
     }
     const m = creatureMotion(a.motion, this.g.realTime, this.moving, this.seed, !!a.anim);
+    const shine = (this.mon.stars || 0) >= 5; // all five stars: it shines gold
+    if (shine) drawStarShine(ctx, x, y, a.ch, this.g.realTime, this.seed, 'glow');
     // drawn frames: flyers always flap, the rest step while moving and breathe while still
     m.anim = a.motion === 'fly' || this.moving || this.state === 'roll' ? 'move' : 'idle';
     m.at = this.g.realTime + this.seed;
@@ -297,6 +299,7 @@ export class Pet {
       drawCreature(ctx, a, 0, a.ch / 2, { left: this.face < 0 });
       ctx.restore();
     } else drawCreature(ctx, a, x, y, { left: this.face < 0, flash: this.flash > 0, ...m });
+    if (shine) drawStarShine(ctx, x, y, a.ch, this.g.realTime, this.seed);
     // a small HP bar once it's been hurt
     if (this.hp < this.maxHp && this.g.mode === 'world') {
       const w = 14, bx = Math.round(x - w / 2), by = Math.round(y + 2);

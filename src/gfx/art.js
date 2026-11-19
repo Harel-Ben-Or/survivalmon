@@ -322,6 +322,26 @@ export function drawCreature(ctx, s, x, y, o = {}) {
   if (o.alpha !== undefined) ctx.globalAlpha = 1;
 }
 
+// A five-star survivalmon's shine: a soft gold glow on the ground under it and four gold stars
+// twinkling round it (x, y: its feet; h: its height)
+// part: 'glow' (draw it before the survivalmon) or 'stars' (after)
+export function drawStarShine(ctx, x, y, h, t, seed = 0, part = 'stars') {
+  if (part === 'glow') {
+    ctx.fillStyle = `rgba(255,214,90,${0.2 + 0.1 * Math.sin(t * 2.4 + seed)})`;
+    ctx.beginPath(); ctx.ellipse(x, y, Math.max(8, h * 0.55), Math.max(3, h * 0.18), 0, 0, Math.PI * 2); ctx.fill();
+    return;
+  }
+  for (let i = 0; i < 4; i++) {
+    const a = t * 1.1 + seed + (i * Math.PI) / 2, k = (Math.sin(t * 4 + i * 1.7 + seed) + 1) / 2;
+    if (k < 0.2) continue;
+    const sx = Math.round(x + Math.cos(a) * (h * 0.5 + 5)), sy = Math.round(y - h * 0.5 + Math.sin(a) * h * 0.45);
+    const r = k > 0.7 ? 2 : 1;
+    ctx.globalAlpha = Math.min(1, k + 0.2); ctx.fillStyle = '#ffd84a';
+    ctx.fillRect(sx, sy - r, 1, r * 2 + 1); ctx.fillRect(sx - r, sy, r * 2 + 1, 1);
+    ctx.fillStyle = '#fffbe0'; ctx.fillRect(sx, sy, 1, 1);
+  }
+  ctx.globalAlpha = 1;
+}
 export function drawHero(ctx, h, x, y, dir, o = {}) {
   // o.dash = which dash frame (it plays once); its cells are bigger, with the standing sprite DASH_PAD in
   const dcyc = o.dash != null && (o.flash ? h.dashFlash : h.dash)?.[dir];

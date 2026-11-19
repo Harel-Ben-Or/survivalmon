@@ -26,6 +26,7 @@ import { StoryRoad } from '../world/story_road.js';
 import { reunionScene, FRIEND_AT_TIER } from '../content/story_scenes.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
+import { Goals } from '../systems/goals.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
 import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
@@ -968,7 +969,11 @@ export class Game {
     }
     const achv = checkAchievements();
     if (achv.some((a) => a.name !== 'Skyfall Shards')) { if (this.mode === 'town') this.ui.tip('achv'); else this.achvTip = true; } // told in town
+    // goals done (not in the middle of a story scene: they wait for it to end)
+    const goals = this.scene ? [] : Goals.check();
+    if (goals.length && this.mode === 'town') this.ui.tip('goals');
     const out = [...Box.news.splice(0).map((n) => this.newsLine(n)).filter(Boolean),
+      ...goals.map((gl) => ({ title: `Goal done: ${gl.text}`, sub: 'Claim its reward on the Goals page in town', color: '#9af08a' })),
       ...achv.map((a) => ({ title: a.name === 'Skyfall Shards' ? `+${a.pay} Skyfall Shards!` : `Achievement: ${a.name}!`, sub: `${a.desc} · +${a.pay} Skyfall Shards`, color: '#c8a8ff' }))];
     if (!out.length) return;
     const page = this.mode !== 'world' || this.modal;

@@ -414,12 +414,13 @@ export class UI {
       same.dataset.n = String((+same.dataset.n || 1) + 1);
       const n = same.querySelector('i') || same.appendChild(document.createElement('i'));
       n.textContent = `×${same.dataset.n}`;
-      same.dataset.until = String(now + 3600);
+      same.dataset.fade = String(now + 3600);
       same.classList.remove('out');
       return;
     }
     const el = document.createElement('div');
-    el.className = 'feed-line'; el.dataset.text = text; el.dataset.until = String(now + 3600);
+    // (data-fade, not data-until: the building countdowns rewrite every [data-until] to 'done!')
+    el.className = 'feed-line'; el.dataset.text = text; el.dataset.fade = String(now + 3600);
     el.style.color = color;
     el.innerHTML = `${esc(text)}<i></i>`;
     box.appendChild(el);
@@ -430,7 +431,7 @@ export class UI {
     if (!box) return;
     const now = performance.now();
     for (const el of [...box.children]) {
-      const left = +el.dataset.until - now;
+      const left = +el.dataset.fade - now;
       if (left < 0) el.remove(); else el.classList.toggle('out', left < 600);
     }
     const cc = this.h.catchCard;
@@ -875,6 +876,8 @@ export class UI {
       case 'profiles': this.closeModal(); this.showProfiles(); break;
       case 'rename-player': this.closeModal(); this.openCreator(true); break;
       case 'opening': this.replayOpening(); break;
+      case 'goals': Audio.play('click'); this.openGoals(); break;
+      case 'goal-claim': this.claimGoal(t.dataset.id); break;
       case 'install': {
         const p = window.__install;
         if (p) { p.prompt(); p.userChoice.finally(() => { window.__install = null; if (this.screen === 'title') this.showTitle(); }); }

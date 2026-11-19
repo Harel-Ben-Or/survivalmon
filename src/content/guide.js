@@ -91,7 +91,7 @@ export const TIPS = {
   ],
   b_ranch: [
     "Dell's Ranch keeps every survivalmon you own. Tap one to see its skills, rename it or put it in your team.",
-    'Ones you leave home can train at a dummy and gain EXP while you are away. Spare copies can be freed for species coins.',
+    'Ones you leave home can train at a dummy and gain EXP while you are away. Spare copies can be freed for species coins: they buy stars for a survivalmon of that kind, or species upgrades.',
   ],
   b_clinic: ['Doc Poppy heals survivalmons that got hurt or fainted. Resting through a run heals them slowly for free; healing here is quick.'],
   b_shrine: ["Keeper Sol's Spirit Shrine spends Spirit on upgrades for every survivalmon at once. Research takes time and makes better skill grades more likely."],
@@ -115,6 +115,8 @@ export const TIPS = {
   ],
   gates: ['A new gate is open! Past each new gate the monsters are much tougher, but they pay more. Pick your gate on the team screen.'],
   achv: ['An achievement! They pay Skyfall Shards. See them all in the Survidex.'],
+  goals: [{ t: 'A goal is done! Tap Goals up here to claim its reward. Goals pay coins, Spirit and materials, and sometimes something rare, like an evolution stone or an egg.', focus: '.t-goals' }],
+  stars: ['Stars! Each one gives that survivalmon +10% damage and HP. At 3 stars its attack goes up a grade, and at 5 it shines gold. Stars are paid with the coins of its kind, which you get by freeing survivalmons.'],
 };
 
 // town pages that have their own tip
