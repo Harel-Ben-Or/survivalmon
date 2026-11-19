@@ -48,8 +48,9 @@ export const GuideUI = {
     this.guideFocus = focus;
     const r = focus[0]?.getBoundingClientRect();
     el.className = `guide-layer${r && r.top + r.height / 2 > window.innerHeight * 0.55 ? ' at-top' : ''}`;
-    // Moss guides you in town; out in the wild the tips are plain hints, with no one talking
-    const wild = this.g.mode === 'world' || this.g.mode === 'house';
+    // Moss guides you in town, once you've met him (he runs up to you at the gate the first time);
+    // everywhere else (a run, a house, the end of a run) the tips are plain hints, with no one talking
+    const wild = this.g.mode !== 'town' || (Meta.data.sawOpening && !Meta.data.metWren); // (a save from before the story never meets him at the gate)
     el.innerHTML = `
       <div class="guide-box panel ${wild ? 'plain-hint' : ''}" role="dialog" aria-label="${wild ? 'A hint' : `A tip from ${GUIDE.name}`}">
         ${wild ? '' : `<img class="px guide-face" src="${npcFaceURL(GUIDE.npc)}" alt="">`}
