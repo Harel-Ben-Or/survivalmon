@@ -6,7 +6,9 @@ import { ELEMENTS, addPoison, wHit, strongest, biggestGroup, fireZone, poisonZon
 // ------------------------------------------------------------ the bow
 export const BOW = {
   name: 'Hunter Bow', icon: 'bow', proj: 'arrows',
-  base: { dmg: 12, cd: 0.9, n: 1, pierce: 0, speed: 240, life: 1.3, r: 4, range: 250, knock: 50 },
+  // pierce 1: every other first weapon hits several foes (the boomerang and spear go through lines, the
+  // wand splashes, the sling bounces); with single arrows the bow did a third of the spear's crowd damage
+  base: { dmg: 12, cd: 0.9, n: 1, pierce: 1, speed: 240, life: 1.3, r: 4, range: 250, knock: 50 },
   steps: {
     2: step('+4 damage', (s) => { s.dmg += 4; }),
     3: step('Shoots 15% faster', (s) => { s.cd *= 0.85; }),
@@ -18,7 +20,7 @@ export const BOW = {
       steps: {
         5: step('+1 arrow', (s) => { s.n += 1; }),
         6: step('+3 damage per arrow', (s) => { s.dmg += 3; }),
-        7: step('Arrows pierce 1 foe', (s) => { s.pierce += 1; }),
+        7: step('Arrows pierce 1 more foe', (s) => { s.pierce += 1; }),
       },
       r2: {
         rain: {
@@ -107,8 +109,8 @@ export const BOW = {
       },
     },
     quick: {
-      name: 'Quickdraw', desc: 'Shoots twice as fast, each arrow with 85% damage, and +15% crit chance.',
-      apply: (s) => { s.cd *= 0.5; s.dmg *= 0.85; s.critAdd = (s.critAdd || 0) + 0.15; },
+      name: 'Quickdraw', desc: 'Shoots twice as fast, with +15% crit chance.',
+      apply: (s) => { s.cd *= 0.5; s.critAdd = (s.critAdd || 0) + 0.15; },
       steps: {
         5: step('+3 damage', (s) => { s.dmg += 3; }),
         6: step('+10% crit chance', (s) => { s.critAdd += 0.1; }),
@@ -360,7 +362,8 @@ function bowHit(g, p, e) {
     if (st.el === 'glow' && (g.gleamT || 0) <= g.time) { g.gleamN = (g.gleamT || 0) + 1 > g.time ? (g.gleamN || 0) : 0; if ((g.gleamN = (g.gleamN || 0) + 1) >= 5) g.gleamT = g.time + 1; P.heal(1); }
     if (p.gen < 3) {
       const others = g.randomEnemies(e.x, e.y, 150, st.luckyN, e);
-      for (const o of others) arrow(g, st, e.x, e.y, Math.atan2(o.y - e.y, o.x - e.x), { free: true, gen: p.gen + 1, target: o, homing: 8 }).hitSet.add(e.id);
+      // free arrows don't pierce: with the bow's base pierce they could crit twice each and snowball
+      for (const o of others) arrow(g, st, e.x, e.y, Math.atan2(o.y - e.y, o.x - e.x), { free: true, gen: p.gen + 1, target: o, homing: 8, pierce: 0 }).hitSet.add(e.id);
     }
   }
   return res;
