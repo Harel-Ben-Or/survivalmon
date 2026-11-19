@@ -15,7 +15,7 @@ const REACH = 90; // Bram thrusts at the nearest foe this close (or straight ahe
 // ------------------------------------------------------------ the spear
 export const SPEAR = {
   name: "Ranger's Spear", icon: 'pitchfork',
-  base: { dmg: 20, cd: 1.1, n: 1, reach: 45, w: 7, knock: 120 },
+  base: { dmg: 20, cd: 0.95, n: 1, reach: 55, w: 7, knock: 120 }, // reach 55 (from 45) and a 0.95 s thrust (from 1.1): melee needs a little help early
   steps: {
     2: step('+6 damage', (s) => { s.dmg += 6; }),
     3: step('Reach +30%', (s) => { s.reach *= 1.3; }),

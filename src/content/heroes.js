@@ -24,8 +24,8 @@ export const HEROES = [
   {
     id: 'lyra', name: 'Lyra', title: 'Ranger trainee', weapon: 'emberwand', color: '#6c4bc4',
     desc: 'Studied three spells. Mastered one: her magic wand.',
-    perks: ['-10% cooldowns', '+10% area', '-15 max HP'],
-    mods: { haste: 0.10, area: 0.10, maxHp: -15 },
+    perks: ['-10% cooldowns', '+10% area', '-5 max HP'],
+    mods: { haste: 0.10, area: 0.10, maxHp: -5 },
   },
   {
     id: 'pip', name: 'Pip', title: 'Ranger trainee', weapon: 'sling', color: '#2fa39a',
