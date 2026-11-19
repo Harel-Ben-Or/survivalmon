@@ -110,7 +110,7 @@ export const TIPS = {
   b_team: [{ t: 'Pick your hero, then tap survivalmons to put them in your team; tap a slot to take one out. Ready? Hit the button at the bottom right!', focus: '.go-btn' }],
   upgrade: [{ t: 'Every building has levels. Upgrades cost coins plus wood, stone, clay and iron from runs, and take a while to build. Skyfall Shards finish them at once.', focus: '.panel.bld' }],
   hatched: [
-    'Your first survivalmon! It fights beside you in runs and levels up as it goes.',
+    'Your first survivalmon! It fights beside you in runs, and earns EXP for every monster it defeats.',
     'Wild survivalmons will start turning up in runs now too. Catch as many as you can!',
   ],
   gates: ['A new gate is open! Past each new gate the monsters are much tougher, but they pay more. Pick your gate on the team screen.'],
