@@ -220,7 +220,6 @@ export const Meta = {
     }
     return m;
   },
-  offWeapon(hero) { return this.hasGear(hero, 'off') ? SETS[hero].offW : null; },
   // Everything the hero brings to a run besides the slots' own stats: their survivalmon boost, the
   // bonuses of the sets worn (4 and 6 pieces) and the slot-level milestones.
   // Returns { team, hero, types, petXp, wild, coins, mats, shards }.

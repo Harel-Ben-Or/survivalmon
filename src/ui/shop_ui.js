@@ -28,7 +28,7 @@ export const costChips = (c) => {
     `<span class="cost ${have[k] < c[k] ? 'short' : ''}"><img class="px" src="${icon(k === 'coins' ? 'coin' : k === 'shards' ? 'shard' : MATERIALS[k].icon)}" alt="">${c[k].toLocaleString()}</span>`).join('');
 };
 const wallet = () => `<span class="pg-chip"><img class="px inline-ic" src="${icon('coin')}" alt="Coins"> ${Meta.coins.toLocaleString()}</span><span class="pg-chip">${shardIc()} ${Meta.shards}</span>${Object.entries(MATERIALS).map(([k, m]) => `<span class="pg-chip mat-chip"><img class="px inline-ic" src="${icon(m.icon)}" alt="${m.name}"> ${Meta.data.mats[k]}</span>`).join('')}`;
-const gearIcon = (hero, slot) => SLOT_ICON[slot] || WEAPONS[slot === 'main' ? SETS[hero].mainW : SETS[hero].offW].icon;
+const gearIcon = (hero, slot) => SLOT_ICON[slot] || (slot === 'main' ? WEAPONS[SETS[hero].mainW]?.icon || SETS[hero].mainW : SETS[hero].offIcon);
 // screen -> the building it belongs to, and how to redraw it
 const PAGE_BUILDING = { ranch: 'ranch', hatchery: 'hatchery', clinic: 'clinic', shrine: 'shrine', workshop: 'workshop', merchant: 'merchant', team: 'gate' };
 const REDRAW = { ranch: 'showRanch', hatchery: 'showHatchery', clinic: 'showClinic', shrine: 'showShrine', survidex: 'showSurvidex', workshop: 'showWorkshop', merchant: 'showMerchant', team: 'renderTeam' };

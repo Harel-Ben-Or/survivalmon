@@ -832,6 +832,20 @@ details.sp-ups[open] summary { margin-bottom: 8px; }
 .story-next { position: absolute; right: 14px; bottom: 10px; color: #ffd84a; opacity: 0; font-size: 14px; }
 .story-cap.ready .story-next { opacity: 1; animation: storyBlink 1s infinite; }
 @keyframes storyBlink { 50% { opacity: .3; } }
+.scene-layer { position: absolute; inset: 0; z-index: 55; touch-action: none; }
+.scene-say { position: absolute; max-width: min(66vw, 330px); min-width: 120px; padding: 6px 26px 8px 10px; background: #fff6e8; color: #2b1d24;
+  border: 3px solid #2b1d24; border-radius: 10px; box-shadow: 0 3px 0 rgba(43,29,36,.45); pointer-events: none; }
+.scene-say::after { content: ''; position: absolute; left: var(--tail, 50%); bottom: -9px; margin-left: -7px; border: 7px solid transparent; border-top-color: #2b1d24; border-bottom: 0; }
+.scene-say.below::after { bottom: auto; top: -9px; border: 7px solid transparent; border-bottom-color: #2b1d24; border-top: 0; }
+.scene-say.you { background: #fff2b8; }
+.scene-who { display: block; font: 800 12px/1.2 var(--font); color: #9a4a2a; letter-spacing: .02em; }
+.scene-say.you .scene-who { color: #2a6a8a; }
+.scene-say p { margin: 1px 0 0; font: 700 14px/1.32 var(--font); min-height: 1.3em; }
+.scene-next { position: absolute; right: 8px; bottom: 5px; font-size: 11px; color: #c8453a; opacity: 0; }
+.scene-say.ready .scene-next { opacity: 1; animation: storyBlink 1s infinite; }
+.scene-skip { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); opacity: .85; }
+body.in-scene #hud, body.in-scene .town-hud, body.in-scene #touch, body.in-scene #prompt, body.in-scene .pause-btn, body.in-scene .dash-btn { visibility: hidden !important; }
+@media (max-height: 480px) { .scene-say { max-width: min(60vw, 300px); padding: 4px 22px 6px 8px; } .scene-say p { font-size: 12.5px; } .scene-who { font-size: 11px; } }
 .story-pick { position: absolute; left: 50%; top: max(12px, env(safe-area-inset-top)); transform: translateX(-50%); width: min(720px, calc(100% - 24px));
   display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(16,12,20,.82); border: 2px solid rgba(255,240,220,.35); border-radius: 12px; }
 .story-eggs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }

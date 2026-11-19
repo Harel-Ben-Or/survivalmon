@@ -29,22 +29,25 @@ export function rollContainer(P, c) {
     out.drops.push({ kind: 'mats', value: m });
   };
   switch (c.type) {
+    // A chest out in the wild (from an elite or a boss) never holds an upgrade; one inside a building
+    // rarely does, and then it's one of the chest-only cards (move speed, pickup range, EXP gain).
     case 'chest':
       if (c.tier === 'gold') {
-        coins(15, 30); berries(2, 3); mats(6, ['wood', 'stone', 'clay', 'iron']); card();
+        coins(15, 30); berries(2, 3); mats(6, ['wood', 'stone', 'clay', 'iron']);
+        if (!c.wild && chance(0.3)) card();
         if (chance(0.35 * luck)) gear();
         if (chance(0.25 * luck)) stone();
         if (chance(0.1 * luck)) egg();
       } else if (c.tier === 'silver') {
         coins(8, 16); berries(1, 2);
-        if (chance(0.5)) card();
+        if (!c.wild && chance(0.12)) card();
         if (chance(0.5)) mats(4, ['wood', 'stone', 'clay', 'iron']);
         if (chance(0.12 * luck)) gear();
         if (chance(0.08 * luck)) stone();
         if (chance(0.05 * luck)) egg();
       } else {
         coins(4, 10);
-        if (chance(0.25)) card();
+        if (!c.wild && chance(0.05)) card();
         if (chance(0.4)) berries(1, 2);
         if (chance(0.25)) mats(2);
         if (chance(0.05 * luck)) gear();
@@ -55,7 +58,7 @@ export function rollContainer(P, c) {
       if (chance(0.35 * luck)) stone();
       if (chance(0.15 * luck)) egg();
       if (!out.drops.length) { berries(3, 4); xp(20, 40); out.text = 'The altar hums. Your survivalmons feel stronger.'; }
-      if (chance(0.5)) card();
+      if (chance(0.15)) card();
       break;
     case 'bookshelf':
       xp(10, 25);
@@ -103,8 +106,9 @@ export function rollStone(P) {
 const HERO_IDS = ['vitality', 'regen', 'power', 'armor', 'haste', 'precision', 'ferocity'];
 const HERO_CARDS = UPGRADES.filter((u) => HERO_IDS.includes(u.id));
 export const CHEST_CARDS = UPGRADES.filter((u) => ['swift', 'magnet', 'wisdom'].includes(u.id));
-// the weapon card: 40% of hero level-ups show one (never more than one), until the weapon is maxed
-export const WEAPON_CARD_CHANCE = 0.4;
+// the weapon card: 35% of hero level-ups show one (never more than one), until the weapon is maxed
+// (35%, from 40%: a full run reached weapon level 12 too often)
+export const WEAPON_CARD_CHANCE = 0.35;
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
@@ -173,8 +177,8 @@ export function skillCards(P, n = 3) {
 //   hero:   hero stat cards, and 40% of the time one weapon card (a step, or "Evolve the weapon")
 //   team:   survivalmon cards (from the berry bar: team boosts, attack types, a heal when someone's hurt)
 //   bonus:  (chests from elites and bosses) one hero card, one team card, one of either, at better rarity
-//   house:  (chests inside buildings) one of the chest-only cards (move speed, pickup range, EXP gain),
-//           a hero card and a team card (or another hero card), at better rarity
+//   house:  (a rare chest inside a building) the three chest-only cards: move speed, pickup range,
+//           EXP gain, at better rarity
 //   skill:  (from bosses) up to three of your survivalmons' skills, one grade up each
 //   evolve: the evolve choices once you took an "Evolve the weapon" card (2 of 3, or 3 of 5 elements)
 export function levelUpOptions(P, kind = 'hero') {
@@ -195,9 +199,7 @@ export function levelUpOptions(P, kind = 'hero') {
     if (P.pets.length) add(monCard(used));
     add(P.pets.length && chance(0.5) ? monCard(used) : heroCard(used));
   } else if (kind === 'house') {
-    add(heroCard(used, CHEST_CARDS));
-    add(heroCard(used));
-    add(P.pets.length ? monCard(used) : heroCard(used));
+    for (let i = 0; i < 3; i++) add(heroCard(used, CHEST_CARDS));
   } else if (P.main && P.main.level < MAX_WLV && chance(WEAPON_CARD_CHANCE)) {
     add({ kind: 'wcard', w: P.main, next: nextCard(P.main) });
   }

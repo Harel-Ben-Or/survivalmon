@@ -76,7 +76,7 @@ export const TIPS = {
 
   // ---------------------------------------------------------------- town
   town: [
-    "Hi, {name}! I'm Moss. Granny Wren told me to show you round. Hearthvale is home now: here you grow stronger between runs.",
+    "Hearthvale is home now, {name}! Here you grow stronger between runs, and I know where everything is.",
     'Walk up to a door and {act} to go in. Every building has a keeper inside. Talk to them and pick their button to use it.',
     { t: 'Up here is what you brought home. Coins pay for almost everything. Spirit pays for the Spirit Shrine. Skyfall Shards are rare treasure.', focus: '.town-hud .town-chip:first-child' },
     "First stop: Coach Hale's Training Hall. Spend your coins on Run time so your next run lasts longer. Then talk to Ollie at the North Gate to head out!",

@@ -313,6 +313,7 @@ export class Town {
   }
   updateVillagers(dt, P) {
     for (const n of this.npcs || []) {
+      if (n.scene) continue; // in a story scene: it moves them
       if (n.still || n.talking) { n.moving = false; if (n.face && !n.talking) n.dir = n.face; continue; } // a guard turns back to their post
       const near = Math.hypot(P.x - n.x, P.y - n.y) < 20;
       if (n.wait > 0 || near) {
@@ -768,7 +769,8 @@ export const TownMode = {
     for (const t of town.trainees) list.push({ y: t.y, trainee: t });
     Box.eggs.forEach((e, i) => { const n = town.nests[i]; if (n) list.push({ y: n.y, egg: e, n }); });
     for (const p of P.pets) list.push({ y: p.y, pet: p });
-    for (const n of town.npcs || []) list.push({ y: n.sortY ?? n.y, npc: n });
+    for (const n of town.npcs || []) if (!n.hidden) list.push({ y: n.scene ? n.y : n.sortY ?? n.y, npc: n });
+    for (const a of this.sceneActors || []) list.push({ y: a.y, actor: a });
     list.push({ y: P.y, hero: P });
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
@@ -788,6 +790,7 @@ export const TownMode = {
         drawCreature(ctx, a, x, y, { left: m.left, ...creatureMotion(a.motion, now, m.moving, m.seed, !!a.anim), anim: a.motion === 'fly' || m.moving ? 'move' : 'idle', at: now + m.seed });
       } else if (it.dummy) drawDummy(ctx, it.dummy, cam);
       else if (it.trainee) drawTrainee(ctx, it.trainee, cam, now);
+      else if (it.actor) this.drawSceneActor(ctx, it.actor, cam, now);
       else if (it.npc) {
         const n = it.npc, a = NPC_ART[n.id];
         if (!a) continue;
@@ -796,6 +799,7 @@ export const TownMode = {
         ctx.beginPath(); ctx.ellipse(x, y, 7, 2.5, 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = 1;
         drawNpcArt(ctx, a, x, y, n.dir, now + n.seed, n.moving);
+        if (n.emote) this.drawSceneEmote(ctx, n, cam);
       }
       else if (it.egg) {
         // the egg's own patterned shell (32px art at 16 logical px; its bottom row is 30)

@@ -4,7 +4,8 @@ import { iconURL } from '../gfx/assets.js';
 import { artURL, npcFaceURL, setHeroLook } from '../gfx/art.js';
 import { NPCS, npcLines, npcStage } from '../content/npcs.js';
 import { playOpening, playEnding } from './story.js';
-import { GATE_SCENE, FRIEND_SCENES, ENDING_TALK } from '../content/story_lines.js';
+import { gateArrivalScene, friendTownScene, endingScene } from '../content/story_scenes.js';
+import { gateSide } from '../content/gates.js';
 import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
@@ -391,23 +392,26 @@ export const TownUI = {
     const after = (fn) => () => { Meta.save(); fn(); };
     // an old save that has no look yet: ask once
     if (!Meta.gender && Meta.data.runs) { this.openCreator(false).then(() => this.storyBeats(found)); return true; }
-    // the first time at Hearthvale: the crowd, Hollis's name, and Granny Wren
+    // the first time at Hearthvale: the townsfolk gather round you at the gate, Hollis's name, Granny Wren
     if (!Meta.data.metWren && Meta.data.sawOpening && (Meta.data.runs || 0) <= 2) {
       Meta.data.metWren = true;
-      this.talkSeq(GATE_SCENE, after(() => { if (!this.storyBeats(found)) this.tip('town'); }));
+      this.g.playScene(gateArrivalScene(this.g)).then(after(() => { if (!this.storyBeats(found)) this.tip('town'); }));
       return true;
     }
-    // a friend found past a gate
+    // a friend found past a gate walks in with you
     if (found.length) {
       const id = found[0];
-      this.talkSeq(FRIEND_SCENES[id] || [], after(() => { this.storyBeats(found.slice(1)); }));
+      this.g.playScene(friendTownScene(this.g, id, gateSide(this.g.tier || 0))).then(after(() => { this.storyBeats(found.slice(1)); }));
       return true;
     }
-    // past the West Gate Lv 4: the Scar
+    // past the West Gate Lv 4: the Scar, then Granny Wren comes to meet you
     if (Meta.data.allGates && !Meta.data.sawEnding) {
       Meta.data.sawEnding = true;
       this.g.modal = 'story';
-      playEnding({ root: this.root }).then(() => { this.g.modal = null; this.showTown(); this.talkSeq(ENDING_TALK, after(() => {})); });
+      playEnding({ root: this.root }).then(() => {
+        this.g.modal = null; this.showTown();
+        this.g.playScene(endingScene(this.g, gateSide(this.g.tier || 0))).then(after(() => {}));
+      });
       return true;
     }
     return false;

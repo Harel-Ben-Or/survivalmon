@@ -21,6 +21,8 @@ import { rollContainer, levelUpOptions, applyLevelCard, rollStone } from '../sys
 import { Box } from '../systems/collection.js';
 import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
+import { SceneMode } from '../world/scene.js';
+import { reunionScene, FRIEND_AT_TIER } from '../content/story_scenes.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { WEAPONS } from '../content/weapons.js';
@@ -29,7 +31,7 @@ import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
 import { tierMult, gateName, gateColor, gateSide, gateBlurb, GATE_MAX } from '../content/gates.js';
-import { SETS, SLOTS, SLOT_NAME, offWeaponLevel, HERO_SETS, GEAR_SETS, pieceName } from '../content/gear.js';
+import { SETS, SLOTS, SLOT_NAME, HERO_SETS, GEAR_SETS, pieceName } from '../content/gear.js';
 import { MATERIALS, BUILDINGS } from '../content/buildings.js';
 import { ITEM, BOOST_TIME, itemName, parseKey } from '../content/shop.js';
 import { UI } from '../ui/ui.js';
@@ -230,8 +232,6 @@ export class Game {
     P.recompute();
     P.hp = P.stats.maxHp;
     P.setMain(P.hero.weapon); // the hero's own weapon: 12 levels with three evolves
-    const off = Meta.offWeapon(heroId);
-    if (off) P.addItem('weapon', off, offWeaponLevel(Meta.slotLevel(heroId, 'off')));
     this.team = this.teamBonus();
     // the berry bar: berries you pick up fill it; when it's full the team gets an upgrade
     P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; P.houseBonus = 0; P.evolvePicks = 0;
@@ -374,7 +374,8 @@ export class Game {
     // once a second: medals and achievements to announce (in a run, a house or the town)
     if (['world', 'house', 'town'].includes(this.mode) && (this.newsT = (this.newsT || 0) - dt) <= 0) { this.newsT = 1; this.checkNews(); }
     if (Input.wasPressed('KeyM')) { const m = Audio.toggleMute(); this.toast(m ? 'Sound off' : 'Sound on'); }
-    if (this.ui.guide) { /* the guide's box is open: the run and the town wait */ }
+    if (this.scene) this.updateScene(dt); // a story scene on the map: everything else waits
+    else if (this.ui.guide) { /* the guide's box is open: the run and the town wait */ }
     else if (this.mode === 'world' || this.mode === 'house') {
       if (Input.anyPressed('Escape', 'KeyP')) {
         if (this.modal === 'pause') this.ui.closePause();
@@ -615,7 +616,7 @@ export class Game {
   openWorldChest(n) {
     const P = this.player;
     Audio.play('chest');
-    this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood' }), P.x, P.y - 14);
+    this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood', wild: true }), P.x, P.y - 14);
   }
   // The zone you're in (checked twice a second); the HUD shows it under the radar.
   updateZone(dt) {
@@ -636,7 +637,8 @@ export class Game {
       else if (d.kind === 'stone') this.gainStone(d.value);
       else if (d.kind === 'card') {
         // a chest inside a building offers a chest-only card (move speed, pickup range, EXP gain)
-        if (this.mode === 'house') P.houseBonus = (P.houseBonus || 0) + d.value; else P.bonusPicks = (P.bonusPicks || 0) + d.value;
+        if (this.mode !== 'house') continue; // only a chest inside a building holds an upgrade
+        P.houseBonus = (P.houseBonus || 0) + d.value;
         this.toast('Treasure! A bonus upgrade to pick');
       }
       else if (d.kind === 'mats') {
@@ -915,7 +917,16 @@ export class Game {
     if (this.boss === e) this.boss = null;
     this.ui.bossBar(null);
     const run = this.runId;
-    if (e.type === 'night_lord') setTimeout(() => this.mode === 'world' && this.runId === run && this.victory(), 1500);
+    if (e.type === 'night_lord') setTimeout(() => this.mode === 'world' && this.runId === run && this.winRun(), 1500);
+  }
+  // The Night Lord is down. The first win at a gate's Lv 1 (North, South, East, West) finds a friend:
+  // they come running up to you right here, before the end screen.
+  winRun() {
+    const id = FRIEND_AT_TIER[this.tier || 0];
+    if (id && (this.tier || 0) === Meta.gates && !Meta.isHeroUnlocked(id)) {
+      this.clearEnemies();
+      this.playScene(reunionScene(this, id)).then(() => { if (this.mode === 'world') this.victory(); });
+    } else this.victory();
   }
 
   // ------------------------------------------------------------ helpers used by content
@@ -1042,9 +1053,11 @@ export class Game {
       }
       for (const p of P.pets) list.push({ y: p.y, pet: p });
       list.push({ y: P.y, player: P });
+      for (const a of this.sceneActors || []) list.push({ y: a.y, actor: a });
     }
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
+      if (it.actor) { this.drawSceneActor(ctx, it.actor, cam, this.realTime || 0); continue; }
       if (it.o) {
         let alpha = 1;
         if (P && it.o.fade && P.y < it.o.sortY - 1 && P.y > it.top + 6 && P.x > it.left + 3 && P.x < it.left + it.s.w - 3) alpha = 0.55;
@@ -1247,5 +1260,5 @@ export class Game {
   }
 }
 
-Object.assign(Game.prototype, Combat, Pickups, TownMode);
+Object.assign(Game.prototype, Combat, Pickups, TownMode, SceneMode);
 export { HEROES, TAU };

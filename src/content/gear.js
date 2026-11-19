@@ -8,13 +8,15 @@ export const SLOTS = ['helmet', 'armor', 'gloves', 'boots', 'main', 'off'];
 export const SLOT_NAME = { helmet: 'Helmet', armor: 'Body armor', gloves: 'Gloves', boots: 'Boots', main: 'Main hand', off: 'Off hand' };
 export const SLOT_ICON = { helmet: 'gear_helmet', armor: 'gear_armor', gloves: 'gear_gloves', boots: 'gear_boots' };
 
-// Each hero's set. main/off name the weapon held in that hand.
+// Each hero's set. main names the weapon in that hand (mainW: its icon). The off hand holds a keepsake
+// for the hero's own weapon, never a second weapon, so every hero fights with one kind of weapon
+// (offIcon: its icon).
 export const SETS = {
-  rowan: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Hunter Bow', off: 'Ranger Boomerang', mainW: 'bow', offW: 'boomerang' },
-  rowanf: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Ranger Boomerang', off: 'Hunter Bow', mainW: 'boomerang', offW: 'bow' },
-  bram: { name: 'Farmhand set', hue: 190, helmet: 'Straw Hat', armor: 'Patched Overalls', gloves: 'Work Gloves', boots: 'Muddy Boots', main: 'Pitchfork', off: 'Harvest Scythe', mainW: 'pitchfork', offW: 'scythe' },
-  lyra: { name: 'Apprentice set', hue: 250, helmet: 'Pointed Hat', armor: 'Star Robe', gloves: 'Silk Gloves', boots: 'Velvet Slippers', main: 'Magic Wand', off: 'Storm Rod', mainW: 'emberwand', offW: 'lightrod' },
-  pip: { name: 'Tamer set', hue: 120, helmet: 'Feather Cap', armor: 'Tamer Vest', gloves: 'Tamer Gloves', boots: 'Trail Boots', main: 'Pebble Sling', off: 'Leaf Charm', mainW: 'sling', offW: 'leaves' },
+  rowan: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Hunter Bow', off: 'Hunter Quiver', mainW: 'bow', offIcon: 'feather' },
+  rowanf: { name: 'Ranger set', hue: 0, helmet: 'Ranger Cap', armor: 'Ranger Vest', gloves: 'Archer Gloves', boots: 'Swift Boots', main: 'Ranger Boomerang', off: 'Catcher Bracer', mainW: 'boomerang', offIcon: 'gale' },
+  bram: { name: 'Farmhand set', hue: 190, helmet: 'Straw Hat', armor: 'Patched Overalls', gloves: 'Work Gloves', boots: 'Muddy Boots', main: 'Pitchfork', off: 'Oak Buckler', mainW: 'pitchfork', offIcon: 'shell' },
+  lyra: { name: 'Apprentice set', hue: 250, helmet: 'Pointed Hat', armor: 'Star Robe', gloves: 'Silk Gloves', boots: 'Velvet Slippers', main: 'Magic Wand', off: 'Spell Tome', mainW: 'emberwand', offIcon: 'stormcharm' },
+  pip: { name: 'Tamer set', hue: 120, helmet: 'Feather Cap', armor: 'Tamer Vest', gloves: 'Tamer Gloves', boots: 'Trail Boots', main: 'Pebble Sling', off: 'Pebble Pouch', mainW: 'sling', offIcon: 'berrypouch' },
 };
 
 // The 4 sets of each hero: the first is the hero's own set (its pieces are named in SETS above).
@@ -105,9 +107,8 @@ export const SLOT_STAT = {
   gloves: { text: (L) => `${6 + L}% faster weapons`, mods: (L) => ({ haste: 0.06 + 0.01 * L }) },
   boots: { text: (L) => `+${5 + L * 0.5}% move speed`, mods: (L) => ({ speed: 0.05 + 0.005 * L }) },
   main: { text: (L) => `+${10 + 2 * L}% damage`, mods: (L) => ({ might: 0.1 + 0.02 * L }) },
-  off: { text: (L) => `Starts every run with its weapon at Lv ${offWeaponLevel(L)}`, mods: () => ({}) },
+  off: { text: (L) => `+${3 + 0.5 * L}% crit chance`, mods: (L) => ({ crit: 0.03 + 0.005 * L }) },
 };
-export const offWeaponLevel = (L) => Math.min(8, 1 + Math.floor(L / 4));
 
 // The hero's boost for the whole survivalmon team (added to the team bonus at the start of a run).
 export const HERO_BOOST = {

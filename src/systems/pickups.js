@@ -9,7 +9,7 @@ import { WEAPONS } from '../content/weapons.js';
 import { TILE } from '../world/world.js';
 
 // A gear piece shows its slot's icon (or the weapon it is)
-export const gearIcon = (v) => SLOT_ICON[v.slot] || WEAPONS[v.slot === 'main' ? SETS[v.hero].mainW : SETS[v.hero].offW].icon;
+export const gearIcon = (v) => SLOT_ICON[v.slot] || (v.slot === 'main' ? WEAPONS[SETS[v.hero].mainW]?.icon || SETS[v.hero].mainW : SETS[v.hero].offIcon);
 
 const SPRITE = { xp1: 'gem_s', xp5: 'gem_m', xp25: 'gem_l', coin: 'coin', heart: 'heart', magnet: 'magnet_pick', bomb: 'bomb_pick', chest: 'chest_pick', egg: 'egg' };
 
