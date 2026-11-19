@@ -14,7 +14,8 @@ export async function monbench(cfg = {}) {
   const { BASE_IDS, SPECIES } = await import('/src/content/species.js');
   if (Meta.data.guide) Meta.data.guide.on = false;
   const ids = cfg.ids || BASE_IDS, level = cfg.level || 30, secs = cfg.seconds || 20, crowd = cfg.crowd || 24;
-  const team0 = [...Box.data.team], tier0 = Meta.data.gateTier, out = [];
+  const team0 = [...Box.data.team], tier0 = Meta.data.gateTier, gates0 = Meta.data.gates, out = [];
+  Meta.data.gates = Math.max(gates0 || 0, cfg.gate || 0); // a run can't go past the newest open gate
   const types = ['blob', 'slime', 'beetle', 'wolf', 'shroom_blue', 'golem', 'hound', 'spitter'];
   for (const sp of ids) {
     for (let rep = 0; rep < (cfg.reps || 2); rep++) {
@@ -32,10 +33,10 @@ export async function monbench(cfg = {}) {
       if (cfg.boss) { boss = g.spawnEnemy('golem', P.x + 60, P.y); boss.boss = true; boss.maxHp = boss.hp = 1e9; boss.knockRes = 1; }
       else spawn(crowd);
       let dmg = 0, faintT = 0, kills0 = P.kills;
-      const proto = Object.getPrototypeOf(g), base = proto.damageEnemy;
+      const own = Object.prototype.hasOwnProperty.call(g, 'damageEnemy'), base = g.damageEnemy; // hooked on the game itself
       // the hero is unarmed, so every hit (burns and poison ticks too, which aren't marked as the
       // survivalmons') is the team's
-      proto.damageEnemy = function (e, b, o = {}) { const before = Math.max(0, e.hp); const r = base.call(this, e, b, o); if (!boss || e === boss) dmg += Math.min(r.dmg, before); return r; };
+      g.damageEnemy = function (e, b, o = {}) { const before = Math.max(0, e.hp); const r = base.call(this, e, b, o); if (!boss || e === boss) dmg += Math.min(r.dmg, before); return r; };
       try {
         for (let f = 0; f < secs * 30 && g.mode === 'world'; f++) {
           if (g.modal) { g.ui.closeModal(); g.modal = null; }
@@ -45,7 +46,7 @@ export async function monbench(cfg = {}) {
           faintT += P.pets.filter((p) => p.fainted).length / 30;
           if (f % 300 === 0) await sleep(0);
         }
-      } finally { proto.damageEnemy = base; }
+      } finally { if (own) g.damageEnemy = base; else delete g.damageEnemy; }
       const kills = P.kills - kills0, pool = Math.round(g.monPool || 0);
       g.endRun('quit'); g.ui.closeModal(); g.modal = null;
       for (const m of mons) Box.remove(m.id);
@@ -53,7 +54,7 @@ export async function monbench(cfg = {}) {
       await sleep(0);
     }
   }
-  Box.data.team = team0; Meta.data.gateTier = tier0; Box.save(); Meta.save();
+  Box.data.team = team0; Meta.data.gateTier = tier0; Meta.data.gates = gates0; Box.save(); Meta.save();
   // average the repeats
   const by = {};
   for (const r of out) { const o = (by[r.sp] ||= { ...r, dps: 0, down: 0, kills: 0, pool: 0, n: 0 }); o.dps += r.dps; o.down += r.down; o.kills += r.kills; o.pool += r.pool; o.n++; }

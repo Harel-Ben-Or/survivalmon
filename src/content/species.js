@@ -67,12 +67,15 @@ export const petXpFor = (L) => Math.floor(14 + L * 8 + L * L);
 export const BERRY_XP = 6;
 
 // ---------------------------------------------------------------- the 6 species
+// (Nov 19: Emberpup 9 -> 11 damage; Puddlit 7 -> 9 damage, a bubble every 1.1 s (from 1.2) that pierces
+// 1 foe; Snowpip 8 -> 10 damage and shards that pierce 1 foe. Two of them are starters, and in simulated runs a team of
+// any of the three lasted about 60% as long as the middle of the pack.)
 // hp = base max HP; q = the unique skill's numbers; arch = how that skill attacks (see pet.js)
 const BASE = {
   emberpup: {
     name: 'Emberpup', type: 'fire', arch: 'shooter', hp: 60, desc: 'Spits homing embers that burn.',
     unique: { name: 'Ember Spit', desc: 'Homing embers that burn.' },
-    q: { dmg: 9, cd: 1.3, range: 150, proj: 'p_ember', speed: 150, homing: 6, burn: 3, count: 1, element: 'fire', glow: '#f6a03a' },
+    q: { dmg: 11, cd: 1.3, range: 150, proj: 'p_ember', speed: 150, homing: 6, burn: 3, count: 1, element: 'fire', glow: '#f6a03a' },
   },
   leafkit: {
     name: 'Leafkit', type: 'grass', arch: 'shooter', hp: 70, desc: 'Throws razor leaves and heals the team now and then.',
@@ -86,13 +89,13 @@ const BASE = {
   },
   puddlit: {
     name: 'Puddlit', type: 'water', arch: 'shooter', hp: 75, desc: 'Blows bubbles that slow foes.',
-    unique: { name: 'Bubble', desc: 'Bubbles that slow foes.' },
-    q: { dmg: 7, cd: 1.2, range: 150, proj: 'p_bubble', speed: 120, chill: 2.5, r: 5, count: 1 },
+    unique: { name: 'Bubble', desc: 'Bubbles that pass through a foe and slow foes.' },
+    q: { dmg: 9, cd: 1.1, range: 150, proj: 'p_bubble', speed: 120, chill: 2.5, r: 5, count: 1, pierce: 1 },
   },
   pebblet: {
     name: 'Pebblet', type: 'rock', arch: 'roller', hp: 95, desc: 'Curls up and rolls through foes.',
     unique: { name: 'Rollout', desc: 'Rolls through a line of foes.' },
-    q: { dmg: 20, cd: 3.5, range: 140, speed: 220, time: 0.7, knock: 200, spin: true },
+    q: { dmg: 20, cd: 2.8, range: 140, speed: 220, time: 0.7, knock: 200, spin: true },
   },
   glimmoth: {
     name: 'Glimmoth', type: 'fairy', arch: 'aura', hp: 50, desc: 'Sheds sparkling dust that hurts foes and pulls in EXP.',
@@ -106,8 +109,8 @@ const BASE = {
   },
   snowpip: {
     name: 'Snowpip', type: 'ice', arch: 'shooter', hp: 70, desc: 'A penguin chick that throws ice shards.',
-    unique: { name: 'Ice Shard', desc: 'Shards that slow foes and sometimes freeze them.' },
-    q: { dmg: 8, cd: 1.3, range: 150, proj: 'p_ice', speed: 180, chill: 2, freezeChance: 0.15, count: 1, glow: '#bff4ff' },
+    unique: { name: 'Ice Shard', desc: 'Shards that pass through a foe, slow foes and sometimes freeze them.' },
+    q: { dmg: 10, cd: 1.3, range: 150, proj: 'p_ice', speed: 180, chill: 2, freezeChance: 0.15, count: 1, pierce: 1, glow: '#bff4ff' },
   },
   venewt: {
     name: 'Venewt', type: 'toxic', arch: 'lobber', hp: 65, desc: 'A newt that spits poison goo into puddles.',

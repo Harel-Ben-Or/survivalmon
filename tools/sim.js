@@ -32,7 +32,7 @@ export async function sim(cfg = {}) {
   const P = g.player;
   const out = { hero: P.hero.id, heroDmg: 0, monDmg: 0, rawIn: 0, taken: 0, hits: 0, faints: [], minHp: 1, cards: {}, by: {}, perMon: {}, crowd: 0, near: 0, samples: 0 };
   // count damage by who dealt it, and damage taken before and after armor
-  const dmgFn = g.damageEnemy;
+  const dmgFn = g.damageEnemy, dmgOwn = Object.prototype.hasOwnProperty.call(g, 'damageEnemy');
   g.damageEnemy = function (e, base, o = {}) { const hp0 = Math.max(0, e.hp); const r = dmgFn.call(this, e, base, o); const d = Math.min(r.dmg, hp0); out[o.pet ? 'monDmg' : 'heroDmg'] += d; if (o.petRef) out.perMon[o.petRef.species] = (out.perMon[o.petRef.species] || 0) + d; return r; };
   const hurtFn = P.hurt.bind(P);
   P.hurt = (dmg, src) => { const before = P.hp; const hit = hurtFn(dmg, src); if (hit) { out.rawIn += dmg; out.taken += before - Math.max(0, P.hp); out.hits++; const k = src?.type || '?'; out.by[k] = (out.by[k] || 0) + Math.round(before - Math.max(0, P.hp)); } return hit; };
@@ -107,7 +107,7 @@ export async function sim(cfg = {}) {
     if (steps > 30 * 900) break;
   }
   Input.setStick(0, 0);
-  g.damageEnemy = dmgFn;
+  if (dmgOwn) g.damageEnemy = dmgFn; else delete g.damageEnemy; // back to the class's own (other tools hook it there)
   Object.assign(out, {
     t: Math.round(g.time), dead: P.hp <= 0, lv: P.level, kills: P.kills,
     weapon: P.main ? `${P.main.id} Lv ${P.main.level} ${P.main.path.join('>')}` : '', teamUps: P.teamLevel || 0, monPool: Math.round(g.monPool || 0),

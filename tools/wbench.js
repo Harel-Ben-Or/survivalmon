@@ -43,9 +43,8 @@ export async function wbench(id = 'bow', cfg = {}) {
       boss = g.spawnEnemy('golem', P.x + 44, P.y);
       boss.boss = true; boss.maxHp = boss.hp = 1e9; boss.knockRes = 1; // held in place every frame below, alone
     } else spawn(18);
-    const proto = Object.getPrototypeOf(g);
-    const base = proto.damageEnemy;
-    proto.damageEnemy = function (e, b, o = {}) {
+    const own = Object.prototype.hasOwnProperty.call(g, 'damageEnemy'), base = g.damageEnemy; // hooked on the game itself
+    g.damageEnemy = function (e, b, o = {}) {
       const before = Math.max(0, e.hp);
       const r = base.call(this, e, b, o);
       if (!o.pet && (kind === 'crowd' || e === boss)) dmg += kind === 'boss' ? r.dmg : Math.min(r.dmg, before);
@@ -59,7 +58,7 @@ export async function wbench(id = 'bow', cfg = {}) {
         g.update(1 / 30);
         if (f % 300 === 0) await sleep(0);
       }
-    } finally { proto.damageEnemy = base; }
+    } finally { if (own) g.damageEnemy = base; else delete g.damageEnemy; }
     g.endRun('quit'); g.ui.closeModal();
     return dmg / secs;
   };
