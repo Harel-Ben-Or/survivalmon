@@ -178,9 +178,17 @@ export const Combat = {
     this.zones = this.zones.filter((z) => z.age < z.life);
   },
   drawZones(ctx, cam) {
+    // Only what's on screen is drawn, and past 100 fires (a fire final form in a big crowd can leave
+    // 300) only every 2nd or 3rd one: they overlap anyway, and every one of them still burns.
+    const W = this.view?.w || 1e9, H = this.view?.h || 1e9;
+    let fires = 0;
+    if (this.zones.length > 100) for (const z of this.zones) if (z.kind === 'fire') fires++;
+    const stride = fires > 100 ? Math.ceil(fires / 100) : 1;
     for (const z of this.zones) {
       if (z.invisible) continue;
       const x = Math.round(z.x - cam.x), y = Math.round(z.y - cam.y);
+      if (x < -z.r - 12 || y < -z.r - 12 || x > W + z.r + 12 || y > H + z.r + 12) continue;
+      if (z.kind === 'fire' && stride > 1 && (z.seed || 0) % stride) continue; // by its seed, so the same fires stay drawn
       const fade = Math.min(1, (z.life - z.age) * 3);
       if (z.fx && VFX[z.fx]) {
         // the pool art is drawn for a 24 px radius; it fades in and out
