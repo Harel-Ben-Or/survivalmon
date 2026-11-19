@@ -1111,7 +1111,8 @@ body .tbtn.pause-btn { top: calc(var(--strip) + var(--mini) + 28px + env(safe-ar
 .pg-back { flex: none; font: 800 var(--pg-fs) var(--font); color: var(--text); background: rgba(0,0,0,.25); border: 2px solid var(--panel-edge); border-radius: 6px; padding: 0 10px; height: calc(var(--pg-head) - 6px); cursor: pointer; }
 .pg-back:hover, .pg-back:focus-visible { border-color: var(--gold); outline: none; }
 #select .pg-title { flex: none; font: 600 calc(var(--pg-fs) + 5px)/1 var(--font-title); color: var(--gold); text-shadow: 2px 2px 0 var(--ink); margin: 0; white-space: nowrap; }
-.pg-chips { flex: 1; min-width: 0; display: flex; gap: 6px; align-items: center; overflow: hidden; white-space: nowrap; }
+.pg-chips { flex: 1; min-width: 0; display: flex; gap: 6px; align-items: center; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; white-space: nowrap; } /* a narrow screen swipes the chips */
+.pg-chips::-webkit-scrollbar { display: none; }
 .pg-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: calc(var(--pg-fs) - 1px); padding: 1px 8px; border-radius: 10px; background: rgba(0,0,0,.25); color: var(--text); white-space: nowrap; }
 .pg-chip img { width: 14px; height: 14px; }
 .pg-tools { flex: none; display: flex; gap: 5px; align-items: center; overflow-x: auto; max-width: 62vw; }

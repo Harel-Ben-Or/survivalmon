@@ -1,7 +1,7 @@
 // Run in the dev page console: localStorage cleared first for a fresh save, then
 //   window.__bot = { runs: 20 }; import('/tools/bot.js')   and read window.__bot.log when __bot.done.
 // Full-game bot: fresh save -> starter egg -> N runs, spending in town between runs.
-window.__bot = { runs: window.__bot?.runs, log: [], errors: [], done: false, run: 0 };
+window.__bot = { runs: window.__bot?.runs, weaponFirst: window.__bot?.weaponFirst, log: [], errors: [], done: false, run: 0 };
 window.addEventListener('error', (e) => __bot.errors.push(String(e.message)));
 window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + String(e.reason?.message || e.reason)));
 (async () => {
@@ -27,9 +27,15 @@ window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + 
       close = Math.min(close, d2);
       if (d2 < 160 * 160) { const w = (e.boss ? 4 : 1) / Math.max(64, d2); fx += dx * w; fy += dy * w; }
     }
-    // gather or collect when it is calm
-    if (close > 80 * 80) {
-      let best = null, bd = 220 * 220;
+    // pick up gems and drops when it is calm (like a player sweeping the field), else gather
+    if (close > 70 * 70) {
+      let best = null, bd = 260 * 260;
+      for (const k of g.pickups) {
+        if (k.taken || k.magnet || !['xp', 'berry', 'heart', 'coin', 'chest', 'egg', 'stone', 'gear'].includes(k.kind)) continue;
+        const d = (k.x - P.x) ** 2 + (k.y - P.y) ** 2; if (d < bd) { bd = d; best = k; }
+      }
+      if (best) { const dx = best.x - P.x, dy = best.y - P.y, d = Math.hypot(dx, dy) || 1; fx += dx / d * 0.03; fy += dy / d * 0.03; best = null; bd = 0; }
+      else bd = 220 * 220;
       for (const o of g.world.nodes) { const d = (o.x - P.x) ** 2 + (o.y - 2 - P.y) ** 2; if (d < bd) { bd = d; best = o; } }
       if (best) {
         const dx = best.x - P.x, dy = best.y - 2 - P.y, d = Math.hypot(dx, dy);
@@ -45,7 +51,12 @@ window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + 
   };
   const handleModal = () => {
     const k = g.modal;
-    if (k === 'levelup') { const cards = document.querySelectorAll('[data-pick]'); if (cards.length) cards[(Math.random() * cards.length) | 0].click(); }
+    if (k === 'levelup') {
+      const cards = document.querySelectorAll('[data-pick]');
+      // __bot.weaponFirst: like a player who always takes the weapon card when it shows up
+      const opts = ui.levelCards || [], wi = bot.weaponFirst ? opts.findIndex((c) => c.kind === 'wcard' || c.kind === 'wpath') : -1;
+      if (cards.length) cards[wi >= 0 && wi < cards.length ? wi : (Math.random() * cards.length) | 0].click();
+    }
     else if (k === 'loot') ui.nextLoot();
     else if (k === 'evolve') { click('[data-act="evolve-go"]') || click('[data-act="evolve-close"]') || click('[data-act="evolve-later"]'); }
     else if (k === 'pause') ui.closePause();
