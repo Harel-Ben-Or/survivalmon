@@ -20,8 +20,10 @@ export async function sim(cfg = {}) {
   Meta.data.unlocked.clinic = true;
   if (Meta.data.guide) Meta.data.guide.on = false; // no tips in the middle of a simulated run
   Meta.data.gateTier = cfg.gate ?? 0; Meta.data.gates = Math.max(Meta.data.gates || 0, cfg.gate ?? 0); // the gate to run at (cfg.gate, North Lv 1 unless asked; cfg.tier is the skill grade)
-  if (Shrine.data) Shrine.data.nodes = {};
+  if (Shrine.data) Shrine.data.nodes = { ...(cfg.shrine || {}) }; // cfg.shrine: Spirit Shrine node levels, e.g. { dmg: 25, hp: 25 }
   Box.data.mons = []; Box.data.team = []; Box.data.upgrades = {}; Box.data.firstHatch = false;
+  // cfg.speciesUp: species-coin upgrade level for every species line (up to 100)
+  if (cfg.speciesUp) { const { BASE_IDS } = await import('/src/content/species.js'); for (const l of BASE_IDS) Box.data.upgrades[l] = cfg.speciesUp; }
   for (const [sp, lv, extra] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }, ...(extra || [])] });
   g.startRun(cfg.hero || 'rowan');
   if (cfg.main) g.player.main = { ...cfg.main, path: [...(cfg.main.path || [])], cd: 0.2 }; // a fixed main weapon, e.g. { id: 'bow', level: 12, path: ['volley', 'rain', 'ice'] }
