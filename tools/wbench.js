@@ -4,6 +4,7 @@
 //   boss:  one huge foe that never dies, 44 px away and alone; only damage to it counts
 // Use it in the dev page console ON A THROWAWAY PROFILE:
 //   const { wbench } = await import('/tools/wbench.js'); const r = await wbench('bow', { seconds: 8 })
+// cfg.levels: only these levels (4, 8, 12); cfg.els: only these elements at level 12
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export async function wbench(id = 'bow', cfg = {}) {
@@ -18,7 +19,7 @@ export async function wbench(id = 'bow', cfg = {}) {
     if (cfg.levels?.includes(4) ?? true) paths.push([4, [r1]]);
     for (const r2 of Object.keys(T.r1[r1].r2)) {
       if (cfg.levels?.includes(8) ?? true) paths.push([8, [r1, r2]]);
-      if (cfg.levels?.includes(12) ?? true) for (const el of ELEMENT_IDS) paths.push([12, [r1, r2, el]]);
+      if (cfg.levels?.includes(12) ?? true) for (const el of cfg.els || ELEMENT_IDS) paths.push([12, [r1, r2, el]]);
     }
   }
   const team = Box.data.team; Box.data.team = []; // no survivalmons

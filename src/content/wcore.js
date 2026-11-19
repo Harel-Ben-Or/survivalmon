@@ -6,7 +6,7 @@ export const ELEMENTS = {
   fire: { name: 'Fire', color: '#f6702a', desc: 'Hits set foes burning for 3 s, for 25% of the hit each second.' },
   ice: { name: 'Ice', color: '#8fd8ff', desc: 'Hits chill foes for 2 s. Three hits in that time freeze a foe for 1 s.' },
   poison: { name: 'Poison', color: '#8ad04a', desc: 'Each hit adds a poison stack (up to 5): 15% of the hit each second for 4 s.' },
-  bolt: { name: 'Lightning', color: '#ffe36a', desc: 'Each hit sends a bolt to 2 other foes nearby, for 30% of the hit.' },
+  bolt: { name: 'Lightning', color: '#ffe36a', desc: 'Each hit sends a bolt to 2 other foes nearby, for 25% of the hit.' },
   glow: { name: 'Light', color: '#fff6c8', desc: 'Foes you hit glow for 3 s. Your survivalmons do +25% damage to glowing foes.' },
 };
 export const ELEMENT_IDS = Object.keys(ELEMENTS);
@@ -55,7 +55,7 @@ export function wHit(g, e, dmg, st, x = {}) {
   }
   const res = g.damageEnemy(e, dmg, o);
   if (el === 'poison') addPoison(e, 0.15 * dmg, x.stacks || 1, x.cap || 5);
-  if (el === 'bolt' && !x.noChain) chainBolt(g, e, dmg * 0.3, 2, 80, st);
+  if (el === 'bolt' && !x.noChain) chainBolt(g, e, dmg * 0.25, 2, 80, st); // 25%: at 30% it still cleared crowds 30% faster than the other elements
   if (el === 'glow') glowOn(e, x.glowT || 3, x.glowK || 0.25);
   return res;
 }
