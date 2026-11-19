@@ -307,9 +307,9 @@ export function drawCreature(ctx, s, x, y, o = {}) {
     const fr = s.anim[o.anim];
     let i;
     if (o.frame !== undefined) i = Math.max(0, Math.min(fr.length - 1, o.frame)); // attack and faint play once
-    else { const fps = o.anim === 'idle' ? ANIM_FPS.idle : s.motion === 'fly' ? ANIM_FPS.fly : ANIM_FPS.move; i = Math.floor((o.at || 0) * fps) % fr.length; }
+    else { const fps = o.anim === 'idle' ? ANIM_FPS.idle : s.motion === 'fly' ? ANIM_FPS.fly : ANIM_FPS.move; i = Math.floor((o.at || 0) * fps) % fr.length; if (i < 0) i += fr.length; } // a clock just below 0 counts back from the last frame
     const f = fr[i];
-    img = left ? f.L : f.R;
+    if (f) img = left ? f.L : f.R;
   }
   if (o.blight) img = blightTint(img); // a survivalmon under the Blight's control
   const pad = (img.width - s.w) / 2;

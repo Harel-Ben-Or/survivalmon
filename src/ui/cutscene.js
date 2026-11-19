@@ -47,7 +47,7 @@ class Scene {
       const frame = (now) => {
         if (done) return;
         if (!this.c.isConnected) { finish(); return; }
-        const dt = Math.min(0.05, (now - last) / 1000); last = now;
+        const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; // never a step back in time
         this.t += dt;
         for (const q of this.cues) if (!q.done && this.t >= q.at) { q.done = true; q.fn(); }
         const g = this.g;

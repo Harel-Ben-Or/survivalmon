@@ -413,11 +413,13 @@ export async function playOpening({ root = document.body, replay = false, onPick
     }
     if (s.auto && t >= s.auto && (!s.text || shown >= s.text.length)) go(i + 1);
   };
+  // The first frame's time can come out a hair before `last` (a negative step, which once froze the
+  // opening on its first picture), so a step is never below 0; and one bad frame never stops the loop.
   const frame = (now) => {
     if (done) return;
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    tick(dt);
     requestAnimationFrame(frame);
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
+    try { tick(dt); } catch (err) { console.error(err); }
   };
   playOpening.tick = tick; // lets a test step the scenes when the page has no animation frames
   requestAnimationFrame(frame);
@@ -451,7 +453,11 @@ export async function playEnding({ root = document.body } = {}) {
   Audio.play('starfall');
   const frame = (now) => {
     if (done) return;
-    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+    requestAnimationFrame(frame);
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; t += dt;
+    try { draw(dt); } catch (err) { console.error(err); }
+  };
+  const draw = (dt) => {
     const W = el.clientWidth, H = el.clientHeight, dpr = Math.min(3, window.devicePixelRatio || 1);
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     const band = Math.round(Math.min(96, H * 0.22) * dpr);
@@ -470,7 +476,6 @@ export async function playEnding({ root = document.body } = {}) {
     if (capP.dataset.n !== `${i}:${n}`) { capP.textContent = pages[i].slice(0, n); capP.dataset.n = `${i}:${n}`; }
     cap.classList.toggle('ready', n >= pages[i].length);
     cap.classList.toggle('big', i === pages.length - 1);
-    requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
   return finished;
