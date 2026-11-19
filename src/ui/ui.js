@@ -823,7 +823,7 @@ export class UI {
           <div class="end-body">
             <div class="end-tiles">${tiles}</div>
             <div class="end-side">
-              <div class="end-label">Your team</div>
+              <div class="end-label">Your team${g.poolShare ? ` · +${g.poolShare.share.toLocaleString()} EXP each` : ''}</div>
               <div class="end-team">${team}</div>
               ${caught ? `<div class="end-label">Caught this run · now at your Ranch</div><div class="end-caught">${caught}</div>` : ''}
             </div>

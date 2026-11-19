@@ -13,8 +13,8 @@ export const BOW = {
   },
   r1: {
     volley: {
-      name: 'Volley', desc: '3 arrows in a fan, each with 80% damage. For crowds.',
-      apply: (s) => { s.n = 3; s.dmg *= 0.8; },
+      name: 'Volley', desc: '3 arrows in a fan, each with 90% damage. For crowds.',
+      apply: (s) => { s.n = 3; s.dmg *= 0.9; },
       steps: {
         5: step('+1 arrow', (s) => { s.n += 1; }),
         6: step('+3 damage per arrow', (s) => { s.dmg += 3; }),
@@ -81,7 +81,7 @@ export const BOW = {
           },
         },
         blast: {
-          name: 'Blast Tip', desc: 'The arrow explodes at the foe it was aimed at (40 px), then flies on.',
+          name: 'Blast Tip', desc: 'The arrow explodes at the foe it was aimed at (40 px, 80% damage), then flies on.',
           apply: (s) => { s.blastR = 40; },
           steps: { 9: step('Blast 40% bigger', (s) => { s.blastR = 56; }), 10: step('A second blast at the end of its flight', (s) => { s.blast2 = true; }), 11: step('+10 damage', (s) => { s.dmg += 10; }) },
           finals: {
@@ -93,9 +93,9 @@ export const BOW = {
           },
         },
         hunt: {
-          name: 'Headhunter', desc: 'Aims at the foe with the most HP, with double damage to big foes.',
-          apply: (s) => { s.huntMult = 2; },
-          steps: { 9: step('+10 damage', (s) => { s.dmg += 10; }), 10: step('Triple damage to big foes', (s) => { s.huntMult = 3; }), 11: step('Shoots 15% faster', (s) => { s.cd *= 0.85; }) },
+          name: 'Headhunter', desc: 'Aims at the foe with the most HP, with 75% more damage to big foes.',
+          apply: (s) => { s.huntMult = 1.75; },
+          steps: { 9: step('+10 damage', (s) => { s.dmg += 10; }), 10: step('Big foes take 2.5× damage', (s) => { s.huntMult = 2.5; }), 11: step('Shoots 15% faster', (s) => { s.cd *= 0.85; }) },
           finals: {
             fire: { name: 'Searing Shot', desc: 'Each hit makes the target\'s burn 25% stronger, up to 3×.' },
             ice: { name: 'Glacier Shot', desc: 'The target is slowed for 3 s, even a boss.' },
@@ -107,8 +107,8 @@ export const BOW = {
       },
     },
     quick: {
-      name: 'Quickdraw', desc: 'Shoots twice as fast, each arrow with 70% damage, and +10% crit chance.',
-      apply: (s) => { s.cd *= 0.5; s.dmg *= 0.7; s.critAdd = (s.critAdd || 0) + 0.1; },
+      name: 'Quickdraw', desc: 'Shoots twice as fast, each arrow with 85% damage, and +15% crit chance.',
+      apply: (s) => { s.cd *= 0.5; s.dmg *= 0.85; s.critAdd = (s.critAdd || 0) + 0.15; },
       steps: {
         5: step('+3 damage', (s) => { s.dmg += 3; }),
         6: step('+10% crit chance', (s) => { s.critAdd += 0.1; }),
@@ -140,9 +140,9 @@ export const BOW = {
           },
         },
         hawk: {
-          name: 'Hawk Eye', desc: 'Arrows curve toward their target. Each hit on the same foe does 10% more, up to +100%.',
-          apply: (s) => { s.homing = 6; s.hawkCap = 1; },
-          steps: { 9: step('+3 damage', (s) => { s.dmg += 3; }), 10: step('Stack goes up to +200%', (s) => { s.hawkCap = 2; }), 11: step('Shoots 15% faster', (s) => { s.cd *= 0.85; }) },
+          name: 'Hawk Eye', desc: 'Arrows curve toward their target. Each hit on the same foe does 10% more, up to +80%.',
+          apply: (s) => { s.homing = 6; s.hawkCap = 0.8; },
+          steps: { 9: step('+3 damage', (s) => { s.dmg += 3; }), 10: step('Stack goes up to +150%', (s) => { s.hawkCap = 1.5; }), 11: step('Shoots 15% faster', (s) => { s.cd *= 0.85; }) },
           finals: {
             fire: { name: 'Kindling', desc: 'The burn grows with your stack, up to 3× at full.' },
             ice: { name: 'Frostbite', desc: 'A full stack freezes the foe for 1 s and starts the stack over.' },
@@ -249,7 +249,7 @@ function shardBurst(g, st, e, a, n) {
 function blastAt(g, st, x, y) {
   const R = st.blastR;
   g.enemiesInRadius(x, y, R, (e) => {
-    wHit(g, e, st.dmg, st, { small: true, silent: true, freeze: st.el === 'ice' ? 1 : 0, stun: st.el === 'glow' ? 1 : 0, glowT: 3, knock: 60 });
+    wHit(g, e, st.dmg * 0.8, st, { small: true, silent: true, freeze: st.el === 'ice' ? 1 : 0, stun: st.el === 'glow' ? 1 : 0, glowT: 3, knock: 60 });
   });
   g.addEffect({ type: 'explosion', x, y, R, life: 0.3, color: st.el ? ELEMENTS[st.el].color : '#f6a03a', glow: true });
   if (st.el === 'fire') fireZone(g, x, y, R, 3, st.dmg * 0.25);

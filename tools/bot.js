@@ -50,10 +50,20 @@ window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + 
     else if (k === 'evolve') { click('[data-act="evolve-go"]') || click('[data-act="evolve-close"]') || click('[data-act="evolve-later"]'); }
     else if (k === 'pause') ui.closePause();
     else if (k === 'hatched') click('[data-mact="hatch-next"]');
+    else if (k === 'talkseq') click('[data-talk="seq-next"]');
+    else if (k === 'creator') click('[data-talk="creator-ok"]');
+    else if (k === 'story') document.querySelector('.story')?.click();
     else if (k) bot.stuck = (bot.stuck || 0) + 1;
   };
   const town = async () => {
-    for (let i = 0; i < 40 && g.modal; i++) { if (!click('[data-mact="hatch-next"]')) { ui.closeModal(); g.modal = null; } await sleep(30); }
+    // story scenes (the gate, friends found, the ending) are clicked through; anything else is closed
+    for (let i = 0; i < 80 && (g.modal || ui.guide); i++) {
+      if (ui.guide) { ui.closeGuide(); continue; }
+      if (g.modal === 'talkseq') { click('[data-talk="seq-next"]'); bot.scenes = (bot.scenes || 0) + 1; }
+      else if (g.modal === 'story') document.querySelector('.story')?.click();
+      else if (!click('[data-mact="hatch-next"]')) { ui.closeModal(); g.modal = null; }
+      await sleep(30);
+    }
     // heal
     const hurt = Box.hurtMons();
     for (const m of hurt) { const c = Math.ceil((1 - m.hp) * (6 + m.level * 2)); if (Meta.data.coins >= c && Meta.isUnlocked('clinic')) { Meta.data.coins -= c; Box.heal(m); } }
@@ -91,12 +101,14 @@ window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + 
   for (let r = 0; r < RUNS; r++) {
     bot.run = r + 1;
     await town();
-    const heroes = ['rowan', 'bram', 'lyra', 'pip'].filter((h) => Meta.isHeroUnlocked(h));
+    const heroes = ['rowan', 'rowanf', 'bram', 'lyra', 'pip'].filter((h) => Meta.isHeroUnlocked(h));
+    Meta.data.gateTier = Meta.gates; // always the newest gate, like a player pushing on
     g.startRun(heroes[r % heroes.length]);
     const t0 = performance.now(), coins0 = Meta.data.coins;
     let steps = 0;
     while (g.mode === 'world' || g.mode === 'house') {
       for (let i = 0; i < 120 && (g.mode === 'world' || g.mode === 'house'); i++) {
+        if (ui.guide) ui.closeGuide();
         if (g.modal) handleModal(); else steer();
         if (g.mode === 'house' && !g.modal) g.exitHouse?.();
         g.update(1 / 60); steps++;
@@ -106,7 +118,7 @@ window.addEventListener('unhandledrejection', (e) => __bot.errors.push('rej ' + 
     }
     Input.setStick(0, 0);
     const P = g.player;
-    bot.log.push({ run: r + 1, hero: P.hero?.id, len: g.runLength, t: Math.round(g.time), dead: P.hp <= 0, lv: P.level, kills: P.kills, coins: Meta.data.coins - coins0, mats: { ...P.mats }, caught: P.caught?.length || 0, pets: P.pets.map((p) => `${p.mon.species}${p.fainted ? '✝' : ''}`).join(','), mons: Box.mons.length, eggs: Box.eggs.length, ms: Math.round(performance.now() - t0) });
+    bot.log.push({ run: r + 1, hero: P.hero?.id, tier: g.tier, won: g.endWon, weapon: P.main ? `${P.main.level}:${P.main.path.join('>')}` : '', heroDmg: Math.round(g.runStats.heroDmg || 0), monDmg: Math.round(g.runStats.monDmg || 0), len: g.runLength, t: Math.round(g.time), dead: P.hp <= 0, lv: P.level, kills: P.kills, coins: Meta.data.coins - coins0, mats: { ...P.mats }, caught: P.caught?.length || 0, pets: P.pets.map((p) => `${p.mon.species}${p.fainted ? '✝' : ''}`).join(','), mons: Box.mons.length, eggs: Box.eggs.length, ms: Math.round(performance.now() - t0) });
     await sleep(1100);
     g.toTown(true);
     await sleep(100);

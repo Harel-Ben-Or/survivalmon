@@ -374,6 +374,7 @@ export const Combat = {
       dmg *= rand(0.92, 1.08);
     }
     if (e.def.night) dmg *= this.lightHurt(e, o);
+    const hpBefore = Math.max(0, e.hp);
     e.hp -= dmg;
     e.flash = 0.1;
     if (o.petRef?.pass.vamp) o.petRef.heal(dmg * o.petRef.pass.vamp);
@@ -396,6 +397,9 @@ export const Combat = {
     const big = dmg >= 8 || crit;
     if (!o.small || big) this.particles.number(e.x, e.y - e.hgt * 0.5 + 10, dmg, crit ? 'crit' : o.element === 'fire' ? 'burn' : 'white');
     this.runStats.damage += dmg;
+    // who did the damage (no overkill counted): your hero's weapons or your survivalmons
+    const dealt = Math.min(dmg, hpBefore);
+    if (o.pet) this.runStats.monDmg = (this.runStats.monDmg || 0) + dealt; else this.runStats.heroDmg = (this.runStats.heroDmg || 0) + dealt;
     if (e.hp <= 0) { if (e.wild) this.catchWild(e, o); else this.killEnemy(e, o); }
     else if (!o.silent) Audio.play('hit');
     // a weapon evolve that adds to your survivalmons' hits (Pip's sling)
@@ -433,8 +437,8 @@ export const Combat = {
     if (chance(0.01 * S.luck)) this.spawnPickup('heart', cx, cy);
     if (chance(0.0018 * S.luck)) this.spawnPickup('magnet', cx, cy);
     if (chance(0.0012 * S.luck)) this.spawnPickup('bomb', cx, cy);
-    // berries fill the team bar: 1 from 12% of monsters, 3 from an elite, 10 from a boss
-    if (chance(0.12)) this.spawnPickup('berry', cx + rand(-4, 4), cy);
+    // berries fill the team bar: 1 from 15% of monsters, 3 from an elite, 10 from a boss
+    if (chance(0.15)) this.spawnPickup('berry', cx + rand(-4, 4), cy);
     if (e.elite) {
       this.spawnPickup('chest', cx, cy, 1);
       if (Math.random() < 0.08) this.dropGear(cx + 8, cy);

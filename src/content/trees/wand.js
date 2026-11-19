@@ -137,8 +137,8 @@ export const WAND = {
       },
       r2: {
         wisps: {
-          name: 'Wisps', desc: 'A spark whose foe dies before it lands keeps flying for 2 s to find a new one.',
-          apply: (s) => { s.searchT = 2; },
+          name: 'Wisps', desc: '+1 spark, and a spark whose foe dies before it lands keeps flying for 2 s to find a new one.',
+          apply: (s) => { s.searchT = 2; s.n += 1; },
           steps: { 9: step('Search for 3 s', (s) => { s.searchT = 3; }), 10: step('+1 spark', (s) => { s.n += 1; }), 11: step('+3 damage', (s) => { s.dmg += 3; }) },
           finals: {
             fire: { name: 'Fireflies', desc: 'Wisps catch fire and leave a short trail of fire, 1.5 s.' },
@@ -161,7 +161,7 @@ export const WAND = {
           },
         },
         familiar: {
-          name: 'Familiar', desc: 'A small familiar floats next to Lyra and shoots its own sparks, half as many as you, at full damage.',
+          name: 'Familiar', desc: 'A small familiar floats next to Lyra and shoots its own sparks, half as many as you, at 60% damage.',
           apply: (s) => { s.familiars = 1; s.famK = 0.5; },
           steps: { 9: step('The familiar shoots as many sparks as you', (s) => { s.famK = 1; }), 10: step('+1 familiar', (s) => { s.familiars += 1; }), 11: step('+3 damage', (s) => { s.dmg += 3; }) },
           finals: {
@@ -198,7 +198,7 @@ function spark(g, w, st, x, y, t, o = {}) {
   const S = g.player.stats, sp = st.speed * S.projSpeed;
   const a = Math.atan2(t.y - y, t.x - x) + rand(-0.8, 0.8);
   const p = g.spawnProjectile({
-    x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: st.r, dmg: st.dmg * (o.nova ? st.novaK : 1), pierce: 0, life: 2.2,
+    x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: st.r, dmg: st.dmg * (o.nova ? st.novaK : 1) * (o.fam ? 0.6 : 1), pierce: 0, life: 2.2,
     spr: SPARK, scale: st.scale * (o.nova ? 1.5 : 1), src: 'emberwand', homing: st.homing, target: t, glow: GLOW, knock: 20,
   });
   p.st = st; p.w = w; p.hit = sparkHit; p.update = sparkFly; p.nova = o.nova; p.fam = o.fam;

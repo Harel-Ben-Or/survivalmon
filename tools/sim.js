@@ -19,6 +19,7 @@ export async function sim(cfg = {}) {
   Meta.data.gear = cfg.gear || {}; Meta.data.slots = cfg.slots || {}; Meta.data.buffs = [];
   Meta.data.unlocked.clinic = true;
   if (Meta.data.guide) Meta.data.guide.on = false; // no tips in the middle of a simulated run
+  Meta.data.gateTier = cfg.gate ?? 0; Meta.data.gates = Math.max(Meta.data.gates || 0, cfg.gate ?? 0); // the gate to run at (cfg.gate, North Lv 1 unless asked; cfg.tier is the skill grade)
   if (Shrine.data) Shrine.data.nodes = {};
   Box.data.mons = []; Box.data.team = []; Box.data.upgrades = {}; Box.data.firstHatch = false;
   for (const [sp, lv, extra] of cfg.team || []) Box.add(sp, { level: lv, skills: [{ k: 'u', sp, t: cfg.tier ?? 1 }, ...(extra || [])] });
@@ -107,6 +108,7 @@ export async function sim(cfg = {}) {
   Object.assign(out, {
     t: Math.round(g.time), dead: P.hp <= 0, lv: P.level, kills: P.kills,
     weapon: P.main ? `${P.main.id} Lv ${P.main.level} ${P.main.path.join('>')}` : '', teamUps: P.teamLevel || 0, monPool: Math.round(g.monPool || 0),
+    heroShare: Math.round(100 * (g.runStats.heroDmg || 0) / Math.max(1, (g.runStats.heroDmg || 0) + (g.runStats.monDmg || 0))), // without overkill
     heroDmg: Math.round(out.heroDmg), monDmg: Math.round(out.monDmg), rawIn: Math.round(out.rawIn), taken: Math.round(out.taken),
     armor: P.stats.armor, maxHp: P.stats.maxHp, might: +P.stats.might.toFixed(2),
     petHp: P.pets.map((p) => `${p.species}:${Math.round(p.maxHp)}`).join(' '),

@@ -22,8 +22,8 @@ export const SPEAR = {
   },
   r1: {
     sweep: {
-      name: 'Sweep', desc: 'A half-circle swing 60 px around your front instead of a thrust, 90% damage. For crowds around you.',
-      apply: (s) => { s.sweep = true; s.dmg *= 0.9; s.sweepR = 60; s.arc = Math.PI; },
+      name: 'Sweep', desc: 'A half-circle swing 60 px around your front instead of a thrust, 110% damage. For crowds around you.',
+      apply: (s) => { s.sweep = true; s.dmg *= 1.1; s.sweepR = 60; s.arc = Math.PI; },
       steps: {
         5: step('+5 damage', (s) => { s.dmg += 5; }),
         6: step('Full circle', (s) => { s.arc = TAU; }),
@@ -78,8 +78,8 @@ export const SPEAR = {
       },
       r2: {
         impale: {
-          name: 'Impale', desc: 'The first foe hit is pinned for 1 s and takes 50% more damage from everything. Bosses are slowed instead.',
-          apply: (s) => { s.pinT = 1; s.pinN = 1; },
+          name: 'Impale', desc: '+8 damage. The first foe hit is pinned for 1 s and takes 50% more damage from everything. Bosses are slowed instead.',
+          apply: (s) => { s.pinT = 1; s.pinN = 1; s.dmg += 8; },
           steps: { 9: step('Pins for 1.5 s', (s) => { s.pinT = 1.5; }), 10: step('Pins the first 2 foes', (s) => { s.pinN = 2; }), 11: step('+6 damage', (s) => { s.dmg += 6; }) },
           finals: {
             fire: { name: 'Branding Spear', desc: 'Pinned foes burn 3× as hard.' },
@@ -90,9 +90,9 @@ export const SPEAR = {
           },
         },
         throw: {
-          name: 'Spear Throw', desc: 'Every 4th thrust, Bram throws the spear instead: it flies 300 px through everything for 150% damage.',
-          apply: (s) => { s.throwEvery = 4; s.throwK = 1.5; s.throwN = 1; },
-          steps: { 9: step('Throw every 3rd thrust', (s) => { s.throwEvery = 3; }), 10: step('The throw does 200%', (s) => { s.throwK = 2; }), 11: step('Throws 2 spears in a V', (s) => { s.throwN = 2; }) },
+          name: 'Spear Throw', desc: 'Every 4th thrust, Bram throws the spear instead: it flies 300 px through everything for 200% damage.',
+          apply: (s) => { s.throwEvery = 4; s.throwK = 2; s.throwN = 1; },
+          steps: { 9: step('Throw every 3rd thrust', (s) => { s.throwEvery = 3; }), 10: step('The throw does 300%', (s) => { s.throwK = 3; }), 11: step('Throws 2 spears in a V', (s) => { s.throwN = 2; }) },
           finals: {
             fire: { name: 'Flaming Javelin', desc: 'The thrown spear leaves a line of fire for 2 s.' },
             ice: { name: 'Ice Javelin', desc: 'The thrown spear freezes every foe it passes for 1 s.' },

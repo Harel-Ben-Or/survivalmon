@@ -104,7 +104,7 @@ export const BOOMERANG = {
           },
         },
         quake: {
-          name: 'Quake Rang', desc: 'When you catch it, a shockwave bursts 70 px around you for full damage and pushes foes back.',
+          name: 'Quake Rang', desc: 'When you catch it, a shockwave bursts 70 px around you for 70% damage and pushes foes back.',
           apply: (s) => { s.quakeR = 70; },
           steps: { 9: step('Shockwave 30% bigger', (s) => { s.quakeR = 90; }), 10: step('+8 damage', (s) => { s.dmg += 8; }), 11: step('A second shockwave at the far end', (s) => { s.quake2 = true; }) },
           finals: {
@@ -118,8 +118,8 @@ export const BOOMERANG = {
       },
     },
     seek: {
-      name: 'Seeker Rang', desc: 'A small boomerang that bounces from foe to foe (up to 4) before it comes back, with 80% damage. For picking off foes.',
-      apply: (s) => { s.dmg *= 0.8; s.bounces = 4; s.r = 4; s.scale = 0.75; s.knock = 40; },
+      name: 'Seeker Rang', desc: 'A small boomerang that bounces from foe to foe (up to 4) before it comes back, with full damage, thrown 25% more often. For picking off foes.',
+      apply: (s) => { s.bounces = 4; s.r = 4; s.scale = 0.75; s.knock = 40; s.cd *= 0.75; },
       steps: {
         5: step('+2 bounces', (s) => { s.bounces += 2; }),
         6: step('+4 damage', (s) => { s.dmg += 4; }),
@@ -342,7 +342,7 @@ function quake(g, st, x, y) {
   g.enemiesInRadius(x, y, R, (e) => {
     if (e.hidden || e.fainted) return;
     n++;
-    wHit(g, e, st.dmg, st, { ...away(x, y, e), knock: 150, small: true, silent: true, freeze: st.el === 'ice' ? 1 : 0 });
+    wHit(g, e, st.dmg * 0.7, st, { ...away(x, y, e), knock: 150, small: true, silent: true, freeze: st.el === 'ice' ? 1 : 0 });
   });
   g.addEffect({ type: 'ring', x, y, R, life: 0.35, color: st.el ? ELEMENTS[st.el].color : '#d8c8a0' });
   g.addEffect({ type: 'flashring', x, y, R: R * 0.5, life: 0.2, color: '#ffffff' });

@@ -344,7 +344,7 @@ body.touch .hint-keys, body.touch .kb, body.touch .btn .key, body.touch .hero-ca
   .modal { padding: 8px; }
   .modal-box { padding: 10px 12px; gap: 8px; }
   .cards { gap: 8px; }
-  .card { width: min(31vw, 200px); min-height: 0; padding: 8px; gap: 4px; }
+  .card { width: min(29vw, 200px); min-height: 0; padding: 8px; gap: 4px; } /* 3 in a row even at 550 px wide */
   .card img { width: 40px; height: 40px; }
   .card .title { font-size: 16px; }
   .card .val { font-size: 14px; }
@@ -1383,3 +1383,19 @@ body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
 /* Out in the wild a tip is a plain hint: no one talking */
 .guide-box.plain-hint { grid-template-columns: 1fr; }
 .guide-box.plain-hint .guide-name b { color: var(--gold); }
+/* phones in landscape: the character screen fits without scrolling */
+@media (max-height: 480px) {
+  .creator-box { max-width: 520px; padding: 8px 12px; }
+  .creator-box h2 { font-size: 18px; margin: 0; }
+  .creator-box .lvl-sub { font-size: 12px; margin: 2px 0; }
+  .creator-looks { margin: 4px 0; gap: 10px; }
+  .creator-look { flex-direction: row; padding: 3px 12px 3px 6px; gap: 6px; }
+  .creator-look img { width: 56px; height: 56px; }
+  .creator-name { margin: 2px 0 6px; }
+  .creator-box .loot-actions { margin-top: 0; }
+}
+@media (max-height: 480px) {
+  .card.evo-card img { width: 32px; height: 32px; }
+  .card.evo-card .val { font-size: 12px; line-height: 1.25; }
+  .lvl-evolve .lvl-sub { display: none; }
+}

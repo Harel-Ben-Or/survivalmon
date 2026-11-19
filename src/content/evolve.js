@@ -41,6 +41,9 @@ export function wStats(w) {
   const T = TREES[w.id];
   const s = { critAdd: 0, critMultAdd: 0, ...T.base };
   for (let L = 2; L <= w.level; L++) stepAt(T, w, L)?.apply?.(s);
+  // balance: past level 4 the weapon's damage is trimmed a little more each level (down to 84% at
+  // level 12), so a weapon-heavy run still leaves real work for your survivalmons
+  if (w.level > 4) s.dmg *= 1 - 0.02 * (w.level - 4);
   s.r1 = w.path[0]; s.r2 = w.path[1]; s.el = w.level >= 12 ? w.path[2] : null;
   w.st = s; w.stKey = `${w.level}|${w.path.join(',')}`;
   return s;

@@ -55,9 +55,9 @@ export const SLING = {
           },
         },
         skip: {
-          name: 'Skipping Stone', desc: 'For 2 s after it\'s thrown, a pebble has no bounce limit.',
-          apply: (s) => { s.skipT = 2; },
-          steps: { 9: step('No limit for 3 s', (s) => { s.skipT = 3; }), 10: step('+1 pebble', (s) => { s.n += 1; }), 11: step('+4 damage', (s) => { s.dmg += 4; }) },
+          name: 'Skipping Stone', desc: 'For 1.5 s after it\'s thrown, a pebble has no bounce limit.',
+          apply: (s) => { s.skipT = 1.5; },
+          steps: { 9: step('No limit for 2 s', (s) => { s.skipT = 2; }), 10: step('+1 pebble', (s) => { s.n += 1; }), 11: step('+4 damage', (s) => { s.dmg += 4; }) },
           finals: {
             fire: { name: 'Hot Stone', desc: 'Each bounce leaves a small fire for 2 s.' },
             ice: { name: 'Ice Skipper', desc: 'Each bounce counts as 2 hits toward freezing.' },
@@ -69,8 +69,8 @@ export const SLING = {
       },
     },
     scatter: {
-      name: 'Scatter Shot', desc: '5 small pebbles in a wide spread (40°) that reach 150 px, 50% damage each. They don\'t bounce, but push foes back.',
-      apply: (s) => { s.scatter = true; s.n = 5; s.dmg *= 0.5; s.bounces = 0; s.life = 150 / s.speed; s.knock = 120; s.spread = (40 * Math.PI) / 180; s.scale = 0.8; s.r = 2.5; },
+      name: 'Scatter Shot', desc: '5 small pebbles in a wide spread (40°) that reach 150 px, 65% damage each. They don\'t bounce, but push foes back.',
+      apply: (s) => { s.scatter = true; s.n = 5; s.dmg *= 0.65; s.bounces = 0; s.life = 150 / s.speed; s.knock = 120; s.spread = (40 * Math.PI) / 180; s.scale = 0.8; s.r = 2.5; },
       steps: {
         5: step('+2 pebbles', (s) => { s.n += 2; }),
         6: step('+3 damage', (s) => { s.dmg += 3; }),
@@ -125,9 +125,9 @@ export const SLING = {
       },
       r2: {
         avalanche: {
-          name: 'Avalanche', desc: 'When it stops, the boulder breaks into 4 rocks that roll on in different directions for 100 px, 50% damage.',
-          apply: (s) => { s.rocks = 4; s.rockK = 0.5; },
-          steps: { 9: step('+2 rocks', (s) => { s.rocks += 2; }), 10: step('Rocks do 75%', (s) => { s.rockK = 0.75; }), 11: step('+10 damage', (s) => { s.dmg += 10; }) },
+          name: 'Avalanche', desc: 'When it stops, the boulder breaks into 4 rocks that roll on in different directions for 100 px, 70% damage.',
+          apply: (s) => { s.rocks = 4; s.rockK = 0.7; },
+          steps: { 9: step('+2 rocks', (s) => { s.rocks += 2; }), 10: step('Rocks do 100%', (s) => { s.rockK = 1; }), 11: step('+10 damage', (s) => { s.dmg += 10; }) },
           finals: {
             fire: { name: 'Lava Rocks', desc: 'The rocks leave trails of lava for 2 s.' },
             ice: { name: 'Snow Slide', desc: 'The rocks freeze every foe they hit for 1 s.' },
@@ -484,7 +484,9 @@ function rocks(g, p) {
   Audio.play('hit');
 }
 function hopper(g, w, st, a) {
-  const P = g.player, T = 0.32, sp = st.roll / st.hops / T;
+  // each hop covers 60 px, so the first landing is close (stretching the hops over the whole roll
+  // put the first one 100 px away and missed anything near you)
+  const P = g.player, T = 0.32, sp = 60 / T;
   const p = g.spawnProjectile({
     x: P.x, y: P.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: st.r, dmg: st.dmg, pierce: Infinity, life: st.hops * T + 0.05,
     noHit: true, spr: 'p_boulder', scale: st.r / 7, spin: Math.cos(a) >= 0 ? 6 : -6, src: 'sling', z: 4,

@@ -38,7 +38,7 @@ export const HEROES = [
 // Level-up cards. `v` is the rolled value (scaled by rarity).
 export const UPGRADES = [
   { id: 'vitality', name: 'Vitality', icon: 'up_hp', base: 16, fmt: (v) => `+${v} Max HP`, key: 'maxHp', round: true, w: 10 },
-  { id: 'power', name: 'Power', icon: 'up_damage', base: 0.08, fmt: (v) => `+${pct(v)} damage`, key: 'might', w: 12 },
+  { id: 'power', name: 'Power', icon: 'up_damage', base: 0.06, fmt: (v) => `+${pct(v)} damage`, key: 'might', w: 12 },
   { id: 'swift', name: 'Swiftness', icon: 'up_speed', base: 0.06, fmt: (v) => `+${pct(v)} move speed`, key: 'speed', w: 8, cap: 0.7 },
   { id: 'haste', name: 'Haste', icon: 'up_haste', base: 0.05, fmt: (v) => `-${pct(v)} cooldowns`, key: 'haste', w: 9, cap: 0.45 },
   { id: 'reach', name: 'Reach', icon: 'up_area', base: 0.08, fmt: (v) => `+${pct(v)} area`, key: 'area', w: 8 },

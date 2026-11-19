@@ -108,8 +108,8 @@ export const WEAPON_CARD_CHANCE = 0.4;
 const pct = (v) => `${Math.round(v * 100)}%`;
 // Survivalmon cards: boosts for the whole team for this run
 export const TEAM_CARDS = [
-  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.08, key: 'dmg', w: 10, atk: 'all', fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
-  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.06, key: 'haste', w: 8, cap: 0.4, atk: 'all', fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
+  { id: 't_power', name: 'Team Power', icon: 'team_power', base: 0.10, key: 'dmg', w: 10, atk: 'all', fmt: (v) => `Your survivalmons deal +${pct(v)} damage` },
+  { id: 't_haste', name: 'Team Haste', icon: 'team_haste', base: 0.07, key: 'haste', w: 8, cap: 0.4, atk: 'all', fmt: (v) => `Your survivalmons attack ${pct(v)} faster` },
   { id: 't_guard', name: 'Team Guard', icon: 'team_guard', base: 0.06, key: 'def', w: 7, cap: 0.5, fmt: (v) => `Your survivalmons take ${pct(v)} less damage` },
   { id: 't_vigor', name: 'Team Vigor', icon: 'team_vigor', base: 0.12, key: 'hp', w: 7, fmt: (v) => `Your survivalmons get +${pct(v)} max HP` },
   { id: 't_focus', name: 'Team Focus', icon: 'team_focus', base: 0.04, key: 'crit', w: 5, cap: 0.4, atk: 'all', fmt: (v) => `Your survivalmons get +${pct(v)} crit chance` },
