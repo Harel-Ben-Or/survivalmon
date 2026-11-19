@@ -563,6 +563,7 @@ export const TownMode = {
       });
     }
     this.resetRunState();
+    if (this.scene) this.endScene(true); // nothing from the run's scene comes along into town
     this.mode = 'town'; this.modal = null; this.boss = null;
     const P = this.player = new Player(this, Meta.hero);
     const at = fromRun ? this.town.gateSpawns[gateSide(this.tier || 0)] || this.town.gateSpawn : this.town.spawn;

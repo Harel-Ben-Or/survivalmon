@@ -120,7 +120,7 @@ const BASE = {
   ferrit: {
     name: 'Ferrit', type: 'metal', arch: 'shooter', hp: 80, desc: 'A steel ferret that throws spinning blades.',
     unique: { name: 'Blade Spin', desc: 'Spinning blades that cut through a line of foes.' },
-    q: { dmg: 11, cd: 1.6, range: 150, proj: 'p_boomerang', speed: 190, pierce: 3, knock: 50, life: 1.0, count: 1 },
+    q: { dmg: 11, cd: 1.6, range: 150, proj: 'p_blade', speed: 190, pierce: 3, knock: 50, life: 1.0, count: 1 }, // its own spinning steel blade (it borrowed the boomerang's picture, and looked like Rowan's)
   },
 };
 

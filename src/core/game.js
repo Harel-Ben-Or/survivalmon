@@ -202,6 +202,7 @@ export class Game {
     this.ui.showTitle();
   }
   startRun(heroId = Meta.hero) {
+    if (this.scene) this.endScene(true); // a story scene can never carry over into a new run
     if (!this.freshWorld) this.newWorld();
     this.freshWorld = false;
     this.resetRunState();
@@ -288,6 +289,7 @@ export class Game {
   endRun(kind) {
     const P = this.player, won = kind === 'won';
     if (this.mode === 'house') { P.x = P.worldX; P.y = P.worldY; this.ui.setPaused(false); this.snapCamera(); }
+    if (this.scene) this.endScene(true);
     this.mode = 'end'; this.modal = null; this.endWon = won;
     this.timers = []; this.shakeT = 0; // attacks still on their way don't land (or shake) after the run
     // the mon EXP pool (what your survivalmons defeated) is split evenly between everyone on the team
@@ -925,7 +927,8 @@ export class Game {
     const id = FRIEND_AT_TIER[this.tier || 0];
     if (id && (this.tier || 0) === Meta.gates && !Meta.isHeroUnlocked(id)) {
       this.clearEnemies();
-      this.playScene(reunionScene(this, id)).then(() => { if (this.mode === 'world') this.victory(); });
+      const run = this.runId;
+      this.playScene(reunionScene(this, id)).then(() => { if (this.mode === 'world' && this.runId === run) this.victory(); });
     } else this.victory();
   }
 

@@ -524,7 +524,7 @@ export async function loadWorldArt(SPR, base = 'assets/sprites') {
 }
 
 // Projectiles: centred anchors so they rotate around their middle
-const PROJ = ['arrow', 'ember', 'leaf', 'boomerang', 'bomb', 'pebble', 'spore', 'imp_fire', 'boulder', 'bubble', 'fireball', 'meteor', 'dark_orb', 'root', 'ice'];
+const PROJ = ['arrow', 'ember', 'leaf', 'boomerang', 'blade', 'bomb', 'pebble', 'spore', 'imp_fire', 'boulder', 'bubble', 'fireball', 'meteor', 'dark_orb', 'root', 'ice'];
 export async function loadProjArt(SPR, base = 'assets/sprites/projectiles') {
   await Promise.all(PROJ.map(async (id) => {
     const img = await loadImage(`${base}/${id}.png`);

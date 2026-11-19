@@ -18,11 +18,21 @@ export const Pickups = {
     if (kind === 'xp') {
       const gems = this.pickupCount.xp;
       if (gems > 320) {
-        // merge into an existing far-away gem to keep things fast
-        for (let i = 0; i < 6; i++) {
-          const o = this.pickups[(Math.random() * this.pickups.length) | 0];
-          if (o && o.kind === 'xp' && !o.magnet) { o.value += value; o.icon = o.value >= 25 ? 'xp25' : o.value >= 5 ? 'xp5' : 'xp1'; return; }
+        // Too many gems on the ground (they never fade): this one joins a gem right where it fell, or
+        // else takes over the gem farthest from you, so the EXP always lands where the fighting is.
+        // (It used to join a random gem, usually far behind you: past 320 gems, kills gave nothing.)
+        const P = this.player;
+        let near = null, nd = 36 * 36, far = null, fd = -1;
+        for (const o of this.pickups) {
+          if (o.kind !== 'xp' || o.magnet || o.taken) continue;
+          const d = (o.x - x) ** 2 + (o.y - y) ** 2;
+          if (d < nd) { nd = d; near = o; }
+          const dp = P ? (o.x - P.x) ** 2 + (o.y - P.y) ** 2 : 0;
+          if (dp > fd) { fd = dp; far = o; }
         }
+        const icon = (v) => (v >= 25 ? 'xp25' : v >= 5 ? 'xp5' : 'xp1');
+        if (near) { near.value += value; near.icon = icon(near.value); return; }
+        if (far) { value += far.value; far.taken = true; } // the far one goes, its EXP comes along
       }
       this.pickupCount.xp = gems + 1;
     }
@@ -35,6 +45,7 @@ export const Pickups = {
     const P = this.player, S = P.stats;
     const mr2 = S.magnet * S.magnet;
     for (const k of this.pickups) {
+      if (k.taken) continue; // folded into a newer gem (see spawnPickup), going away this frame
       k.t += dt;
       k.x += k.vx * dt; k.y += k.vy * dt;
       k.vx *= 1 - 5 * dt; k.vy *= 1 - 5 * dt;

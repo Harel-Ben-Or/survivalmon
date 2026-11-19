@@ -10,6 +10,9 @@ import { rand, TAU } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { armorCut } from '../systems/armor.js';
 
+// Shot sprites that turn as they fly (the rest point where they go or stay upright)
+const SPINNING = new Set(['p_blade']);
+
 const TEAM0 = { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 };
 // A roller's tuck into a ball before it sets off, and its unrolling after (seconds)
 const CURL_T = 0.16, UNCURL_T = 0.16;
@@ -321,6 +324,7 @@ const ARCH = {
       g.spawnProjectile({
         x: pet.x, y: pet.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: q.r || 4, dmg: q.dmg * pet.power,
         life: q.life || 1.6, spr: fx.proj ? undefined : q.proj, fx: fx.proj, fxSpin: fx.spin, scale: fx.scale, seed: Math.random(),
+        ...(!fx.proj && SPINNING.has(q.proj) ? { rot: Math.random() * TAU, spin: 16 } : {}), // a blade turns as it flies
         element: q.element || 'phys', burn: q.burn, chill: q.chill, freeze, stun: q.stun,
         homing: q.homing, target: t, pierce: q.pierce || 0, knock: q.knock || 30, pet: true, petRef: pet, z: 6, glow: q.glow,
         onHit: boom || zap ? (g2, p, e) => {
