@@ -8,10 +8,10 @@
 // Claude link), or when the player turns "Share play stats" off in the town menu.
 // Events are queued and sent in small batches every few seconds, and the rest when the page is hidden.
 
-// The PostHog project's API key ("phc_..."; it's meant to sit in the page, it can only send events) and
-// its region: 'https://us.i.posthog.com' or 'https://eu.i.posthog.com'.
-export const POSTHOG_KEY = '';
-export const POSTHOG_HOST = 'https://us.i.posthog.com';
+// The PostHog project's token ("phc_..."; public, it can only send events) and its region's ingestion
+// host come from the page's settings (window.SURVIVALMON_STATS in index.html). Without them: no stats.
+export const POSTHOG_KEY = globalThis.SURVIVALMON_STATS?.key || '';
+export const POSTHOG_HOST = globalThis.SURVIVALMON_STATS?.host || '';
 
 const LIVE = /(^|\.)github\.io$/.test(location.hostname) && window.top === window;
 const ID_KEY = 'survivelmon.anonId';
@@ -44,7 +44,7 @@ export const Analytics = {
       if (document.hidden) { this.track('app_hidden', { seconds: Math.round((Date.now() - this.started) / 1000) }); this.flush(true); }
     });
   },
-  get on() { return !!this.key && (LIVE || this.forceLive) && this.settings?.stats !== false && !!this.id; },
+  get on() { return !!this.key && !!this.host && (LIVE || this.forceLive) && this.settings?.stats !== false && !!this.id; },
 
   // one event: its name and a few numbers or words (never a name, a save or anything typed)
   track(event, props = {}) {
@@ -78,7 +78,7 @@ export const Analytics = {
 
   flush(leaving = false) {
     clearTimeout(this.timer); this.timer = 0;
-    if (!this.queue.length || !this.key) return;
+    if (!this.queue.length || !this.key || !this.host) return;
     const body = JSON.stringify({ api_key: this.key, batch: this.queue.splice(0) });
     const url = `${this.host}/batch/`;
     try {

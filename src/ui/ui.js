@@ -229,6 +229,7 @@ export class UI {
           • A rare <b>wild survivalmon</b> may appear: defeat it within 25 seconds to catch it.<br>
           • Runs start short. When the timer runs out you're back in town to upgrade, heal, breed and get ready.<br>
           • Bosses arrive around 2:00, 4:00 and 6:00, and the Night Lord at 7:30. <b>Defeat the Night Lord</b> to win: the night doesn't end until it falls.
+          <div class="help-note">The game shares anonymous play stats (no names, no saves) so it can get better. Turn them off in the town menu: 📊 Share play stats.</div>
         </div>
         <button class="btn" data-act="close">Got it</button>
       </div>`);

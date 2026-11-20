@@ -4,8 +4,13 @@
 // an entry here, written for players. A note is either a short line (a small fix or tweak: "Fixed a bug
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
-  // newest first, e.g.
-  // { v: '1.01', date: '21 Nov 2026', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
+  // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
+  {
+    v: '1.01', date: '20 Nov 2026',
+    notes: [
+      { h: 'Play stats', t: 'The game now shares anonymous play stats: how far players get and how runs go, with no names and nothing from your saves. They help make Survivalmon better. You can turn them off any time in the town menu (📊 Share play stats).' },
+    ],
+  },
 ];
 
 // The version that's running (index.html sets it)

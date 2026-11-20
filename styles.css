@@ -607,6 +607,7 @@ body.touch .t-news { right: calc(64px + env(safe-area-inset-right)); }
 .news-small { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.35; color: var(--muted); }
 .news-small li + li { margin-top: 2px; }
 .news-empty { margin: 4px 2px; font-size: 14px; color: var(--muted); }
+.help-note { margin-top: 8px; font-size: 12px; color: var(--muted); }
 @media (max-height: 420px) { .t-news { top: calc(70px + env(safe-area-inset-top)); font-size: 12px; padding: 2px 8px; } }
 .t-goals b:not(:empty) { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 9px; background: #9af08a; color: #1d2a14; font: 800 12px/18px var(--font); text-align: center; }
 .t-goals.ready { border-color: #9af08a; box-shadow: 0 0 0 2px rgba(154,240,138,.35); animation: goalPulse 1.6s ease-in-out infinite; }
