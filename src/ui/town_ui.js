@@ -578,6 +578,7 @@ export const TownUI = {
         <div class="loot-actions">
           <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
           ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+          ${this.iosCanAdd() ? '<button class="btn small secondary" data-act="iosfs">📲 Full screen</button>' : ''}
           <button class="btn small secondary" data-act="music">${this.musicLabel()}</button>
           <button class="btn small secondary" data-act="guide">${this.guideLabel()}</button>
           <button class="btn small secondary" data-act="stats" title="Anonymous stats (no names) help make the game better">${this.statsLabel()}</button>

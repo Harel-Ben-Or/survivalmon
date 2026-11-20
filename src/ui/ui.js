@@ -146,7 +146,6 @@ export class UI {
         <div class="title-hello">${hello}</div>
         ${stats ? `<div class="title-stats">${stats}</div>` : ''}
         <button class="btn title-play" data-act="play">${fresh ? 'Start your adventure' : '▶ Play'} <span class="key">Enter</span></button>
-        ${isIOS() && !standalone() ? '<div class="title-stats">Tip: tap Share → <b>Add to Home Screen</b> to play fullscreen</div>' : ''}
       </div>
       <div class="title-bar">
         <button class="t-pill" data-act="help">❔ How to play</button>
@@ -155,6 +154,7 @@ export class UI {
         <button class="t-pill" data-act="controls">📱 ${this.controlsLabel()}</button>
         ${document.fullscreenEnabled && !standalone() ? '<button class="t-pill" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
         ${window.__install && !standalone() ? '<button class="t-pill go" data-act="install">📲 Install app</button>' : ''}
+        ${this.iosCanAdd() ? '<button class="t-pill go" data-act="iosfs">📲 Full screen</button>' : ''}
       </div>`;
     this.el.title.classList.remove('hidden');
     this.screen = 'title';
@@ -207,6 +207,26 @@ export class UI {
       }
     });
     this.el.select.querySelectorAll('.hero-card').forEach((c, i) => c.classList.toggle('sel', i === this.selIdx));
+  }
+
+  // iPhone Safari can't put a web page full screen (only videos); added to the Home Screen, the game
+  // opens without Safari's bars, like an app (manifest.webmanifest: display fullscreen)
+  iosCanAdd() { return isIOS() && !standalone(); }
+  showIosFullscreen() {
+    const share = '<svg class="ios-share" viewBox="0 0 20 24" aria-hidden="true"><path d="M10 2v13M5.5 6.5 10 2l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10H3.5v12h13V10H14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+    this.openModal(`
+      <div class="modal-box panel ios-fs">
+        <h2>Play full screen on iPhone</h2>
+        <p>Safari can't hide its bars for a game, but on your Home Screen Survivalmon opens full screen, like an app.</p>
+        <ol>
+          <li>Tap <b>Share</b> ${share} in Safari's bar. On newer iPhones it's in the <b>⋯</b> menu next to the address.</li>
+          <li>Tap <b>Add to Home Screen</b> (scroll down if you don't see it), then <b>Add</b>.</li>
+          <li>Open <b>Survivalmon</b> from its new icon.</li>
+        </ol>
+        <p class="ios-note">The Home Screen game keeps its own save, apart from Safari's.</p>
+        <button class="btn" data-act="close">Got it</button>
+      </div>`);
+    this.modalKind = 'iosfs';
   }
 
   showHelp() {
@@ -1004,6 +1024,7 @@ export class UI {
         t.textContent = `📱 ${this.controlsLabel()}`;
         break;
       case 'fullscreen': this.toggleFullscreen(); break;
+      case 'iosfs': this.closeModal(); this.showIosFullscreen(); break;
       case 'guide': this.toggleGuide(t); break;
       case 'music': g.settings.music = !g.settings.music; g.saveSettings(); t.textContent = this.musicLabel(); break;
       case 'stats': g.settings.stats = g.settings.stats === false; g.saveSettings(); t.textContent = this.statsLabel(); break;

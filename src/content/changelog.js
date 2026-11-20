@@ -6,6 +6,12 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.03', date: '20 Nov 2026',
+    notes: [
+      "On iPhone, a Full screen button (title screen and town menu) shows how to add the game to your Home Screen, where it plays without Safari's bars.",
+    ],
+  },
+  {
     v: '1.02', date: '20 Nov 2026',
     notes: [
       'Fixed the game getting stuck while loading on iPhones.',
