@@ -461,11 +461,11 @@ export class UI {
   // ------------------------------------------------------------ modals
   openModal(html) {
     this.el.modal.innerHTML = html;
-    this.el.modal.classList.remove('hidden', 'talk-modal', 'sheet-modal');
+    this.el.modal.classList.remove('hidden', 'talk-modal', 'sheet-modal', 'drawer'); // (a sheet adds its drawer look after this)
   }
   closeModal() {
     this.el.modal.classList.add('hidden');
-    this.el.modal.classList.remove('talk-modal', 'sheet-modal');
+    this.el.modal.classList.remove('talk-modal', 'sheet-modal', 'drawer');
     this.el.modal.innerHTML = '';
     this.modalKind = null;
     Input.endFrame();
@@ -714,7 +714,7 @@ export class UI {
       const need = petXpFor(p.mon.level);
       const ready = Box.canEvolve(p.mon);
       const skills = p.mon.skills.map((k) => { const t = p.tierOf(k); return `${esc(k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name)} <b style="color:${TIER_COLOR[t]}">${TIERS[t]}</b>${k.k === 'u' ? ` <small style="color:${ATK_TYPES[atkType(k.sp)].color}">${ATK_TYPES[atkType(k.sp)].name}</small>` : ''}`; }).join(' · ');
-      return `<div class="inv-item pet-item ${p.fainted ? 'fainted' : ''}"><img class="px" src="${artURL('creature', p.species)}"><div><b>${esc(p.name)}</b> Lv ${p.mon.level}${p.fainted ? ' · fainted' : ''}<div class="pet-skills">${skills}</div><div class="xp"><div style="width:${Math.min(100, (p.mon.xp / need) * 100).toFixed(0)}%"></div></div></div>${ready ? `<button class="btn small" data-evolve="${p.mon.id}">Evolve</button>` : ''}</div>`;
+      return `<div class="inv-item pet-item ${p.fainted ? 'fainted' : ''}"><img class="px" src="${artURL('creature', p.species)}"><div><div class="pet-name"><b>${esc(p.name)}</b><span>Lv ${p.mon.level}${p.fainted ? ' · fainted' : ''}</span></div><div class="pet-skills">${skills}</div><div class="xp"><div style="width:${Math.min(100, (p.mon.xp / need) * 100).toFixed(0)}%"></div></div></div>${ready ? `<button class="btn small" data-evolve="${p.mon.id}">Evolve</button>` : ''}</div>`;
     }).join('') : '<span style="color:var(--muted);font-size:14px">— hatch your egg or catch wild survivalmons —</span>';
     const pct = (v) => `${Math.round(v * 100)}%`;
     const stats = [
@@ -738,7 +738,7 @@ export class UI {
         <div class="pause-grid">
           <div class="pause-sec">
             <h3>Weapons</h3><div class="inv-row">${mainRow}${P.weapons.length ? row('weapon', P.weapons) : ''}</div>
-            <h3 style="margin-top:10px">Team ${P.pets.length}/${Box.teamSize()}</h3><div class="inv-row">${pets}</div>
+            <h3 style="margin-top:10px">Team ${P.pets.length}/${Box.teamSize()}</h3><div class="inv-row pet-row">${pets}</div>
           </div>
           <div class="pause-sec"><h3>Stats</h3><div class="stat-list">${stats}</div>
             <div class="toggles" style="margin-top:12px"><h3>Options</h3>
@@ -812,9 +812,9 @@ export class UI {
     for (const p of P.pets) {
       const b = before?.get(p.mon.id), lv = b ? b.level : p.mon.level, xp = b ? b.xp : p.mon.xp;
       const pct = lv >= MAX_PET_LEVEL ? 100 : Math.min(100, (100 * xp) / petXpFor(lv));
-      const notes = (startLv.get(p.mon.id) ? '' : '<i class="end-new">new</i>') + (p.fainted ? '<i class="end-faint">fainted</i>' : '');
-      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name,
-        prog: `<span class="end-lv">Lv <b>${lv >= MAX_PET_LEVEL ? 'MAX' : lv}</b></span><i class="end-xp"><i style="width:${pct.toFixed(1)}%"></i></i>${notes}` });
+      const tag = p.fainted ? '<i class="end-tag faint">fainted</i>' : startLv.get(p.mon.id) ? '' : '<i class="end-tag new">new</i>';
+      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name, tag, out: p.fainted,
+        prog: `<span class="end-lv">Lv <b>${lv >= MAX_PET_LEVEL ? 'MAX' : lv}</b></span><i class="end-xp"><i style="width:${pct.toFixed(1)}%"></i></i>` });
     }
     for (const [k, c] of Object.entries(C)) if (!rows.some((r) => r.key === k)) rows.push({ key: k, img: artURL('creature', c.species), name: c.name || '?', sub: 'Left the team' });
     const total = rows.reduce((s, r) => s + (C[r.key]?.dealt || 0), 0);
@@ -824,7 +824,7 @@ export class UI {
       + rows.map((r) => {
         const c = C[r.key] || {}, pct = total ? (100 * (c.dealt || 0)) / total : 0;
         return `<div class="end-row${r.hero ? ' hero' : ''}"${r.mon != null ? ` data-mon="${r.mon}"` : ''}>
-          <div class="end-mon"><img class="px" src="${r.img}" alt=""><div><b>${esc(r.name)}</b>${r.prog ? `<span class="end-prog">${r.prog}</span>` : `<span>${r.sub}</span>`}</div></div>
+          <div class="end-mon"><span class="end-pic${r.out ? ' out' : ''}"><img class="px" src="${r.img}" alt="">${r.tag || ''}</span><div><b title="${esc(r.name)}">${esc(r.name)}</b>${r.prog ? `<span class="end-prog">${r.prog}</span>` : `<span>${r.sub}</span>`}</div></div>
           ${cell(c.dealt, 'dealt')}${cell(c.taken, 'taken')}${cell(c.healed, 'healed')}
           <i class="end-share" title="${Math.round(pct)}% of the damage"><i style="width:${pct.toFixed(1)}%"></i></i>
         </div>`;
