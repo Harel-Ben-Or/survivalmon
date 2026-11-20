@@ -6,6 +6,13 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.02', date: '20 Nov 2026',
+    notes: [
+      'Fixed the game getting stuck while loading on iPhones.',
+      'The game uses much less memory while it loads.',
+    ],
+  },
+  {
     v: '1.01', date: '20 Nov 2026',
     notes: [
       { h: 'Play stats', t: 'The game now shares anonymous play stats: how far players get and how runs go, with no names and nothing from your saves. They help make Survivalmon better. You can turn them off any time in the town menu (📊 Share play stats).' },

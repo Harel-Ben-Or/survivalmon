@@ -93,6 +93,19 @@ function loadImage(src) {
   });
 }
 function canvasOf(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+// A property made the first time it's read, and kept from then on. iPhone Safari caps a page's canvas
+// memory (the game stopped loading there at ~11% when it made every frame, mirror and flash up front:
+// 17,000 canvases, ~370 MB); now a mirror, a white flash or an outline exists only once it's drawn.
+function lazy(obj, key, make) {
+  Object.defineProperty(obj, key, {
+    configurable: true, enumerable: true,
+    get() { const v = make(); Object.defineProperty(obj, key, { value: v, writable: true, configurable: true, enumerable: true }); return v; },
+    set(v) { Object.defineProperty(obj, key, { value: v, writable: true, configurable: true, enumerable: true }); },
+  });
+  return obj;
+}
+// a frame and its mirror (made when first drawn facing left)
+const pair = (R) => lazy({ R }, 'L', () => flip(R));
 function fromImage(img) { const c = canvasOf(img.width, img.height); c.getContext('2d').drawImage(img, 0, 0); return c; }
 function flip(src) {
   const c = canvasOf(src.width, src.height), g = c.getContext('2d');
@@ -152,17 +165,19 @@ function motionOf(id) {
 }
 function makeCreature(id, canvas) {
   const b = bbox(canvas);
-  const L = flip(canvas);
-  return {
+  const a = {
     id, w: canvas.width, h: canvas.height,
     ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1,       // feet, in native px
     cw: (b.x1 - b.x0 + 1) / WS, ch: (b.y1 - b.y0 + 1) / WS, // content size, logical px
-    R: canvas, L,
-    RF: silhouette(canvas, '#ffffff'), LF: silhouette(L, '#ffffff'),
-    RE: outlined(canvas, '#ffd84a'), LE: outlined(L, '#ffd84a'),
-    RC: outlined(canvas, '#5ff0ff'), LC: outlined(L, '#5ff0ff'),
+    R: canvas,
     motion: motionOf(id),
   };
+  // the mirror, the white hit flash and the elite / catch outlines: made when first drawn
+  lazy(a, 'L', () => flip(canvas));
+  lazy(a, 'RF', () => silhouette(canvas, '#ffffff')); lazy(a, 'LF', () => silhouette(a.L, '#ffffff'));
+  lazy(a, 'RE', () => outlined(canvas, '#ffd84a')); lazy(a, 'LE', () => outlined(a.L, '#ffd84a'));
+  lazy(a, 'RC', () => outlined(canvas, '#5ff0ff')); lazy(a, 'LC', () => outlined(a.L, '#5ff0ff'));
+  return a;
 }
 
 function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
@@ -175,16 +190,21 @@ function animatedCreature(id, sheet) {
   const mirror = FACES_LEFT.has(id);
   const frame = (i, row) => { const f = cut(sheet, i * c, row * c, c, c); return mirror ? flip(f) : f; };
   const a = makeCreature(id, frame(0, 0));
-  a.anim = {};
-  const roller = SPECIES[id]?.q?.spin;
-  for (const [kind, row] of ANIM_ROWS) {
-    if (row >= rows) continue;
-    const k = roller && kind === 'attack' ? 'curl' : kind;
-    const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
-    if (row >= 2 && frames.every(blank)) continue; // e.g. a roller still without its curl-up
-    a.anim[k] = frames.map((R) => ({ R, L: flip(R) }));
-  }
-  if (a.anim.curl) a.anim.ball = ballTurns(a.anim.curl[a.anim.curl.length - 1].R).map((R) => ({ R, L: flip(R) }));
+  // its animations are cut from the sheet the first time it's animated (most of the 175 survivalmons
+  // never show up in a session)
+  lazy(a, 'anim', () => {
+    const anim = {};
+    const roller = SPECIES[id]?.q?.spin;
+    for (const [kind, row] of ANIM_ROWS) {
+      if (row >= rows) continue;
+      const k = roller && kind === 'attack' ? 'curl' : kind;
+      const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
+      if (row >= 2 && frames.every(blank)) continue; // e.g. a roller still without its curl-up
+      anim[k] = frames.map(pair);
+    }
+    if (anim.curl) anim.ball = ballTurns(anim.curl[anim.curl.length - 1].R).map(pair);
+    return anim;
+  });
   return a;
 }
 // A curled-up survivalmon turning as it rolls: BALL_STEPS turns of one frame, clockwise, about the
@@ -246,7 +266,7 @@ export async function loadArt(base = 'assets/sprites') {
       const c = dirs.south.width, n = Math.floor(sheet.width / c);
       DIR8.forEach((d, r) => {
         walk[d] = Array.from({ length: n }, (_, i) => cut(sheet, i * c, r * c, c, c));
-        walkFlash[d] = walk[d].map((f) => silhouette(f, '#ffffff'));
+        lazy(walkFlash, d, () => walk[d].map((f) => silhouette(f, '#ffffff')));
       });
     }
     const meta = sheet ? null : await fetch(`${base}/heroes/${id}/walk/frames.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
@@ -261,7 +281,7 @@ export async function loadArt(base = 'assets/sprites') {
       const n = Math.floor(dsheet.width / DASH_CELL);
       DIR8.forEach((d, r) => {
         const fr = Array.from({ length: n }, (_, i) => cut(dsheet, i * DASH_CELL, r * DASH_CELL, DASH_CELL, DASH_CELL)).filter((f) => !blank(f));
-        if (fr.length) { dash[d] = fr; dashFlash[d] = fr.map((f) => silhouette(f, '#ffffff')); }
+        if (fr.length) { dash[d] = fr; lazy(dashFlash, d, () => fr.map((f) => silhouette(f, '#ffffff'))); }
       });
     }
     const b = bbox(dirs.south);
