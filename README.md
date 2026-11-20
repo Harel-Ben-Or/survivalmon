@@ -342,3 +342,9 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
 - `tools/bot.js` plays whole careers from a fresh save; `tools/sim.js` plays one run with a chosen loadout
   (Training levels, team) and reports survival, damage by hero and by survivalmons, and faints. Use them
   in the dev page console on a throwaway player profile; usage is at the top of each file.
+
+## Copyright
+
+Copyright © 2026 Harel Ben-Or. **All rights reserved.** You're welcome to play the game and look at this
+repository, but the code, art, music and everything else in it may not be copied, changed, reused or
+republished without permission. See [LICENSE](LICENSE).
