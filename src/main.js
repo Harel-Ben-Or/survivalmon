@@ -3,6 +3,7 @@ import { Game } from './core/game.js';
 import { Audio } from './core/audio.js';
 import { Update } from './core/update.js';
 import { Analytics } from './systems/analytics.js';
+import { Ranking } from './systems/ranking.js';
 import { Meta } from './systems/meta.js';
 import { Box } from './systems/collection.js';
 
@@ -15,11 +16,13 @@ window.game = game; // handy for debugging in the console
 // anonymous play stats (systems/analytics.js): only on the live site, with a key, and while allowed.
 // Started before loading, so a load that fails or crawls is counted too.
 Analytics.init(game.settings);
+Ranking.init(game.settings);
 const iPhone = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 window.addEventListener('survivalmon-slow', (e) => { Analytics.track('load_slow', { progress: e.detail, iphone: iPhone }); Analytics.flush(); });
 game.boot().then(() => {
   const returning = Meta.data.runs > 0 || Box.mons.length > 0;
   Analytics.track('$pageview');
+  Ranking.sync(game.best); // bring this save's ranking row up to date
   Analytics.track('app_open', { returning, runs: Meta.data.runs || 0, mons: Box.mons.length, gates: Meta.gates || 0 });
   Analytics.person({ runs: Meta.data.runs || 0, mons: Box.mons.length, gates: Meta.gates || 0, version: globalThis.SURVIVALMON_VERSION || '' },
     { first_source: Analytics.source, first_version: globalThis.SURVIVALMON_VERSION || '', first_seen: new Date().toISOString() });

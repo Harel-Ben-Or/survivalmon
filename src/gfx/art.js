@@ -487,7 +487,7 @@ const WORLD_ART = {
   pot: ['world/pot'], pot_broken: ['world/pot_broken'], rock: ['world/rock'], rock_big: ['world/rock_big'], stump: ['world/stump'],
   fence_h: ['world/fence_h'], fence_v: ['world/fence_v'],
   town_gate: ['town/gate'], town_gate_s: ['town/gate_s'], town_gate_e: ['town/gate_e'], town_gate_w: ['town/gate_w'], town_dummy: ['town/dummy'], town_clinic: ['town/clinic'], town_workshop: ['town/workshop'],
-  town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'], town_ranch: ['town/ranch'],
+  town_training: ['town/training'], town_hatchery: ['town/nursery'], town_library: ['town/library'], town_merchant: ['town/merchant'], town_ranch: ['town/ranch'], town_hall: ['town/hall'],
   node_wood: ['world/node_wood'], node_clay: ['world/node_clay'], node_iron: ['world/node_iron'],
   bed_r: ['interior/bed_r'], bed_b: ['interior/bed_b'], bed_g: ['interior/bed_g'], table: ['interior/table'], chair: ['interior/chair'],
   bookshelf: ['interior/bookshelf'], bookshelf2: ['interior/bookshelf', true], fireplace: ['interior/fireplace'], stove: ['interior/stove'],
@@ -511,6 +511,39 @@ export const ROOM_ART = {};
 const ROOMS = ['floor_wood', 'floor_barn', 'floor_stone', 'wall_wood', 'wall_barn', 'wall_stone', 'rug_r', 'rug_b', 'rug_g', 'window', 'window_stained', 'torch'];
 // Item icons and projectiles
 export const ICON_ART = {};
+
+// Golden statues of survivalmons on stone plinths (the Hall of Fame's room), made from their sprites:
+// each pixel's brightness picks one of a few gold shades, so they need no art of their own. SPR gets
+// statue_<id> (facing right) and statue_<id>_l (facing left).
+const GOLD = [[58, 36, 8], [122, 82, 20], [184, 128, 28], [232, 176, 48], [255, 216, 74], [255, 241, 168]];
+export function addStatues(SPR, ids) {
+  for (const id of ids) {
+    const a = CREATURE[id];
+    if (!a) continue;
+    for (const [suffix, src] of [['', a.R], ['_l', a.L]]) {
+      const b = bbox(src), w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
+      const gold = canvasOf(w, h), gg = gold.getContext('2d');
+      gg.drawImage(src, b.x0, b.y0, w, h, 0, 0, w, h);
+      const d = gg.getImageData(0, 0, w, h);
+      for (let i = 0; i < d.data.length; i += 4) {
+        if (d.data[i + 3] < 40) { d.data[i + 3] = 0; continue; }
+        const lum = (0.3 * d.data[i] + 0.59 * d.data[i + 1] + 0.11 * d.data[i + 2]) / 255;
+        const [r, g, bl] = GOLD[Math.min(GOLD.length - 1, Math.floor(lum * GOLD.length * 1.15))];
+        d.data[i] = r; d.data[i + 1] = g; d.data[i + 2] = bl; d.data[i + 3] = 255;
+      }
+      gg.putImageData(d, 0, 0);
+      // the plinth (native px): the statue's feet stand on its top
+      const pw = w + 10 * WS, ph = 9 * WS, c = canvasOf(Math.max(w, pw), h + ph - 2 * WS), g = c.getContext('2d');
+      const px = Math.round((c.width - pw) / 2), py = h - 2 * WS;
+      g.fillStyle = '#2b2d36'; g.fillRect(px, py, pw, ph);
+      g.fillStyle = '#6e7482'; g.fillRect(px + WS, py + WS, pw - 2 * WS, ph - 2 * WS);
+      g.fillStyle = '#9aa0ae'; g.fillRect(px + WS, py + WS, pw - 2 * WS, 3 * WS);
+      g.fillStyle = '#c4c9d4'; g.fillRect(px + WS, py + WS, pw - 2 * WS, WS);
+      g.drawImage(gold, Math.round((c.width - w) / 2), 0);
+      SPR[`statue_${id}${suffix}`] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS, frames: [c], png: true };
+    }
+  }
+}
 
 function cropped(src, flipIt) {
   const b = bbox(src);

@@ -8,7 +8,7 @@
 // (DIR8 order), then an idle cycle facing south (keepers) or walk cycles south, north, east
 // (villagers; west is east mirrored).
 
-export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss', 'tove', 'kestrel', 'rook'];
+export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss', 'tove', 'kestrel', 'rook', 'brann'];
 
 // home: the building they keep (their room), 'stall' / 'gate' (stands outside) or 'roam'.
 // act: the button that opens the building, and the screen it opens.
@@ -78,6 +78,16 @@ export const NPCS = {
       { text: 'Each zone has its own natives. Write down where you meet them!' },
       { text: 'A breed of two kinds is a whole new page. Bring me more pages!' },
       { text: 'The Blight never shows up in my book. It is not alive the way they are.' },
+    ],
+  },
+  brann: {
+    name: 'Champion Brann', role: 'Hall of Fame', home: 'hall', act: ['Ranking', 'openRanking'],
+    hello: 'Well met, {name}! Come to see where you stand?',
+    lines: [
+      { text: 'Forty summers I ranged past the gates. Now I keep the names of those who go further.' },
+      { text: 'Every gate you open, every survivalmon you raise: it all goes up on the board.' },
+      { text: 'See the statues? The village cast its first four survivalmons in gold. Maybe yours will be next.' },
+      { text: 'Beat the Night Lord and the whole village will know your name.' },
     ],
   },
   dell: {

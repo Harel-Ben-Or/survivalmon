@@ -587,6 +587,14 @@ const TOWN_ROOMS = {
     items: [['bookshelf', 26, BACK], ['bookshelf', 52, BACK], ['tp_case', 112, BACK + 2], ['clock', 82, BACK], ['bookshelf', 172, BACK], ['bookshelf', 198, BACK],
       ['tp_desk', 112, 100, { solidH: 10 }], ['plant', 22, 132], ['plant', 202, 132]],
   },
+  hall: {
+    w: 14, h: 10, floor: 'floor_stone', wall: 'wall_stone', who: 'brann', npc: [112, 80], windows: [62, 162],
+    rugs: [['rug_r', 112, 116]], painting: { n: 0, x: 104 },
+    items: [['tp_case', 30, BACK + 2], ['tp_case', 194, BACK + 2], ['tp_lantern', 82, BACK + 4], ['tp_lantern', 142, BACK + 4],
+      ['statue_emberpup', 46, 100, { solidH: 8 }], ['statue_leafkit_l', 178, 100, { solidH: 8 }],
+      ['statue_puddlit', 46, 138, { solidH: 8 }], ['statue_voltowl_l', 178, 138, { solidH: 8 }],
+      ['plant', 18, 134], ['plant', 206, 134]],
+  },
   ranch: {
     w: 14, h: 10, kind: 'barn', floor: 'floor_barn', wall: 'barn_red', who: 'dell', npc: [112, 86], windows: [60, 164],
     items: [['hay', 28, BACK + 4], ['hay', 50, BACK + 6], ['tp_trough', 100, BACK + 6], ['tp_saddle', 150, BACK + 4], ['hay', 194, BACK + 4],

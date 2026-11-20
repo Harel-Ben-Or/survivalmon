@@ -1,6 +1,7 @@
 // "Who's playing?": pick, add, rename, reset or delete player profiles. Each profile is a separate
 // progress; switching or resetting reloads the game so every system starts from that save.
 import { Profiles } from '../systems/profiles.js';
+import { Ranking } from '../systems/ranking.js';
 import { Audio } from '../core/audio.js';
 // Total time played: "45 min", "3 h 12 min"
 const playTime = (sec) => { const m = Math.floor((sec || 0) / 60), h = Math.floor(m / 60); return h ? `${h} h ${m % 60} min` : `${m} min`; };
@@ -84,6 +85,7 @@ export const ProfilesUI = {
         return;
       case 'reset-yes':
         if (id === Profiles.data.active) Profiles.leaving = true;
+        Ranking.forget(id); // its row leaves the ranking
         Profiles.wipe(id);
         Audio.play('door');
         if (id === Profiles.data.active) { try { sessionStorage.setItem(PICKED, '1'); } catch { /* ignore */ } location.reload(); return; }
@@ -97,6 +99,7 @@ export const ProfilesUI = {
         const wasActive = id === Profiles.data.active;
         const name = Profiles.get(id)?.name;
         if (wasActive && Profiles.list.length > 1) Profiles.leaving = true;
+        if (Profiles.list.length > 1) Ranking.forget(id); // its row leaves the ranking
         if (!Profiles.remove(id)) { Profiles.leaving = false; return; }
         if (wasActive) { location.reload(); return; }
         this.toast(`${name} was deleted.`);

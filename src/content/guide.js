@@ -97,6 +97,10 @@ export const TIPS = {
   ],
   b_clinic: ['Doc Poppy heals survivalmons that got hurt or fainted. Resting through a run heals them slowly for free; healing here is quick.'],
   b_shrine: ["Keeper Sol's Spirit Shrine spends Spirit on upgrades for every survivalmon at once. Research takes time and makes better skill grades more likely."],
+  b_hall: [
+    "Champion Brann's Hall of Fame ranks everyone who plays: the furthest gate, the best run, the biggest Survidex, Night Lord wins and the strongest survivalmon.",
+    "Your game name shows on the board. Tap Hide me if you'd rather stay off it.",
+  ],
   b_survidex: [
     "Quill's Survidex fills in as you meet survivalmons and monsters. Beat a monster to learn how to fight it.",
     'Achievements live here too, and they pay Skyfall Shards. Check in now and then!',

@@ -52,11 +52,11 @@ export const pickTile = (m, cls = '', attrs = '') => `<div class="pick-tile ${cl
 const STAT_BLURB = { shot: 'hit hard but are a little fragile', chain: 'attack fast but have the least HP', charge: 'are tough and hit steadily', area: 'have the most HP and good defense', support: 'hit softly and keep everyone going' };
 // Stat bars. The bars are scaled to a strong Lv 70 final evolution, so they fill up as it grows.
 const STAT_TOP = { hp: 2300, atk: 750, spd: 160, def: 50, crit: 25 };
-export const statBlock = (m) => {
-  const s = monStats(m);
+export const statBlock = (m) => statBars(monStats(m));
+export const statBars = (s) => {
   const row = (k, label, v, txt) => `<div class="st-row st-${k}"><span>${label}</span><div class="st-bar"><i style="width:${Math.max(3, Math.min(100, (v / STAT_TOP[k]) * 100)).toFixed(0)}%"></i></div><b>${txt}</b></div>`;
   return `<div class="stats">${row('hp', 'HP', s.hp, s.hp)}${row('atk', 'Attack', s.atk, s.atk)}${row('spd', 'Speed', s.spd, s.spd)}${row('def', 'Defense', s.def, `${s.def}%`)}${s.crit ? row('crit', 'Crit', s.crit, `${s.crit}%`) : ''}
-    <div class="st-note">Each level: +${s.next.hp} HP, +${s.next.atk} Attack</div></div>`;
+    ${s.next ? `<div class="st-note">Each level: +${s.next.hp} HP, +${s.next.atk} Attack</div>` : ''}</div>`;
 };
 // ---------------------------------------------------------------- sorting and filtering
 // Every list of survivalmons (Ranch, team picker, Hatchery, Clinic) has the same bar: how to sort it,

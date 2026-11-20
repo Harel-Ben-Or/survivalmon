@@ -4,7 +4,7 @@ import { Audio } from './audio.js';
 import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
-import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART, setHeroLook } from '../gfx/art.js';
+import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART, setHeroLook, addStatues } from '../gfx/art.js';
 import { NPC_IDS } from '../content/npcs.js';
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
@@ -28,6 +28,7 @@ import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { Goals } from '../systems/goals.js';
 import { Analytics } from '../systems/analytics.js';
+import { Ranking } from '../systems/ranking.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
 import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
@@ -140,6 +141,7 @@ export class Game {
     await loadArt();
     await loadWorldArt(SPR);
     await Promise.all([loadProjArt(SPR), loadVfxArt(), loadNpcArt(NPC_IDS), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
+    addStatues(SPR, ['emberpup', 'leafkit', 'puddlit', 'voltowl']); // the Hall of Fame's golden statues
     this.tileGround = await TileGround.load();
     Meta.load();
     setHeroLook(Meta.gender); // your look: the boy or the girl ranger trainee
@@ -339,6 +341,7 @@ export class Game {
       level: Math.max(this.best.level, P.level), wins: this.best.wins + (won ? 1 : 0),
     };
     save(BEST_KEY, this.best);
+    Ranking.submit(this.best); // the ranking (systems/ranking.js): this save's newest results
     this.clearPending();
     Analytics.track('run_end', { kind, seconds: Math.round(this.time), level: P.level, kills: P.kills, gate: this.tier || 0, coins: earned, caught: P.caught.length, team: P.pets.length, story: !!this.storyRun, best: newBest });
     if (this.gateOpened) Analytics.track('gate_open', { gate: this.gateOpened });

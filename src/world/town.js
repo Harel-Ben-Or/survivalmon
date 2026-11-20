@@ -40,6 +40,7 @@ const BUILDINGS = [
   { id: 'clinic', name: 'Clinic', spr: 'town_clinic', door: [7, 16], yard: T.DIRT },
   { id: 'merchant', name: 'Merchant', spr: 'town_merchant', door: [28, 14], yard: T.STONE },
   { id: 'survidex', name: 'Survidex', spr: 'town_library', door: [34, 15], yard: T.STONE },
+  { id: 'hall', name: 'Hall of Fame', spr: 'town_hall', door: [36, 9], yard: T.STONE, bushes: false }, // the ranking (Champion Brann)
   { id: 'hatchery', name: 'Hatchery', spr: 'town_hatchery', door: [11, 23], always: true, yard: T.DIRT },
   { id: 'ranch', name: 'Ranch', spr: 'town_ranch', door: [25, 23], always: true, yard: T.DIRT }, // the pasture is beside it
 ];
@@ -51,6 +52,7 @@ const DECOR = {
   clinic: [['pot', -22, 6], ['pot', 22, 6]],
   merchant: [['barrel', -46, 0], ['barrel_open', -37, 8], ['pot', 44, 6], ['pot_broken', 52, 2]],
   survidex: [['pot', -20, 6], ['rock', 38, 6]],
+  hall: [['lamp', -48, 6], ['lamp', 48, 6]], // clear of the survivalmons leaning out of the castle's sides
   hatchery: [['hay', -58, 2]],
   ranch: [['hay', -50, 3]],
 };
@@ -145,7 +147,7 @@ export class Town {
   skirt(b, x, y, s) {
     const hw = s.w / 2, [tx, ty] = b.door, th = Math.floor(hw / TILE);
     if (b.yard !== undefined) { this.rect(b.yard, tx - th, ty - 2, tx + th, ty); this.rect(b.yard, tx - 1, ty + 1, tx + 1, ty + 1); }
-    for (const side of [-1, 1]) {
+    for (const side of b.bushes === false ? [] : [-1, 1]) { // (the Hall of Fame's mons burst out where they'd stand)
       const bx = x + side * (hw - 6 - this.r() * 4);
       this.prop(this.r() < 0.5 ? 'bush_0' : 'bush_1', bx, y + 3, 0);
       this.shadows.push({ x: bx, y: y + 2, rx: 8, ry: 3 });
@@ -216,6 +218,7 @@ export class Town {
     this.road(T.DIRT, [[16.5, 10.5], [14.5, 9.5], [13, 9]]);                      // Training Hall
     this.road(T.DIRT, [[13, 10.5], [9.5, 10.5], [6.5, 10]]);                       // on to the Spirit Shrine
     this.road(T.DIRT, [[23.5, 10.5], [25.5, 9.5], [27, 9]]);                       // Workshop
+    this.road(T.DIRT, [[27, 9], [30.5, 9.8], [34, 10.2], [36, 10]]);              // on past it to the Hall of Fame
     this.road(T.DIRT, [[16.5, 15.5], [12.5, 16.5], [7.5, 17]]);                    // Clinic
     this.road(T.DIRT, [[24, 15.5], [30, 16.5], [34, 16]]);                         // Survidex
     this.road(T.DIRT, [[GX + 0.5, 17], [GX, 20.5], [17, 22], [14, 23.5], [11, 24]]); // Hatchery
@@ -248,7 +251,7 @@ export class Town {
     for (const [s, x, y] of [
       ['tree_green_0', 9.6, 6.6], ['tree_dark_0', 16.9, 6.1], ['tree_green_1', 24.1, 6.1], ['tree_autumn_0', 31.6, 5.6],
       ['tree_green_0', 31.6, 11.4], ['pine_0', 3.4, 14.6], ['tree_pink_1', 3.6, 21.4], ['tree_dark_1', 37.4, 12.6],
-      ['tree_pink_0', 24.4, 28.6], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 7.4, 27.4], ['pine_1', 36.4, 4.8], ['tree_green_1', 37.6, 9.4],
+      ['tree_pink_0', 24.4, 28.6], ['tree_autumn_0', 6.2, 12.2], ['tree_green_0', 7.4, 27.4], ['pine_1', 39.4, 6.6], ['tree_green_1', 39.7, 12.9],
       ['tree_dark_0', 10.6, 30.2], ['tree_green_1', 20.2, 30.6], ['pine_0', 31.4, 29.8], ['tree_autumn_0', 37.2, 29.2], ['tree_green_0', 28.2, 31.2],
     ]) this.tree(s, x * TILE, y * TILE);
     for (const [s, x, y] of [['bush_1', 21.3, 23.2], ['bush_0', 19, 23.4], ['stump', 14.6, 19.6], ['rock_big', 35.4, 12.4], ['bush_1', 9.2, 20.6], ['rock', 17.6, 19],
@@ -635,6 +638,7 @@ export const TownMode = {
     const hatched = Box.hatchReady();
     if (hatched.length && Meta.unlock('merchant')) notes.push('The Merchant opened a stall by the square.');
     if (Box.mons.length >= 3 && Meta.unlock('shrine')) notes.push('The Spirit Shrine is open: upgrades for every survivalmon.');
+    if (Meta.data.runs > 0 && Meta.unlock('hall')) notes.push('The Hall of Fame opened past the Workshop: see how you rank against everyone who plays.');
     // new heroes
     // your friends: one is found past each gate, the first time you win at its Lv 1 (old saves keep theirs)
     const found = [];

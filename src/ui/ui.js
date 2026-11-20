@@ -249,6 +249,7 @@ export class UI {
           • A rare <b>wild survivalmon</b> may appear: defeat it within 25 seconds to catch it.<br>
           • Runs start short. When the timer runs out you're back in town to upgrade, heal, breed and get ready.<br>
           • Bosses arrive around 2:00, 4:00 and 6:00, and the Night Lord at 7:30. <b>Defeat the Night Lord</b> to win: the night doesn't end until it falls.
+          <div class="help-note">The Hall of Fame in town ranks every player by game name and best results. You can hide yourself there.</div>
           <div class="help-note">The game shares anonymous play stats (no names, no saves) so it can get better. Turn them off in the town menu: 📊 Share play stats.</div>
         </div>
         <button class="btn" data-act="close">Got it</button>
@@ -985,6 +986,8 @@ export class UI {
       case 'rename-player': this.closeModal(); this.openCreator(true); break;
       case 'opening': this.replayOpening(); break;
       case 'goals': Audio.play('click'); this.openGoals(); break;
+      case 'rank': Audio.play('click'); this.openRanking(); break;
+      case 'rank-tab': case 'rank-mon': case 'rank-back': case 'rank-retry': case 'rank-toggle': this.rankAct(t.dataset.act, t); break;
       case 'news': this.closeModal(); this.openNews(); break;
       case 'goal-claim': this.claimGoal(t.dataset.id); break;
       case 'install': {

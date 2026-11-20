@@ -354,6 +354,17 @@ save), the game's own events (`app_open` with where the visit came from, `openin
 `POSTHOG_KEY`, anywhere but the live site, or when the player turns **📊 Share play stats** off in the
 town menu. The poster's QR code opens `?src=poster`, so poster visits show as their own source.
 
+## Ranking
+
+The ranking lives in the **Hall of Fame**, the trophy castle past the Workshop (it opens after a player's first run). Its keeper, Champion Brann, opens the board (`src/systems/ranking.js`, page in `src/ui/town_ui.js`); his room has four golden statues that `addStatues` in `art.js` makes by recoloring survivalmon sprites. The board compares every player:
+furthest gate, best run (kills), Survidex, Night Lord wins and the strongest survivalmon (by Power,
+`monPower` in `collection.js`; tap one for its stats and skills). Each save sends one row with its game
+name after every run, when the game opens and when the page opens. The rows live in a Supabase table set
+up by `tools/ranking.sql`: anyone can read it, but it takes writes only through `submit_rank` and
+`leave_rank`, which check a secret only that save knows. **Hide me** on the page removes the row, and
+so does erasing or deleting the save. Nothing is sent from anywhere but the live site, or without the
+project's address and public key in `window.SURVIVALMON_RANK` (index.html).
+
 ## Copyright
 
 Copyright © 2026 Harel Ben-Or. **All rights reserved.** You're welcome to play the game and look at this

@@ -30,6 +30,13 @@ export function monStats(m) {
     next: { hp: Math.round(sp.hp * sh.hp * LEVEL_HP * (1 + (pass.heart || 0)) * mul), atk: Math.round(100 * sh.atk * LEVEL_ATK * mul) },
   };
 }
+// One number for how strong a survivalmon is (the ranking's Strongest tab): how hard it hits (Attack,
+// Speed, Crit) times how much it can take (HP, Defense), square-rooted so both halves count the same.
+// An average Lv 1 is about 100.
+export function monPower(m, s = monStats(m)) {
+  const hit = s.atk * (s.spd / 100) * (1 + s.crit / 100), take = s.hp / Math.max(0.05, 1 - s.def / 100);
+  return Math.round(Math.sqrt(hit * take));
+}
 // Star levels: on top of its level, a survivalmon can earn up to 5 stars, paid for with the coins of
 // its kind (what freeing survivalmons gives). Each star: +10% damage and HP. At 3 stars its own attack
 // goes up a grade; at 5 it shines gold. Stars stay through evolving; a baby starts with none.

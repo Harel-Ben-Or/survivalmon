@@ -6,6 +6,12 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.06', date: '20 Nov 2026',
+    notes: [
+      { h: 'Hall of Fame', t: "A trophy castle has risen past the Workshop! Inside, among golden statues, Champion Brann ranks everyone who plays: the furthest gate, the best run, the biggest Survidex, Night Lord wins and the strongest survivalmon (tap one to see its stats). The board shows your game name and best results; you can hide yourself there." },
+    ],
+  },
+  {
     v: '1.05', date: '20 Nov 2026',
     notes: [
       'Fixed a bug that could erase your progress if you switched away from the game while it was still loading. Sorry to anyone who lost their save!',

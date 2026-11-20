@@ -40,6 +40,7 @@ export const UNLOCK_TEXT = {
   merchant: 'Opens when your first egg hatches',
   shrine: 'Opens when you own 3 survivalmons',
   workshop: 'Opens when you find your first gear',
+  hall: 'Opens after your first run',
 };
 
 // The Merchant's goods are in content/shop.js.

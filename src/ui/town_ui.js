@@ -7,13 +7,14 @@ import { playOpening, playEnding } from './story.js';
 import { gateArrivalScene, friendTownScene, endingScene } from '../content/story_scenes.js';
 import { gateSide } from '../content/gates.js';
 import { HEROES } from '../content/heroes.js';
-import { SPECIES } from '../content/species.js';
+import { SPECIES, DEX_IDS } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
 import { Goals } from '../systems/goals.js';
 import { CHANGELOG, gameVersion, unseenUpdates } from '../content/changelog.js';
 import { MATERIALS } from '../content/buildings.js';
 import { ITEMS } from '../content/shop.js';
-import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge } from './mons_ui.js';
+import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge, stars, skillChips, statBars } from './mons_ui.js';
+import { Ranking } from '../systems/ranking.js';
 import { TIERS } from '../content/skills.js';
 import { HERO_BOOST, HERO_UNLOCK } from '../content/gear.js';
 
@@ -27,6 +28,18 @@ import { Analytics } from '../systems/analytics.js';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
 const runTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+// The ranking's tabs: what orders the players (bigger first; later numbers break ties), what each row
+// shows, and which players are listed at all
+const RANK_SHOW = 50;
+const RANK_TABS = [
+  { id: 'gate', name: 'Furthest gate', by: (r) => [r.gate, r.level], val: (r) => gateName(r.gate), sub: (r) => `Best level ${r.level}`, empty: 'No one is in the ranking yet.' },
+  { id: 'run', name: 'Best run', by: (r) => [r.kills, r.level], val: (r) => `${r.kills.toLocaleString()} kills`, sub: (r) => `Best level ${r.level}`, empty: 'No one is in the ranking yet.' },
+  { id: 'dex', name: 'Survidex', by: (r) => [r.dex], val: (r) => `${r.dex} / ${DEX_IDS.length}`, sub: () => 'survivalmons found', empty: 'No one is in the ranking yet.' },
+  { id: 'lord', name: 'Night Lord', has: (r) => r.wins > 0, by: (r) => [r.wins, r.gate], val: (r) => `${r.wins} ${r.wins === 1 ? 'win' : 'wins'}`, sub: (r) => gateName(r.gate), empty: 'No one has beaten the Night Lord yet. Be the first!' },
+  { id: 'mon', name: 'Strongest', has: (r) => !!r.mon, by: (r) => [r.power], title: (r) => r.mon.nick || SPECIES[r.mon.sp].name, val: (r) => `Power ${r.power.toLocaleString()}`,
+    sub: (r) => `${r.name} · Lv ${r.mon.level}${r.mon.stars ? ` · ${'★'.repeat(r.mon.stars)}` : ''}`, empty: 'No survivalmons in the ranking yet.' },
+];
 
 // What the arrow says about each stop of the tour
 const PLACE_WHY = { training: 'Spend coins on Run time', hatchery: 'Granny Wren is waiting', ranch: 'Where your survivalmons rest' };
@@ -162,6 +175,92 @@ export const TownUI = {
     this.updateTownHUD?.();
     this.openGoals();
   },
+  // ------------------------------------------------------------ ranking (systems/ranking.js)
+  // Every player's best results, one tab per ranking. Your own row is marked, and shown again under
+  // the list when you're further down. In Strongest, tapping a row opens that survivalmon's card.
+  openRanking(force = false) {
+    if (this.g.mode === 'town') this.g.modal = 'ranking';
+    this.prompt?.(null);
+    this.rankTab ||= 'gate';
+    this.rankMon = null; this.rankRows = null; this.rankState = 'loading';
+    this.openModal(`
+      <div class="modal-box panel rank-box">
+        <div class="ms-bar"><h2>🏆 Ranking</h2><button class="btn small secondary ms-x" data-act="close" aria-label="Close">✕</button></div>
+        <div class="rank-tabs">${RANK_TABS.map((t) => `<button class="btn small" data-act="rank-tab" data-t="${t.id}">${t.name}</button>`).join('')}</div>
+        <div class="rank-body"></div>
+        <div class="rank-foot small"></div>
+      </div>`);
+    this.modalKind = 'ranking';
+    if (!Ranking.ready) { this.rankState = 'off'; this.renderRanking(); return; }
+    this.renderRanking();
+    if (this.g.mode === 'town') this.tip('b_hall');
+    const ask = this.rankAsk = (this.rankAsk || 0) + 1;
+    const still = () => ask === this.rankAsk && this.modalKind === 'ranking';
+    (async () => {
+      await Ranking.submit(this.g.best); // your newest results first, so you see them in the list
+      try { const rows = await Ranking.list(force); if (still()) { this.rankRows = rows; this.rankState = 'ok'; this.renderRanking(); } }
+      catch { if (still()) { this.rankState = 'error'; this.renderRanking(); } }
+    })();
+  },
+  renderRanking() {
+    const box = this.el.modal.querySelector('.rank-box');
+    if (!box) return;
+    const tab = RANK_TABS.find((t) => t.id === this.rankTab) || RANK_TABS[0];
+    box.querySelectorAll('[data-act="rank-tab"]').forEach((b) => b.classList.toggle('secondary', b.dataset.t !== tab.id));
+    const body = box.querySelector('.rank-body'), me = Ranking.myId;
+    const on = Ranking.on, foot = box.querySelector('.rank-foot');
+    if (this.rankState === 'off') {
+      foot.innerHTML = '';
+      body.innerHTML = '<p class="rank-msg">The board is kept in the online game, at harel-ben-or.github.io/survivalmon. This copy of the game can\'t reach it.</p>';
+      return;
+    }
+    foot.innerHTML = `<span>${on ? 'Everyone sees your game name and best results.' : "You're hidden: the others don't see you."}</span>
+      <button class="btn small secondary" data-act="rank-toggle">${on ? 'Hide me' : 'Show me'}</button>`;
+    if (this.rankState === 'loading') { body.innerHTML = '<p class="rank-msg">Loading the ranking…</p>'; return; }
+    if (this.rankState === 'error') { body.innerHTML = '<p class="rank-msg">Couldn\'t reach the ranking. Check your connection, then <button class="btn small" data-act="rank-retry">Try again</button></p>'; return; }
+    // a survivalmon's card (Strongest)
+    const pick = this.rankMon && this.rankRows.find((r) => r.id === this.rankMon);
+    if (pick?.mon) {
+      const m = pick.mon, name = m.nick || SPECIES[m.sp].name;
+      body.innerHTML = `<div class="rank-card">
+        <button class="btn small secondary" data-act="rank-back">‹ Back</button>
+        <div class="rank-card-top"><img class="px" src="${artURL('creature', m.sp) || icon('egg', 3)}" alt="">
+          <div><h3>${esc(name)}</h3><div class="small">${m.nick ? `${esc(SPECIES[m.sp].name)} · ` : ''}Lv ${m.level} ${stars(m)}</div>
+          <div class="small">${esc(pick.name)}${pick.id === me ? ' (you)' : ''} · Power <b>${pick.power.toLocaleString()}</b></div></div></div>
+        ${statBars(m.stats)}
+        <div class="rank-skills">${skillChips(m)}</div>
+      </div>`;
+      return;
+    }
+    const rows = this.rankRows.filter(tab.has || (() => true));
+    rows.sort((a, b) => { const x = tab.by(a), y = tab.by(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return y[i] - x[i]; return a.name.localeCompare(b.name); });
+    // equal results share a place: 1, 1, 3
+    let pos = 0;
+    rows.forEach((r, i) => { if (!i || String(tab.by(r)) !== String(tab.by(rows[i - 1]))) pos = i + 1; r.pos = pos; });
+    const row = (r) => `<div class="rank-row ${r.id === me ? 'me' : ''} ${tab.id === 'mon' ? 'tap' : ''}" ${tab.id === 'mon' ? `data-act="rank-mon" data-id="${esc(r.id)}"` : ''}>
+        <b class="rank-pos ${r.pos <= 3 ? `p${r.pos}` : ''}">${r.pos}</b>
+        ${tab.id === 'mon' ? `<img class="px rank-pic" src="${artURL('creature', r.mon.sp) || icon('egg', 2)}" alt="">` : ''}
+        <span class="rank-name"><b>${esc(tab.title ? tab.title(r) : r.name)}${r.id === me ? '<i class="rank-you">you</i>' : ''}</b><small>${esc(tab.sub(r))}</small></span>
+        <b class="rank-val">${esc(tab.val(r))}</b>
+      </div>`;
+    const top = rows.slice(0, RANK_SHOW), mine = rows.find((r) => r.id === me);
+    body.innerHTML = rows.length
+      ? `${top.map(row).join('')}${mine && mine.pos > RANK_SHOW ? `<div class="rank-gap">⋯</div>${row(mine)}` : ''}`
+      : `<p class="rank-msg">${tab.empty}</p>`;
+  },
+  rankAct(act, el) {
+    if (act === 'rank-tab') { this.rankTab = el.dataset.t; this.rankMon = null; Audio.play('click'); this.renderRanking(); }
+    else if (act === 'rank-mon') { this.rankMon = el.dataset.id; Audio.play('click'); this.renderRanking(); }
+    else if (act === 'rank-back') { this.rankMon = null; this.renderRanking(); }
+    else if (act === 'rank-retry') this.openRanking(true);
+    else if (act === 'rank-toggle') {
+      const g = this.g;
+      g.settings.rank = g.settings.rank === false; g.saveSettings();
+      Audio.play('click');
+      (g.settings.rank ? Ranking.submit(g.best) : Ranking.leave()).finally(() => { if (this.modalKind === 'ranking') this.openRanking(true); });
+    }
+  },
+
   updateTownHUD() {
     this.set('tcoins', this.th.coins, 'text', String(Meta.coins));
     if (this.th.spirit) this.set('tspirit', this.th.spirit, 'text', String(Meta.spirit));

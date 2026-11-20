@@ -2,7 +2,7 @@
 // Spirit Shrine, best run). Settings are shared. Profile 1 uses the original save keys, so a save
 // from before profiles simply becomes profile 1. Switching profile reloads the page.
 const INDEX = 'survivelmon.profiles';
-const PARTS = ['box', 'meta', 'shrine', 'best', 'pending'];
+const PARTS = ['box', 'meta', 'shrine', 'best', 'pending', 'rank'];
 const read = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
 
 export const Profiles = {
