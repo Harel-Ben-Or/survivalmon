@@ -1155,7 +1155,7 @@ export class Game {
   // falls. Bosses feel half of it (Enemy). Wild survivalmons aren't the Blight: they stay the same.
   darkness() {
     const { sunset, night } = this.nightLevels();
-    return { sunset, night, hp: 0.85 + 0.15 * sunset + 0.3 * night, dmg: 0.8 + 0.2 * sunset + 0.4 * night, speed: 1 + 0.12 * night };
+    return { sunset, night, hp: 0.93 + 0.07 * sunset + 0.3 * night, dmg: 0.9 + 0.1 * sunset + 0.4 * night, speed: 1 + 0.12 * night };
   }
   // A banner when the sun starts to set and another when night is complete
   darkNews() {

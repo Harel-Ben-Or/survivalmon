@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.84', date: '20 Nov 2026',
+    notes: [
+      { h: 'Tougher monsters', t: 'The Blight fights harder: every monster and boss has 25% more health and hits 15% harder, and 15% more of them come. The morning is less of a break too: in daylight they are only 10% weaker (it was 20%). Wild survivalmons are the same as before.' },
+    ],
+  },
+  {
     v: '0.83', date: '20 Nov 2026',
     notes: [
       'Training Hall prices now climb a little with every level, not every 3 levels: 1.4 times, then 1.405 times, then 1.41 times, up to 1.5 times.',

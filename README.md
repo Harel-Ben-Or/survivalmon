@@ -15,8 +15,8 @@ Glades. And the **Snare gang** raids now and then: netters whose nets slow you, 
 carry off fainted survivalmons (defeat the drone and your mon gets back up), and a survivalmon they control
 with the Blight: defeat it to free it, and it joins you.
 
-**Day and night.** Every run starts in the morning, and the Blight is weak in daylight: monsters hit 20%
-softer and appear with 15% less health. At sunset (about 3:30) they start to grow; at nightfall (about 6:35,
+**Day and night.** Every run starts in the morning, and the Blight is weak in daylight: monsters hit 10%
+softer and appear with 7% less health. At sunset (about 3:30) they start to grow; at nightfall (about 6:35,
 "Night has fallen!") they hit 40% harder, appear with 30% more health and move 12% faster. Bosses feel half
 of it; wild survivalmons none. The HUD shows the time of day and the Blight's strength.
 

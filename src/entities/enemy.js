@@ -1,5 +1,5 @@
 // Monsters and bosses.
-import { ENEMIES, hpScale } from '../content/creatures.js';
+import { ENEMIES, hpScale, TOUGH } from '../content/creatures.js';
 import { XP_PACE } from '../systems/director.js';
 import { SPECIES, TYPES } from '../content/species.js';
 import { MON } from '../gfx/assets.js';
@@ -40,9 +40,10 @@ export class Enemy {
     this.blight = !opts.wild || !!opts.corrupted;
     const dk = this.blight ? this.darkMul('hp') : 1;
     const tier = g.tierMult || { hp: 1, dmg: 1, xp: 1 }; // the gate this run went through
-    this.maxHp = this.hp = def.hp * hpMul * (this.elite ? 9 : 1) * dk * tier.hp;
+    const tough = this.blight ? TOUGH : { hp: 1, dmg: 1 }; // (wild survivalmons stay as they were)
+    this.maxHp = this.hp = def.hp * hpMul * (this.elite ? 9 : 1) * dk * tier.hp * tough.hp;
     this.baseSpeed = def.speed * (this.boss ? 1 : rand(0.9, 1.1)) * (this.elite ? 1.08 : 1);
-    this.baseDmg = def.dmg * (this.boss ? 1 : 1 + g.stage / 1200) * (this.elite ? 1.4 : 1) * tier.dmg;
+    this.baseDmg = def.dmg * (this.boss ? 1 : 1 + g.stage / 1200) * (this.elite ? 1.4 : 1) * tier.dmg * tough.dmg;
     this.xp = def.xp * (this.elite ? 12 : 1) * XP_PACE * tier.xp;
     this.knockRes = this.elite ? Math.max(0.6, def.knockRes || 0) : def.knockRes || 0;
     this.flying = def.behavior === 'flyer' || !!def.flying;
@@ -360,7 +361,7 @@ const BEHAVIOR = {
       e.fireT = d.fireCd * rand(0.85, 1.15);
       e.swing();
       const a = Math.atan2(dy, dx);
-      g.spawnProjectile({ x: e.x, y: e.y, vx: Math.cos(a) * 85, vy: Math.sin(a) * 85, r: 3, dmg: d.projDmg * (1 + g.stage / 1200), life: 3, spr: d.proj, hostile: true, z: 8 });
+      g.spawnProjectile({ x: e.x, y: e.y, vx: Math.cos(a) * 85, vy: Math.sin(a) * 85, r: 3, dmg: d.projDmg * (1 + g.stage / 1200) * TOUGH.dmg, life: 3, spr: d.proj, hostile: true, z: 8 });
     }
     if (dist > d.range) return seek(e, g, dx, dy, dist);
     if (dist < d.range * 0.6) return [-dx / dist, -dy / dist, e.speed * 0.6];
@@ -377,7 +378,7 @@ const BEHAVIOR = {
       e.swing();
       const P = g.player, T = 0.9, R = 22;
       const sx = e.x, sy = e.y - 12, tx = P.x + rand(-12, 12), ty = P.y + rand(-9, 9);
-      const dmg = d.projDmg * (1 + g.stage / 1200) * (g.tierMult?.dmg || 1) * e.darkMul('dmg');
+      const dmg = d.projDmg * (1 + g.stage / 1200) * (g.tierMult?.dmg || 1) * e.darkMul('dmg') * TOUGH.dmg;
       g.spawnZone({ kind: 'hazard', x: tx, y: ty, r: R, life: T, tick: 99, firstTick: T });
       g.spawnProjectile({
         x: sx, y: sy, r: 0, dmg: 0, pierce: Infinity, life: T, spr: 'p_spore', fx: 'glob_venewt', fxSpin: true, seed: Math.random(), noHit: true, scale: 1.4,
@@ -498,7 +499,7 @@ const BEHAVIOR = {
     if (e.fireT <= 0 && dist < d.range + 30) {
       e.fireT = d.fireCd * rand(0.85, 1.15);
       e.swing();
-      throwNet(e, g, Math.atan2(dy, dx), d.projDmg * (1 + g.stage / 1200));
+      throwNet(e, g, Math.atan2(dy, dx), d.projDmg * (1 + g.stage / 1200) * TOUGH.dmg);
     }
     if (dist > d.range) return seek(e, g, dx, dy, dist);
     if (dist < d.range * 0.55) return [-dx / dist, -dy / dist, e.speed * 0.6];

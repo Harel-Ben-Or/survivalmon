@@ -104,6 +104,11 @@ export const EVENTS = [
   { t: 1440, type: 'boss', enemy: 'night_lord' },
 ];
 
+// How tough the Blight is everywhere, on top of everything else (run time, day and night, elites, the
+// gates): every monster's and boss's health and damage, and how many come. The player found the
+// monsters a bit weak (2026-11-20, v0.84): +25% health, +15% damage, 15% more spawns.
+export const TOUGH = { hp: 1.25, dmg: 1.15, spawns: 1.15 };
+
 // Enemy HP multiplier by run time (seconds)
 export function hpScale(t) {
   const m = t / 60;

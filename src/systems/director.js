@@ -1,5 +1,5 @@
 // Decides what spawns, when and where over a run.
-import { WAVES, EVENTS, ENEMIES } from '../content/creatures.js';
+import { WAVES, EVENTS, ENEMIES, TOUGH } from '../content/creatures.js';
 import { weightedChoice, rand, TAU, dist2 } from '../core/util.js';
 import { Audio } from '../core/audio.js';
 import { SPECIES } from '../content/species.js';
@@ -101,7 +101,7 @@ export class Director {
     const w = this.wave();
     const bossAlive = g.enemies.some((e) => e.boss && !e.dead);
     if (g.enemies.length < MAX_ENEMIES) {
-      this.acc += w.rate * dt * (bossAlive ? 0.55 : 1);
+      this.acc += w.rate * TOUGH.spawns * dt * (bossAlive ? 0.55 : 1);
       const pool = Object.entries(w.pool).map(([type, weight]) => ({ type, weight }));
       while (this.acc >= 1) {
         this.acc -= 1;
