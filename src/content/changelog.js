@@ -6,6 +6,16 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.07', date: '21 Nov 2026',
+    notes: [
+      { h: 'More gold', t: 'Defeated monsters pay 75% more coins, and Coin gain in the Training Hall now goes up to level 30 (as far as your Training Hall allows).' },
+      'Your survivalmons hit 4% harder.',
+      'The Hatchery now says what every skill does: on each parent, and in the Combine preview. The i on a parent opens its full page.',
+      'Fixed level-up cards covering the scene where you find a friend after beating a Night Lord, which could lock the screen.',
+      'Fixed the DASH button in town showing a leftover cooldown from your last run.',
+    ],
+  },
+  {
     v: '1.06', date: '20 Nov 2026',
     notes: [
       { h: 'Hall of Fame', t: "A trophy castle has risen past the Workshop! Inside, among golden statues, Champion Brann ranks everyone who plays: the furthest gate, the best run, the biggest Survidex, Night Lord wins and the strongest survivalmon (tap one to see its stats). The board shows your game name and best results; you can hide yourself there." },

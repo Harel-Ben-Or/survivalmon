@@ -183,6 +183,7 @@ export const SceneMode = {
       S.typed = Math.min(b.text.length, S.typed + dt * TYPE_SPEED);
       this.placeSceneBubble(b.say, Math.floor(S.typed));
     }
+    if (this.scene !== S) return; // that was the last step: the scene is over (the camera below needs one)
     // the rest of the world goes on quietly around you
     P.moving = false;
     P.anim = (P.anim || 0) + dt * 2;

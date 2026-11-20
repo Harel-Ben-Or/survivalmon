@@ -1,6 +1,6 @@
 // The Ranch: every survivalmon you own (copies too), the team, Hatchery eggs, species coins and
 // upgrades, Ranch training spots and the Survidex. Saved in this browser.
-import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, rollSize, rollBuild, weightOf, H5, H95, W5, W95, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, atkType } from '../content/species.js';
+import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel, breedResult, rollSize, rollBuild, weightOf, H5, H95, W5, W95, STAT_SHAPE, LEVEL_HP, LEVEL_ATK, MON_DMG, atkType } from '../content/species.js';
 import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
@@ -23,11 +23,11 @@ export function monStats(m) {
   const sp = SPECIES[m.species], sh = statShape(m), pass = monPassives(m), mul = Box.speciesMul(sp.id) * Box.starMul(m), L = m.level - 1;
   return {
     hp: Math.round(sp.hp * sh.hp * (1 + LEVEL_HP * L) * (1 + (pass.heart || 0)) * mul),
-    atk: Math.round(100 * sh.atk * (1 + LEVEL_ATK * L) * mul),
+    atk: Math.round(100 * MON_DMG * sh.atk * (1 + LEVEL_ATK * L) * mul),
     spd: Math.round((100 * sh.spd) / (1 - (pass.swift || 0))),
     def: Math.round(100 * (1 - (1 - sh.def) * (1 - (pass.hide || 0)))),
     crit: Math.round(100 * (pass.claw || 0)),
-    next: { hp: Math.round(sp.hp * sh.hp * LEVEL_HP * (1 + (pass.heart || 0)) * mul), atk: Math.round(100 * sh.atk * LEVEL_ATK * mul) },
+    next: { hp: Math.round(sp.hp * sh.hp * LEVEL_HP * (1 + (pass.heart || 0)) * mul), atk: Math.round(100 * MON_DMG * sh.atk * LEVEL_ATK * mul) },
   };
 }
 // One number for how strong a survivalmon is (the ranking's Strongest tab): how hard it hits (Attack,

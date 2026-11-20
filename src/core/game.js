@@ -134,6 +134,7 @@ export class Game {
     this.particles.clear();
     this.boss = null;
     this.runStats = { damage: 0, taken: 0, coins: 0, casts: 0, houses: 0, chars: {} };
+    this.runOver = false; // true from the Night Lord's fall to the end screen: no more cards to pick
   }
 
   async boot() {
@@ -503,7 +504,7 @@ export class Game {
     } else this.ui.prompt(null);
 
     this.updateGathering(dt);
-    if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
+    if (!this.modal && !this.runOver && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     this.openPicks();
     Box.saveIfDirty();
   }
@@ -512,7 +513,7 @@ export class Game {
   // team upgrades from the berry bar, chest picks, then a boss's skill pick
   openPicks() {
     const P = this.player;
-    if (this.modal) return;
+    if (this.modal || this.runOver) return; // (the Night Lord is down: the run is won, nothing left to pick)
     if (P.evolvePicks > 0) { if (!this.ui.tip('evolve')) this.openLevelUp('evolve'); }
     else if (P.pendingLevels > 0 && !this.ui.tip('levelup')) this.openLevelUp();
     else if (P.teamPicks > 0 && !this.modal && !this.ui.tip('teambar')) this.openLevelUp('team');
@@ -552,7 +553,7 @@ export class Game {
       this.ui.prompt('Leave', room.doorX, room.ph + 16);
     } else this.ui.prompt(null);
     if (room.doorX != null && P.y > room.ph - 13 && Math.abs(P.x - room.doorX) < 14) this.exitHouse();
-    if (!this.modal && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
+    if (!this.modal && !this.runOver && this.evolveQueue.length) this.openEvolve(this.evolveQueue.shift());
     this.openPicks();
   }
 
@@ -956,11 +957,19 @@ export class Game {
     if (this.boss === e) this.boss = null;
     this.ui.bossBar(null);
     const run = this.runId;
-    if (e.type === 'night_lord') setTimeout(() => this.mode === 'world' && this.runId === run && this.winRun(), 1500);
+    if (e.type === 'night_lord') {
+      this.runOver = true;
+      setTimeout(() => this.mode === 'world' && this.runId === run && this.winRun(), 1500);
+    }
   }
   // The Night Lord is down. The first win at a gate's Lv 1 (North, South, East, West) finds a friend:
   // they come running up to you right here, before the end screen.
   winRun() {
+    // nothing may sit over what comes next (cards, the bag, the pause menu)
+    if (this.modal === 'pause') this.ui.closePause();
+    else if (this.modal === 'bag') this.ui.closeBag();
+    else if (this.modal) this.ui.closeModal();
+    this.modal = null;
     const id = FRIEND_AT_TIER[this.tier || 0];
     if (id && (this.tier || 0) === Meta.gates && !Meta.isHeroUnlocked(id)) {
       this.clearEnemies();

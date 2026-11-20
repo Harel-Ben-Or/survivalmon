@@ -3,7 +3,7 @@
 // HP it ends the run with is saved, and the Clinic heals it.
 import { CREATURE, creatureMotion, drawCreature, drawStarShine, snap, ANIM_FPS, vfxHitTime } from '../gfx/art.js';
 import { attackFx } from '../content/attack_fx.js';
-import { SPECIES, archType, LEVEL_HP, LEVEL_ATK } from '../content/species.js';
+import { SPECIES, archType, LEVEL_HP, LEVEL_ATK, MON_DMG } from '../content/species.js';
 import { TIER_POWER, PASSIVES } from '../content/skills.js';
 import { Box, statShape } from '../systems/collection.js';
 import { rand, TAU } from '../core/util.js';
@@ -89,7 +89,7 @@ export class Pet {
   get team() { return this.g.team || TEAM0; }
   get name() { return this.mon.nick || this.sp.name; }
   get power() {
-    return this.shape.atk * this.growth * (1 + 0.02 * (this.g.player.level - 1)) * (1 + this.team.dmg + (this.g.cry || 0));
+    return MON_DMG * this.shape.atk * this.growth * (1 + 0.02 * (this.g.player.level - 1)) * (1 + this.team.dmg + (this.g.cry || 0));
   }
   // Level and species upgrades, without the attack-type shape (heals use this)
   get growth() { return (1 + LEVEL_ATK * (this.mon.level - 1)) * Box.speciesMul(this.species) * Box.starMul(this.mon); }
@@ -202,7 +202,7 @@ export class Pet {
         a.healT -= dt;
         if (a.healT <= 0) {
           a.healT = a.q.healCd || 9;
-          const amt = a.q.heal * this.power;
+          const amt = (a.q.heal * this.power) / MON_DMG; // (the damage boost isn't a healing boost)
           P.heal(amt + P.stats.maxHp * 0.03, this);
           for (const o of P.pets) o.heal(amt * 2, this);
           g.particles.burst(P.x, P.y - 10, { n: 10, color: '#9af08a', speed: 30, life: 0.6, up: 20 });

@@ -38,6 +38,9 @@ export const STAT_SHAPE = {
   support: { hp: 1.05, atk: 0.65, spd: 1, def: 0.08 },
 };
 export const LEVEL_HP = 0.12, LEVEL_ATK = 0.08; // per level
+// Every survivalmon's damage, on top of everything else. 1.04 since 1.07 (the hero out-damaged the team;
+// the player asked for a subtle 3 to 4%).
+export const MON_DMG = 1.04;
 export const archType = (arch) => ARCH_TYPE[arch];
 export const atkType = (speciesId) => ARCH_TYPE[SPECIES[speciesId]?.arch];
 

@@ -1105,6 +1105,11 @@ body.in-scene #hud, body.in-scene .town-hud, body.in-scene #touch, body.in-scene
 .bp-egg { display: flex; flex-direction: column; align-items: center; gap: 3px; max-width: 130px; text-align: center; }
 .bp-egg img { width: 48px; height: 48px; object-fit: contain; }
 .bp-combos { display: flex; flex-direction: column; gap: 4px; }
+.bp-own { margin: 0; color: var(--muted); }
+.bp-whats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 4px 10px; }
+.bp-what { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; line-height: 1.25; text-align: left; }
+.bp-what .tier { flex: none; }
+.bp-what small { color: var(--muted); font-size: 11px; }
 .bp-combo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 6px; background: rgba(0,0,0,.18); border-radius: 6px; }
 .bp-combo > b { font: 600 15px var(--font-title); color: var(--gold); }
 .breed-preview .odds { font-size: 13px; }
@@ -1388,6 +1393,13 @@ body .tbtn.pause-btn { top: calc(var(--strip) + var(--mini) + 28px + env(safe-ar
 .h-pic { width: 64px; height: 64px; object-fit: contain; }
 .h-card .small { font-size: 12px; }
 .h-card .g-grades { position: static; }
+/* a parent's skills, each with what it does, and the i button for its full sheet */
+.h-sks { align-self: stretch; display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.h-sk { display: flex; align-items: flex-start; gap: 5px; font-size: 12px; line-height: 1.2; }
+.h-sk .tier { flex: none; }
+.h-sk span { min-width: 0; }
+.h-sk small { display: block; color: var(--muted); font-size: 11px; }
+.h-info { top: 4px; left: 4px; right: auto; }
 .h-nests { display: flex; gap: 6px; flex-wrap: wrap; }
 .nest2 { flex: 1 1 150px; display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 6px; padding: 4px 8px; background: rgba(0,0,0,.22); border-radius: 8px; font-size: 12px; }
 .nest2 img { width: 26px; height: 26px; grid-row: span 2; }
@@ -1455,7 +1467,7 @@ body .tbtn.pause-btn { top: calc(var(--strip) + var(--mini) + 28px + env(safe-ar
 @media (max-height: 300px) {
   .team2 .t2-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .team2 .t2-slot { padding: 2px; min-width: 0; }
-  .h-parent .small, .h-out .small + .small { display: none; }
+  .h-parent .small, .h-out .small + .small, .h-sk small { display: none; }
   .h-card { gap: 2px; }
 }
 

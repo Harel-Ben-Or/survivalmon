@@ -1122,7 +1122,10 @@ export class UI {
       document.querySelectorAll('[data-until]').forEach((el) => { const left = Math.max(0, (+el.dataset.until - Date.now()) / 1000); el.textContent = left > 0 ? countdown(left) : 'done!'; });
     }
     if (this.screen === 'select' && this.heroCanvases) this.drawSelect();
-    if (this.g.mode === 'town' && this.screen === 'town') this.updateTownHUD();
+    if (this.g.mode === 'town' && this.screen === 'town') {
+      this.updateTownHUD();
+      if (this.g.touchMode) this.touch.update(); // the DASH button's cooldown (it used to keep the last run's fill)
+    }
     this.updatePlaceArrow(); // the arrow to the next place in town (hides itself everywhere else)
     if ((this.g.mode === 'world' || this.g.mode === 'house') && this.screen === 'hud') {
       this.updateHUD();

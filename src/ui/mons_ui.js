@@ -394,8 +394,9 @@ export const MonsUI = {
       const label = i ? 'Parent B' : 'Parent A';
       if (!m) return `<div class="h-card h-parent empty"><span class="pw-label">${label}</span><img class="px" src="${eggURL(null, 2)}" alt=""><span class="small">${i && !A ? 'Pick parent A first' : 'Tap a survivalmon below'}</span></div>`;
       return `<div class="h-card h-parent"><span class="pw-label">${label}</span><button class="pw-x" data-mact="parent-clear" data-slot="${i}" aria-label="Take ${esc(monName(m))} out">✕</button>
+        <button class="pt-info h-info" data-mact="mon-open" data-id="${m.id}" aria-label="Stats and skills">i</button>
         <img class="px h-pic" src="${pic(m.species)}" alt=""><b>${esc(monName(m))}</b><span class="small">Lv ${m.level} ${types(SPECIES[m.species])}</span>
-        <span class="g-grades">${m.skills.map((k) => `<b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}" title="${esc(skillName(k))}">${TIERS[k.t]}</b>`).join('')}</span></div>`;
+        <div class="h-sks">${m.skills.map((k) => `<div class="h-sk"><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b><span><b>${esc(skillName(k))}</b><small>${esc(skillDesc(k))}</small></span></div>`).join('')}</div></div>`;
     };
     // the middle: what comes out, before you commit
     let outcome;
@@ -450,6 +451,14 @@ export const MonsUI = {
     const chip = (k) => `<span class="sk"><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b>${esc(skillName(k))}</span>`;
     const pctTxt = (v) => (v >= 1 || v === 0 ? `${Math.round(v)}%` : '<1%');
     const own = pv.own.map((v, i) => (v > 0.05 ? `<span><b class="tier t${i} u">${TIERS[i]}</b>${pctTxt(v)}</span>` : '')).join('');
+    // what each skill in play does (the parents' skills, at their own grades), listed once
+    const seen = new Set(), explain = [];
+    for (const k of [...a.skills, ...b.skills]) {
+      const key = `${k.k}:${k.k === 'u' ? k.sp : k.id}:${k.t}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      explain.push(`<div class="bp-what"><b class="tier t${k.t} ${k.k === 'u' ? 'u' : ''}">${TIERS[k.t]}</b><span><b>${esc(skillName(k))}</b> <small>${k.k === 'u' ? 'attack' : 'passive'}</small><br><small>${esc(skillDesc(k))}</small></span></div>`);
+    }
     const combos = pv.combos.map((c) => `<div class="bp-combo"><span class="sk-row">${c.skills.length ? c.skills.map(chip).join('') : '<span class="small">nothing extra</span>'}</span><b>${pctTxt(c.p)}</b></div>`).join('');
     this.openModal(`
       <div class="modal-box panel breed-preview">
@@ -457,9 +466,12 @@ export const MonsUI = {
         <div class="bp-parents">${pickTile(a, 'bp')}<span class="bp-op">+</span>${pickTile(b, 'bp')}<span class="bp-op">→</span>
           <div class="bp-egg"><img class="px" src="${eggURL(known ? pv.species : null, 3)}" alt=""><b>${known ? esc(sp.name) : 'Mystery breed'}</b>${known ? atkTag(atkType(pv.species)) : '<span class="small">a breed you have not found yet</span>'}</div></div>
         <div class="team-label">Its own attack${known ? ` (${esc(sp.unique.name)})` : ''}: tier odds</div>
+        ${known ? `<p class="bp-own small">${esc(sp.unique.desc)}</p>` : ''}
         <div class="odds">${own}</div>
         <div class="team-label">Plus one skill from each parent, picked at random${pv.combos.length > 1 ? ': every way it can go' : ''}</div>
         <div class="bp-combos">${combos}</div>
+        <div class="team-label">What these skills do</div>
+        <div class="bp-whats">${explain.join('')}</div>
         <p class="sub-note">${esc(monName(a))} and ${esc(monName(b))} are used up. The egg hatches after 3:00 in the wild.</p>
         <div class="loot-actions">
           <button class="btn" data-mact="breed">Breed</button>

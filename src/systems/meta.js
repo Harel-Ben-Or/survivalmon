@@ -33,7 +33,7 @@ export const TRAINING = [
   { id: 'haste', name: 'Attack speed', icon: 'up_haste', max: 15, base: 10, desc: (L) => `-${L * 3}% weapon cooldowns`, mods: (L) => ({ haste: L * 0.03 }) },
   { id: 'magnet', name: 'Pickup range', icon: 'up_magnet', max: 15, base: 6, desc: (L) => `+${L * 10}% pickup range`, mods: (L) => ({ magnet: L * 0.1 }) },
   { id: 'armor', name: 'Armor', icon: 'up_armor', max: 10, base: 12, desc: (L) => `+${L * 2} armor: ${armorPct(L * 2)}% less damage (half that for survivalmons)`, mods: (L) => ({ armor: L * 2 }) },
-  { id: 'coins', name: 'Coin gain', icon: 'up_coins', max: 20, base: 10, desc: (L) => `+${L * 10}% coins per kill` },
+  { id: 'coins', name: 'Coin gain', icon: 'up_coins', max: 30, base: 10, desc: (L) => `+${L * 10}% coins per kill` },
   { id: 'wild', name: 'Wild survivalmons', icon: 'up_wild', max: 10, base: 15, desc: (L) => `Wild survivalmons appear ${L * 10}% more often` },
 ];
 
@@ -42,6 +42,10 @@ export const TRAINING = [
 // Lv 10 costs 188 coins, Lv 20 about 8,700 and Lv 30 about 500,000. `every` is how many levels share
 // a rate (the player's call: 1, after trying 3).
 export const TRAIN_RATE = { start: 1.4, step: 0.005, every: 1, max: 1.5 };
+// Coins from defeated monsters, on top of Coin gain and the gate's bonus. 1.75 since 1.07: a full South
+// Gate Lv 1 run paid about 11,000 with Coin gain 16 while one Damage level cost 12,000; the player asked
+// for about 20,000 a run there.
+export const COIN_RATE = 1.75;
 export function trainCost(base, L) {
   const R = TRAIN_RATE;
   let c = base;
@@ -313,7 +317,7 @@ export const Meta = {
   bagSize() { return Object.values(this.data.items).reduce((s, n) => s + n, 0); },
 
   runLength() { return runLengthAt(this.level('runtime')); },
-  coinMult() { return 1 + 0.1 * this.level('coins'); },
+  coinMult() { return COIN_RATE * (1 + 0.1 * this.level('coins')); },
   wildMult() { return 1 + 0.1 * this.level('wild'); },
   // Stat mods for the hero at the start of a run
   heroMods() {
