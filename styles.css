@@ -25,6 +25,10 @@ html, body {
 #game { position: fixed; left: 0; top: 0; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; }
 button { touch-action: manipulation; }
+/* iPhone (index.html): a dropdown with text under 16px zooms the page in when opened; while the page is
+   zoomed in anyway, every part of it lets a pinch through so it can be zoomed back out */
+html.ios select { font-size: 16px !important; }
+html.zoomed, html.zoomed * { touch-action: manipulation !important; }
 #ui .screen, #ui .modal, #ui button, #ui .clickable { pointer-events: auto; }
 img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .hidden { display: none !important; }

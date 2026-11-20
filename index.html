@@ -61,6 +61,62 @@
   </style>
 </head>
 <body>
+  <script>
+    // iPhone Safari ignores the page's "no zoom" setting: a quick double tap or a pinch zoomed the page
+    // in, and the game's touch controls then kept it from zooming back out (only turning the phone reset
+    // it). On iPhones: the second of two quick taps can't zoom (it still counts as a tap), a pinch can't
+    // zoom, dropdowns get the 16px text iPhones need (smaller ones zoom in when opened), and if the page
+    // is zoomed in anyway, pinching works again until it's back to normal size.
+    (function () {
+      var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      function guard() {
+        var root = document.documentElement, zoomed = false;
+        root.classList.add('ios');
+        function typing(el) { return !!(el && el.closest && el.closest('input, textarea, select, [contenteditable]')); }
+        // pinch: Safari's own gesture events
+        ['gesturestart', 'gesturechange'].forEach(function (t) {
+          window.addEventListener(t, function (e) { if (!zoomed) e.preventDefault(); }, { passive: false, capture: true });
+        });
+        // double tap: only a tap that stayed put counts (a swipe or a held joystick never does)
+        var sx = 0, sy = 0, st = 0, moved = false, lastTap = 0;
+        // (heard first, on the way down, so nothing in the game can hide a touch from it)
+        window.addEventListener('touchstart', function (e) {
+          var t = e.changedTouches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); moved = e.touches.length > 1;
+        }, { passive: true, capture: true });
+        window.addEventListener('touchmove', function (e) {
+          var t = e.changedTouches[0]; if (Math.abs(t.clientX - sx) > 12 || Math.abs(t.clientY - sy) > 12) moved = true;
+        }, { passive: true, capture: true });
+        window.addEventListener('touchend', function (e) {
+          var now = Date.now(), el = e.target, t = e.changedTouches[0];
+          if (moved || e.touches.length || now - st > 600 || typing(el) || zoomed) { lastTap = 0; return; }
+          if (now - lastTap < 400 && e.cancelable) {
+            e.preventDefault(); // no zoom...
+            var a = document.activeElement;
+            if (a && a !== el && typing(a)) a.blur();
+            // ...and the tap still counts: a button still gets pressed, a line of talk still moves on
+            el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, detail: 1,
+              clientX: t.clientX, clientY: t.clientY, screenX: t.screenX, screenY: t.screenY }));
+          }
+          lastTap = now;
+        }, { passive: false, capture: true });
+        window.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false, capture: true });
+        // zoomed in anyway (an iPhone accessibility setting can force it)? let pinching back out work,
+        // and nudge Safari back to normal size
+        var vv = window.visualViewport, meta = document.querySelector('meta[name=viewport]'), base = meta && meta.content, flip = false, snapT = 0;
+        if (vv) vv.addEventListener('resize', function () {
+          var z = vv.scale > 1.02;
+          if (z !== zoomed) { zoomed = z; root.classList.toggle('zoomed', z); }
+          clearTimeout(snapT);
+          if (z && meta) snapT = setTimeout(function () {
+            if (vv.scale <= 1.02 || typing(document.activeElement)) return;
+            flip = !flip; meta.content = base + (flip ? ', minimum-scale=1' : '');
+          }, 350);
+        });
+      }
+      window.__zoomGuard = guard; // for tests on a computer
+      if (ios) guard();
+    })();
+  </script>
   <canvas id="game"></canvas>
   <div id="ui"></div>
   <div id="loading" role="status" aria-live="polite">
@@ -82,7 +138,7 @@
   <script>
     // The game's version: raise it by one step (1.0 -> 1.01 -> 1.02 ...) with every push to GitHub
     // Pages, with a note in src/content/changelog.js. Shown on the loading screen, the title and the town menu.
-    window.SURVIVALMON_VERSION = '1.03';
+    window.SURVIVALMON_VERSION = '1.04';
     // Play stats (src/systems/analytics.js): the PostHog project's token (public: it can only send
     // events, never read them) and the ingestion host of its region (EU). Empty key: no stats.
     window.SURVIVALMON_STATS = { key: 'phc_ttaN6sfZH2WiQRh6Aov6vqfhCvmcCQfoqGBPjjbxEm2p', host: 'https://eu.i.posthog.com' };
