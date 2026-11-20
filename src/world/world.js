@@ -47,7 +47,7 @@ const LOOK = {
 // The story's first run: the road from the ruins of Brightnest south to Hearthvale's North Gate, a
 // straight dirt road between walls of forest (tiles). x: the road's middle; hw: the clearing's half
 // width; things happen as you pass hatchY, ambushY, signY and chaseY; gateY: the arch at the end.
-export const STORY_ROAD = { x: 16, ruinY: 12, ruinR: 10, spawnY: 15, hw: 6, hatchY: 40, ambushY: 72, signY: 100, chaseY: 128, gateY: 164 };
+export const STORY_ROAD = { x: 16, ruinY: 12, ruinR: 10, spawnY: 15, hw: 6, hatchY: 30, ambushY: 46, signY: 58, chaseY: 68, gateY: 84 };
 
 const key = (cx, cy) => (cx + 32768) * 65536 + (cy + 32768);
 const ihash = (a, b, c) => { let h = Math.imul(a ^ 0x9e3779b9, 0x85ebca6b) ^ Math.imul(b + 0x632be5ab, 0xc2b2ae35) ^ Math.imul(c + 0x27d4eb2f, 0x165667b1); h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d); h ^= h >>> 12; return h >>> 0; };

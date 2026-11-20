@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.78', date: '20 Nov 2026',
+    notes: [
+      { h: 'A better first run', t: 'The road from the crater to Hearthvale is about half as long. The ink blobs now come at you from ahead and from the sides, never too many at once, so you see your hits land and walk through the EXP they drop. Your first egg hatching gets its own little scene.' },
+    ],
+  },
+  {
     v: '0.77', date: '20 Nov 2026',
     notes: [
       { h: 'A new welcome screen', t: 'The first screen is brighter and friendlier: the poster art, your team, a welcome back and one big Play button. The Ranch button is gone from it; the Ranch is in town.' },

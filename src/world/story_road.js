@@ -1,10 +1,12 @@
 // The story's first run (mixed into Game): out of the ruins of Brightnest and down the road to
 // Hearthvale, with no clock. Things happen as you pass places on the road (world.story, STORY_ROAD in
 // world.js): ink blobs crawl out of the crater, your egg hatches, more of them block the road, a
-// signpost, a last chase, and the town's gate. Reaching the gate ends the run and you walk into town.
+// signpost, a last big one in the way, and the town's gate. Reaching the gate ends the run and you walk
+// into town. Ink blobs are slower than you, so they come at you from ahead and from the road's edges
+// (the ones you leave far behind give up), so you see what you hit and walk through the EXP.
 import { TILE } from './world.js';
 import { storyArt } from '../ui/story.js';
-import { rand, TAU } from '../core/util.js';
+import { rand, TAU, dist2 } from '../core/util.js';
 import { snap } from '../gfx/art.js';
 import { Audio } from '../core/audio.js';
 
@@ -44,21 +46,34 @@ export const StoryRoad = {
       Audio.play('boss');
     });
     once('sign', ty >= R.signY - 3, () => this.feed('The signpost says: Hearthvale, straight on', '#ffe9a0'));
-    // a last rush from behind, with a big one
+    // a last rush: a big one blocks the road with a crowd, and a few close in from behind
     once('chase', ty >= R.chaseY, () => {
-      const y = P.y - V.h / 2 - 24;
-      for (let i = 0; i < 8; i++) this.roadBlob(cx + rand(-70, 70), y - rand(0, 40));
-      this.roadBlob(cx, y - 30, { elite: true });
-      this.feed('They are right behind you! Hearthvale is close!', '#ff8a7a');
+      const ahead = P.y + V.h / 2 + 40, behind = P.y - V.h / 2 + 18;
+      this.roadBlob(cx, ahead + 10, { elite: true });
+      for (let i = 0; i < 6; i++) this.roadBlob(cx + rand(-70, 70), ahead + rand(-14, 20));
+      for (let i = 0; i < 3; i++) this.roadBlob(cx + rand(-50, 50), behind + rand(0, 12));
+      this.feed('A big one blocks the road! Hearthvale is close!', '#ff8a7a');
+      Audio.play('boss');
     });
-    once('walls', ty >= R.gateY - 14, () => this.banner('Hearthvale!', '#ffd84a', true, 'The town gate is just ahead'));
+    once('walls', ty >= R.gateY - 8, () => this.banner('Hearthvale!', '#ffd84a', true, 'The town gate is just ahead'));
     once('arrive', P.y >= gateY + 4, () => this.arriveHearthvale());
-    // a few at a time keep coming down the road behind you (fewer before your egg hatches)
+    // A steady trickle, never too many at once (fewer before your egg hatches): most come up the road
+    // from ahead, some from the road's edges beside you, now and then one close behind (on screen)
     S.spawnT -= dt;
-    if (S.spawnT <= 0 && !S.done.has('arrive')) {
-      S.spawnT = (this.storyHatched ? 1.5 : 2.6) * rand(0.7, 1.3);
-      if (this.enemies.length < 30 && ty < R.gateY - 6) this.roadBlob(cx + rand(-R.hw + 1, R.hw - 1) * TILE, P.y - V.h / 2 - rand(18, 40));
+    if (S.spawnT <= 0) {
+      const hatched = this.storyHatched;
+      S.spawnT = (hatched ? 1.4 : 2.4) * rand(0.8, 1.2);
+      let near = 0;
+      for (const e of this.enemies) if (!e.dead && Math.abs(e.y - P.y) < V.h) near++;
+      if (near < (hatched ? 10 : 5) && ty < R.gateY - 8) {
+        const r = Math.random(), edge = (R.hw - 1) * TILE;
+        if (r < 0.65) this.roadBlob(cx + rand(-edge, edge), P.y + V.h / 2 + rand(30, 60));
+        else if (r < 0.9) this.roadBlob(cx + (Math.random() < 0.5 ? -edge : edge), P.y + rand(0, V.h / 3));
+        else this.roadBlob(cx + rand(-40, 40), P.y - V.h / 2 + 14);
+      }
     }
+    // the ones left far behind (off screen) give up, so your shots don't fly back at them
+    for (const e of this.enemies) if (!e.dead && !e.elite && !e.boss && e.y < P.y - V.h * 0.7) e.dead = true;
     // smoke still rising from the crater
     if (Math.abs(P.y - crater.y) < V.h && Math.random() < dt * 5) {
       this.particles.add({ x: crater.x + rand(-14, 14), y: crater.y - 2, vx: rand(-3, 3), vy: rand(-14, -8), life: rand(1.6, 2.6), color: Math.random() < 0.6 ? '#6a5a78' : '#9a6ab8', size: 2 });

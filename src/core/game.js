@@ -812,21 +812,35 @@ export class Game {
     this.wildMult = Meta.wildMult() * (1 + sum('star') + hb.wild) * (1 + Shrine.bonus('wild'));
     this.matMult = (1 + sum('nose') + (hb.mats || 0)) * (this.tierMult?.mats || 1);
   }
-  // The first run: your egg hatches in your arms and your first survivalmon fights beside you
+  // The first run: your egg hatches in your arms and your first survivalmon fights beside you. It's the
+  // game's first hatch, so it gets the hatching scene (the egg wobbles, cracks and pops; then its card),
+  // and the run waits for it. Then the new survivalmon jumps out beside you and the blobs nearby are
+  // pushed back, to give it a moment.
   hatchOnTheRoad() {
     this.storyHatched = true;
     const egg = Box.eggs.find((e) => e.kind === 'starter');
     if (!egg) return;
     egg.progress = egg.need;
-    const P = this.player;
-    for (const mon of Box.hatchReady()) {
-      if (!Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
-      const pet = this.addPet(mon);
-      if (pet) { pet.x = P.x + 10; pet.y = P.y + 6; }
-      this.particles.burst(P.x + 10, P.y - 4, { n: 30, colors: ['#ffe07a', '#ffffff', '#9af08a'], speed: 80, life: 0.7, up: 30 });
-      this.banner(`Your egg hatched! ${SPECIES[mon.species].name} fights at your side!`, '#ffe07a', true);
-    }
-    Audio.play('hatch');
+    const mons = Box.hatchReady();
+    if (!mons.length) return;
+    for (const mon of mons) if (!Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
+    const run = this.runId;
+    this.ui.showHatched(mons, () => {
+      if (this.mode !== 'world' || this.runId !== run) return;
+      const P = this.player;
+      for (const mon of mons) {
+        const pet = this.addPet(mon);
+        if (pet) { pet.x = P.x + 10; pet.y = P.y + 6; }
+        this.particles.burst(P.x + 10, P.y - 4, { n: 30, colors: ['#ffe07a', '#ffffff', '#9af08a'], speed: 80, life: 0.7, up: 30 });
+        this.feed(`${SPECIES[mon.species].name} fights at your side!`, '#ffe07a');
+      }
+      for (const e of this.enemies) {
+        if (e.dead || dist2(e.x, e.y, P.x, P.y) > 90 * 90) continue;
+        const d = Math.hypot(e.x - P.x, e.y - P.y) || 1;
+        e.kbx += ((e.x - P.x) / d) * 260; e.kby += ((e.y - P.y) / d) * 260;
+      }
+      Audio.play('levelup');
+    });
   }
   hatchMult() { return 1 + Meta.buildingBonus('hatchery', 'speed') + Shrine.bonus('hatch'); }
   // An egg found in a run goes to the Hatchery (or turns into coins if every nest is full).
