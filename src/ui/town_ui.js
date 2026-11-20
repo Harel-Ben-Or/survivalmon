@@ -114,7 +114,7 @@ export const TownUI = {
     this.openModal(`
       <div class="modal-box panel news-box">
         <div class="ms-bar"><h2>What's new</h2><button class="btn small secondary ms-x" data-act="close" aria-label="Close">✕</button></div>
-        ${CHANGELOG.filter((e, i) => unseen.has(e.v) || i < 8).map(entry).join('')}
+        ${CHANGELOG.filter((e, i) => unseen.has(e.v) || i < 8).map(entry).join('') || `<p class="news-empty">This is Survivalmon ${esc(gameVersion())}. Every update from here on will show up on this page.</p>`}
       </div>`);
     this.modalKind = 'news';
   },
