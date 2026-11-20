@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.81', date: '20 Nov 2026',
+    notes: [
+      { h: 'Lots more goals', t: 'The goal track grew from 41 goals to 151, from your first minutes in Hearthvale all the way to finding every survivalmon: monsters defeated, runs, time played, training, buildings, skill grades, types, stars, gear, medals and more. Anything you have already done is ready to claim.' },
+    ],
+  },
+  {
     v: '0.80', date: '20 Nov 2026',
     notes: [
       'On many phones the game now shows more of the world around you (a little more zoomed out), in town and in runs.',
