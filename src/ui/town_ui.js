@@ -22,6 +22,7 @@ import { GATE_SIDES, gateName, gateColor, gateBlurb } from '../content/gates.js'
 import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
 import { Update, appVersion } from '../core/update.js';
+import { Analytics } from '../systems/analytics.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
@@ -98,6 +99,7 @@ export const TownUI = {
   // the page counts as reading them, so the button goes away until the next update.
   openNews() {
     const unseen = new Set(unseenUpdates(Meta.data.seenVersion).map((e) => e.v));
+    Analytics.track('news_open', { unseen: unseen.size });
     Meta.data.seenVersion = gameVersion(); Meta.save();
     if (this.last) this.last.tnews = null;
     document.querySelectorAll('.t-news').forEach((b) => { b.hidden = true; });
@@ -546,6 +548,7 @@ export const TownUI = {
   // A new game: the opening plays, the egg is picked inside it, and its escape is the first run
   // (which ends at the village gate, where Ollie asks your name).
   async startOpening() {
+    Analytics.track('opening_start');
     if (!Meta.gender) await this.openCreator(false); // a new game: boy or girl, and your name, first
     this.hideScreens();
     this.screen = 'story';
@@ -577,6 +580,7 @@ export const TownUI = {
           ${document.fullscreenEnabled ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
           <button class="btn small secondary" data-act="music">${this.musicLabel()}</button>
           <button class="btn small secondary" data-act="guide">${this.guideLabel()}</button>
+          <button class="btn small secondary" data-act="stats" title="Anonymous stats (no names) help make the game better">${this.statsLabel()}</button>
         </div>
         <div class="loot-actions">
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>

@@ -4,6 +4,7 @@ import { SPECIES, STONES, STONE_OF, BASE_IDS, petXpFor, MAX_PET_LEVEL, evoLevel,
 import { BASE_ODDS, rollTier, tierOdds, rollPassive, sameSkill, PASSIVES } from '../content/skills.js';
 import { Meta, cleanName } from './meta.js';
 import { Profiles } from './profiles.js';
+import { Analytics } from './analytics.js';
 
 const KEY = Profiles.key('box'); // this player's save
 export const EGG_SLOTS = 3;
@@ -340,6 +341,7 @@ export const Box = {
     const e = this.evoInfo(mon);
     if (!e || !e.hasItem || !e.levelOk) return false;
     this.data.bag[e.item]--;
+    Analytics.track('evolve', { from: mon.species, into: e.into, level: mon.level });
     mon.species = e.into;
     mon.skills[0] = { k: 'u', sp: e.into, t: Math.min(4, mon.skills[0].t + 1) };
     this.note(mon, 'evolved'); // it keeps its size: a big one grows into a big evolution

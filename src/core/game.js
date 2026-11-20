@@ -27,6 +27,7 @@ import { reunionScene, FRIEND_AT_TIER } from '../content/story_scenes.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
 import { Goals } from '../systems/goals.js';
+import { Analytics } from '../systems/analytics.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SPECIES, BASE_IDS, STONES, BERRY_XP, ATK_TYPES, ATK_TYPE_IDS, TYPES } from '../content/species.js';
 import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
@@ -252,6 +253,7 @@ export class Game {
     this.canCatch = Box.data.firstHatch;
     this.storyRun = story;
     this.storyHatched = false;
+    Analytics.track('run_start', { gate: this.tier || 0, hero: heroId, team: Box.team().length, run_no: (Meta.data.runs || 0) + 1, story });
     if (story) this.startStoryRoad();
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
     this.applyTeamPassives();
@@ -338,6 +340,9 @@ export class Game {
     };
     save(BEST_KEY, this.best);
     this.clearPending();
+    Analytics.track('run_end', { kind, seconds: Math.round(this.time), level: P.level, kills: P.kills, gate: this.tier || 0, coins: earned, caught: P.caught.length, team: P.pets.length, story: !!this.storyRun, best: newBest });
+    if (this.gateOpened) Analytics.track('gate_open', { gate: this.gateOpened });
+    Analytics.person({ runs: Meta.data.runs || 0, best_seconds: Math.round(this.best.time), gates: Meta.gates || 0, mons: Box.mons.length });
     if (kind === 'arrived') { this.storyRun = false; this.fromRoad = true; this.toTown(true); return; } // through the gate: Ollie is waiting
     this.ui.showEnd(kind, rec, newBest, earned);
   }
@@ -826,6 +831,7 @@ export class Game {
     const mons = Box.hatchReady();
     if (!mons.length) return;
     for (const mon of mons) if (!Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
+    Analytics.track('first_hatch', { species: mons[0].species });
     const run = this.runId;
     this.ui.showHatched(mons, () => {
       if (this.mode !== 'world' || this.runId !== run) return;

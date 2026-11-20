@@ -345,6 +345,15 @@ See [PLAN.md](PLAN.md) for the full design, content lists and roadmap.
   (Training levels, team) and reports survival, damage by hero and by survivalmons, and faints. Use them
   in the dev page console on a throwaway player profile; usage is at the top of each file.
 
+## Play stats
+
+`src/systems/analytics.js` sends anonymous play stats to PostHog: a random id per device (never a name or a
+save), the game's own events (`app_open` with where the visit came from, `opening_start`, `egg_chosen`,
+`first_hatch`, `reached_town`, `run_start`, `run_end`, `catch`, `evolve`, `gate_open`, `train`, `build`,
+`goal_claim`, `news_open`, `app_hidden`) and a little about the screen. Nothing is sent without
+`POSTHOG_KEY`, anywhere but the live site, or when the player turns **📊 Share play stats** off in the
+town menu. The poster's QR code opens `?src=poster`, so poster visits show as their own source.
+
 ## Copyright
 
 Copyright © 2026 Harel Ben-Or. **All rights reserved.** You're welcome to play the game and look at this

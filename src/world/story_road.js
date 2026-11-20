@@ -9,6 +9,7 @@ import { storyArt } from '../ui/story.js';
 import { rand, TAU, dist2 } from '../core/util.js';
 import { snap } from '../gfx/art.js';
 import { Audio } from '../core/audio.js';
+import { Analytics } from '../systems/analytics.js';
 
 export const StoryRoad = {
   startStoryRoad() {
@@ -82,6 +83,7 @@ export const StoryRoad = {
   // The gate: the monsters fall back from the town's walls and you walk in
   arriveHearthvale() {
     const run = this.runId;
+    Analytics.track('reached_town', { seconds: Math.round(this.time), kills: this.player.kills, level: this.player.level });
     this.clearEnemies();
     this.banner('You made it to Hearthvale!', '#9af08a', true);
     Audio.play('victory');

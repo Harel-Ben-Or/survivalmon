@@ -96,6 +96,8 @@ export class UI {
   }
 
   musicLabel() { return `🎵 Music: ${this.g.settings.music ? 'On' : 'Off'}`; }
+  // anonymous play stats (systems/analytics.js), on unless the player turns them off
+  statsLabel() { return `📊 Share play stats: ${this.g.settings.stats === false ? 'Off' : 'On'}`; }
   controlsLabel() {
     const s = this.g.settings.controls;
     return s === 'auto' ? `Controls: Auto (${this.g.touchMode ? 'touch' : 'keyboard'})` : `Controls: ${CONTROL_NAMES[s]}`;
@@ -1003,6 +1005,7 @@ export class UI {
       case 'fullscreen': this.toggleFullscreen(); break;
       case 'guide': this.toggleGuide(t); break;
       case 'music': g.settings.music = !g.settings.music; g.saveSettings(); t.textContent = this.musicLabel(); break;
+      case 'stats': g.settings.stats = g.settings.stats === false; g.saveSettings(); t.textContent = this.statsLabel(); break;
       case 'portrait': g.allowPortrait = true; g.checkOrientation(); break;
     }
   }

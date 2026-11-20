@@ -14,6 +14,7 @@ import { BUILDINGS } from '../content/buildings.js';
 import { FOE_IDS } from '../content/bestiary.js';
 import { TIERS } from '../content/skills.js';
 import { Profiles } from './profiles.js';
+import { Analytics } from './analytics.js';
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 const how = (k) => Object.values(Box.data.dex || {}).reduce((s, r) => s + (r.how?.[k] || 0), 0);
@@ -274,6 +275,7 @@ export const Goals = {
     if (extra) { Meta.data.coins += extra; got.push(`${extra} coins (no room for the rest)`); }
     this.state.claimed.push(g.id);
     Meta.save(); Box.save();
+    Analytics.track('goal_claim', { id: g.id, number: this.number(g) });
     return got;
   },
 };

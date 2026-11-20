@@ -8,6 +8,7 @@ import { itemKey, parseKey, STACK_MAX, rushCost } from '../content/shop.js';
 import { Profiles } from './profiles.js';
 import { armorPct } from './armor.js';
 import { HEROES } from '../content/heroes.js';
+import { Analytics } from './analytics.js';
 
 const KEY = Profiles.key('meta'); // this player's save
 export const SPIRIT_START = 100;
@@ -131,6 +132,7 @@ export const Meta = {
     this.data.coins -= c;
     this.data.training[id] = this.level(id) + 1;
     this.save();
+    Analytics.track('train', { id, level: this.data.training[id], cost: c });
     return true;
   },
 
@@ -173,6 +175,7 @@ export const Meta = {
     if (this.building(id) || !this.pay(c)) return false;
     this.data.builds[id] = { to: L + 1, done: now + buildMins(L) * 60000 };
     this.save();
+    Analytics.track('build', { id, to: L + 1 });
     return true;
   },
   // Finishes upgrades whose time is up. Returns the ids finished.

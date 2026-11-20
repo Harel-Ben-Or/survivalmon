@@ -15,6 +15,7 @@ import { Meta } from '../systems/meta.js';
 import { Shrine, SHRINE_NODES, RESEARCH_ODDS } from '../systems/shrine.js';
 import { Audio } from '../core/audio.js';
 import { playHatch } from './cutscene.js';
+import { Analytics } from '../systems/analytics.js';
 import { eggURL } from '../gfx/eggs.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -197,6 +198,7 @@ export const MonsUI = {
     this.el.select.classList.remove('hidden');
   },
   chooseStarter(id, story = false) {
+    Analytics.track('egg_chosen', { species: id, story });
     Box.addEgg({ species: id, skills: [{ k: 'u', sp: id, t: 0 }, { k: 'p', id: Object.keys(PASSIVES)[Math.floor(Math.random() * 9)], t: 0 }], need: STARTER_HATCH, kind: 'starter' });
     if (story) return; // picked inside the opening: its run comes next
     Audio.play('hatch');
