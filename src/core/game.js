@@ -352,6 +352,7 @@ export class Game {
   // earned so far is noted too: if the app is then closed for good, it's banked on the next start.
   saveOnHide() {
     if (Profiles.leaving) return; // this save was just erased (reset or deleted)
+    if (this.mode === 'boot') return; // still loading: the save hasn't been read yet, so there's nothing to keep
     Box.save(); Meta.save(); Shrine.save();
     if (this.mode !== 'world' && this.mode !== 'house') return;
     const P = this.player;

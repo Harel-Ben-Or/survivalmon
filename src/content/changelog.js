@@ -6,6 +6,12 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.05', date: '20 Nov 2026',
+    notes: [
+      'Fixed a bug that could erase your progress if you switched away from the game while it was still loading. Sorry to anyone who lost their save!',
+    ],
+  },
+  {
     v: '1.04', date: '20 Nov 2026',
     notes: [
       'Fixed the screen zooming in on iPhone when you double-tap, pinch or open a dropdown, and getting stuck that way.',

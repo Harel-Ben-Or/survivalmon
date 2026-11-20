@@ -69,6 +69,7 @@ export const Box = {
       if (d && d.v === 2) this.data = { ...empty(), ...d };
       else if (d && d.v === 1) this.migrate(d);
     } catch { /* storage unavailable: start empty */ }
+    this.loaded = true;
     this.fillDex();
     return this;
   },
@@ -148,6 +149,7 @@ export const Box = {
     this.save();
   },
   save() {
+    if (!this.loaded) return; // never before load(): see Meta.save
     this.dirty = false;
     try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ }
   },

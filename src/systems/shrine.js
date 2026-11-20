@@ -27,9 +27,10 @@ export const Shrine = {
   data: empty(),
   load() {
     try { const d = JSON.parse(localStorage.getItem(KEY)); if (d && d.v === 1) this.data = { ...empty(), ...d, nodes: { ...d.nodes } }; } catch { /* fresh */ }
+    this.loaded = true;
     return this;
   },
-  save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
+  save() { if (!this.loaded) return; try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } }, // never before load(): see Meta.save
 
   level(id) { return this.data.nodes[id] || 0; },
   node(id) { return SHRINE_NODES.find((n) => n.id === id); },

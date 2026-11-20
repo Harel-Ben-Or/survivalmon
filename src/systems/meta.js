@@ -72,6 +72,7 @@ export const Meta = {
       }
     } catch { /* storage unavailable: start fresh */ }
     if (!this.data.seenVersion) this.data.seenVersion = globalThis.SURVIVALMON_VERSION || '0.71'; // a new player: nothing is "new" to them yet
+    this.loaded = true;
     return this;
   },
   // Older saves: a gear slot was just `true` (the hero's own set's piece); Merchant buffs were for the next run
@@ -87,7 +88,9 @@ export const Meta = {
       delete D.buffs;
     }
   },
-  save() { try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
+  // Never before load(): until then this.data is a blank new save, and writing it would erase the real
+  // one (the game reads its save only after loading all its art; leaving during that used to save).
+  save() { if (!this.loaded) return; try { localStorage.setItem(KEY, JSON.stringify(this.data)); } catch { /* storage unavailable */ } },
 
   // ---------------------------------------------------------- the beginner's guide
   get guideOn() { return !!this.data.guide?.on; },
