@@ -361,7 +361,7 @@ const BEHAVIOR = {
       e.fireT = d.fireCd * rand(0.85, 1.15);
       e.swing();
       const a = Math.atan2(dy, dx);
-      g.spawnProjectile({ x: e.x, y: e.y, vx: Math.cos(a) * 85, vy: Math.sin(a) * 85, r: 3, dmg: d.projDmg * (1 + g.stage / 1200) * TOUGH.dmg, life: 3, spr: d.proj, hostile: true, z: 8 });
+      g.spawnProjectile({ x: e.x, y: e.y, vx: Math.cos(a) * 85, vy: Math.sin(a) * 85, r: 3, dmg: shotDmg(e, g, d.projDmg), life: 3, spr: d.proj, hostile: true, z: 8 });
     }
     if (dist > d.range) return seek(e, g, dx, dy, dist);
     if (dist < d.range * 0.6) return [-dx / dist, -dy / dist, e.speed * 0.6];
@@ -378,7 +378,7 @@ const BEHAVIOR = {
       e.swing();
       const P = g.player, T = 0.9, R = 22;
       const sx = e.x, sy = e.y - 12, tx = P.x + rand(-12, 12), ty = P.y + rand(-9, 9);
-      const dmg = d.projDmg * (1 + g.stage / 1200) * (g.tierMult?.dmg || 1) * e.darkMul('dmg') * TOUGH.dmg;
+      const dmg = shotDmg(e, g, d.projDmg);
       g.spawnZone({ kind: 'hazard', x: tx, y: ty, r: R, life: T, tick: 99, firstTick: T });
       g.spawnProjectile({
         x: sx, y: sy, r: 0, dmg: 0, pierce: Infinity, life: T, spr: 'p_spore', fx: 'glob_venewt', fxSpin: true, seed: Math.random(), noHit: true, scale: 1.4,
@@ -499,7 +499,7 @@ const BEHAVIOR = {
     if (e.fireT <= 0 && dist < d.range + 30) {
       e.fireT = d.fireCd * rand(0.85, 1.15);
       e.swing();
-      throwNet(e, g, Math.atan2(dy, dx), d.projDmg * (1 + g.stage / 1200) * TOUGH.dmg);
+      throwNet(e, g, Math.atan2(dy, dx), shotDmg(e, g, d.projDmg));
     }
     if (dist > d.range) return seek(e, g, dx, dy, dist);
     if (dist < d.range * 0.55) return [-dx / dist, -dy / dist, e.speed * 0.6];
@@ -625,6 +625,11 @@ function burst(e, g) {
 }
 
 // A thrown net: a hostile shot that slows whoever it hits
+// A monster's shot (or net): it grows over the run, past the gates and at night like a monster's own
+// hit does, and with the Blight's toughness (TOUGH)
+function shotDmg(e, g, base) {
+  return base * (1 + g.stage / 1200) * (g.tierMult?.dmg || 1) * e.darkMul('dmg') * TOUGH.dmg;
+}
 function throwNet(e, g, a, dmg, speed = 95) {
   g.spawnProjectile({ x: e.x, y: e.y - 4, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, r: 5, dmg, life: 1.8, hostile: true, z: 8, slow: 1.6, draw: drawNet });
 }

@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.85', date: '20 Nov 2026',
+    notes: [
+      "Monsters' shots and the Snare gang's nets now grow stronger past the gates and at night, like their other attacks.",
+    ],
+  },
+  {
     v: '0.84', date: '20 Nov 2026',
     notes: [
       { h: 'Tougher monsters', t: 'The Blight fights harder: every monster and boss has 25% more health and hits 15% harder, and 15% more of them come. The morning is less of a break too: in daylight they are only 10% weaker (it was 20%). Wild survivalmons are the same as before.' },
