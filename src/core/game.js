@@ -131,7 +131,7 @@ export class Game {
     this.pickups = []; this.pickupCount = { xp: 0 };
     this.particles.clear();
     this.boss = null;
-    this.runStats = { damage: 0, taken: 0, coins: 0, casts: 0, houses: 0 };
+    this.runStats = { damage: 0, taken: 0, coins: 0, casts: 0, houses: 0, chars: {} };
   }
 
   async boot() {
@@ -758,7 +758,7 @@ export class Game {
       this.boosts[item.stat] = { v: on ? Math.max(b.v, v) : v, end: (on ? b.end : this.time) + BOOST_TIME, icon: item.icon };
     } else if (id === 'heal') {
       P.heal(P.stats.maxHp * v);
-      for (const p of P.pets) if (!p.fainted) p.hp = Math.min(p.maxHp, p.hp + p.maxHp * v);
+      for (const p of P.pets) p.heal(p.maxHp * v);
       this.particles.burst(P.x, P.y - 8, { n: 24, colors: ['#9af08a', '#ffffff'], speed: 70, life: 0.6, up: 20 });
     } else if (id === 'feather') {
       const down = P.pets.filter((p) => p.fainted);

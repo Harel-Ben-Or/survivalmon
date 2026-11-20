@@ -363,6 +363,19 @@ export const Combat = {
     }
   },
 
+  // ------------------------------------------------------------ who did what (the run summary)
+  // Your hero (who = null) and each survivalmon (by its id): damage dealt (no overkill), damage
+  // taken (HP actually lost) and healing given (HP actually restored, to anyone on the team).
+  // The hero's healing is everything no survivalmon gave: hearts, berries, potions, regen, Glow weapons.
+  noteChar(who, k, n) {
+    if (!(n > 0) || !this.runStats) return;
+    const C = this.runStats.chars || (this.runStats.chars = {});
+    const key = who ? `m${who.mon?.id}` : 'hero';
+    const c = C[key] || (C[key] = { dealt: 0, taken: 0, healed: 0 });
+    if (who) { c.species = who.species; c.name = who.name; }
+    c[k] += n;
+  },
+
   // ------------------------------------------------------------ damage
   damageEnemy(e, base, o = {}) {
     if (e.dead || e.hidden || e.fainted) return { crit: false, dmg: 0 };
@@ -385,7 +398,7 @@ export const Combat = {
     const hpBefore = Math.max(0, e.hp);
     e.hp -= dmg;
     e.flash = 0.1;
-    if (o.petRef?.pass.vamp) o.petRef.heal(dmg * o.petRef.pass.vamp);
+    if (o.petRef?.pass.vamp) o.petRef.heal(dmg * o.petRef.pass.vamp, o.petRef);
     if (o.burn) { e.burn = { dps: o.burn * S.burnMult * S.might, t: 3 * S.duration }; e.burnBy = o.petRef || null; } // whose burn it is (enemy.js passes it back as o.by)
     if (o.chill) e.chill = Math.max(e.chill, o.chill * S.duration);
     if (S.chillChance && Math.random() < S.chillChance) e.chill = Math.max(e.chill, 1.5);
@@ -408,6 +421,7 @@ export const Combat = {
     // who did the damage (no overkill counted): your hero's weapons or your survivalmons
     const dealt = Math.min(dmg, hpBefore);
     if (o.pet || o.by) this.runStats.monDmg = (this.runStats.monDmg || 0) + dealt; else this.runStats.heroDmg = (this.runStats.heroDmg || 0) + dealt;
+    if (o.petRef || o.by || !o.pet) this.noteChar(o.petRef || o.by || null, 'dealt', dealt);
     if (e.hp <= 0) { if (e.wild) this.catchWild(e, o); else this.killEnemy(e, o); }
     else if (!o.silent) Audio.play('hit');
     // a weapon evolve that adds to your survivalmons' hits (Pip's sling)

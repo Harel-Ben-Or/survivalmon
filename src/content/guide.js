@@ -72,6 +72,7 @@ export const TIPS = {
   end: [
     { t: 'Made it! Everything you picked up comes home with you: coins, Spirit and the materials you gathered.', focus: '.end-coins' },
   ],
+  meter: [{ t: 'Here is what everyone did this run: the damage they dealt, the damage they took and the healing they gave. The bar shows who dealt the most damage.', focus: '.end-team' }],
   monpool: [{ t: 'Every monster your survivalmons defeat earns them EXP. At the end of a run it is shared evenly by the whole team, so a helper grows too.', focus: '.end-pool' }],
 
   // ---------------------------------------------------------------- town

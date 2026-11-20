@@ -798,15 +798,32 @@ export class UI {
     const color = won || kind === 'timeup' ? '#9af08a' : quit ? 'var(--gold)' : '#ff8a7a';
     const tiles = [
       ['Survived', formatTime(rec.time)], ['Level', rec.level], ['Defeated', rec.kills.toLocaleString()],
-      ['Damage', Math.round(R.damage).toLocaleString()], ['Coins', earned.toLocaleString()], ['Houses', R.houses],
+      ['Damage', Math.round((R.heroDmg || 0) + (R.monDmg || 0)).toLocaleString()], // (no overkill, like the team's lines)
+      ['Coins', earned.toLocaleString()], ['Houses', R.houses],
       ['Caught', P.caught.length], ['Team', P.pets.length],
     ].map(([k, v]) => `<div class="end-tile"><span>${k}</span><b>${esc(v)}</b></div>`).join('');
-    const startLv = g.runStart?.petLv || new Map();
-    const team = P.pets.map((p) => {
+    // Who did what: damage dealt, damage taken and healing given, for your hero and each survivalmon
+    // (game.noteChar counts them during the run); the bar under a line is its share of the damage
+    const startLv = g.runStart?.petLv || new Map(), C = R.chars || {};
+    const rows = [{ key: 'hero', hero: true, img: artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 5), name: Meta.heroName(P.hero.id), sub: `Lv ${rec.level}` }];
+    for (const p of P.pets) {
       const was = startLv.get(p.mon.id), now = p.mon.level;
       const grew = !was ? `Joined · Lv ${now}` : was < now ? `Lv ${was} → ${now}` : `Lv ${now}`;
-      return `<div class="end-mon"><img class="px" src="${artURL('creature', p.species)}"><div><b>${esc(p.name)}</b><span>${grew}</span></div></div>`;
-    }).join('') || '<em>No critters came along</em>';
+      rows.push({ key: `m${p.mon.id}`, img: artURL('creature', p.species), name: p.name, sub: grew + (p.fainted ? ' · <i class="end-faint">fainted</i>' : '') });
+    }
+    for (const [k, c] of Object.entries(C)) if (!rows.some((r) => r.key === k)) rows.push({ key: k, img: artURL('creature', c.species), name: c.name || '?', sub: 'Left the team' });
+    const total = rows.reduce((s, r) => s + (C[r.key]?.dealt || 0), 0);
+    const short = (n) => { n = Math.round(n || 0); return n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e4 ? `${Math.round(n / 1e3)}k` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : String(n); };
+    const cell = (n, k) => `<b class="end-n ${k}${Math.round(n || 0) ? '' : ' none'}">${Math.round(n || 0) ? short(n) : '–'}</b>`;
+    const team = `<div class="end-row end-heads"><span></span><span class="dealt">Damage</span><span class="taken">Taken</span><span class="healed">Healed</span></div>`
+      + rows.map((r) => {
+        const c = C[r.key] || {}, pct = total ? (100 * (c.dealt || 0)) / total : 0;
+        return `<div class="end-row${r.hero ? ' hero' : ''}">
+          <div class="end-mon"><img class="px" src="${r.img}" alt=""><div><b>${esc(r.name)}</b><span>${r.sub}</span></div></div>
+          ${cell(c.dealt, 'dealt')}${cell(c.taken, 'taken')}${cell(c.healed, 'healed')}
+          <i class="end-share" title="${Math.round(pct)}% of the damage"><i style="width:${pct.toFixed(1)}%"></i></i>
+        </div>`;
+      }).join('') + (P.pets.length ? '' : '<em>No critters came along</em>');
     const caught = P.caught.map((id) => `<img class="px" title="${esc(SPECIES[id].name)}" src="${artURL('creature', id)}">`).join('');
     setTimeout(() => {
       if (g.mode !== 'end') return;
@@ -839,6 +856,7 @@ export class UI {
       this.modalKind = 'end';
       this.tip('end');
       if (g.poolShare) this.tip('monpool'); // waits its turn after 'end' (a player who saw 'end' before the EXP split still gets it)
+      this.tip('meter');
     }, won || kind === 'timeup' ? 600 : quit ? 150 : 900);
   }
 

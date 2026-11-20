@@ -129,10 +129,12 @@ export class Player {
     }
   }
 
-  heal(n) {
+  // by: the survivalmon whose heal it is (none: the hero's own, for the run summary)
+  heal(n, by = null) {
     if (n <= 0) return;
     const before = this.hp;
     this.hp = Math.min(this.stats.maxHp, this.hp + n);
+    this.g.noteChar?.(by, 'healed', this.hp - before);
     const healed = Math.round(this.hp - before);
     if (healed >= 1) this.g.particles.number(this.x, this.y - 6, healed, 'heal');
   }
@@ -140,6 +142,7 @@ export class Player {
   hurt(dmg, src) {
     if (this.iframes > 0 || this.dashT > 0 || this.g.mode !== 'world') return false;
     const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor) * (1 - this.g.blessed().def)));
+    this.g.noteChar?.(null, 'taken', Math.min(d, Math.max(0, this.hp)));
     this.hp -= d;
     this.iframes = 0.6; this.flash = 0.15;
     this.g.particles.number(this.x, this.y - 4, d, 'hurt');
@@ -222,7 +225,7 @@ export class Player {
     // regen
     let regen = S.regen;
     if (this.regenBoost) { regen += this.regenBoost.amount; this.regenBoost.t -= dt; if (this.regenBoost.t <= 0) this.regenBoost = null; }
-    if (regen > 0) this.hp = Math.min(S.maxHp, this.hp + regen * dt);
+    if (regen > 0) { const was = this.hp; this.hp = Math.min(S.maxHp, this.hp + regen * dt); g.noteChar?.(null, 'healed', this.hp - was); }
 
     // the main weapon (with its evolves), then the off-hand weapon
     if (this.main) updateMain(g, this.main, dt);

@@ -104,6 +104,7 @@ export class Pet {
     if (this.fainted || this.g.mode !== 'world') return;
     // the hero's armor shields the team too, at half strength
     const d = dmg * (1 - this.shape.def) * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * (1 - this.g.blessed().def) * armorCut((this.g.player?.stats.armor || 0) * 0.5);
+    this.g.noteChar?.(this, 'taken', Math.min(d, Math.max(0, this.hp)));
     this.hp -= d;
     this.flash = 0.12;
     this.calmT = 0;
@@ -127,9 +128,12 @@ export class Pet {
     this.g.particles.burst(this.x, this.y - 6, { n: 12, color: '#ffffff', speed: 40, life: 0.5 });
     Audio.play('hurt');
   }
-  heal(n) {
+  // by: the survivalmon whose heal it is (none: the hero's, for the run summary)
+  heal(n, by = null) {
     if (this.fainted || n <= 0) return;
+    const was = this.hp;
     this.hp = Math.min(this.maxHp, this.hp + n);
+    this.g.noteChar?.(by, 'healed', this.hp - was);
   }
 
   gainXp(n) {
@@ -185,8 +189,8 @@ export class Pet {
         if (a.healT <= 0) {
           a.healT = a.q.healCd || 9;
           const amt = a.q.heal * this.power;
-          P.heal(amt + P.stats.maxHp * 0.03);
-          for (const o of P.pets) o.heal(amt * 2);
+          P.heal(amt + P.stats.maxHp * 0.03, this);
+          for (const o of P.pets) o.heal(amt * 2, this);
           g.particles.burst(P.x, P.y - 10, { n: 10, color: '#9af08a', speed: 30, life: 0.6, up: 20 });
         }
       }
@@ -234,7 +238,7 @@ export class Pet {
         pet: true, petRef: this, knock: q.knock || 100, kx: this.vx / sp, ky: this.vy / sp,
         stun: Math.max(q.stun || 0, rockslide ? 0.6 : 0), chill: q.chill, burn: q.burn,
       });
-      if (q.leech) g.player.heal(q.leech);
+      if (q.leech) g.player.heal(q.leech, this);
       // an evolution's charge ends in a big crash on the first foe it smashes into
       if (this.rollFx?.sig && !this.crashed) {
         this.crashed = true;
@@ -464,8 +468,8 @@ const BOLT_FX = { bolt: ['#ffe680', '#ffffff'] };
 // speed or defense; several supports keep the best of each)
 function bless(pet, g, b, color = '#9af0c8') {
   const P = g.player, amt = b.heal * pet.growth;
-  P.heal(amt + P.stats.maxHp * 0.02);
-  for (const o of P.pets) o.heal(amt * 1.5);
+  P.heal(amt + P.stats.maxHp * 0.02, pet);
+  for (const o of P.pets) o.heal(amt * 1.5, pet);
   g.bless(b);
   pet.swing();
   g.addEffect({ type: 'ring', x: P.x, y: P.y, R: 28, life: 0.5, color });

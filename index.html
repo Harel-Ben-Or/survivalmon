@@ -15,20 +15,32 @@
   <link rel="apple-touch-icon" href="icons/trio-apple-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="preload" as="image" href="assets/loading.jpg">
   <!-- loading screen: shown the moment the page opens, until the game has loaded all its art -->
   <style>
-    #loading { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-      padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
-      background: radial-gradient(ellipse at 50% 40%, #2c5a52 0%, #1f3a40 45%, #140c10 100%); color: #f4f1e4;
+    #loading { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+      background: #140c10; color: #f4f1e4;
       font-family: 'Nunito', system-ui, sans-serif; font-weight: 800; transition: opacity .45s ease; }
     #loading.done { opacity: 0; pointer-events: none; }
-    .ld-logo { font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; font-weight: 700; font-size: clamp(34px, 8vw, 84px); color: #ffe07a; letter-spacing: 3px; line-height: 1;
-      text-shadow: 4px 0 #2b1d24, -4px 0 #2b1d24, 0 4px #2b1d24, 0 -4px #2b1d24, 4px 4px #2b1d24, -4px 4px #2b1d24, 4px -4px #2b1d24, -4px -4px #2b1d24, 0 9px 0 #c8453a, 4px 9px #2b1d24, -4px 9px #2b1d24, 0 13px #2b1d24; }
-    .ld-stage { position: relative; width: min(560px, 100%); height: 84px; margin-top: 6px; }
-    .ld-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; border-radius: 7px; background: linear-gradient(#5fae4a, #3f8a3a); box-shadow: inset 0 -4px 0 #2f6a2c, 0 3px 0 #2b1d24; }
-    .ld-parade { position: absolute; bottom: 8px; left: 0; display: flex; align-items: flex-end; gap: 0; will-change: transform; }
+    /* the poster's painting (assets/loading.jpg), faded in once it has arrived, darker at the top and bottom for the words */
+    .ld-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; opacity: 0; transition: opacity .5s ease; }
+    .ld-art.in { opacity: 1; }
+    #loading::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(12,6,24,.62) 0%, rgba(12,6,24,0) 34%, rgba(12,6,24,0) 56%, rgba(12,6,24,.82) 100%); }
+    .ld-top, .ld-bottom { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+    .ld-top { gap: 10px; text-align: center; }
+    .ld-bottom { width: min(560px, 100%); gap: 6px; }
+    /* the title in the pixel font, gold like the poster's, with a dark outline and a warm glow */
+    .ld-logo { font-family: 'Press Start 2P', 'Fredoka', monospace; font-weight: 400; font-size: clamp(20px, 5.4vw, 60px); letter-spacing: .06em; line-height: 1.3; padding: 0 .12em;
+      background: linear-gradient(#fff7c2 0%, #ffd84a 52%, #ff8f1f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+      filter: drop-shadow(3px 0 0 #1b1022) drop-shadow(-3px 0 0 #1b1022) drop-shadow(0 3px 0 #1b1022) drop-shadow(0 -3px 0 #1b1022) drop-shadow(0 0 12px rgba(255,220,120,.6)); }
+    .ld-sub { font-size: clamp(12px, 2.3vw, 22px); color: #fff; letter-spacing: .02em;
+      text-shadow: 2px 0 #1b1022, -2px 0 #1b1022, 0 2px #1b1022, 0 -2px #1b1022, 2px 2px #1b1022, -2px 2px #1b1022, 2px -2px #1b1022, -2px -2px #1b1022; }
+    .ld-stage { position: relative; width: 100%; height: 64px; }
+    .ld-parade { position: absolute; bottom: -2px; left: 0; display: flex; align-items: flex-end; gap: 0; will-change: transform; }
     .ld-sp { display: block; image-rendering: pixelated; background-repeat: no-repeat; animation: ld-walk .8s steps(8) infinite; }
     .ld-hero { width: 64px; height: 64px; background-image: url('assets/sprites/heroes/you_boy/walk.png'); background-size: 512px 512px; margin-left: -6px; }
     .ld-ember { width: 64px; height: 64px; background-image: url('assets/sprites/creatures/anim/emberpup.png'); background-size: 512px 256px; transform: scaleX(-1); margin-left: -8px; }
@@ -38,27 +50,33 @@
     @keyframes ld-walk { from { background-position: 0 0; } to { background-position: var(--w) 0; } }
     .ld-bar { width: min(560px, 100%); height: 16px; border: 3px solid #2b1d24; border-radius: 10px; background: #102428; overflow: hidden; box-shadow: 0 3px 0 #2b1d24; }
     .ld-fill { height: 100%; width: 0; background: linear-gradient(#fff0a8, #f0b030); border-radius: 6px 0 0 6px; }
-    .ld-text { display: flex; gap: 10px; align-items: baseline; font-size: 15px; color: #a9c2bd; min-height: 1.4em; text-align: center; }
+    .ld-text { display: flex; gap: 10px; align-items: baseline; font-size: 15px; color: #e6efe9; min-height: 1.4em; text-align: center; text-shadow: 1px 1px 0 #1b1022, -1px 1px 0 #1b1022, 1px -1px 0 #1b1022, -1px -1px 0 #1b1022; }
     .ld-text b { color: #ffe07a; }
     .ld-retry { display: none; font: inherit; font-size: 16px; color: #2b1d24; background: #f4d35e; border: 3px solid #2b1d24; border-radius: 6px; padding: 6px 16px; box-shadow: 0 3px 0 #2b1d24; }
     #loading.failed .ld-retry { display: block; }
-    .ld-ver { position: absolute; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); font-size: 13px; color: #a9c2bd; letter-spacing: .5px; opacity: .85; }
-    @media (min-height: 560px) and (min-width: 700px) { .ld-stage { height: 116px; } .ld-parade { zoom: 1.5; } }
-    @media (max-height: 420px) { #loading { gap: 8px; } .ld-logo { font-size: clamp(28px, 7vw, 56px); } .ld-stage { height: 72px; } .ld-text { font-size: 13px; } }
+    .ld-ver { position: absolute; z-index: 2; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); font-size: 13px; color: #e6efe9; letter-spacing: .5px; opacity: .9; text-shadow: 1px 1px 0 #1b1022, -1px -1px 0 #1b1022; }
+    @media (min-height: 560px) and (min-width: 700px) { .ld-stage { height: 96px; } .ld-parade { zoom: 1.5; } }
+    @media (max-height: 420px) { .ld-top { gap: 6px; } .ld-logo { font-size: clamp(18px, 5vw, 44px); } .ld-text { font-size: 13px; } }
+    @media (max-height: 280px) { .ld-sub { display: none; } .ld-stage { height: 48px; } .ld-parade { zoom: .75; } .ld-logo { filter: drop-shadow(2px 0 0 #1b1022) drop-shadow(-2px 0 0 #1b1022) drop-shadow(0 2px 0 #1b1022) drop-shadow(0 -2px 0 #1b1022); } }
   </style>
 </head>
 <body>
   <canvas id="game"></canvas>
   <div id="ui"></div>
   <div id="loading" role="status" aria-live="polite">
-    <div class="ld-logo">SURVIVALMON</div>
-    <div class="ld-stage">
-      <div class="ld-ground"></div>
-      <div class="ld-parade" id="ldParade"><i class="ld-sp ld-pud"></i><i class="ld-sp ld-leaf"></i><i class="ld-sp ld-ember"></i><i class="ld-sp ld-hero"></i></div>
+    <img class="ld-art" src="assets/loading.jpg" alt="" onload="this.classList.add('in')">
+    <div class="ld-top">
+      <div class="ld-logo">SURVIVALMON</div>
+      <div class="ld-sub">A creature-catching survival adventure</div>
     </div>
-    <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
-    <div class="ld-text"><span id="ldTip">Waking up the survivalmons…</span><b id="ldPct"></b></div>
-    <button class="ld-retry" id="ldRetry" type="button">Try again</button>
+    <div class="ld-bottom">
+      <div class="ld-stage">
+        <div class="ld-parade" id="ldParade"><i class="ld-sp ld-pud"></i><i class="ld-sp ld-leaf"></i><i class="ld-sp ld-ember"></i><i class="ld-sp ld-hero"></i></div>
+      </div>
+      <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
+      <div class="ld-text"><span id="ldTip">Waking up the survivalmons…</span><b id="ldPct"></b></div>
+      <button class="ld-retry" id="ldRetry" type="button">Try again</button>
+    </div>
     <div class="ld-ver" id="ldVer"></div>
   </div>
   <script>
