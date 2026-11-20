@@ -31,7 +31,8 @@ export class Player {
     this.weapons = []; this.pets = []; // weapons: the off-hand one from gear (plain, levels 1-5)
     this.spells = []; this.artifacts = []; // no longer found in runs
     this.coins = 0; this.kills = 0; this.spirit = 0; // Spirit earned this run, banked at the end
-    this.caught = [];
+    this.caught = []; // species caught this run
+    this.caughtMons = []; // and the survivalmons themselves (their ids), for the run summary
     this.iframes = 0; this.flash = 0;
     this.dashCd = 0; this.dashT = 0; this.dashVx = 0; this.dashVy = 0;
     this.dashA = null; this.ghosts = []; // time into the dash animation; fading after-images left behind

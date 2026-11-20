@@ -526,7 +526,7 @@ export const Combat = {
     const level = Math.min(MAX_PET_LEVEL, 1 + Math.floor(this.time / 60) + (this.tierMult?.wildLv || 0)); // past the newer gates they're far more grown
     const odds = e.lure ? tierOdds(this.tierOdds, e.lure) : this.tierOdds; // called by a Lure Horn II or better
     const mon = Box.add(species, { skills: rollSkills(species, { odds }), joinTeam: false, origin: 'wild', level, where: this.world.zoneAtPx(e.x, e.y) });
-    P.caught.push(species);
+    P.caught.push(species); (P.caughtMons ||= []).push(mon.id);
     const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
     const skills = mon.skills.map((k) => `${k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name} ${TIERS[k.t]}`).join(' · ');

@@ -304,6 +304,8 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .end-mon span { font-size: 14px; color: #9af08a; }
 .end-caught { display: flex; flex-wrap: wrap; gap: 4px; }
 .end-caught img { width: 32px; height: 32px; object-fit: contain; background: rgba(0,0,0,.22); border-radius: 4px; }
+.end-caught { gap: 6px; }
+.end-caught .end-pic { position: relative; }
 .end-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; flex-shrink: 0; }
 /* pause: inventory scrolls, Resume / End run stay pinned below it */
 .pause-box { max-height: 100%; }

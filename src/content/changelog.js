@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.87', date: '20 Nov 2026',
+    notes: [
+      'The survivalmons you caught in a run show their skill dots on the run summary too.',
+    ],
+  },
+  {
     v: '0.86', date: '20 Nov 2026',
     notes: [
       'You can dash in town now: the DASH button shows there too.',

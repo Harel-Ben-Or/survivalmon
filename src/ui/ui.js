@@ -39,6 +39,14 @@ const CONTROL_NAMES = { auto: 'Auto', touch: 'Touch', keys: 'Keyboard' };
 const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const standalone = () => window.matchMedia('(display-mode: standalone), (display-mode: fullscreen)').matches || navigator.standalone;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// A dot per skill in the colour of its grade (its own attack first), for a survivalmon's picture in the
+// run summary; the tooltip names them
+function skillDots(mon) {
+  const sk = [...(mon?.skills || [])].sort((a, b) => (a.k === 'u' ? 0 : 1) - (b.k === 'u' ? 0 : 1));
+  if (!sk.length) return '';
+  const name = (k) => (k.k === 'u' ? SPECIES[k.sp]?.unique?.name || 'Attack' : PASSIVES[k.id]?.name || 'Skill');
+  return `<span class="end-dots" title="${esc(sk.map((k) => `${name(k)} ${TIERS[k.t] || ''}`).join(' · '))}">${sk.map((k) => `<i class="end-dot t${k.t || 0}"></i>`).join('')}</span>`;
+}
 const icon = (id, s = 3) => iconURL('icon', id, s);
 const typePill = (t) => `<span class="rar type-pill" style="background:${TYPES[t].color}">${TYPES[t].name}</span>`;
 
@@ -823,10 +831,7 @@ export class UI {
       const b = before?.get(p.mon.id), lv = b ? b.level : p.mon.level, xp = b ? b.xp : p.mon.xp;
       const pct = lv >= MAX_PET_LEVEL ? 100 : Math.min(100, (100 * xp) / petXpFor(lv));
       const tag = p.fainted ? '<i class="end-tag faint">fainted</i>' : startLv.get(p.mon.id) ? '' : '<i class="end-tag new">new</i>';
-      // a dot per skill in its grade's colour (its own attack first), on the picture's corner
-      const sk = [...p.mon.skills].sort((a, b) => (a.k === 'u' ? 0 : 1) - (b.k === 'u' ? 0 : 1));
-      const dots = sk.length ? `<span class="end-dots" title="${esc(sk.map((k) => `${k.k === 'u' ? SPECIES[k.sp]?.unique?.name || 'Attack' : PASSIVES[k.id]?.name || 'Skill'} ${TIERS[k.t] || ''}`).join(' · '))}">${sk.map((k) => `<i class="end-dot t${k.t || 0}"></i>`).join('')}</span>` : '';
-      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name, tag: dots + tag, out: p.fainted,
+      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name, tag: skillDots(p.mon) + tag, out: p.fainted,
         prog: `<span class="end-lv">Lv <b>${lv >= MAX_PET_LEVEL ? 'MAX' : lv}</b></span><i class="end-xp"><i style="width:${pct.toFixed(1)}%"></i></i>` });
     }
     for (const [k, c] of Object.entries(C)) if (!rows.some((r) => r.key === k)) rows.push({ key: k, img: artURL('creature', c.species), name: c.name || '?', sub: 'Left the team' });
@@ -842,7 +847,11 @@ export class UI {
           <i class="end-share" title="${Math.round(pct)}% of the damage"><i style="width:${pct.toFixed(1)}%"></i></i>
         </div>`;
       }).join('') + (P.pets.length ? '' : '<em>No critters came along</em>');
-    const caught = P.caught.map((id) => `<img class="px" title="${esc(SPECIES[id].name)}" src="${artURL('creature', id)}">`).join('');
+    // what was caught, each with its skill dots (an older run that only kept the species shows just the picture)
+    const caughtMons = (P.caughtMons || []).map((id) => Box.get(id)).filter(Boolean);
+    const caught = caughtMons.length
+      ? caughtMons.map((m) => `<span class="end-pic" title="${esc(monName(m))}"><img class="px" src="${artURL('creature', m.species)}" alt="">${skillDots(m)}</span>`).join('')
+      : P.caught.map((id) => `<img class="px" title="${esc(SPECIES[id].name)}" src="${artURL('creature', id)}">`).join('');
     setTimeout(() => {
       if (g.mode !== 'end') return;
       this.openModal(`
