@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.80', date: '20 Nov 2026',
+    notes: [
+      'On many phones the game now shows more of the world around you (a little more zoomed out), in town and in runs.',
+    ],
+  },
+  {
     v: '0.79', date: '20 Nov 2026',
     notes: [
       'Fixed your survivalmon hiding behind a building in town after you came out of a door.',

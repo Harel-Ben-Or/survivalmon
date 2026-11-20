@@ -175,8 +175,10 @@ export class Game {
   resize() {
     const W = window.innerWidth, H = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
-    // Phones get chunkier pixels so the hero and monsters stay readable on a small screen.
-    const target = this.touchMode ? 205 : 280;
+    // Phones get chunkier pixels so the hero and monsters stay readable on a small screen. (230, not
+    // 205: a 1080 px phone rounds to 2 device pixels per canvas pixel and sees ~270 world px of height
+    // instead of ~180; the player found the wider view much better. 720 px phones are unchanged.)
+    const target = this.touchMode ? 230 : 280;
     // k = device pixels per canvas pixel, kept whole so pixel art stays crisp.
     // The canvas holds WS canvas pixels per logical world pixel (art is drawn at 2x).
     const k = Math.max(1, Math.round((Math.min(W, H) * dpr) / (target * WS)));
