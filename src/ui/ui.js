@@ -823,7 +823,10 @@ export class UI {
       const b = before?.get(p.mon.id), lv = b ? b.level : p.mon.level, xp = b ? b.xp : p.mon.xp;
       const pct = lv >= MAX_PET_LEVEL ? 100 : Math.min(100, (100 * xp) / petXpFor(lv));
       const tag = p.fainted ? '<i class="end-tag faint">fainted</i>' : startLv.get(p.mon.id) ? '' : '<i class="end-tag new">new</i>';
-      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name, tag, out: p.fainted,
+      // a dot per skill in its grade's colour (its own attack first), on the picture's corner
+      const sk = [...p.mon.skills].sort((a, b) => (a.k === 'u' ? 0 : 1) - (b.k === 'u' ? 0 : 1));
+      const dots = sk.length ? `<span class="end-dots" title="${esc(sk.map((k) => `${k.k === 'u' ? SPECIES[k.sp]?.unique?.name || 'Attack' : PASSIVES[k.id]?.name || 'Skill'} ${TIERS[k.t] || ''}`).join(' · '))}">${sk.map((k) => `<i class="end-dot t${k.t || 0}"></i>`).join('')}</span>` : '';
+      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name, tag: dots + tag, out: p.fainted,
         prog: `<span class="end-lv">Lv <b>${lv >= MAX_PET_LEVEL ? 'MAX' : lv}</b></span><i class="end-xp"><i style="width:${pct.toFixed(1)}%"></i></i>` });
     }
     for (const [k, c] of Object.entries(C)) if (!rows.some((r) => r.key === k)) rows.push({ key: k, img: artURL('creature', c.species), name: c.name || '?', sub: 'Left the team' });

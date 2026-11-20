@@ -274,6 +274,11 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .end-pic.out img { filter: grayscale(.8); opacity: .6; }
 .end-tag { position: absolute; left: 50%; bottom: -3px; transform: translateX(-50%); padding: 0 3px; border-radius: 4px; font: 800 8px/11px var(--font); font-style: normal; white-space: nowrap; color: #1b1022; text-shadow: none; }
 .end-tag.new { background: var(--gold); }
+/* one dot per skill (its own attack first), in the colour of its grade: D grey, C green, B blue, A purple, S gold */
+.end-dots { position: absolute; top: -2px; right: -3px; display: flex; gap: 1px; pointer-events: none; }
+.end-dot { display: block; width: 6px; height: 6px; border-radius: 50%; border: 1px solid #1b1022; box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
+.end-dot.t0 { background: #c4bcb2; } .end-dot.t1 { background: #7ad27a; } .end-dot.t2 { background: #6aaaf0; } .end-dot.t3 { background: #c58af0; }
+.end-dot.t4 { background: #ffd84a; box-shadow: 0 0 4px rgba(255,216,74,.9); }
 .end-tag.faint { background: #ff8a7a; }
 /* narrow screens (the Claude link's small window): the level and EXP bar go under the name */
 @media (max-width: 640px) {
@@ -623,7 +628,6 @@ body.touch .t-news { right: calc(64px + env(safe-area-inset-right)); }
 .t-run { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right)); font-size: 15px; padding: 4px 12px; }
 body.touch .t-run { right: calc(64px + env(safe-area-inset-right)); }
 body.in-town .pause-btn { top: calc(10px + env(safe-area-inset-top)); }
-body.in-town .dash-btn { display: none; }
 .timer.ending .t { color: #ff8a7a; }
 
 /* The team screen keeps its natural height and #select scrolls; the run buttons stay pinned to the bottom */

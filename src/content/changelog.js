@@ -4,6 +4,13 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.86', date: '20 Nov 2026',
+    notes: [
+      'You can dash in town now: the DASH button shows there too.',
+      "At the end of a run, each survivalmon's picture has a small dot for each of its skills, in the colour of the skill's grade.",
+    ],
+  },
+  {
     v: '0.85', date: '20 Nov 2026',
     notes: [
       "Monsters' shots and the Snare gang's nets now grow stronger past the gates and at night, like their other attacks.",
