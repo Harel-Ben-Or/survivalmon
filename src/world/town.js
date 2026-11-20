@@ -283,6 +283,16 @@ export class Town {
     }
     return (this.spots = spots);
   }
+  // Is (x, y) hidden behind a building or tree, inside its picture above its base? (the renderer fades
+  // one when the hero or the team is there; a survivalmon picking where to stand avoids these spots)
+  hides(x, y) {
+    for (const o of this.objects) {
+      if (!o.fade || y >= o.sortY - 1) continue;
+      const s = SPR[o.spr];
+      if (s && y > o.y - s.ay + 6 && x > o.x - s.ax + 3 && x < o.x - s.ax + s.w - 3) return true;
+    }
+    return false;
+  }
   clearAt(x, y, r = 6) {
     const x0 = x - r, x1 = x + r, y0 = y - 4, y1 = y + 2;
     return !this.solids.some((s) => x0 < s.x + s.w && x1 > s.x && y0 < s.y + s.h && y1 > s.y);
@@ -780,8 +790,9 @@ export const TownMode = {
     list.sort((a, b) => a.y - b.y);
     for (const it of list) {
       if (it.o) {
-        // see the hero through a roof or tree he walks behind
-        const behind = it.o.fade && P.y < it.o.sortY - 1 && P.y > it.top + 6 && P.x > it.left + 3 && P.x < it.left + it.s.w - 3;
+        // see the hero (and the team) through a roof or tree they walk behind
+        const hid = (q) => q.y < it.o.sortY - 1 && q.y > it.top + 6 && q.x > it.left + 3 && q.x < it.left + it.s.w - 3;
+        const behind = it.o.fade && (hid(P) || P.pets.some(hid));
         ctx.globalAlpha = behind ? 0.55 : 1;
         ctx.drawImage(it.o.img || it.s.frames[0], snap(it.left - cam.x), snap(it.top - cam.y), it.s.w, it.s.h);
         ctx.globalAlpha = 1;

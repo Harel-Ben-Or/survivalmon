@@ -1042,7 +1042,7 @@ export class Game {
     return { x, y };
   }
   worldToScreen(x, y) {
-    if (this.mode === 'house' || (this.mode === 'town' && this.townRoom)) return { x: (x + this.roomOff.x) * this.view.scale, y: (y + this.roomOff.y) * this.view.scale };
+    if (this.mode === 'house' || (this.mode === 'town' && this.townRoom)) { const z = (this.townRoom && this.roomZoom) || 1; return { x: (x + this.roomOff.x) * z * this.view.scale, y: (y + this.roomOff.y) * z * this.view.scale }; }
     return { x: (x - this.cam.x) * this.view.scale, y: (y - this.cam.y) * this.view.scale };
   }
 
@@ -1226,11 +1226,21 @@ export class Game {
   }
 
   renderHouse() {
-    const ctx = this.ctx, V = this.view, room = this.room, P = this.player;
-    ctx.fillStyle = '#140c10'; ctx.fillRect(0, 0, V.w, V.h);
-    let ox = Math.floor((V.w - room.pw) / 2), oy = Math.floor((V.h - room.ph) / 2);
+    const ctx = this.ctx, room = this.room, P = this.player;
+    ctx.fillStyle = '#140c10'; ctx.fillRect(0, 0, this.view.w, this.view.h);
+    // A town room needs its height plus the door mat and the Leave sign under it (FOOT). One a little
+    // too big for the screen is drawn a little smaller (down to 70%), so all of it shows; anything
+    // bigger than that scrolls with the hero, as a house in the wild does.
+    const FOOT = this.townRoom ? 30 : 0;
+    const fit = this.townRoom ? Math.min(1, (this.view.h - 4) / (room.ph + FOOT), (this.view.w - 8) / room.pw) : 1;
+    const z = fit >= 0.7 ? fit : 1;
+    this.roomZoom = z;
+    ctx.save();
+    if (z !== 1) ctx.scale(z, z);
+    const V = { w: this.view.w / z, h: this.view.h / z };
+    let ox = Math.floor((V.w - room.pw) / 2), oy = Math.floor((V.h - room.ph - FOOT) / 2) + (FOOT ? 4 : 0);
     if (room.pw > V.w) ox = Math.round(clamp(V.w / 2 - P.x, V.w - room.pw, 0));
-    if (room.ph > V.h) oy = Math.round(clamp(V.h / 2 - P.y, V.h - room.ph, 0));
+    if (room.ph + FOOT > V.h) oy = Math.round(clamp(V.h / 2 - P.y, V.h - room.ph - FOOT, 0));
     this.roomOff = { x: ox, y: oy };
     const cam = { x: -ox, y: -oy };
     ctx.drawImage(room.canvas, ox, oy, room.pw, room.ph);
@@ -1270,6 +1280,7 @@ export class Game {
     this.particles.draw(ctx, cam);
     if (room.dark) this.drawCellarDark(ctx, room, ox, oy);
     this.particles.drawNumbers(ctx, cam);
+    ctx.restore();
   }
   // A basement is dark: light round the hero, the torches on the wall and the candles
   drawCellarDark(ctx, room, ox, oy) {

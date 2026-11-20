@@ -167,6 +167,20 @@ export class Pet {
     if (g.scene) tp = { x: P.x + (g.scene.petSide || 1) * (index % 2 ? -1 : 1) * 20 * (1 + (index >> 1)), y: P.y + 3 };
     // an aura survivalmon steps into foes that come close to the hero, so its aura has something to hit
     else if (this.guard && !this.fainted && !inRoom) { const e = g.nearestEnemy(P.x, P.y, 80); if (e) tp = e; }
+    // in town and its rooms, the spot "behind" the hero can be inside a building, or at its front corner
+    // where the building is drawn over it (stepping out of a door, say): take a free spot beside or below
+    // the hero instead
+    if (inRoom && !g.scene) {
+      const outside = g.mode === 'town' && !g.townRoom ? g.town : null;
+      const solids = g.townRoom ? g.townRoom.solids : outside?.solids;
+      if (solids?.length) {
+        const blocked = (x, y) => solids.some((s) => x - 6 < s.x + s.w && x + 6 > s.x && y - 4 < s.y + s.h && y + 2 > s.y) || !!outside?.hides(x, y);
+        if (blocked(tp.x, tp.y)) {
+          const sx = (index % 2 ? -1 : 1) * 18 * (1 + (index >> 1));
+          tp = [{ x: P.x + sx, y: P.y + 4 }, { x: P.x - sx, y: P.y + 4 }, { x: P.x, y: P.y + 12 + 8 * index }].find((q) => !blocked(q.x, q.y)) || { x: P.x, y: P.y + 2 };
+        }
+      }
+    }
     this.hopT = Math.max(0, this.hopT - dt);
     if (this.state === 'roll' && !this.fainted) { this.updateRoll(dt); return; }
     const dx = tp.x - this.x, dy = tp.y - this.y;

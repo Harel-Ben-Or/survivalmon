@@ -4,6 +4,14 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.79', date: '20 Nov 2026',
+    notes: [
+      'Fixed your survivalmon hiding behind a building in town after you came out of a door.',
+      'Buildings turn see-through when your survivalmons walk behind them, as they do for you.',
+      'The rooms inside buildings are drawn a little smaller when they need to, so the Leave sign under the door is never cut off.',
+    ],
+  },
+  {
     v: '0.78', date: '20 Nov 2026',
     notes: [
       { h: 'A better first run', t: 'The road from the crater to Hearthvale is about half as long. The ink blobs now come at you from ahead and from the sides, never too many at once, so you see your hits land and walk through the EXP they drop. Your first egg hatching gets its own little scene.' },
