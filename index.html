@@ -42,6 +42,7 @@
     .ld-text b { color: #ffe07a; }
     .ld-retry { display: none; font: inherit; font-size: 16px; color: #2b1d24; background: #f4d35e; border: 3px solid #2b1d24; border-radius: 6px; padding: 6px 16px; box-shadow: 0 3px 0 #2b1d24; }
     #loading.failed .ld-retry { display: block; }
+    .ld-ver { position: absolute; right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); font-size: 13px; color: #a9c2bd; letter-spacing: .5px; opacity: .85; }
     @media (min-height: 560px) and (min-width: 700px) { .ld-stage { height: 116px; } .ld-parade { zoom: 1.5; } }
     @media (max-height: 420px) { #loading { gap: 8px; } .ld-logo { font-size: clamp(28px, 7vw, 56px); } .ld-stage { height: 72px; } .ld-text { font-size: 13px; } }
   </style>
@@ -58,8 +59,13 @@
     <div class="ld-bar"><div class="ld-fill" id="ldFill"></div></div>
     <div class="ld-text"><span id="ldTip">Waking up the survivalmons…</span><b id="ldPct"></b></div>
     <button class="ld-retry" id="ldRetry" type="button">Try again</button>
+    <div class="ld-ver" id="ldVer"></div>
   </div>
   <script>
+    // The game's version: raise it by one step (0.72 -> 0.73) with every push to GitHub Pages.
+    // Shown on the loading screen and in the town menu.
+    window.SURVIVALMON_VERSION = '0.72';
+    document.getElementById('ldVer').textContent = 'v' + window.SURVIVALMON_VERSION;
     // Loading screen: the bar follows the art the game loads (src/gfx/art.js counts every image in
     // window.__loadProgress); the hero and the starters walk along it. 'survivalmon-ready' hides it.
     (function () {

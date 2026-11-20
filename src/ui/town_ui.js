@@ -20,7 +20,7 @@ import { Meta, TRAINING } from '../systems/meta.js';
 import { GATE_SIDES, gateName, gateColor, gateBlurb } from '../content/gates.js';
 import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
-import { Update } from '../core/update.js';
+import { Update, appVersion } from '../core/update.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const icon = (id, s = 3) => iconURL('icon', id, s);
@@ -554,7 +554,7 @@ export const TownUI = {
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>
-        ${Update.label() ? `<div class="app-version">Version: ${Update.label()}</div>` : ''}
+        ${appVersion() ? `<div class="app-version">Version ${esc(appVersion())}</div>` : ''}
       </div>`);
     this.modalKind = 'townmenu';
   },

@@ -11,6 +11,9 @@ async function published() {
   } catch { return null; } // offline
 }
 
+// "0.72 · 16 Nov, 10:14": the version number (index.html) and, on GitHub Pages, when it was published
+export const appVersion = () => [window.SURVIVALMON_VERSION, Update.label()].filter(Boolean).join(' · ');
+
 export const Update = {
   started: null, // publish time of the version that's running
   ready: false,
