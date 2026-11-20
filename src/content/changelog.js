@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.77', date: '20 Nov 2026',
+    notes: [
+      { h: 'A new welcome screen', t: 'The first screen is brighter and friendlier: the poster art, your team, a welcome back and one big Play button. The Ranch button is gone from it; the Ranch is in town.' },
+    ],
+  },
+  {
     v: '0.76', date: '20 Nov 2026',
     notes: [
       'The title screen\'s logo uses the same gold pixel font as the loading screen.',

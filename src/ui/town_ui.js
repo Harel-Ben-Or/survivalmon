@@ -100,7 +100,8 @@ export const TownUI = {
     const unseen = new Set(unseenUpdates(Meta.data.seenVersion).map((e) => e.v));
     Meta.data.seenVersion = gameVersion(); Meta.save();
     if (this.last) this.last.tnews = null;
-    document.querySelectorAll('.t-news, .news-btn').forEach((b) => { b.hidden = true; });
+    document.querySelectorAll('.t-news').forEach((b) => { b.hidden = true; });
+    document.querySelectorAll('.news-pill').forEach((b) => b.classList.remove('glow'));
     if (this.g.mode === 'town') this.g.modal = 'news';
     this.prompt?.(null);
     const big = (n) => (typeof n === 'string' ? '' : `<div class="news-big"><h3>${esc(n.h)}</h3><p>${esc(n.t)}</p></div>`);

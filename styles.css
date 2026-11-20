@@ -54,10 +54,34 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 }
 
 /* ---------- title */
-#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 18px; overflow-y: auto;
-  background: radial-gradient(ellipse at center, rgba(20,12,16,0) 30%, rgba(20,12,16,.55) 100%); }
-/* very short screens (the Claude link's small window): tighter, without the tagline, so the logo isn't cut off */
-@media (max-height: 300px) { #title { gap: 8px; padding: 6px 0; } #title .tagline, #title .hint-keys { display: none; } }
+/* the first screen: the poster's painting (the same as the loading screen's), darker at the top and
+   bottom and softly behind the middle, so the words read on it */
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; overflow-y: auto;
+  padding: calc(10px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background:
+    linear-gradient(to bottom, rgba(12,6,24,.62) 0%, rgba(12,6,24,.12) 32%, rgba(12,6,24,.12) 62%, rgba(12,6,24,.85) 100%),
+    radial-gradient(ellipse 46% 42% at 50% 60%, rgba(12,6,24,.55), rgba(12,6,24,0)),
+    #140c10 url('assets/loading.jpg') 50% 35% / cover no-repeat; }
+.title-main { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 10px; text-align: center; }
+.title-sub { margin-top: -4px; font: 800 clamp(13px, 2.2vw, 20px) var(--font); color: #fff;
+  text-shadow: 2px 0 #1b1022, -2px 0 #1b1022, 0 2px #1b1022, 0 -2px #1b1022, 2px 2px #1b1022, -2px 2px #1b1022, 2px -2px #1b1022, -2px -2px #1b1022; }
+.title-team { display: flex; align-items: flex-end; gap: 8px; height: clamp(40px, 12vh, 76px); }
+.title-team img { height: 100%; width: auto; filter: drop-shadow(0 3px 0 rgba(0,0,0,.35)); animation: titleBob 1.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes titleBob { 50% { transform: translateY(-5px); } }
+.title-hello { font: 800 clamp(15px, 2.6vw, 22px) var(--font); color: #ffe9a0;
+  text-shadow: 2px 0 #1b1022, -2px 0 #1b1022, 0 2px #1b1022, 0 -2px #1b1022, 2px 2px #1b1022, -2px 2px #1b1022, 2px -2px #1b1022, -2px -2px #1b1022; }
+.title-stats { margin-top: -6px; font: 700 13px var(--font); color: #e6efe9; text-shadow: 1px 1px 0 #1b1022, -1px -1px 0 #1b1022, 1px -1px 0 #1b1022, -1px 1px 0 #1b1022; }
+.title-play { font-size: clamp(18px, 3vw, 26px); padding: 10px 34px; animation: playPulse 2.2s ease-in-out infinite; }
+@keyframes playPulse { 50% { box-shadow: inset 0 -4px 0 #c99a38, 0 4px 0 var(--ink), 0 0 0 7px rgba(255,216,74,.28); } }
+.title-bar { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
+.t-pill { font: 700 13px var(--font); color: var(--text); background: rgba(16,10,24,.72); border: 2px solid rgba(255,255,255,.2); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.t-pill:hover { background: rgba(44,30,60,.88); }
+.t-pill.glow { border-color: var(--gold); color: #ffe9a0; box-shadow: 0 0 0 2px rgba(255,216,74,.3); animation: newsGlow 1.8s ease-in-out infinite; }
+.t-pill.go { background: #9af08a; color: #1d2a14; border-color: var(--ink); }
+.title-ver { position: absolute; top: calc(6px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right)); font: 700 12px var(--font); color: rgba(255,255,255,.75); text-shadow: 1px 1px 0 #1b1022; }
+/* short screens: the subtitle and the numbers make room; on the Claude link's small window the team shrinks too */
+@media (max-height: 420px) { .title-main { gap: 7px; } .title-play { padding: 8px 28px; } .t-pill { font-size: 12px; padding: 3px 10px; } }
+@media (max-height: 300px) { #title { padding-top: 4px; padding-bottom: 4px; } .title-main { gap: 4px; } .title-sub, .title-stats { display: none; } .title-team { height: 30px; } .title-hello { font-size: 13px; } .title-play { font-size: 15px; padding: 5px 20px; } .title-bar { margin-top: 4px; } }
 /* the title in the pixel font, gold like the loading screen's and the poster's (index.html .ld-logo) */
 .logo {
   font-family: 'Press Start 2P', var(--font-title), monospace; font-weight: 400; font-size: clamp(24px, 5.6vw, 64px); letter-spacing: .06em; line-height: 1.3; padding: 0 .12em;
@@ -375,7 +399,6 @@ body.touch .hint-keys, body.touch .kb, body.touch .btn .key, body.touch .hero-ca
   .logo { font-size: clamp(20px, 5.4vw, 46px);
     filter: drop-shadow(3px 0 0 #1b1022) drop-shadow(-3px 0 0 #1b1022) drop-shadow(0 3px 0 #1b1022) drop-shadow(0 -3px 0 #1b1022) drop-shadow(0 0 10px rgba(255,220,120,.5)); }
   .tagline { font-size: 14px; padding: 5px 10px; text-align: center; }
-  #title { gap: 10px; padding: 10px; }
   .btn { font-size: 16px; padding: 7px 16px; }
   .btn.small { font-size: 13px; padding: 5px 10px; }
   .best { font-size: 12px; padding: 4px 10px; text-align: center; }
@@ -564,7 +587,6 @@ body.touch .t-goals { right: calc(64px + env(safe-area-inset-right)); }
 .t-news[hidden] { display: none; }
 body.touch .t-news { right: calc(64px + env(safe-area-inset-right)); }
 @keyframes newsGlow { 50% { box-shadow: 0 0 0 5px rgba(255,216,74,.1); } }
-.news-btn[hidden] { display: none; }
 .news-box { width: min(560px, calc(100vw - 20px)); max-height: calc(100dvh - 20px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; text-align: left; }
 .news-box h2 { margin: 0; }
 .news-v { padding: 8px 10px; background: rgba(0,0,0,.2); border: 2px solid var(--ink); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }

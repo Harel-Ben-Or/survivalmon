@@ -115,29 +115,37 @@ export class UI {
   showRotate(on) { $('#rotate').classList.toggle('hidden', !on); }
 
   // ------------------------------------------------------------ title & select
+  // The first screen: the poster's painting, the logo, your team (or the three starters, for someone
+  // new), a welcome and one big Play button. Everything else is a small pill along the bottom.
   showTitle() {
     this.hideScreens();
-    const b = this.g.best;
+    const b = this.g.best, fresh = Box.isEmpty && !Box.eggs.length;
+    let team = fresh ? ['emberpup', 'leafkit', 'puddlit'] : Box.team().map((m) => m.species);
+    if (!fresh && !team.length) team = Box.mons.slice(0, 3).map((m) => m.species);
+    const pics = team.map((sp) => artURL('creature', sp)).filter(Boolean);
+    const n = Box.mons.length;
+    const stats = fresh ? '' : [`${n} survivalmon${n === 1 ? '' : 's'}`, b.time > 0 ? `best run ${formatTime(b.time)}` : '', b.wins ? `${b.wins} win${b.wins > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ');
+    const hello = fresh ? 'Welcome, ranger! Your adventure starts here.' : Meta.named ? `Welcome back, ${esc(Meta.playerName)}!` : 'Welcome back!';
+    const news = unseenUpdates(Meta.data.seenVersion).length > 0;
     this.el.title.innerHTML = `
-      <div class="logo">SURVIVALMON</div>
-      <div class="tagline panel">Short runs · Big upgrades · Catch survivalmons</div>
-      <div class="title-buttons">
-        <button class="btn" data-act="play">Play</button>
-        <button class="btn secondary" data-act="box">Ranch${Box.isEmpty ? '' : ` (${Box.mons.length})`}</button>
-        <button class="btn secondary" data-act="help">How to play</button>
+      <div class="title-ver">v${esc(gameVersion())}</div>
+      <div class="title-main">
+        <div class="logo">SURVIVALMON</div>
+        <div class="title-sub">A creature-catching survival adventure</div>
+        ${pics.length ? `<div class="title-team">${pics.map((src, i) => `<img class="px" src="${src}" alt="" style="--d:${(i * 0.22).toFixed(2)}s">`).join('')}</div>` : ''}
+        <div class="title-hello">${hello}</div>
+        ${stats ? `<div class="title-stats">${stats}</div>` : ''}
+        <button class="btn title-play" data-act="play">${fresh ? 'Start your adventure' : '▶ Play'} <span class="key">Enter</span></button>
+        ${isIOS() && !standalone() ? '<div class="title-stats">Tip: tap Share → <b>Add to Home Screen</b> to play fullscreen</div>' : ''}
       </div>
-      <div class="title-buttons">
-        <button class="btn small secondary" data-act="controls">📱 ${this.controlsLabel()}</button>
-        ${document.fullscreenEnabled && !standalone() ? '<button class="btn small secondary" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
-      </div>
-      <div class="title-buttons">
-        <button class="btn small secondary" data-act="profiles">👤 ${esc(Profiles.active.name)} · Change player</button>
-        ${window.__install && !standalone() ? '<button class="btn small go-btn" data-act="install">📲 Install app</button>' : ''}
-        ${unseenUpdates(Meta.data.seenVersion).length ? `<button class="btn small go-btn news-btn" data-act="news">✨ What's new in ${esc(gameVersion())}</button>` : ''}
-      </div>
-      ${isIOS() && !standalone() ? '<div class="best panel">Tip: tap Share → <b>Add to Home Screen</b> to play fullscreen</div>' : ''}
-      ${b.time > 0 ? `<div class="best panel">Best: ${formatTime(b.time)} survived · ${b.kills} kills · Lv ${b.level}${b.wins ? ` · ${b.wins} win${b.wins > 1 ? 's' : ''}` : ''}</div>` : ''}
-      <div class="best hint-keys">Press <span class="key">Enter</span> to start</div>`;
+      <div class="title-bar">
+        <button class="t-pill" data-act="help">❔ How to play</button>
+        <button class="t-pill news-pill ${news ? 'glow' : ''}" data-act="news">✨ What's new</button>
+        <button class="t-pill" data-act="profiles">👤 ${esc(Profiles.active.name)}</button>
+        <button class="t-pill" data-act="controls">📱 ${this.controlsLabel()}</button>
+        ${document.fullscreenEnabled && !standalone() ? '<button class="t-pill" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
+        ${window.__install && !standalone() ? '<button class="t-pill go" data-act="install">📲 Install app</button>' : ''}
+      </div>`;
     this.el.title.classList.remove('hidden');
     this.screen = 'title';
   }
