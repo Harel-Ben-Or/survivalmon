@@ -36,6 +36,18 @@ export const TRAINING = [
   { id: 'wild', name: 'Wild survivalmons', icon: 'up_wild', max: 10, base: 15, desc: (L) => `Wild survivalmons appear ${L * 10}% more often` },
 ];
 
+// Training Hall prices: each level costs more than the one before, 1.4x for the first three levels,
+// and the rate climbs 0.005 every 3 levels after that (1.405x, 1.41x, ...; never past 1.5x). So
+// Damage Lv 10 costs 171 coins, Lv 20 about 5,700 and Lv 30 about 216,000. `every` is how many levels
+// share a rate (2 would make it climb a little faster).
+export const TRAIN_RATE = { start: 1.4, step: 0.005, every: 3, max: 1.5 };
+export function trainCost(base, L) {
+  const R = TRAIN_RATE;
+  let c = base;
+  for (let i = 1; i <= L; i++) c *= Math.min(R.max, R.start + R.step * Math.floor((i - 1) / R.every));
+  return Math.round(c);
+}
+
 // 20 s at first, growing a little faster each level, up to the longest run (8 minutes at level 18).
 export function runLengthAt(L) { return Math.min(RUN_LENGTH, 20 + 10 * L + L * L); }
 // A name typed by the player: trimmed, single spaces, at most 14 characters
@@ -111,7 +123,7 @@ export const Meta = {
   maxLevel(u) { return u.id === 'runtime' ? u.max : Math.min(u.max, this.buildingBonus('training', 'cap')); },
   cost(id) {
     const u = TRAINING.find((x) => x.id === id), L = this.level(id);
-    return L >= this.maxLevel(u) ? null : Math.round(u.base * Math.pow(1.35, L));
+    return L >= this.maxLevel(u) ? null : trainCost(u.base, L);
   },
   buy(id) {
     const c = this.cost(id);

@@ -4,6 +4,12 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.82', date: '20 Nov 2026',
+    notes: [
+      { h: 'Training Hall prices', t: 'Each Training Hall level now costs 1.4 times the one before (it was 1.35), and the step grows a little every 3 levels: 1.405 times, then 1.41 times, and so on. Early levels cost a bit more, and the last levels of Max HP and Damage are a real goal now. Levels you already bought stay yours.' },
+    ],
+  },
+  {
     v: '0.81', date: '20 Nov 2026',
     notes: [
       { h: 'Lots more goals', t: 'The goal track grew from 41 goals to 151, from your first minutes in Hearthvale all the way to finding every survivalmon: monsters defeated, runs, time played, training, buildings, skill grades, types, stars, gear, medals and more. Anything you have already done is ready to claim.' },

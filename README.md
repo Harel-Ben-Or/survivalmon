@@ -148,7 +148,9 @@ start with it off. The lines are in `src/content/guide.js`, the box in `src/ui/g
 - **Your name**: the first time you reach town, Ollie at the gate asks your name (Rowan unless you type
   another); everyone in town then calls you by it, and it replaces Rowan's name on the hero picker. Change it
   any time from the town menu.
-- **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00). Each level costs 1.35x the one before.
+- **Training Hall**: hero upgrades bought with banked coins, including run time (up to 8:00). Each level costs 1.4x the
+  one before for the first three levels, and the rate climbs 0.005 every 3 levels after that (1.405x, 1.41x, ...; at
+  most 1.5x): Damage Lv 10 costs 171 coins, Lv 20 about 5,700, Lv 30 about 216,000 (`TRAIN_RATE` in systems/meta.js).
 - **Spirit**: the Spirit Shrine's own currency, earned by what your survivalmons do: 10 per wild catch and 0.2
   per enemy they defeat (2 per elite, 20 per boss) in a run (banked with the coins), 10 per egg hatched, 25 per
   evolution and 25 per medal. Coins stay the hero's money (Training Hall, buildings, Workshop, Merchant, Clinic).
