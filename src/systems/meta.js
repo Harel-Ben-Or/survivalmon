@@ -36,11 +36,11 @@ export const TRAINING = [
   { id: 'wild', name: 'Wild survivalmons', icon: 'up_wild', max: 10, base: 15, desc: (L) => `Wild survivalmons appear ${L * 10}% more often` },
 ];
 
-// Training Hall prices: each level costs more than the one before, 1.4x for the first three levels,
-// and the rate climbs 0.005 every 3 levels after that (1.405x, 1.41x, ...; never past 1.5x). So
-// Damage Lv 10 costs 171 coins, Lv 20 about 5,700 and Lv 30 about 216,000. `every` is how many levels
-// share a rate (2 would make it climb a little faster).
-export const TRAIN_RATE = { start: 1.4, step: 0.005, every: 3, max: 1.5 };
+// Training Hall prices: each level costs more than the one before, 1.4x for level 2, and the rate
+// climbs 0.005 every level after that (1.405x, 1.41x, ...), up to 1.5x from level 21 on. So Damage
+// Lv 10 costs 188 coins, Lv 20 about 8,700 and Lv 30 about 500,000. `every` is how many levels share
+// a rate (the player's call: 1, after trying 3).
+export const TRAIN_RATE = { start: 1.4, step: 0.005, every: 1, max: 1.5 };
 export function trainCost(base, L) {
   const R = TRAIN_RATE;
   let c = base;
