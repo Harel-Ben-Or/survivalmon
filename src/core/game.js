@@ -305,8 +305,9 @@ export class Game {
     const pool = Math.round((this.monPool || 0) * P.stats.petXp);
     if (pool > 0 && P.pets.length) {
       const share = Math.max(1, Math.floor(pool / P.pets.length));
+      const before = new Map(P.pets.map((p) => [p.mon.id, { level: p.mon.level, xp: p.mon.xp }])); // the run summary fills their EXP bars from here
       for (const p of P.pets) Box.addXp(p.mon, share);
-      this.poolShare = { pool, share };
+      this.poolShare = { pool, share, before };
       this.checkEvolve();
     }
     const hurt = Box.afterRun(P.pets, 0.5 + Meta.buildingBonus('clinic', 'rest') + Shrine.bonus('rest'));

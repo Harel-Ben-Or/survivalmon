@@ -3,7 +3,7 @@ import { iconURL, HERO } from '../gfx/assets.js';
 import { HEROES } from '../content/heroes.js';
 import { WEAPONS } from '../content/weapons.js';
 import { wName, wIcon, ELEMENTS, MAX_WLV } from '../content/evolve.js';
-import { SPECIES, STONES, TYPES, petXpFor, ATK_TYPES, atkType } from '../content/species.js';
+import { SPECIES, STONES, TYPES, petXpFor, MAX_PET_LEVEL, ATK_TYPES, atkType } from '../content/species.js';
 import { MonsUI, atkTag } from './mons_ui.js';
 import { ShopUI } from './shop_ui.js';
 import { MATERIALS } from '../content/buildings.js';
@@ -806,10 +806,15 @@ export class UI {
     // (game.noteChar counts them during the run); the bar under a line is its share of the damage
     const startLv = g.runStart?.petLv || new Map(), C = R.chars || {};
     const rows = [{ key: 'hero', hero: true, img: artURL('hero', P.hero.id) || iconURL('hero', P.hero.id, 5), name: Meta.heroName(P.hero.id), sub: `Lv ${rec.level}` }];
+    // each survivalmon's level and EXP bar start where they were before the team's EXP was shared
+    // out; animateTeamExp then fills them up to where they are now
+    const before = g.poolShare?.before;
     for (const p of P.pets) {
-      const was = startLv.get(p.mon.id), now = p.mon.level;
-      const grew = !was ? `Joined · Lv ${now}` : was < now ? `Lv ${was} → ${now}` : `Lv ${now}`;
-      rows.push({ key: `m${p.mon.id}`, img: artURL('creature', p.species), name: p.name, sub: grew + (p.fainted ? ' · <i class="end-faint">fainted</i>' : '') });
+      const b = before?.get(p.mon.id), lv = b ? b.level : p.mon.level, xp = b ? b.xp : p.mon.xp;
+      const pct = lv >= MAX_PET_LEVEL ? 100 : Math.min(100, (100 * xp) / petXpFor(lv));
+      const notes = (startLv.get(p.mon.id) ? '' : '<i class="end-new">new</i>') + (p.fainted ? '<i class="end-faint">fainted</i>' : '');
+      rows.push({ key: `m${p.mon.id}`, mon: p.mon.id, img: artURL('creature', p.species), name: p.name,
+        prog: `<span class="end-lv">Lv <b>${lv >= MAX_PET_LEVEL ? 'MAX' : lv}</b></span><i class="end-xp"><i style="width:${pct.toFixed(1)}%"></i></i>${notes}` });
     }
     for (const [k, c] of Object.entries(C)) if (!rows.some((r) => r.key === k)) rows.push({ key: k, img: artURL('creature', c.species), name: c.name || '?', sub: 'Left the team' });
     const total = rows.reduce((s, r) => s + (C[r.key]?.dealt || 0), 0);
@@ -818,8 +823,8 @@ export class UI {
     const team = `<div class="end-row end-heads"><span></span><span class="dealt">Damage</span><span class="taken">Taken</span><span class="healed">Healed</span></div>`
       + rows.map((r) => {
         const c = C[r.key] || {}, pct = total ? (100 * (c.dealt || 0)) / total : 0;
-        return `<div class="end-row${r.hero ? ' hero' : ''}">
-          <div class="end-mon"><img class="px" src="${r.img}" alt=""><div><b>${esc(r.name)}</b><span>${r.sub}</span></div></div>
+        return `<div class="end-row${r.hero ? ' hero' : ''}"${r.mon != null ? ` data-mon="${r.mon}"` : ''}>
+          <div class="end-mon"><img class="px" src="${r.img}" alt=""><div><b>${esc(r.name)}</b>${r.prog ? `<span class="end-prog">${r.prog}</span>` : `<span>${r.sub}</span>`}</div></div>
           ${cell(c.dealt, 'dealt')}${cell(c.taken, 'taken')}${cell(c.healed, 'healed')}
           <i class="end-share" title="${Math.round(pct)}% of the damage"><i style="width:${pct.toFixed(1)}%"></i></i>
         </div>`;
@@ -854,10 +859,50 @@ export class UI {
           </div>
         </div>`);
       this.modalKind = 'end';
+      setTimeout(() => this.animateTeamExp(), 450);
       this.tip('end');
       if (g.poolShare) this.tip('monpool'); // waits its turn after 'end' (a player who saw 'end' before the EXP split still gets it)
       this.tip('meter');
     }, won || kind === 'timeup' ? 600 : quit ? 150 : 900);
+  }
+
+  // The run summary's EXP bars: each survivalmon's share of the team's EXP pours in, the bar fills, and
+  // every time it's full the level goes up with a pop (and a level-up sound, at most every 0.3 s).
+  // More levels take a little longer, up to 2.6 s; the buttons work all along.
+  animateTeamExp() {
+    const g = this.g, before = g.poolShare?.before;
+    if (!before || this.modalKind !== 'end') return;
+    const pos = (lv, xp) => (lv >= MAX_PET_LEVEL ? MAX_PET_LEVEL : lv + Math.min(0.999, xp / petXpFor(lv)));
+    const jobs = [];
+    for (const row of this.el.modal.querySelectorAll('.end-row[data-mon]')) {
+      const id = +row.dataset.mon, b = before.get(id), mon = Box.get(id);
+      if (!b || !mon) continue;
+      const from = pos(b.level, b.xp), to = pos(mon.level, mon.xp);
+      if (to <= from) continue;
+      jobs.push({ from, to, lv: b.level, dur: Math.min(2.6, 0.8 + 0.5 * (mon.level - b.level)), fill: row.querySelector('.end-xp > i'), bar: row.querySelector('.end-xp'), lvEl: row.querySelector('.end-lv') });
+    }
+    if (!jobs.length) return;
+    const t0 = performance.now();
+    let lastSound = 0;
+    const step = (now) => {
+      if (this.modalKind !== 'end' || !jobs[0].fill.isConnected) return; // the summary was closed
+      let running = false;
+      for (const j of jobs) {
+        const k = Math.min(1, (now - t0) / 1000 / j.dur), e = 1 - (1 - k) ** 3; // eases out
+        const v = j.from + (j.to - j.from) * e, lv = Math.floor(v);
+        if (lv > j.lv) {
+          j.lv = lv;
+          j.lvEl.querySelector('b').textContent = lv >= MAX_PET_LEVEL ? 'MAX' : String(lv);
+          j.lvEl.classList.remove('up'); void j.lvEl.offsetWidth; j.lvEl.classList.add('up');
+          j.bar.classList.remove('flash'); void j.bar.offsetWidth; j.bar.classList.add('flash');
+          if (now - lastSound > 300) { lastSound = now; Audio.play('levelup'); }
+        }
+        j.fill.style.width = `${(lv >= MAX_PET_LEVEL ? 100 : (v - lv) * 100).toFixed(1)}%`;
+        if (k < 1) running = true;
+      }
+      if (running) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   // ------------------------------------------------------------ input

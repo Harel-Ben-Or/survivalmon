@@ -226,10 +226,28 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .end-row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 46px); align-items: center; column-gap: 4px; padding-bottom: 5px; }
 .end-row .end-mon { min-width: 0; }
 .end-row .end-mon img { width: 30px; height: 30px; }
-.end-row .end-mon > div { min-width: 0; display: flex; align-items: baseline; gap: 6px; }
-.end-row .end-mon b, .end-row .end-mon span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.end-row .end-mon b { flex: 0 1 auto; }
-.end-row .end-mon span { flex: 0 1 auto; }
+.end-row .end-mon > div { min-width: 0; flex: 1; display: flex; align-items: center; gap: 6px; }
+.end-row .end-mon > div > b, .end-row .end-mon > div > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.end-row .end-mon > div > b { flex: 0 1 auto; min-width: 4.6em; }
+.end-row .end-mon > div > span { flex: 0 1 auto; }
+/* a survivalmon's level and EXP bar (filled by ui.animateTeamExp at the end of a run) */
+.end-row .end-mon > div > .end-prog { flex: 1 1 auto; display: flex; align-items: center; gap: 5px; overflow: visible; }
+.end-lv { color: #9af08a; font-size: 14px; white-space: nowrap; }
+.end-mon .end-lv b { display: inline-block; min-width: 1.2em; margin-left: .15em; font: inherit; line-height: inherit; color: inherit; }
+.end-lv.up { color: var(--gold); }
+.end-mon .end-lv.up b { animation: endLvPop .55s ease-out; }
+@keyframes endLvPop { 0% { transform: scale(1.8); text-shadow: 0 0 8px #fff3a0; } 100% { transform: scale(1); } }
+.end-xp { flex: 1 1 40px; min-width: 14px; max-width: 110px; height: 7px; background: #1a2a30; border: 1px solid var(--ink); border-radius: 4px; overflow: hidden; }
+.end-xp > i { display: block; height: 100%; width: 0; background: linear-gradient(#a8ecff, #4ab8f0); }
+.end-xp.flash { animation: endXpFlash .35s ease-out; }
+@keyframes endXpFlash { 0% { background: #fff8c8; box-shadow: 0 0 6px #fff3a0; } 100% { background: #1a2a30; } }
+.end-new { color: var(--gold); font-style: normal; font-size: 12px; }
+/* narrow screens (the Claude link's small window): the level and EXP bar go under the name */
+@media (max-width: 640px) {
+  .end-row .end-mon > div { flex-wrap: wrap; row-gap: 0; }
+  .end-row .end-mon > div > .end-prog { flex-basis: 100%; }
+  .end-xp { max-width: none; }
+}
 .end-heads { padding-bottom: 0; }
 .end-heads span { font-size: 11px; font-weight: 800; text-align: right; }
 .end-n { font: 700 15px var(--font); text-align: right; font-variant-numeric: tabular-nums; text-shadow: 1px 1px 0 var(--ink); }
