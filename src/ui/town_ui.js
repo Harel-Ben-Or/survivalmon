@@ -10,6 +10,7 @@ import { HEROES } from '../content/heroes.js';
 import { SPECIES } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
 import { Goals } from '../systems/goals.js';
+import { CHANGELOG, gameVersion, unseenUpdates } from '../content/changelog.js';
 import { MATERIALS } from '../content/buildings.js';
 import { ITEMS } from '../content/shop.js';
 import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge } from './mons_ui.js';
@@ -44,9 +45,10 @@ export const TownUI = {
         <div class="town-chip panel t-team">${team || '<em>No team yet</em>'}</div>
       </div>
       <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>
-      <button class="town-chip panel t-goals" data-act="goals">📜 Goals <b class="t-goals-n"></b></button>`;
+      <button class="town-chip panel t-goals" data-act="goals">📜 Goals <b class="t-goals-n"></b></button>
+      <button class="town-chip panel t-news" data-act="news" ${unseenUpdates(Meta.data.seenVersion).length ? '' : 'hidden'}>✨ What's new</button>`;
     this.el.hud.classList.remove('hidden');
-    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen'), goals: this.el.hud.querySelector('.t-goals') };
+    this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen'), goals: this.el.hud.querySelector('.t-goals'), news: this.el.hud.querySelector('.t-news') };
     this.last = {};
     this.touch.setVisible(this.g.touchMode);
     Input.endFrame();
@@ -91,6 +93,31 @@ export const TownUI = {
       el.style.setProperty('--dx', `${Math.round(Math.cos(a) * w)}px`); el.style.setProperty('--dy', `${Math.round(Math.sin(a) * h)}px`);
     }
   },
+  // ------------------------------------------------------------ what's new (content/changelog.js)
+  // Every update's notes, newest first; the ones the player hasn't read yet are marked NEW. Opening
+  // the page counts as reading them, so the button goes away until the next update.
+  openNews() {
+    const unseen = new Set(unseenUpdates(Meta.data.seenVersion).map((e) => e.v));
+    Meta.data.seenVersion = gameVersion(); Meta.save();
+    if (this.last) this.last.tnews = null;
+    document.querySelectorAll('.t-news, .news-btn').forEach((b) => { b.hidden = true; });
+    if (this.g.mode === 'town') this.g.modal = 'news';
+    this.prompt?.(null);
+    const big = (n) => (typeof n === 'string' ? '' : `<div class="news-big"><h3>${esc(n.h)}</h3><p>${esc(n.t)}</p></div>`);
+    const small = (e) => e.notes.filter((n) => typeof n === 'string');
+    const entry = (e) => `<section class="news-v ${unseen.has(e.v) ? 'new' : ''}">
+        <div class="news-head"><b>Version ${esc(e.v)}</b><span>${esc(e.date)}</span>${unseen.has(e.v) ? '<i class="news-new">NEW</i>' : ''}</div>
+        ${e.notes.map(big).join('')}
+        ${small(e).length ? `<ul class="news-small">${small(e).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
+      </section>`;
+    this.openModal(`
+      <div class="modal-box panel news-box">
+        <div class="ms-bar"><h2>What's new</h2><button class="btn small secondary ms-x" data-act="close" aria-label="Close">✕</button></div>
+        ${CHANGELOG.filter((e, i) => unseen.has(e.v) || i < 8).map(entry).join('')}
+      </div>`);
+    this.modalKind = 'news';
+  },
+
   // ------------------------------------------------------------ goals (systems/goals.js)
   openGoals() {
     this.g.modal = 'goals';
@@ -139,6 +166,10 @@ export const TownUI = {
     this.set('trun', this.th.run, 'text', runTime(Meta.runLength()));
     // the Goals button lights up with how many are ready to claim
     const ready = Goals.ready();
+    // the What's new button shows while there are updates the player hasn't read
+    const news = unseenUpdates(Meta.data.seenVersion).length > 0;
+    if (this.th.news && this.last.tnews !== news) { this.last.tnews = news; this.th.news.hidden = !news; }
+    if (news && this.screen === 'town' && !this.g.modal) this.tip('news');
     if (this.th.goals && this.last.tgoals !== ready) { this.last.tgoals = ready; this.th.goals.classList.toggle('ready', ready > 0); this.th.goals.querySelector('b').textContent = ready ? String(ready) : ''; }
   },
 
@@ -550,6 +581,7 @@ export const TownUI = {
           <button class="btn" data-act="leave">Back to town <span class="key">Esc</span></button>
           <button class="btn secondary" data-act="help">How to play</button>
           <button class="btn secondary" data-act="opening">▶ Watch the opening</button>
+          <button class="btn secondary" data-act="news">✨ What's new</button>
           <button class="btn secondary" data-act="rename-player">✎ Your character: ${esc(Meta.playerName)}</button>
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>

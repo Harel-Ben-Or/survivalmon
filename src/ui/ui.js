@@ -30,6 +30,7 @@ import { TIERS, TIER_COLOR, PASSIVES } from '../content/skills.js';
 import { armorPct } from '../systems/armor.js';
 import { cardRowsHTML } from './card_preview.js';
 import { itemName, itemText } from '../content/shop.js';
+import { unseenUpdates, gameVersion } from '../content/changelog.js';
 // "1:05:12" / "4:30": time left on a town timer
 const countdown = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = Math.floor(sec % 60); return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
 
@@ -132,6 +133,7 @@ export class UI {
       <div class="title-buttons">
         <button class="btn small secondary" data-act="profiles">👤 ${esc(Profiles.active.name)} · Change player</button>
         ${window.__install && !standalone() ? '<button class="btn small go-btn" data-act="install">📲 Install app</button>' : ''}
+        ${unseenUpdates(Meta.data.seenVersion).length ? `<button class="btn small go-btn news-btn" data-act="news">✨ What's new in ${esc(gameVersion())}</button>` : ''}
       </div>
       ${isIOS() && !standalone() ? '<div class="best panel">Tip: tap Share → <b>Add to Home Screen</b> to play fullscreen</div>' : ''}
       ${b.time > 0 ? `<div class="best panel">Best: ${formatTime(b.time)} survived · ${b.kills} kills · Lv ${b.level}${b.wins ? ` · ${b.wins} win${b.wins > 1 ? 's' : ''}` : ''}</div>` : ''}
@@ -940,6 +942,7 @@ export class UI {
       case 'rename-player': this.closeModal(); this.openCreator(true); break;
       case 'opening': this.replayOpening(); break;
       case 'goals': Audio.play('click'); this.openGoals(); break;
+      case 'news': this.closeModal(); this.openNews(); break;
       case 'goal-claim': this.claimGoal(t.dataset.id); break;
       case 'install': {
         const p = window.__install;

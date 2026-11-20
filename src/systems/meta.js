@@ -53,8 +53,12 @@ export const Meta = {
         this.data = { ...e, ...d, spirit: d.spirit ?? SPIRIT_START, training: { ...d.training }, unlocked: { ...d.unlocked }, buildings: { ...d.buildings }, mats: { ...e.mats, ...d.mats }, heroes: { ...e.heroes, ...d.heroes },
           items: { ...d.items }, builds: { ...d.builds }, tools: { ...d.tools }, bought: d.bought || e.bought, guide: d.guide || e.guide };
         this.migrate(!d.guide);
+        // the last version whose changes this player has read (What's new). A save from before the
+        // page gets the updates since numbered versions began (0.72)
+        if (!this.data.seenVersion) this.data.seenVersion = '0.71';
       }
     } catch { /* storage unavailable: start fresh */ }
+    if (!this.data.seenVersion) this.data.seenVersion = globalThis.SURVIVALMON_VERSION || '0.71'; // a new player: nothing is "new" to them yet
     return this;
   },
   // Older saves: a gear slot was just `true` (the hero's own set's piece); Merchant buffs were for the next run

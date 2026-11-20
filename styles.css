@@ -553,6 +553,26 @@ img.mystery { filter: brightness(0) drop-shadow(0 0 6px rgba(255,255,255,.6)); }
 .t-mon b { position: absolute; right: -6px; bottom: -4px; font: 800 11px var(--font); background: var(--ink); color: var(--gold); padding: 0 3px; border-radius: 3px; }
 .t-goals { position: absolute; top: calc(48px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right)); font: 700 14px var(--font); padding: 4px 12px; cursor: pointer; pointer-events: auto; color: var(--text); }
 body.touch .t-goals { right: calc(64px + env(safe-area-inset-right)); }
+/* What's new: under Goals, only while there are updates the player hasn't read */
+.t-news { position: absolute; top: calc(84px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right)); font: 700 14px var(--font); padding: 4px 12px; cursor: pointer; pointer-events: auto; color: var(--text);
+  border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255,216,74,.3); animation: newsGlow 1.8s ease-in-out infinite; }
+.t-news[hidden] { display: none; }
+body.touch .t-news { right: calc(64px + env(safe-area-inset-right)); }
+@keyframes newsGlow { 50% { box-shadow: 0 0 0 5px rgba(255,216,74,.1); } }
+.news-btn[hidden] { display: none; }
+.news-box { width: min(560px, calc(100vw - 20px)); max-height: calc(100dvh - 20px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.news-box h2 { margin: 0; }
+.news-v { padding: 8px 10px; background: rgba(0,0,0,.2); border: 2px solid var(--ink); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
+.news-v.new { border-color: var(--gold); background: rgba(255,216,74,.07); }
+.news-head { display: flex; align-items: baseline; gap: 8px; }
+.news-head b { font-size: 15px; color: var(--gold); }
+.news-head span { font-size: 12px; color: var(--muted); }
+.news-new { margin-left: auto; padding: 0 6px; border-radius: 6px; background: var(--gold); color: #1b1022; font: 800 11px/17px var(--font); font-style: normal; }
+.news-big h3 { margin: 0 0 2px; font-size: 14px; color: var(--text); }
+.news-big p { margin: 0; font-size: 13px; line-height: 1.35; color: var(--text); opacity: .9; }
+.news-small { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.35; color: var(--muted); }
+.news-small li + li { margin-top: 2px; }
+@media (max-height: 420px) { .t-news { top: calc(70px + env(safe-area-inset-top)); font-size: 12px; padding: 2px 8px; } }
 .t-goals b:not(:empty) { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 9px; background: #9af08a; color: #1d2a14; font: 800 12px/18px var(--font); text-align: center; }
 .t-goals.ready { border-color: #9af08a; box-shadow: 0 0 0 2px rgba(154,240,138,.35); animation: goalPulse 1.6s ease-in-out infinite; }
 @keyframes goalPulse { 50% { box-shadow: 0 0 0 5px rgba(154,240,138,.12); } }
