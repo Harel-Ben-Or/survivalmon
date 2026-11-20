@@ -54,11 +54,15 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 }
 
 /* ---------- title */
-#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+#title { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 18px; overflow-y: auto;
   background: radial-gradient(ellipse at center, rgba(20,12,16,0) 30%, rgba(20,12,16,.55) 100%); }
+/* very short screens (the Claude link's small window): tighter, without the tagline, so the logo isn't cut off */
+@media (max-height: 300px) { #title { gap: 8px; padding: 6px 0; } #title .tagline, #title .hint-keys { display: none; } }
+/* the title in the pixel font, gold like the loading screen's and the poster's (index.html .ld-logo) */
 .logo {
-  font-family: var(--font-title); font-weight: 700; font-size: clamp(40px, 8vw, 96px); color: #ffe07a; letter-spacing: 3px;
-  text-shadow: 4px 0 var(--ink), -4px 0 var(--ink), 0 4px var(--ink), 0 -4px var(--ink), 4px 4px var(--ink), -4px 4px var(--ink), 4px -4px var(--ink), -4px -4px var(--ink), 0 10px 0 #c8453a, 4px 10px var(--ink), -4px 10px var(--ink), 0 14px var(--ink);
+  font-family: 'Press Start 2P', var(--font-title), monospace; font-weight: 400; font-size: clamp(24px, 5.6vw, 64px); letter-spacing: .06em; line-height: 1.3; padding: 0 .12em;
+  background: linear-gradient(#fff7c2 0%, #ffd84a 52%, #ff8f1f 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(4px 0 0 #1b1022) drop-shadow(-4px 0 0 #1b1022) drop-shadow(0 4px 0 #1b1022) drop-shadow(0 -4px 0 #1b1022) drop-shadow(0 0 14px rgba(255,220,120,.55));
 }
 .tagline { font-size: 22px; padding: 8px 18px; }
 .title-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
@@ -368,7 +372,8 @@ body.touch .hint-keys, body.touch .kb, body.touch .btn .key, body.touch .hero-ca
   .banner .sub { font-size: 12px; }
   #toasts { bottom: 40%; }
   .toast { font-size: 12px; }
-  .logo { font-size: clamp(30px, 10vw, 60px); }
+  .logo { font-size: clamp(20px, 5.4vw, 46px);
+    filter: drop-shadow(3px 0 0 #1b1022) drop-shadow(-3px 0 0 #1b1022) drop-shadow(0 3px 0 #1b1022) drop-shadow(0 -3px 0 #1b1022) drop-shadow(0 0 10px rgba(255,220,120,.5)); }
   .tagline { font-size: 14px; padding: 5px 10px; text-align: center; }
   #title { gap: 10px; padding: 10px; }
   .btn { font-size: 16px; padding: 7px 16px; }

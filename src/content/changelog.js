@@ -4,6 +4,13 @@
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
 export const CHANGELOG = [
   {
+    v: '0.76', date: '20 Nov 2026',
+    notes: [
+      'The title screen\'s logo uses the same gold pixel font as the loading screen.',
+      'The title screen fits on very small screens without cutting off the logo.',
+    ],
+  },
+  {
     v: '0.75', date: '20 Nov 2026',
     notes: [
       { h: "What's new", t: "After every update, a What's new button shows up in town. Tap it to see what changed. You can read past updates any time from the town menu." },
