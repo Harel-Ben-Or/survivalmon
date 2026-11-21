@@ -200,7 +200,7 @@ function thrust(g, w, st, a, o = {}) {
     src: 'pitchfork', rot: a, knock: st.knock, z: 6, noHit: true, scale: o.scale,
   });
   p.st = st; p.w = w; p.a = a; p.reach = (o.reach || st.reach) * S.area; p.fin = o.fin; p.pins = 0;
-  p.update = thrustMove; p.draw = drawSpear;
+  p.update = thrustMove; p.draw = drawSpear; p.img = g.shot?.spear || null; // (a set spear thrusts as its own picture)
   if (o.fin && st.el === 'bolt') p.onExpire = (g2, q) => strikeAt(g2, q.x, q.y, 30, q.st.dmg * 1.5);
   return p;
 }
@@ -220,12 +220,12 @@ function drawSpear(ctx, p, cam) {
   ctx.translate(snap(p.x - cam.x), snap(p.y - cam.y - 7));
   ctx.rotate(p.a + Math.PI / 4);
   if (p.scale) ctx.scale(p.scale, p.scale);
-  ctx.drawImage(ICON.pitchfork, -12, -4);
+  if (p.img) ctx.drawImage(p.img, -12, -4, 16, 16); else ctx.drawImage(ICON.pitchfork, -12, -4);
   ctx.restore();
 }
 function sweep(g, w, st, a) {
   const P = g.player, R = st.sweepR * P.stats.area, arc = st.arc;
-  g.addEffect({ type: 'slash', x: P.x, y: P.y, a, R, arc, life: 0.2, follow: true });
+  g.addEffect({ type: 'slash', color: g.charging ? '#ffe07a' : g.shot?.slash, x: P.x, y: P.y, a, R, arc, life: 0.2, follow: true });
   g.enemiesInRadius(P.x, P.y, R, (e) => {
     if (e.hidden || e.fainted) return;
     if (arc < TAU) {
@@ -312,7 +312,7 @@ function whirlTick(g, w, st, dt) {
   const R = (st.sweepR || 75) * S.area;
   if ((w.spinTick -= dt) <= 0) {
     w.spinTick += 0.25;
-    g.addEffect({ type: 'slash', x: P.x, y: P.y, a: (g.time * 9) % TAU, R, arc: TAU, life: 0.22, follow: true });
+    g.addEffect({ type: 'slash', color: g.charging ? '#ffe07a' : g.shot?.slash, x: P.x, y: P.y, a: (g.time * 9) % TAU, R, arc: TAU, life: 0.22, follow: true });
     g.enemiesInRadius(P.x, P.y, R, (e) => {
       if (e.hidden || e.fainted) return;
       wHit(g, e, st.dmg * st.whirlK, st, { ...away(P.x, P.y, e), knock: 60, small: true, silent: true });
@@ -348,7 +348,7 @@ function hookHurt(g) {
 function counter(g, st) {
   const P = g.player, R = (st.sweepR || 75) * P.stats.area;
   let n = 0;
-  g.addEffect({ type: 'slash', x: P.x, y: P.y, a: P.faceAngle, R, arc: TAU, life: 0.22, follow: true });
+  g.addEffect({ type: 'slash', color: g.charging ? '#ffe07a' : g.shot?.slash, x: P.x, y: P.y, a: P.faceAngle, R, arc: TAU, life: 0.22, follow: true });
   g.addEffect({ type: 'ring', x: P.x, y: P.y, R, life: 0.25, color: st.el ? ELEMENTS[st.el].color : '#ffffff' });
   g.enemiesInRadius(P.x, P.y, R, (e) => {
     if (e.hidden || e.fainted) return;

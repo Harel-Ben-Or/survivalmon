@@ -103,7 +103,8 @@ export class Pet {
   hurt(dmg) {
     if (this.fainted || this.g.mode !== 'world') return;
     // the hero's armor shields the team too, at half strength
-    const d = dmg * (1 - this.shape.def) * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * (1 - this.g.blessed().def) * armorCut((this.g.player?.stats.armor || 0) * 0.5);
+    const d = dmg * (1 - this.shape.def) * (1 - (this.pass.hide || 0)) * (1 - this.team.def) * (1 - this.g.blessed().def) * armorCut((this.g.player?.stats.armor || 0) * 0.5)
+      * (this.g.fx?.petHurtK ? this.g.fx.petHurtK(this) : 1); // (gear sets that shield the team)
     this.g.noteChar?.(this, 'taken', Math.min(d, Math.max(0, this.hp)));
     this.hp -= d;
     this.flash = 0.12;
@@ -127,6 +128,7 @@ export class Pet {
     this.g.applyTeamPassives?.();
     this.g.particles.burst(this.x, this.y - 6, { n: 12, color: '#ffffff', speed: 40, life: 0.5 });
     Audio.play('hurt');
+    this.g.fx?.petFaint?.(this);
   }
   // by: the survivalmon whose heal it is (none: the hero's, for the run summary)
   heal(n, by = null) {
@@ -194,7 +196,7 @@ export class Pet {
     }
     this.anim += dt * (this.moving ? 8 : 2);
     if (inRoom || this.fainted) return;
-    const rate = (g.combo('bestfriends') ? 1.5 : 1) * this.shape.spd / ((1 - (this.pass.swift || 0)) * (1 - this.team.haste) * (1 - g.blessed().haste));
+    const rate = (g.combo('bestfriends') ? 1.5 : 1) * this.shape.spd / ((1 - (this.pass.swift || 0)) * (1 - Math.min(0.75, this.team.haste)) * (1 - g.blessed().haste)); // (capped: short team boosts from gear sets stack on top)
     for (const a of this.attacks) {
       a.cd -= dt * rate;
       if (a.cd <= 0) a.cd = ARCH[a.arch](this, g, a.q, a.fx || {}) ?? 0.4;

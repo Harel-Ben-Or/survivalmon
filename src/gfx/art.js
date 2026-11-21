@@ -58,10 +58,56 @@ const VARIANTS = { slime_blue: ['slime', 95], slime_red: ['slime', -105], shroom
 const HEROES = ['you_boy', 'you_girl', 'rowanf', 'bram', 'lyra', 'pip'];
 const HERO_FOLDER = { rowanf: 'rowan' };
 // Your look: the boy or the girl ranger trainee (Meta.data.gender)
+const HERO_BASE = {}; // id -> the hero's own look (HERO_ART[id] may hold a set outfit instead)
 export function setHeroLook(gender) {
   const a = HERO_ART[gender === 'girl' ? 'you_girl' : 'you_boy'];
-  if (a) HERO_ART.rowan = a;
+  if (a) { HERO_BASE.rowan = a; HERO_ART.rowan = a; urlCache.delete('hero:rowan'); }
 }
+// Set outfits: a hero wearing all 6 pieces of one set looks the part. One sheet per outfit
+// (outfits/<look>_<set>.png), loaded the first time it is worn. Top: the walk, one row per direction
+// (DIR8 order), 8 frames in 96px cells with the 64px standing sprite 16px in (so a cape or a spear that
+// swings past it isn't cut off). Then one row of the 8 standing sprites (64px). Then the dash, 96px
+// cells like the heroes' own (left out while an outfit's dash isn't drawn yet: the hero then dashes in
+// the walking pose). Resolves to the hero's art, or null when that outfit has no sheet.
+const OUTFITS = {};
+// The Claude link packs the 30 sheets 5 to a file to stay under its file cap: outfits/<look>.png holds
+// that look's sets one under the other (each pack.h tall), and outfits/pack.json says which set is
+// where: { h, looks: { look: [set, ...] } }. GitHub Pages has the single sheets and no pack.json
+// (tools/pack_outfits.py builds the pack; it is never committed).
+const OUTFIT_PACKS = {};
+const outfitPack = (base) => (OUTFIT_PACKS[base] ||= fetch(`${base}/pack.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+export function loadOutfit(hero, set, gender, base = 'assets/sprites/outfits') {
+  const look = hero === 'rowan' ? (gender === 'girl' ? 'you_girl' : 'you_boy') : HERO_FOLDER[hero] || hero, key = `${look}_${set}`;
+  return (OUTFITS[key] ||= outfitPack(base).then((pack) => new Promise((resolve) => {
+    const at = pack?.looks?.[look] ? pack.looks[look].indexOf(set) : -1, y0 = at >= 0 ? at * pack.h : 0; // (where this set starts in a packed file)
+    const img = new Image();
+    img.onload = () => {
+      const dirs = {}, flash = {}, walk = {}, walkFlash = {}, dash = {}, dashFlash = {};
+      const C = DASH_CELL, standY = 8 * C, dashY = standY + 64, hasDash = (at >= 0 ? pack.h : img.height) >= dashY + 8 * C;
+      DIR8.forEach((d, r) => {
+        dirs[d] = cut(img, r * 64, y0 + standY, 64, 64);
+        lazy(flash, d, () => silhouette(dirs[d], '#ffffff'));
+        lazy(walk, d, () => Array.from({ length: 8 }, (_, i) => cut(img, i * C, y0 + r * C, C, C)));
+        lazy(walkFlash, d, () => walk[d].map((f) => silhouette(f, '#ffffff')));
+        if (!hasDash) return;
+        lazy(dash, d, () => { const fr = Array.from({ length: 8 }, (_, i) => cut(img, i * C, y0 + dashY + r * C, C, C)).filter((f) => !blank(f)); return fr.length ? fr : null; });
+        lazy(dashFlash, d, () => dash[d]?.map((f) => silhouette(f, '#ffffff')));
+      });
+      const b = bbox(dirs.south);
+      resolve({ dirs, flash, walk, walkFlash, dash, dashFlash, walkPad: DASH_PAD, w: 64, h: 64, ax: (b.x0 + b.x1 + 1) / 2, ay: b.y1 + 1, ch: (b.y1 - b.y0 + 1) / WS, outfit: key });
+    };
+    img.onerror = () => resolve(null);
+    img.src = at >= 0 ? `${base}/${look}.png` : `${base}/${key}.png`;
+  })));
+}
+// Put a hero in a set outfit (art from loadOutfit), or back in their own look (null)
+export function setHeroOutfit(hero, art) {
+  if (!HERO_BASE[hero]) HERO_BASE[hero] = HERO_ART[hero];
+  if (!HERO_BASE[hero]) return;
+  HERO_ART[hero] = art || HERO_BASE[hero];
+  urlCache.delete(`hero:${hero}`);
+}
+export const heroOutfit = (hero) => HERO_ART[hero]?.outfit || null;
 // Survivalmons with drawn animation: creatures/anim/<id>.png holds one cell per frame (cell = the
 // sprite's own size, 8 cells across): row 0 = moving (8 frames), row 1 = idle (6), row 2 = attack (6,
 // played once each time it attacks), row 3 = faint (8, played once, ending lying down). Frame 0 of
@@ -373,8 +419,9 @@ export function drawHero(ctx, h, x, y, dir, o = {}) {
   const cycle = o.walk != null && (o.flash ? h.walkFlash : h.walk)?.[dir];
   const img = cycle ? cycle[Math.floor(o.walk) % cycle.length] : (o.flash ? h.flash : h.dirs)[dir] || h.dirs.south;
   const sx = o.sx ?? 1, sy = o.sy ?? 1;
-  const dw = (h.w / WS) * sx, dh = (h.h / WS) * sy;
-  ctx.drawImage(img, snap(x - (h.ax / WS) * sx), snap(y - (o.bob || 0) - (h.ay / WS) * sy), dw, dh);
+  const pad = cycle ? h.walkPad || 0 : 0; // (an outfit's walk cells are bigger, with the standing sprite pad px in)
+  const dw = ((h.w + 2 * pad) / WS) * sx, dh = ((h.h + 2 * pad) / WS) * sy;
+  ctx.drawImage(img, snap(x - ((h.ax + pad) / WS) * sx), snap(y - (o.bob || 0) - ((h.ay + pad) / WS) * sy), dw, dh);
 }
 
 // The village's people (assets/sprites/npcs.png): 4 rows of 88px cells each, in the order given:
@@ -613,6 +660,17 @@ export async function loadIconArt(ids, base = 'assets/sprites/icons') {
     const img = await loadImage(`${base}/${id}.png`);
     if (img) { const full = fromImage(img), c = cropped(full); ICON_ART[id] = { img: c, full, w: c.width / WS, h: c.height / WS }; }
   }));
+}
+
+// Gear pieces: one sheet (icons/gear.png), a row per set (order) and a 32px column per slot. Each
+// picture is cut the first time it is shown.
+export async function loadGearIcons(order, slots, base = 'assets/sprites/icons') {
+  const sheet = await loadImage(`${base}/gear.png`);
+  if (!sheet) return;
+  order.forEach((set, r) => slots.forEach((slot, c) => lazy(ICON_ART, `gear_${set}_${slot}`, () => {
+    const full = cut(sheet, c * 32, r * 32, 32, 32), img = cropped(full);
+    return { img, full, w: img.width / WS, h: img.height / WS };
+  })));
 }
 
 // ---------------------------------------------------------------- attack effects

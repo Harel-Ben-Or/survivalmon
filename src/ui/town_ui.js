@@ -10,7 +10,7 @@ import { HEROES } from '../content/heroes.js';
 import { SPECIES, DEX_IDS } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
 import { Goals } from '../systems/goals.js';
-import { CHANGELOG, gameVersion, unseenUpdates } from '../content/changelog.js';
+import { CHANGELOG, gameVersion, unseenUpdates, giftOpen, giftText } from '../content/changelog.js';
 import { MATERIALS } from '../content/buildings.js';
 import { ITEMS } from '../content/shop.js';
 import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge, stars, skillChips, statBars } from './mons_ui.js';
@@ -60,7 +60,7 @@ export const TownUI = {
       </div>
       <div class="town-chip panel t-run">Next run <b class="t-runlen">${runTime(Meta.runLength())}</b></div>
       <button class="town-chip panel t-goals" data-act="goals">📜 Goals <b class="t-goals-n"></b></button>
-      <button class="town-chip panel t-news" data-act="news" ${unseenUpdates(Meta.data.seenVersion).length ? '' : 'hidden'}>✨ What's new</button>`;
+      <button class="town-chip panel t-news" data-act="news" ${unseenUpdates(Meta.data.seenVersion).length || Meta.giftWaiting() ? '' : 'hidden'}>✨ What's new</button>`;
     this.el.hud.classList.remove('hidden');
     this.th = { coins: this.el.hud.querySelector('.t-coins'), spirit: this.el.hud.querySelector('.t-spirit'), shards: this.el.hud.querySelector('.t-shards'), run: this.el.hud.querySelector('.t-runlen'), goals: this.el.hud.querySelector('.t-goals'), news: this.el.hud.querySelector('.t-news') };
     this.last = {};
@@ -110,6 +110,14 @@ export const TownUI = {
   // ------------------------------------------------------------ what's new (content/changelog.js)
   // Every update's notes, newest first; the ones the player hasn't read yet are marked NEW. Opening
   // the page counts as reading them, so the button goes away until the next update.
+  // Claims the gift that came with version v (once per save), then shows the page again with what it gave
+  claimNewsGift(v) {
+    const got = Meta.claimGift(v);
+    if (!got) return;
+    Analytics.track('gift_claim', { v });
+    Audio.play('chest');
+    this.openNews();
+  },
   openNews() {
     const unseen = new Set(unseenUpdates(Meta.data.seenVersion).map((e) => e.v));
     Analytics.track('news_open', { unseen: unseen.size });
@@ -119,10 +127,20 @@ export const TownUI = {
     document.querySelectorAll('.news-pill').forEach((b) => b.classList.remove('glow'));
     if (this.g.mode === 'town') this.g.modal = 'news';
     this.prompt?.(null);
-    const big = (n) => (typeof n === 'string' ? '' : `<div class="news-big"><h3>${esc(n.h)}</h3><p>${esc(n.t)}</p></div>`);
+    const art = (n) => (n.img ? `<img class="news-img" src="${n.img}" alt="" loading="lazy">` : '')
+      + (n.icons ? `<div class="news-icons">${n.icons.map((id) => `<img class="px" src="${iconURL('icon', id, 3)}" alt="">`).join('')}</div>` : '');
+    const big = (n) => (typeof n === 'string' ? '' : `<div class="news-big"><h3>${esc(n.h)}</h3>${art(n)}<p>${esc(n.t)}</p></div>`);
     const small = (e) => e.notes.filter((n) => typeof n === 'string');
+    // a gift that came with the update: a Claim button until this save has it (or its last day has passed)
+    const gift = (e) => {
+      const got = Meta.data.gifts?.[e.v];
+      if (got) return `<div class="news-gift got"><b>🎁 Gift claimed</b><span>${esc(got.join(' · '))}</span></div>`;
+      if (!giftOpen(e)) return '';
+      return `<div class="news-gift"><b>🎁 A gift with this update</b><span>${esc(giftText(e.gift))}</span><button class="btn small" data-act="gift" data-v="${esc(e.v)}">Claim</button></div>`;
+    };
     const entry = (e) => `<section class="news-v ${unseen.has(e.v) ? 'new' : ''}">
         <div class="news-head"><b>Version ${esc(e.v)}</b><span>${esc(e.date)}</span>${unseen.has(e.v) ? '<i class="news-new">NEW</i>' : ''}</div>
+        ${gift(e)}
         ${e.notes.map(big).join('')}
         ${small(e).length ? `<ul class="news-small">${small(e).map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
       </section>`;
@@ -268,8 +286,8 @@ export const TownUI = {
     this.set('trun', this.th.run, 'text', runTime(Meta.runLength()));
     // the Goals button lights up with how many are ready to claim
     const ready = Goals.ready();
-    // the What's new button shows while there are updates the player hasn't read
-    const news = unseenUpdates(Meta.data.seenVersion).length > 0;
+    // the What's new button shows while there are updates the player hasn't read, or a gift to claim
+    const news = unseenUpdates(Meta.data.seenVersion).length > 0 || Meta.giftWaiting();
     if (this.th.news && this.last.tnews !== news) { this.last.tnews = news; this.th.news.hidden = !news; }
     if (news && this.screen === 'town' && !this.g.modal) this.tip('news');
     if (this.th.goals && this.last.tgoals !== ready) { this.last.tgoals = ready; this.th.goals.classList.toggle('ready', ready > 0); this.th.goals.querySelector('b').textContent = ready ? String(ready) : ''; }
@@ -563,6 +581,7 @@ export const TownUI = {
       Meta.setGender(this.creatorLook);
       Meta.setName(v || Meta.data.name || 'Ranger');
       setHeroLook(Meta.gender);
+      this.g.dressHeroes();
       Audio.play('levelup');
     }
     this.closeModal();

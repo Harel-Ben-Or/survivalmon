@@ -142,7 +142,9 @@ export class Player {
 
   hurt(dmg, src) {
     if (this.iframes > 0 || this.dashT > 0 || this.g.mode !== 'world') return false;
-    const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor) * (1 - this.g.blessed().def)));
+    const F = this.g.fx; // gear sets: a shield that blocks the hit, or one that softens it
+    if (F?.block?.(dmg)) { this.iframes = 0.6; return false; }
+    const d = Math.max(1, Math.round(dmg * armorCut(this.stats.armor) * (1 - this.g.blessed().def) * (F?.hurtK ? F.hurtK() : 1)));
     this.g.noteChar?.(null, 'taken', Math.min(d, Math.max(0, this.hp)));
     this.hp -= d;
     this.iframes = 0.6; this.flash = 0.15;
@@ -192,13 +194,15 @@ export class Player {
     }
     if (Input.wasPressed('Space') && this.dashCd <= 0 && this.dashT <= 0) {
       const a = this.faceAngle;
-      this.dashT = DASH_T; this.dashCd = 2.0 * S.cooldown; this.dashA = 0; this.ghostT = 0;
+      this.dashT = DASH_T; this.dashCd = 2.0 * S.cooldown * (g.fx?.dashK ?? 1); this.dashA = 0; this.ghostT = 0;
       this.dashVx = Math.cos(a) * DASH_SPEED; this.dashVy = Math.sin(a) * DASH_SPEED;
       this.d8 = dir8(a); // faces the way it dashes
       g.particles.burst(this.x - Math.cos(a) * 4, this.y - 1, { n: 7, colors: ['#d8c8a0', '#ffffff'], speed: 35, life: 0.3, up: 6 });
       Audio.play('dash');
+      if (!solids) g.fx?.dash?.(); // (gear sets that do something on a dash; not inside a building)
     }
-    let vx = mv.x * S.speed, vy = mv.y * S.speed;
+    const sk = !solids && g.fx?.speedK ? g.fx.speedK() : 1;
+    let vx = mv.x * S.speed * sk, vy = mv.y * S.speed * sk;
     if (this.netT > 0) {
       this.netT = Math.max(0, this.netT - dt);
       vx *= 0.45; vy *= 0.45;

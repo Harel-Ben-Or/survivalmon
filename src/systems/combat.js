@@ -53,6 +53,15 @@ export const Combat = {
       ...o,
     };
     p.age = 0; p.maxLife = p.life; p.hitSet = new Set(); p.hitMap = new Map(); p.dead = false;
+    if (p.src && p.src === this.player?.main?.id) {
+      // the hero's own weapon: the look of the set weapon worn (gfx/shots.js)...
+      const sk = this.shot, alt = sk?.spr[p.spr];
+      if (alt) { p.base = p.spr; p.spr = Array.isArray(alt) ? alt[(sk.n = (sk.n + 1) % alt.length)] : alt; }
+      if (sk?.glow && p.spr) p.glow = sk.glow;
+      if (sk?.trail && !p.trail && p.spr && !p.noHit) { p.trail = sk.trail; p.trailRate = 14; } // (a light trail: a Volley has many arrows)
+      // ...and a Legendary set's charged attack: bigger, bright, with a golden trail
+      if (this.charging) { p.scale = (p.scale || 1) * 1.4; p.r *= 1.3; p.glow = '#ffe9a0'; p.trail = '#ffe07a'; p.charged = true; }
+    }
     this.projectiles.push(p);
     return p;
   },
@@ -79,8 +88,8 @@ export const Combat = {
         p.x += p.vx * dt; p.y += p.vy * dt;
       }
       if (p.spin) p.rot += p.spin * dt;
-      else if (p.spr === 'p_arrow' || p.spr === 'p_leaf') p.rot = Math.atan2(p.vy, p.vx);
-      if (p.trail && Math.random() < 36 * dt) this.particles.add({ x: p.x, y: p.y - p.z, vx: rand(-10, 10), vy: rand(-10, 10), life: 0.3, color: p.trail, size: 2 });
+      else if ((p.base || p.spr) === 'p_arrow' || p.spr === 'p_leaf') p.rot = Math.atan2(p.vy, p.vx);
+      if (p.trail && Math.random() < (p.trailRate || 36) * dt) this.particles.add({ x: p.x, y: p.y - p.z, vx: rand(-10, 10), vy: rand(-10, 10), life: 0.3, color: p.trail, size: 2 });
       if (p.dead || p.noHit) continue;
       if (p.hostile) {
         if (dist2(p.x, p.y, P.x, P.y) < (p.r + P.r) ** 2) {
@@ -209,15 +218,16 @@ export const Combat = {
           ctx.fillStyle = '#ffd84a'; ctx.fillRect(fx, fy - h + 1, 1, h - 1);
         }
       } else if (z.kind === 'thorns') {
-        ctx.globalAlpha = 0.18 * fade; ctx.fillStyle = '#4f8a3a';
+        // a bramble patch (the Wildheart set): dark stems with a bright edge and a pale thorn tip
+        ctx.globalAlpha = 0.3 * fade; ctx.fillStyle = '#3f7a2e';
         ctx.beginPath(); ctx.ellipse(x, y, z.r, z.r * 0.8, 0, 0, TAU); ctx.fill();
         ctx.globalAlpha = fade;
         const grow = Math.min(1, z.age * 4);
         for (const [sx, sy, v] of z.spikes) {
-          const h = Math.round((3 + v * 4) * grow);
-          ctx.fillStyle = v > 0.5 ? '#3a7a32' : '#6a4a2a';
-          ctx.fillRect(Math.round(x + sx), Math.round(y + sy - h), 1, h);
-          ctx.fillRect(Math.round(x + sx) - 1, Math.round(y + sy - h + 2), 1, 1);
+          const h = Math.round((4 + v * 5) * grow), px = Math.round(x + sx), py = Math.round(y + sy);
+          ctx.fillStyle = '#2b4a22'; ctx.fillRect(px - 1, py - h, 3, h);
+          ctx.fillStyle = v > 0.7 ? '#8ad04a' : '#4f9a3a'; ctx.fillRect(px, py - h, 1, h);
+          ctx.fillStyle = '#d8f8a0'; ctx.fillRect(px, py - h - 1, 1, 1); ctx.fillRect(px + (v > 0.7 ? 2 : -2), py - h + 2, 1, 1);
         }
       } else if (z.kind === 'spores') {
         ctx.globalAlpha = 0.22 * fade; ctx.fillStyle = '#b07ad8';
@@ -304,7 +314,7 @@ export const Combat = {
           ctx.globalAlpha = 1 - k * 0.8;
           ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
           ctx.beginPath(); ctx.ellipse(x, y - 6, e.R * 0.85, e.R * 0.68, 0, a0, a0 + sweep); ctx.stroke();
-          ctx.strokeStyle = '#c8a8ff'; ctx.lineWidth = 2;
+          ctx.strokeStyle = e.color || '#c8a8ff'; ctx.lineWidth = 2;
           ctx.beginPath(); ctx.ellipse(x, y - 6, e.R * 0.65, e.R * 0.52, 0, a0, a0 + sweep); ctx.stroke();
           break;
         }
@@ -385,7 +395,9 @@ export const Combat = {
     let crit = false;
     if (!o.raw) {
       dmg *= (o.pet ? S.petPower : S.might) * (1 + this.blessed().dmg);
-      const critChance = S.crit + (o.critAdd || 0) + (o.pet ? (o.petRef?.pass.claw || 0) + (this.team?.crit || 0) : 0);
+      const F = this.fx; // the gear sets worn: marks, far shots, bleeding foes... (systems/setfx.js)
+      if (F?.dmgK) dmg *= F.dmgK(e, o);
+      const critChance = S.crit + (o.critAdd || 0) + (o.pet ? (o.petRef?.pass.claw || 0) + (this.team?.crit || 0) : 0) + (F?.critAdd ? F.critAdd(e, o) : 0);
       if (!o.noCrit && Math.random() < critChance) { crit = true; dmg *= S.critMult + (o.critMultAdd || 0); }
       // a glowing foe (the Light element) takes more from your survivalmons
       if (o.pet && e.glow > 0) dmg *= 1 + (e.glowK || 0.25);
@@ -461,7 +473,7 @@ export const Combat = {
     if (chance(0.0018 * S.luck)) this.spawnPickup('magnet', cx, cy);
     if (chance(0.0012 * S.luck)) this.spawnPickup('bomb', cx, cy);
     // berries fill the team bar: 1 from 15% of monsters, 3 from an elite, 10 from a boss
-    if (chance(0.15)) this.spawnPickup('berry', cx + rand(-4, 4), cy);
+    if (chance(0.15 * (this.fx?.berryK || 1))) this.spawnPickup('berry', cx + rand(-4, 4), cy);
     if (e.elite) {
       this.spawnPickup('chest', cx, cy, 1);
       if (Math.random() < 0.08) this.dropGear(cx + 8, cy);
@@ -472,6 +484,7 @@ export const Combat = {
     if (this.tier >= 4) this.dropShards(e, cx, cy);
     if (e.boss) { Meta.data.bossKills = (Meta.data.bossKills || 0) + 1; this.onBossDeath(e); } // (for the goals)
     if (S.healOnKill && chance(S.healOnKill)) P.heal(2);
+    this.fx?.kill?.(e, o);
     // what your survivalmons defeat goes into the run's mon EXP pool, split between them at the end
     // (1 EXP for every mon on the team, so once it's split each one gets 1 EXP per kill the team makes:
     // berries used to feed every survivalmon EXP; now the kills carry it all. This matches the old game's
@@ -535,6 +548,7 @@ export const Combat = {
     this.ui.catchCard(mon, { joined, freed: e.corrupted }); // its grades at a glance, instead of a banner
     this.ui.tip('caught', () => { this.ui.catchUntil = Math.max(this.ui.catchUntil, performance.now() + 3000); }); // the card stays a moment after Moss explains it
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
+    this.fx?.wild?.();
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
     if (o.petRef || o.by) this.monPool = (this.monPool || 0) + 4 * Math.max(1, P.pets.length);

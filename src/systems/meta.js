@@ -3,7 +3,8 @@
 // survivalmons do) pays for the Spirit Shrine. Skyfall Shards are the rare currency (content/shop.js).
 import { RUN_LENGTH } from './director.js';
 import { BUILDINGS, buildingCost, buildMins } from '../content/buildings.js';
-import { SLOTS, SLOT_STAT, SETS, HERO_BOOST, MILESTONES, slotCost, GEAR_SETS, HERO_SETS, SET_PIECES, TOOLS, toolCost } from '../content/gear.js';
+import { SLOTS, HERO_BOOST, MILESTONES, slotCost, GEAR_SETS, HERO_SETS, SET_PIECES, TOOLS, toolCost, pieceStat, ROWAN_SETS, STARS, starNeed, TIERS, SALVAGE } from '../content/gear.js';
+import { CHANGELOG, giftOpen } from '../content/changelog.js';
 import { itemKey, parseKey, STACK_MAX, rushCost } from '../content/shop.js';
 import { Profiles } from './profiles.js';
 import { armorPct } from './armor.js';
@@ -15,7 +16,9 @@ export const SPIRIT_START = 100;
 export const MAT_KEYS = ['wood', 'stone', 'clay', 'iron'];
 // gates: the newest gate opened (0 = only the North Gate, see content/gates.js); gateTier: the one
 // picked for the next run; gateNew: a gate just earned, not yet told in town
-// gear[hero][slot] = { own: { set: true }, on: set } (the pieces found for that slot, and the one worn)
+// gear[hero][slot] = { own: { set: true }, on: set, lv: { set: level } } (the pieces found for that
+// slot, the one worn, and each piece's own level). gearV: 2 once a save has per-piece levels (1.08);
+// `slots` held the old per-slot levels and is only read by that migration.
 // items: the bag, { "id:grade": count }; builds: upgrades being built, { building: { to, done } }
 // tools: Workshop tool levels; shards: Skyfall Shards; bought: Skyfall counter buys, { day, n: { offer: count } }
 // guide: the beginner's guide (content/guide.js), { on, seen: { tip: true } }
@@ -42,10 +45,6 @@ export const TRAINING = [
 // Lv 10 costs 188 coins, Lv 20 about 8,700 and Lv 30 about 500,000. `every` is how many levels share
 // a rate (the player's call: 1, after trying 3).
 export const TRAIN_RATE = { start: 1.4, step: 0.005, every: 1, max: 1.5 };
-// Coins from defeated monsters, on top of Coin gain and the gate's bonus. 1.75 since 1.07: a full South
-// Gate Lv 1 run paid about 11,000 with Coin gain 16 while one Damage level cost 12,000; the player asked
-// for about 20,000 a run there.
-export const COIN_RATE = 1.75;
 export function trainCost(base, L) {
   const R = TRAIN_RATE;
   let c = base;
@@ -76,6 +75,7 @@ export const Meta = {
       }
     } catch { /* storage unavailable: start fresh */ }
     if (!this.data.seenVersion) this.data.seenVersion = globalThis.SURVIVALMON_VERSION || '0.71'; // a new player: nothing is "new" to them yet
+    this.data.gearV = 2; // (an older save was brought up to it in migrate, a new one starts there)
     this.loaded = true;
     return this;
   },
@@ -85,7 +85,25 @@ export const Meta = {
     const D = this.data;
     if (noGuide) D.guide = { on: !(D.runs > 0 || D.named), seen: {} };
     for (const [hero, slots] of Object.entries(D.gear || {})) {
-      for (const s of SLOTS) if (slots[s] === true) slots[s] = { own: { [HERO_SETS[hero][0]]: true }, on: HERO_SETS[hero][0] };
+      for (const s of SLOTS) if (slots[s] === true) slots[s] = { own: { [HERO_SETS[hero]?.[0]]: true }, on: HERO_SETS[hero]?.[0] };
+    }
+    // 1.08, the gear rework. Rowan used to share your four sets: their pieces become the matching
+    // Rowan sets. And a level now belongs to the piece, not the slot: every piece found so far for a
+    // slot keeps that slot's level, so nobody loses a level by swapping to a piece they already had.
+    if ((D.gearV || 1) < 2) {
+      for (const [hero, slots] of Object.entries(D.gear || {})) {
+        const sets = HERO_SETS[hero] || [];
+        for (const s of SLOTS) {
+          const g = slots[s];
+          if (!g || typeof g !== 'object') continue;
+          const ren = (k) => (hero === 'rowanf' ? ROWAN_SETS[k] || k : k);
+          g.own = Object.fromEntries(Object.entries(g.own || {}).map(([k, v]) => [ren(k), v]).filter(([k]) => sets.includes(k)));
+          g.on = sets.includes(ren(g.on)) ? ren(g.on) : Object.keys(g.own)[0] || null;
+          const L = D.slots?.[hero]?.[s] || 0;
+          g.lv = Object.fromEntries(Object.keys(g.own).map((k) => [k, L]));
+        }
+      }
+      D.gearV = 2;
     }
     if (D.buffs) {
       for (const b of D.buffs) { if (OLD_BUFFS[b]) this.addItem(OLD_BUFFS[b], 1, 1, false); else if (b === 'candle') D.coins += 30; }
@@ -235,31 +253,90 @@ export const Meta = {
   piecesOwned(hero) { return SLOTS.reduce((n, s) => n + Object.keys(this.data.gear[hero]?.[s]?.own || {}).length, 0); },
   setWorn(hero, set) { return SLOTS.filter((s) => this.worn(hero, s) === set).length; },
   gearCount(hero) { return SLOTS.filter((s) => this.hasGear(hero, s)).length; },
-  slotLevel(hero, slot) { return this.data.slots[hero]?.[slot] || 0; },
+  // A piece's own level (it stays with the piece: another piece in the same slot has its own)
+  pieceLevel(hero, slot, set = this.worn(hero, slot)) { return (set && this.data.gear[hero]?.[slot]?.lv?.[set]) || 0; },
+  slotLevel(hero, slot) { return this.pieceLevel(hero, slot); }, // the level of the piece worn there
   slotCap() { return this.buildingBonus('workshop', 'cap'); },
-  slotUpCost(hero, slot) { const L = this.slotLevel(hero, slot); return L >= this.slotCap() ? null : slotCost(L); },
-  slotUp(hero, slot) {
-    if (!this.hasGear(hero, slot) || !this.pay(this.slotUpCost(hero, slot))) return false;
-    const s = this.data.slots[hero] || (this.data.slots[hero] = {});
-    s[slot] = (s[slot] || 0) + 1;
+  pieceUpCost(hero, slot, set = this.worn(hero, slot)) { const L = this.pieceLevel(hero, slot, set); return !set || L >= this.slotCap() ? null : slotCost(L); },
+  pieceUp(hero, slot, set = this.worn(hero, slot)) {
+    if (!this.ownsPiece(hero, slot, set) || !this.pay(this.pieceUpCost(hero, slot, set))) return false;
+    const g = this.data.gear[hero][slot];
+    (g.lv ||= {})[set] = (g.lv[set] || 0) + 1;
     this.save();
     return true;
   },
+  // A piece's stars (0-5) and the blueprints saved up toward its next star. Both stay with the piece,
+  // like its level: gear[hero][slot].st[set] and .bp[set].
+  pieceStars(hero, slot, set = this.worn(hero, slot)) { return (set && this.data.gear[hero]?.[slot]?.st?.[set]) || 0; },
+  pieceBlueprints(hero, slot, set = this.worn(hero, slot)) { return (set && this.data.gear[hero]?.[slot]?.bp?.[set]) || 0; },
+  // Finding a piece you already have: one blueprint of it. When there are enough, the piece gets a star
+  // and the count starts over. Returns { stars, bp, need, up } (up: a star was just added; need: for the
+  // next star, null at 5 stars), or null when the piece already had every star.
+  addBlueprint(hero, slot, set) {
+    if (!this.ownsPiece(hero, slot, set)) return null;
+    const g = this.data.gear[hero][slot], stars = g.st?.[set] || 0;
+    if (stars >= STARS.max) return null;
+    const bp = (g.bp?.[set] || 0) + 1, up = bp >= starNeed(stars);
+    (g.bp ||= {})[set] = up ? bp - starNeed(stars) : bp;
+    if (up) (g.st ||= {})[set] = stars + 1;
+    this.save();
+    return { stars: stars + (up ? 1 : 0), bp: g.bp[set], need: starNeed(stars + (up ? 1 : 0)), up };
+  },
+  slotUpCost(hero, slot) { return this.pieceUpCost(hero, slot); },
+  // ---------------------------------------------------------- gifts that come with an update
+  // (content/changelog.js: an entry's `gift`). Each save claims a gift once, on the What's new page;
+  // data.gifts[version] keeps the lines of what it got.
+  giftClaimed(v) { return !!this.data.gifts?.[v]; },
+  giftWaiting() { return CHANGELOG.some((e) => giftOpen(e) && !this.giftClaimed(e.v)); },
+  claimGift(v) {
+    const e = CHANGELOG.find((x) => x.v === v), G = e?.gift;
+    if (!G || !giftOpen(e) || this.giftClaimed(v)) return null;
+    const got = [];
+    if (G.coins) { this.data.coins = (this.data.coins || 0) + G.coins; got.push(`${G.coins} coins`); }
+    if (G.shards) { this.data.shards = (this.data.shards || 0) + G.shards; got.push(`${G.shards} Skyfall Shards`); }
+    if (G.spirit) { this.data.spirit = (this.data.spirit || 0) + G.spirit; got.push(`${G.spirit} Spirit`); }
+    for (const [k, n] of Object.entries(G.mats || {})) { this.data.mats[k] = (this.data.mats[k] || 0) + n; got.push(`${n} ${k}`); }
+    if (G.gear) got.push(this.giftGear(this.hero, G.gear));
+    (this.data.gifts ||= {})[v] = got;
+    this.save();
+    return got;
+  },
+  giftGear(hero, tier) { return this.grantGear(hero, tier); },
+  // A piece of a tier for a hero, outside a run (a gift, the Skyfall counter): a random one, or the
+  // slot (and set) asked for. It lands the way a drop does: a new piece, else a blueprint of it, else
+  // (it has 5 stars) materials. Returns the line that says which.
+  grantGear(hero, tier, slot = SLOTS[(Math.random() * SLOTS.length) | 0], set = null) {
+    const sets = HERO_SETS[hero].filter((id) => GEAR_SETS[id].tier === tier);
+    set ||= sets[(Math.random() * sets.length) | 0];
+    const name = GEAR_SETS[set].pieces[slot];
+    this.unlock('workshop');
+    if (this.addGear(hero, slot, set)) return `${TIERS[tier].name} gear: ${name}`;
+    const r = this.addBlueprint(hero, slot, set);
+    if (r) return r.up ? `${name} now has ${r.stars} star${r.stars > 1 ? 's' : ''}` : `a blueprint of ${name} (${r.bp}/${r.need})`;
+    for (const [k, n] of Object.entries(SALVAGE[tier])) this.data.mats[k] = (this.data.mats[k] || 0) + n;
+    this.save();
+    return `materials (${name} already has 5 stars)`;
+  },
+  slotUp(hero, slot) { return this.pieceUp(hero, slot); },
   minSlotLevel(hero) { return Math.min(...SLOTS.map((s) => (this.hasGear(hero, s) ? this.slotLevel(hero, s) : 0))); },
-  // Hero stat mods from the gear the hero owns
+  // The set the hero wears in all 6 slots (their outfit changes to it), or null
+  fullSet(hero) { const a = this.worn(hero, SLOTS[0]); return a && SLOTS.every((s) => this.worn(hero, s) === a) ? a : null; },
+  // Hero stat mods from the pieces the hero wears
   gearMods(hero) {
     const m = {};
     for (const s of SLOTS) {
-      if (!this.hasGear(hero, s)) continue;
-      for (const [k, v] of Object.entries(SLOT_STAT[s].mods(this.slotLevel(hero, s)))) m[k] = (m[k] || 0) + v;
+      const set = this.worn(hero, s);
+      if (!set) continue;
+      for (const [k, v] of Object.entries(pieceStat(set, s, this.pieceLevel(hero, s, set), this.pieceStars(hero, s, set)).mods)) m[k] = (m[k] || 0) + v;
     }
     return m;
   },
   // Everything the hero brings to a run besides the slots' own stats: their survivalmon boost, the
   // bonuses of the sets worn (4 and 6 pieces) and the slot-level milestones.
-  // Returns { team, hero, types, petXp, wild, coins, mats, shards }.
+  // Returns { team, hero, types, petXp, wild, coins, mats, shards, power }; power = the name of a
+  // Legendary set's charged attack when all 6 of its pieces are worn.
   heroTeamBonus(hero) {
-    const out = { team: { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 }, hero: {}, types: {}, petXp: 0, wild: 0, coins: 0, mats: 0, shards: 0 };
+    const out = { team: { dmg: 0, hp: 0, haste: 0, def: 0, crit: 0 }, hero: {}, types: {}, petXp: 0, wild: 0, coins: 0, mats: 0, shards: 0, power: null };
     const add = (t, k = 1) => { for (const [key, v] of Object.entries(t || {})) out.team[key] += v * k; };
     const bonuses = [];
     for (const set of HERO_SETS[hero]) {
@@ -274,6 +351,7 @@ export const Meta = {
       for (const [k, v] of Object.entries(x.hero || {})) out.hero[k] = (out.hero[k] || 0) + v;
       for (const [k, v] of Object.entries(x.types || {})) out.types[k] = (out.types[k] || 0) + v;
       for (const k of ['petXp', 'wild', 'coins', 'mats', 'shards']) out[k] += x[k] || 0;
+      if (x.power) out.power = x.power;
     }
     const minL = this.gearCount(hero) === SLOTS.length ? this.minSlotLevel(hero) : 0;
     for (const ms of MILESTONES) if (minL >= ms.level) { add(ms.team); out.coins += ms.coins || 0; }
@@ -317,7 +395,7 @@ export const Meta = {
   bagSize() { return Object.values(this.data.items).reduce((s, n) => s + n, 0); },
 
   runLength() { return runLengthAt(this.level('runtime')); },
-  coinMult() { return COIN_RATE * (1 + 0.1 * this.level('coins')); },
+  coinMult() { return 1 + 0.1 * this.level('coins'); },
   wildMult() { return 1 + 0.1 * this.level('wild'); },
   // Stat mods for the hero at the start of a run
   heroMods() {

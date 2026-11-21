@@ -4,7 +4,9 @@ import { Audio } from './audio.js';
 import { SpatialHash } from './spatial.js';
 import { rand, TAU, clamp, dist2, choice, formatTime } from './util.js';
 import { buildAssets, SPR, ICON } from '../gfx/assets.js';
-import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART, setHeroLook, addStatues } from '../gfx/art.js';
+import { loadArt, loadWorldArt, loadProjArt, loadIconArt, loadGearIcons, loadVfxArt, loadNpcArt, NPC_ART, drawNpcArt, WS, snap, ICON_ART, setHeroLook, addStatues, loadOutfit, setHeroOutfit } from '../gfx/art.js';
+import { shotSkin } from '../gfx/shots.js';
+import { makeFx } from '../systems/setfx.js';
 import { NPC_IDS } from '../content/npcs.js';
 import { EGG_ICONS } from '../gfx/eggs.js';
 import { TileGround } from '../world/tileground.js';
@@ -35,7 +37,7 @@ import { BASE_ODDS, TIERS, PASSIVES } from '../content/skills.js';
 import { rollSkills, FOUND_HATCH } from '../systems/collection.js';
 import { Shrine } from '../systems/shrine.js';
 import { tierMult, gateName, gateColor, gateSide, gateBlurb, GATE_MAX } from '../content/gates.js';
-import { SETS, SLOTS, SLOT_NAME, HERO_SETS, GEAR_SETS, pieceName } from '../content/gear.js';
+import { SETS, SLOTS, SLOT_NAME, HERO_SETS, GEAR_SETS, GEAR_ORDER, setTier, epicChance, legendChance, pieceName, SALVAGE } from '../content/gear.js';
 import { MATERIALS, BUILDINGS } from '../content/buildings.js';
 import { ITEM, BOOST_TIME, itemName, parseKey } from '../content/shop.js';
 import { UI } from '../ui/ui.js';
@@ -129,6 +131,7 @@ export class Game {
 
   resetRunState() {
     this.enemies = []; this.projectiles = []; this.zones = []; this.effects = []; this.timers = [];
+    this.fx = null; // the gear sets' effects belong to one run (startRun builds them)
     this.shakeT = 0; this.shakeAmt = 0;
     this.pickups = []; this.pickupCount = { xp: 0 };
     this.particles.clear();
@@ -141,11 +144,12 @@ export class Game {
     buildAssets();
     await loadArt();
     await loadWorldArt(SPR);
-    await Promise.all([loadProjArt(SPR), loadVfxArt(), loadNpcArt(NPC_IDS), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS])]);
+    await Promise.all([loadProjArt(SPR), loadVfxArt(), loadNpcArt(NPC_IDS), loadIconArt([...Object.keys(ICON), ...EXTRA_ICONS]), loadGearIcons(GEAR_ORDER, SLOTS)]);
     addStatues(SPR, ['emberpup', 'leafkit', 'puddlit', 'voltowl']); // the Hall of Fame's golden statues
     this.tileGround = await TileGround.load();
     Meta.load();
     setHeroLook(Meta.gender); // your look: the boy or the girl ranger trainee
+    this.dressHeroes();
     Shrine.load();
     Box.load();
     this.bankClosedRun();
@@ -228,6 +232,11 @@ export class Game {
     this.activeCombos = new Set();
     // the hero's sets and gear: team bonuses, hero stats, attack types, coins, materials, shard luck
     this.heroBonus = Meta.heroTeamBonus(heroId);
+    // the weapon worn: how its shots look (its set's colours), and a Legendary set's charged attack
+    this.shot = shotSkin(Meta.worn(heroId, 'main'));
+    this.power = this.heroBonus.power ? { n: 0, name: this.heroBonus.power } : null;
+    this.charging = false;
+    this.dressHeroes();
     this.runLength = story ? Infinity : Meta.runLength();
     this.coinMult = Meta.coinMult();
     this.wildMult = Meta.wildMult();
@@ -246,6 +255,9 @@ export class Game {
     P.recompute();
     P.hp = P.stats.maxHp;
     P.setMain(P.hero.weapon); // the hero's own weapon: 12 levels with three evolves
+    // what the gear sets worn do in this run (marks, blocks, falling stars...), and to the weapon's stats
+    this.fx = makeFx(this, heroId);
+    if (P.main && this.fx?.wstat) P.main.gs = this.fx.wstat;
     this.team = this.teamBonus();
     // the berry bar: berries you pick up fill it; when it's full the team gets an upgrade
     P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; P.houseBonus = 0; P.evolvePicks = 0;
@@ -308,6 +320,7 @@ export class Game {
     if (this.scene) this.endScene(true);
     this.mode = 'end'; this.modal = null; this.endWon = won;
     this.timers = []; this.shakeT = 0; // attacks still on their way don't land (or shake) after the run
+    this.fx = null; // (and the gear sets' effects end with it)
     // the mon EXP pool (what your survivalmons defeated) is split evenly between everyone on the team
     const pool = Math.round((this.monPool || 0) * P.stats.petXp);
     if (pool > 0 && P.pets.length) {
@@ -468,6 +481,7 @@ export class Game {
     for (const e of this.enemies) if (!e.dead && !e.hidden && !e.fainted) this.enemyHash.insert(e);
     P.update(dt);
     if (this.mode !== 'world') return;
+    this.fx?.tick?.(dt);
     this.world.activate(P.x, P.y);
     this.updateZone(dt);
     this.world.updateFlow(P.x, P.y);
@@ -629,7 +643,8 @@ export class Game {
     Audio.play(c.type === 'chest' || c.type === 'altar' ? 'chest' : 'open');
     this.particles.burst(cx, cy + 6, { n: 12, colors: ['#ffe07a', '#ffffff', '#c8a46a'], speed: 50, life: 0.5, up: 20 });
     if (c.type === 'gold') this.particles.burst(cx, cy + 8, { n: 26, colors: ['#ffe07a', '#ffd23a', '#fff6c8'], speed: 80, life: 0.7, up: 40, gravity: 120 });
-    this.applyDrops(res, cx, cy);
+    this.applyDrops(res, cx, cy, c.type === 'chest');
+    if (c.type === 'chest') this.fx?.chest?.();
     // searched out once everything is open, the basement too (once it has been found)
     const up = this.house.interior, all = [...up.containers, ...(up.cellar?.containers || [])];
     if (all.every((k) => k.opened) && (!up.hatch || up.cellar)) {
@@ -641,7 +656,8 @@ export class Game {
   openWorldChest(n) {
     const P = this.player;
     Audio.play('chest');
-    this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood', wild: true }), P.x, P.y - 14);
+    this.applyDrops(rollContainer(P, { type: 'chest', tier: n > 1 ? 'gold' : 'wood', wild: true }), P.x, P.y - 14, true);
+    this.fx?.chest?.();
   }
   // The zone you're in (checked twice a second); the HUD shows it under the radar.
   updateZone(dt) {
@@ -652,10 +668,13 @@ export class Game {
     if (z === this.zoneNow) return;
     this.zoneNow = z;
   }
-  applyDrops(res, cx, cy) {
+  applyDrops(res, cx, cy, chest = false) {
     const P = this.player;
     for (const d of res.drops) {
-      if (d.kind === 'coin') { P.coins += d.value; this.runStats.coins += d.value; this.particles.number(cx, cy + 18, d.value, 'crit'); Audio.play('coin'); }
+      if (d.kind === 'coin') {
+        const v = Math.round(d.value * (this.tierMult?.coins || 1) * (chest ? this.fx?.chestCoinK || 1 : 1)); // (a chest past a harder gate holds more)
+        P.coins += v; this.runStats.coins += v; this.particles.number(cx, cy + 18, v, 'crit'); Audio.play('coin');
+      }
       else if (d.kind === 'heart') P.heal(20 * P.stats.heartMult);
       else if (d.kind === 'xp') { P.addXp(d.value); this.particles.number(cx, cy + 18, d.value, 'xp'); }
       else if (d.kind === 'berry') this.feedTeam(d.value);
@@ -704,17 +723,31 @@ export class Game {
   }
   addMats(m) { for (const [k, v] of Object.entries(m)) this.player.mats[k] += Math.max(1, Math.round(v * (this.matMult || 1))); }
   gatherTime() { return Meta.gatherSpeed(); }
-  // A gear piece for a random hero (often the one you're playing): any of their 4 sets, never a
-  // piece you already own.
-  rollGear() {
-    const hero = this.player.hero.id, others = Object.keys(SETS).filter((h) => h !== hero);
-    const order = Math.random() < 0.6 ? [hero, ...others.sort(() => Math.random() - 0.5)] : [...others.sort(() => Math.random() - 0.5), hero];
-    for (const h of order) {
-      const free = [];
-      for (const set of HERO_SETS[h]) for (const s of SLOTS) if (!Meta.ownsPiece(h, s, set)) free.push({ hero: h, slot: s, set });
-      if (free.length) return choice(free);
-    }
-    return null;
+  // A gear piece: its tier first (Epic by the gate's chance: none at North Gate Lv 1, more with every
+  // gate; else Regular; want 'l': a Legendary piece, which only a Night Lord asks for), then a hero (6
+  // times in 10 the one you're playing; a Legendary piece is always theirs), then any of that hero's
+  // pieces of the tier. The pick is fully random: a piece you already have is as likely as one you don't
+  // (it is a blueprint then, or materials once it has all its stars: see collectGear).
+  rollGear(want) {
+    const hero = this.player.hero.id;
+    const h = want || Math.random() < 0.6 ? hero : choice(Object.keys(SETS).filter((x) => x !== hero));
+    const t = want || (Math.random() < epicChance(this.tier || 0) ? 'e' : 'r');
+    return { hero: h, slot: choice(SLOTS), set: choice(HERO_SETS[h].filter((id) => GEAR_SETS[id].tier === t)) };
+  }
+  // Every hero wearing all 6 pieces of one set takes that set's look (in town, in runs, on the menus);
+  // the hero's own set is their usual look. An outfit's sheet is loaded the first time it is worn.
+  dressHeroes() {
+    return Promise.all(Object.keys(SETS).map((hero) => {
+      const set = Meta.fullSet(hero);
+      if (!set || set === HERO_SETS[hero][0]) { setHeroOutfit(hero, null); return null; }
+      return loadOutfit(hero, set, Meta.gender).then((art) => { if (Meta.fullSet(hero) === set) setHeroOutfit(hero, art); });
+    }));
+  }
+  // A Legendary set's charged attack went off (see updateMain in content/evolve.js)
+  chargedFx() {
+    const P = this.player;
+    this.addEffect({ type: 'ring', x: P.x, y: P.y, R: 18, life: 0.3, color: '#ffe07a' });
+    this.particles.burst(P.x, P.y - 8, { n: 8, colors: ['#ffe07a', '#ffffff'], speed: 60, life: 0.3 });
   }
   dropGear(x, y) {
     const gear = this.rollGear();
@@ -723,9 +756,25 @@ export class Game {
   }
   collectGear(v) {
     const set = v.set || HERO_SETS[v.hero][0], name = pieceName(v.hero, set, v.slot), heroName = Meta.heroName(v.hero);
-    if (!Meta.addGear(v.hero, v.slot, set)) { this.addMats({ iron: 2, wood: 3 }); this.toast(`You already have ${name}: broke it down for materials`); return; }
+    const T = setTier(set);
+    if (Meta.ownsPiece(v.hero, v.slot, set)) {
+      // a piece you already have: a blueprint of it. Enough blueprints add a star to the piece.
+      const r = Meta.addBlueprint(v.hero, v.slot, set);
+      if (!r) { // it has all 5 stars: the piece turns into materials (more for a higher tier)
+        const m = SALVAGE[GEAR_SETS[set].tier];
+        this.addMats(m);
+        this.feed(`${name} has 5 stars: turned into ${Object.entries(m).map(([k, n]) => `${Math.max(1, Math.round(n * (this.matMult || 1)))} ${MATERIALS[k].name}`).join(', ')}`, T.color);
+        Audio.play('coin');
+        return;
+      }
+      if (r.up) { this.feed(`${'★'.repeat(r.stars)} ${heroName}'s ${name} now has ${r.stars} star${r.stars > 1 ? 's' : ''}!`, '#ffd84a'); Audio.play('levelup'); }
+      else { this.feed(`Blueprint: ${heroName}'s ${name} (${r.bp}/${r.need})`, T.color); Audio.play('chest'); }
+      this.ui.tip('blueprint');
+      return;
+    }
+    Meta.addGear(v.hero, v.slot, set);
     const locked = !Meta.isHeroUnlocked(v.hero);
-    this.feed(`Gear: ${heroName}'s ${name}! ${GEAR_SETS[set].name}${locked ? ` (waits until you unlock ${heroName})` : ''}`, GEAR_SETS[set].color);
+    this.feed(`${T.name} gear: ${heroName}'s ${name}${locked ? ` (waits until you unlock ${heroName})` : ''}`, T.color);
     if (Meta.unlock('workshop')) this.toast('The Workshop is open in town!');
     Audio.play('chest');
     this.ui.tip('gear');
@@ -863,8 +912,9 @@ export class Game {
       this.feed('An egg! It waits in your Hatchery', '#ffe07a');
       this.ui.tip('egg');
     } else {
-      this.player.coins += 30;
-      this.toast('Your Hatchery is full, so the egg became 30 coins.');
+      const v = Math.round(30 * (this.tierMult?.coins || 1));
+      this.player.coins += v;
+      this.toast(`Your Hatchery is full, so the egg became ${v} coins.`);
     }
     this.particles.burst(x, y - 6, { n: 16, colors: ['#ffe07a', '#ffffff'], speed: 60, life: 0.5, up: 20 });
     Audio.play('chest');
@@ -876,6 +926,7 @@ export class Game {
     P.heal(0.5 * n);
     if (!P.pets.length) { this.toast('Berries! (+HP) Bring survivalmons: berries power them up.'); return; }
     for (const pet of P.pets) pet.heal(0.75 * n);
+    this.fx?.berry?.(n);
     if (P.berries == null) { P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; }
     P.berries += n;
     while (P.berries >= P.teamNext) { P.berries -= P.teamNext; P.teamNext += 2; P.teamPicks++; }
@@ -937,7 +988,7 @@ export class Game {
   donePick(kind) {
     const P = this.player;
     if (kind === 'bonus') P.bonusPicks--; else if (kind === 'house') P.houseBonus--; else if (kind === 'skill') P.skillPicks--;
-    else if (kind === 'team') { P.teamPicks--; P.teamLevel++; } else if (kind === 'evolve') P.evolvePicks--; else P.pendingLevels--;
+    else if (kind === 'team') { P.teamPicks--; P.teamLevel++; } else if (kind === 'evolve') P.evolvePicks--; else { P.pendingLevels--; this.fx?.levelUp?.(); }
   }
   rerollLevelUp() { return levelUpOptions(this.player, this.levelKindNow); }
 
@@ -949,6 +1000,8 @@ export class Game {
     this.spawnPickup('chest', e.x - 10, e.y, 2);
     if (Math.random() < 0.35) this.spawnPickup('egg', e.x + 10, e.y);
     this.dropGear(e.x - 14, e.y + 6);
+    // a Night Lord from the East Gate on may leave a Legendary piece (more often with every gate)
+    if (e.type === 'night_lord' && Math.random() < legendChance(this.tier || 0)) { const g = this.rollGear('l'); if (g) this.spawnPickup('gear', e.x + 16, e.y + 8, g); }
     this.addMats({ wood: 4, stone: 4, clay: 2, iron: 2 });
     for (let i = 0; i < 12; i++) this.spawnPickup('coin', e.x + rand(-20, 20), e.y + rand(-14, 14), 3);
     for (let i = 0; i < 10; i++) this.spawnPickup('berry', e.x + rand(-20, 20), e.y + rand(-14, 14));
@@ -970,6 +1023,8 @@ export class Game {
     else if (this.modal === 'bag') this.ui.closeBag();
     else if (this.modal) this.ui.closeModal();
     this.modal = null;
+    // gear still on the ground comes along (the Night Lord's own drops land as the run ends)
+    for (const k of this.pickups) if (k.kind === 'gear' && !k.taken) { k.taken = true; this.collectGear(k.value); }
     const id = FRIEND_AT_TIER[this.tier || 0];
     if (id && (this.tier || 0) === Meta.gates && !Meta.isHeroUnlocked(id)) {
       this.clearEnemies();
@@ -1087,6 +1142,7 @@ export class Game {
 
     if (playing) {
       this.drawZones(ctx, cam);
+      this.fx?.draw?.(ctx, cam);
       this.drawPickups(ctx, cam);
       for (const w of this.player.weapons) if (WEAPONS[w.id].draw && w.id === 'thornaura') WEAPONS[w.id].draw(ctx, this, w, cam);
     }
@@ -1236,6 +1292,7 @@ export class Game {
     light(P.x, P.y - 8, 90, 0.95);
     for (const l of this.world.lights) light(l.x, l.y, l.r * 1.6, 1, true);
     for (const p of this.projectiles) if (p.glow) light(p.x, p.y - p.z, 26, 0.8, true);
+    for (const k of this.pickups) if (k.kind === 'gear') light(k.x, k.y - 12, 36, 0.85, true);
     for (const z of this.zones) if (z.glow) light(z.x, z.y, z.r * 1.8, 0.7, true);
     for (const e of this.effects) if (e.type === 'explosion' || e.type === 'zap') light(e.x ?? (e.pts && e.pts[e.pts.length - 1][0]), e.y ?? (e.pts && e.pts[e.pts.length - 1][1]), 60, 1 - e.age / e.maxLife, true);
     const ctx = this.ctx;

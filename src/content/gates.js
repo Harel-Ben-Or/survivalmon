@@ -3,6 +3,8 @@
 // then North Lv 2 ... up to the West Gate Lv 4, the last. Past each one the Blight is thicker (monsters
 // have more health and hit harder) and it pays a little more.
 // A gate's tier is how many gates came before it: North Lv 1 is 0, South Lv 1 is 1, ... West Lv 4 is 15.
+import { epicChance, legendChance } from './gear.js';
+
 export const GATE_SIDES = ['north', 'south', 'east', 'west'];
 export const GATE_MAX = 15;
 const SIDE_NAME = { north: 'North', south: 'South', east: 'East', west: 'West' };
@@ -18,14 +20,23 @@ export const gateColor = (tier) => GATE_COLOR[gateSide(tier)];
 export const GATE_HP = (t) => Math.pow(1 + 0.5 * t, 3);
 export const GATE_DMG = (t) => Math.pow(1 + 0.6 * t, 1.2);
 
-// What a tier does to a run. Monsters: hp and dmg. Rewards grow gently (coins, EXP for the hero's gems
-// and the survivalmons' kills, Spirit, evolution stones, materials) and wild survivalmons are more grown.
-// haze: how thick the Blight's purple haze hangs over the land.
+// Coins and materials grow with every gate (the player's call, 1.08): each gate pays GATE_COINS times the
+// coins of the gate before it (monsters, chests and anything else found) and GATE_MATS times the materials
+// (gathering spots, chests, bosses). So the North Gate pays what it always did (about 8,000 to 10,000 a
+// full run), the South Gate 1.6x, the East Gate 2.56x, the West Gate 4.1x, and on.
+// Spirit (what your survivalmons' kills and your catches earn) grows GATE_SPIRIT times a gate: Shrine
+// upgrades cost 1.35x a level, so 1.5 keeps Spirit in step with them the way coins are with the Training Hall.
+// An evolution stone is always a single stone, at any gate: only the chance of one grows.
+export const GATE_COINS = 1.6, GATE_MATS = 1.3, GATE_SPIRIT = 1.5;
+
+// What a tier does to a run. Monsters: hp and dmg. Coins, materials and Spirit: see above. The other rewards
+// grow gently (EXP for the hero's gems and the survivalmons' kills, the chance of an evolution stone)
+// and wild survivalmons are more grown. haze: how thick the Blight's purple haze hangs over the land.
 export function tierMult(tier) {
   return {
     hp: GATE_HP(tier), dmg: GATE_DMG(tier),
-    coins: 1 + 0.5 * tier, xp: 1 + 0.25 * tier, petXp: 1 + 0.25 * tier, spirit: 1 + 0.35 * tier,
-    stone: 1 + 0.25 * tier, mats: 1 + 0.25 * tier, wildLv: 4 * tier,
+    coins: Math.pow(GATE_COINS, tier), xp: 1 + 0.25 * tier, petXp: 1 + 0.25 * tier, spirit: Math.pow(GATE_SPIRIT, tier),
+    stone: 1 + 0.25 * tier, mats: Math.pow(GATE_MATS, tier), wildLv: 4 * tier,
     haze: tier ? Math.min(0.6, 0.3 + 0.03 * (tier - 1)) : 0,
   };
 }
@@ -33,5 +44,7 @@ export function tierMult(tier) {
 export function gateBlurb(tier) {
   if (!tier) return 'Where the Blight first fell. Monsters and rewards as you know them.';
   const m = tierMult(tier), x = (v) => `×${v >= 10 ? Math.round(v).toLocaleString() : +v.toFixed(1)}`;
-  return `The Blight is thicker: monsters have ${x(m.hp)} health and hit ${x(m.dmg)} harder. Rewards: ${x(m.coins)} coins, ${x(m.spirit)} Spirit, ${x(m.xp)} EXP, wild survivalmons ${m.wildLv} levels higher.`;
+  const ep = Math.round(epicChance(tier) * 100), lg = Math.round(legendChance(tier) * 100);
+  const gear = ` Gear: ${ep}% of drops are Epic${lg ? `, and the Night Lord leaves a Legendary piece ${lg}% of the time` : ''}.`;
+  return `The Blight is thicker: monsters have ${x(m.hp)} health and hit ${x(m.dmg)} harder. Rewards: ${x(m.coins)} coins, ${x(m.mats)} materials, ${x(m.spirit)} Spirit, ${x(m.xp)} EXP, wild survivalmons ${m.wildLv} levels higher.${gear}`;
 }

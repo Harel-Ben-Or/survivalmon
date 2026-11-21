@@ -275,6 +275,11 @@ export class Enemy {
         ctx.fillRect(Math.round(fx + Math.cos(ang) * 6), Math.round(top - 3 + Math.sin(ang) * 2), 1, 1);
       }
     }
+    if (this.fxPipT > t) { // a gear set's mark on this foe (a hunter's mark, bleeding...): a small diamond over its head
+      const px = Math.round(fx), py = Math.round(top - 5);
+      ctx.fillStyle = '#2b1d24'; ctx.fillRect(px - 2, py - 1, 5, 3); ctx.fillRect(px - 1, py - 2, 3, 5);
+      ctx.fillStyle = this.fxPip; ctx.fillRect(px - 1, py - 1, 3, 3);
+    }
     if (this.catchable) {
       const my = Math.round(top - 6 + Math.sin(t * 4) * 1.5);
       ctx.fillStyle = '#2b1d24'; ctx.fillRect(Math.round(fx) - 3, my - 1, 7, 7);

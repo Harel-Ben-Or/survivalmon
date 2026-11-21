@@ -17,7 +17,7 @@ export const BUILDINGS = {
   merchant: { name: 'Merchant', bonus: { stock: MERCHANT_STOCK },
     levelText: (L) => `Sells grade ${GRADES[L - 1]} goods, ${MERCHANT_STOCK[L - 1]} kinds` },
   workshop: { name: 'Workshop', bonus: { cap: [10, 20, 30, 40, 50], tools: [2, 4, 6, 8, 10] },
-    levelText: (L) => `Gear slots go up to level ${[10, 20, 30, 40, 50][L - 1]}; tools up to level ${2 * L}` },
+    levelText: (L) => `Gear pieces go up to level ${[10, 20, 30, 40, 50][L - 1]}; tools up to level ${2 * L}` },
   shrine: { name: 'Spirit Shrine', bonus: { cap: [5, 10, 15, 20, 25], research: [1, 2, 3, 4, 5] },
     levelText: (L) => `Shrine upgrades go up to level ${[5, 10, 15, 20, 25][L - 1]}; ${[1, 2, 3, 4, 5][L - 1]} tier research levels` },
 };

@@ -246,6 +246,7 @@ function catchRang(g, p) {
   if (st.r2 === 'burst') blades(g, st, P.x, P.y);
   if (st.r2 === 'quake') quake(g, st, P.x, P.y);
   if (st.r2 === 'echo') echo(g, p);
+  g.fx?.caught?.(p); // (gear sets that reward a catch)
 }
 
 // ------------------------------------------------------------ Twin Throw: Whirl, Orbit, Return Burst

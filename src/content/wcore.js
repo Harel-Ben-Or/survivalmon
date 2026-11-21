@@ -39,6 +39,9 @@ export function chainBolt(g, e, dmg, n = 2, r = 80, st = null) {
 // stacks, cap, burnK, burn, glowT, glowK, iceHits, noChain, small, silent, element }
 export function wHit(g, e, dmg, st, x = {}) {
   if (!e || e.dead || e.hidden || e.fainted) return { crit: false, dmg: 0 };
+  // the gear sets worn (systems/setfx.js) hear of every weapon hit; a hit they make themselves (x.fx) doesn't count
+  const F = x.fx ? null : g.fx;
+  F?.hitX?.(e, st, x);
   const el = st.el;
   const o = {
     knock: x.knock ?? st.knock ?? 0, kx: x.kx, ky: x.ky, stun: x.stun, freeze: x.freeze, chill: x.chill,
@@ -57,6 +60,7 @@ export function wHit(g, e, dmg, st, x = {}) {
   if (el === 'poison') addPoison(e, 0.15 * dmg, x.stacks || 1, x.cap || 5);
   if (el === 'bolt' && !x.noChain) chainBolt(g, e, dmg * 0.25, 2, 80, st); // 25%: at 30% it still cleared crowds 30% faster than the other elements
   if (el === 'glow') glowOn(e, x.glowT || 3, x.glowK || 0.25);
+  F?.hit?.(e, res, dmg, st, x);
   return res;
 }
 // The foe with the most HP within r (bosses first, then elites)

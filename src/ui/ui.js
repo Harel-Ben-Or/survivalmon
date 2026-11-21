@@ -136,7 +136,7 @@ export class UI {
     const n = Box.mons.length;
     const stats = fresh ? '' : [`${n} survivalmon${n === 1 ? '' : 's'}`, b.time > 0 ? `best run ${formatTime(b.time)}` : '', b.wins ? `${b.wins} win${b.wins > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ');
     const hello = fresh ? 'Welcome, ranger! Your adventure starts here.' : Meta.named ? `Welcome back, ${esc(Meta.playerName)}!` : 'Welcome back!';
-    const news = unseenUpdates(Meta.data.seenVersion).length > 0;
+    const news = unseenUpdates(Meta.data.seenVersion).length > 0 || Meta.giftWaiting(); // (updates not read yet, or a gift to claim)
     this.el.title.innerHTML = `
       <div class="title-ver">v${esc(gameVersion())}</div>
       <div class="title-main">
@@ -989,6 +989,7 @@ export class UI {
       case 'rank': Audio.play('click'); this.openRanking(); break;
       case 'rank-tab': case 'rank-mon': case 'rank-back': case 'rank-retry': case 'rank-toggle': this.rankAct(t.dataset.act, t); break;
       case 'news': this.closeModal(); this.openNews(); break;
+      case 'gift': this.claimNewsGift(t.dataset.v); break;
       case 'goal-claim': this.claimGoal(t.dataset.id); break;
       case 'install': {
         const p = window.__install;

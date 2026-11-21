@@ -2,9 +2,26 @@
 // The game went to 1.0 on 20 Nov 2026 and the list started over then. Every push to GitHub Pages
 // raises window.SURVIVALMON_VERSION in index.html one step (1.0, 1.01, 1.02, ... 1.09, 1.10) and adds
 // an entry here, written for players. A note is either a short line (a small fix or tweak: "Fixed a bug
-// when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change.
+// when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change. A bigger change
+// can show art above its text: img (a picture file, assets/news/...) and/or icons (a row of the game's
+// own icons, by id).
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
+  {
+    v: '1.08', date: '21 Nov 2026',
+    gift: { until: '2026-12-05', coins: 2000, shards: 100, gear: 'e' }, // (the player's choice, Nov 21)
+    notes: [
+      { h: 'The big gear update', img: 'assets/news/gear_heroes.png', t: "Gear has been rebuilt from the ground up. Every hero now has 6 sets: 3 Regular, 2 Epic and 1 Legendary. That is 30 sets and 180 pieces, and every piece has its own name and its own picture. Every piece you already found is still yours." },
+      { h: 'Epic and Legendary gear', icons: ['gear_ranger_main', 'gear_gale_main', 'gear_prospector_main', 'gear_hawkeye_main', 'gear_nightstalker_main', 'gear_skyfall_main'], t: "Epic pieces are stronger than Regular ones. They start dropping past the South Gate, a little more often with every gate. Legendary pieces are the strongest. In runs only a Night Lord leaves one, from the East Gate on, and more often at harder gates. A full Legendary set also charges every 5th attack with 3 times the damage, each in its own way: a falling star, scorched ground, a quake, a burst of sparks or a roar." },
+      { h: 'Every set plays its own way', t: "Wear 2, 4 or 6 pieces of a set to turn on its effects, and no two sets do the same thing. A few of them: the Gale set's dash blows foes away, the Sabertooth boomerang makes foes bleed, the Bulwark shield blocks a hit every 10 seconds, the Stormcaller wand calls lightning, and the Tinkerer sets down a turret that shoots for you." },
+      { h: 'Set weapons and outfits', t: "Every set has its own weapon. Your six sets hold six kinds of bow, and each one shoots its own kind of arrow. Wear all 6 pieces of one set and your hero changes into that set's outfit, in town and in runs." },
+      { h: 'A new Workshop', img: 'assets/news/workshop.jpg', t: "Your hero stands in the middle with the six gear slots around them. Tap a slot to see every piece that exists for it, and tap a piece to wear it or level it up. Under your hero, Active bonuses adds up everything you are wearing, whatever mix of sets it is. A level now belongs to the piece itself: every piece you had keeps the level its slot was at." },
+      { h: 'Blueprints and stars', t: "A gear piece you already have can drop again, and it comes as a blueprint of that piece. 5 blueprints give the piece its first star, and each star after that takes one more: 6, 7, 8, then 9. Every star makes the piece's own stat 10% stronger, up to 5 stars. A piece that already has 5 stars turns into materials when it drops again: the higher its tier, the more." },
+      { h: 'The Skyfall counter: lower prices, breed eggs and gear', t: "Eggs cost far fewer Skyfall Shards now: a Mystery Egg is 20, an egg of the day's species 40, a Bright Egg 60 and a Star Egg 120. Three breed eggs are new: a random breed for 500, a random breed with a skill of A or better for 800, and the day's breed with every skill at least A for 1,000. The counter also sells gear for the hero you play: a random Regular piece for 40, Epic for 100, Legendary for 400, and the day's Legendary piece for 800." },
+      { h: 'Gear drops you can spot', img: 'assets/news/drops.png', t: "Gear on the ground shines with a beam of light: pale blue for Regular, purple for Epic, gold for Legendary." },
+      'Rewards grow with every gate: each gate pays 1.6 times the coins, 1.5 times the Spirit and 1.3 times the materials of the gate before it. The flat coin boost from 1.07 is gone, so the North Gate pays what it did before.',
+    ],
+  },
   {
     v: '1.07', date: '21 Nov 2026',
     notes: [
@@ -65,6 +82,17 @@ export function verCmp(a, b) {
     if (d) return d;
   }
   return 0;
+}
+
+// A gift that comes with an update: an entry's `gift`, which every save can claim once on the What's
+// new page (Meta.claimGift): { until: 'YYYY-MM-DD' (the last day to claim it; none: no end), coins,
+// shards, spirit, mats: { wood, stone, clay, iron }, gear: 'r' | 'e' | 'l' (one random piece of that
+// tier for the hero the player plays) }.
+export const giftOpen = (e, now = Date.now()) => !!e?.gift && verCmp(e.v, gameVersion()) <= 0 && (!e.gift.until || now <= Date.parse(`${e.gift.until}T23:59:59`));
+const TIER_NAME = { r: 'Regular', e: 'Epic', l: 'Legendary' };
+export function giftText(G) {
+  const mats = Object.entries(G.mats || {}).map(([k, n]) => `${n} ${k}`);
+  return [G.coins && `${G.coins} coins`, G.shards && `${G.shards} Skyfall Shards`, G.spirit && `${G.spirit} Spirit`, ...mats, G.gear && `1 ${TIER_NAME[G.gear]} gear piece for your hero`].filter(Boolean).join(' · ');
 }
 
 // The updates this player hasn't read yet (newer than the last version they saw, up to the running one)

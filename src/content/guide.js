@@ -65,7 +65,8 @@ export const TIPS = {
   skillpick: ['A skill pick! One survivalmon skill goes up a grade for the rest of this run: D, C, B, A, then S.'],
   sunset: ["The sun is setting. The Blight grows stronger in the dark, and night creatures come out. They hate light: stay close to your lantern's glow."],
   swarm: ['A swarm of dark creatures! They come in a pack from one side. Keep moving and let them bunch up.'],
-  gear: ['Gear for your hero! Tamsin at the Workshop in town levels it up. Wear 2, 4 or 6 pieces of one set for its bonuses.'],
+  gear: ['Gear for your hero! Tamsin at the Workshop in town levels it up. Every set has its own effects: wear 2, 4 or 6 pieces of one set to turn them on. Purple light is Epic gear, gold is Legendary.'],
+  blueprint: ['A blueprint! A gear piece you already have comes as a blueprint of it. 5 blueprints add a star to that piece, and each star makes it 10% stronger, up to 5 stars. After that it turns into materials. Tamsin keeps count at the Workshop.'],
   stone: ['An evolution stone! Breeds evolve at Lv 30 and Lv 55 with a stone of their type. It waits at your Ranch.'],
   bag: [{ t: 'You have items in your bag! Open it with {bag} and tap one to use it. The run waits while the bag is open.', focus: '.bag-btn' }],
   shard: ["A Skyfall Shard! They're rare. Spend them at Mags' Skyfall counter, or to finish building upgrades right away."],
@@ -106,7 +107,7 @@ export const TIPS = {
     'Achievements live here too, and they pay Skyfall Shards. Check in now and then!',
   ],
   b_workshop: [
-    'Tamsin levels up the gear you find in runs. Wear 2, 4 or 6 pieces of one set for its bonuses, and mix sets as you like.',
+    'Tamsin levels up the gear you find in runs. Tap a slot around your hero to see its pieces. Every set has its own effects: wear 2, 4 or 6 pieces of one set to turn them on, and all 6 to take the set\'s look.',
     'The Tools tab makes you gather more wood, stone, clay and iron in runs.',
   ],
   b_merchant: [

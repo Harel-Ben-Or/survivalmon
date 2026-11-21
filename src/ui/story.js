@@ -165,7 +165,8 @@ export async function playOpening({ root = document.body, replay = false, onPick
     const wd = o.wdir || 'east';
     if (o.walk != null && a.walk?.[wd]) img = a.walk[wd][Math.floor(o.walk) % a.walk[wd].length];
     else if (o.dir) img = a.dirs[o.dir] || img;
-    g.drawImage(img, Math.round(x - (a.ax * k)), Math.round(y - a.ay * k), img.width * k, img.height * k);
+    const pad = (img.width - a.w) / 2; // (an outfit's walk frames are bigger than the standing sprite)
+    g.drawImage(img, Math.round(x - (a.ax + pad) * k), Math.round(y - (a.ay + pad) * k), img.width * k, img.height * k);
   };
   const hero = (x, y, k, o = {}) => someone('rowan', x, y, k, o);
   // a survivalmon (or a creature) walking or idling at backdrop scale

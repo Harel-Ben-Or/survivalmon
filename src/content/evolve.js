@@ -7,6 +7,7 @@
 // A tree: { name, icon, base: stats, steps: {2, 3}, r1: { key: Evolve } }
 //   Evolve: { name, desc, apply(s), steps: { L: { text, apply(s) } }, r2 | finals }
 // The element is the third path entry; finals[el] names the final form.
+import { POWER } from './gear.js';
 import { ELEMENTS, ELEMENT_IDS, pick } from './wcore.js';
 import { BOW } from './trees/bow.js';
 import { BOOMERANG } from './trees/boomerang.js';
@@ -44,6 +45,7 @@ export function wStats(w) {
   // balance: past level 4 the weapon's damage is trimmed a little more each level (down to 84% at
   // level 12), so a weapon-heavy run still leaves real work for your survivalmons
   if (w.level > 4) s.dmg *= 1 - 0.02 * (w.level - 4);
+  w.gs?.(s); // what the gear sets worn change about the weapon (systems/setfx.js)
   s.r1 = w.path[0]; s.r2 = w.path[1]; s.el = w.level >= 12 ? w.path[2] : null;
   w.st = s; w.stKey = `${w.level}|${w.path.join(',')}`;
   return s;
@@ -80,7 +82,17 @@ export function updateMain(g, w, dt) {
   T.tick?.(g, w, st, dt);
   w.cd -= dt;
   if (w.cd <= 0) {
-    const r = T.fire(g, w, st);
-    w.cd = r === false ? 0.15 : st.cd * S.cooldown;
+    // a Legendary set's power (all 6 pieces worn): every POWER.every-th attack is charged. It goes
+    // through the weapon's own attack with stronger stats, so every evolve and the element still apply.
+    // The gear sets worn may change this attack's stats first (every 4th hits harder, say), and hear of it after.
+    const pw = g.power, charged = !!pw && pw.n + 1 >= POWER.every, F = g.fx;
+    let s = F?.pre ? F.pre(w, st) : st;
+    if (charged) s = { ...s, dmg: s.dmg * POWER.mult, charged: true };
+    g.charging = charged;
+    const r = T.fire(g, w, s);
+    g.charging = false;
+    if (pw && r !== false) { pw.n = charged ? 0 : pw.n + 1; if (charged) g.chargedFx(); }
+    F?.fired?.(w, s, r !== false, charged && r !== false);
+    w.cd = r === false ? 0.15 : st.cd * S.cooldown * (F?.cdK ? F.cdK() : 1);
   }
 }

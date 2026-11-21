@@ -606,6 +606,11 @@ body.touch .t-news { right: calc(64px + env(safe-area-inset-right)); }
 .news-head b { font-size: 15px; color: var(--gold); }
 .news-head span { font-size: 12px; color: var(--muted); }
 .news-new { margin-left: auto; padding: 0 6px; border-radius: 6px; background: var(--gold); color: #1b1022; font: 800 11px/17px var(--font); font-style: normal; }
+.news-gift { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; padding: 6px 10px; border: 2px solid var(--gold); border-radius: 8px; background: rgba(255,216,74,.14); font-size: 13px; }
+.news-gift b { color: var(--gold); }
+.news-gift span { flex: 1; min-width: 150px; }
+.news-gift.got { border-color: var(--ink); background: rgba(0,0,0,.2); }
+.news-gift.got b { color: #9af08a; }
 .news-big h3 { margin: 0 0 2px; font-size: 14px; color: var(--text); }
 .news-big p { margin: 0; font-size: 13px; line-height: 1.35; color: var(--text); opacity: .9; }
 .news-small { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.35; color: var(--muted); }
@@ -1538,6 +1543,10 @@ body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
 .sky-eggs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
 .sky-egg { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px; text-align: center; background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; }
 .sky-egg.star { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,216,74,.35); }
+.sky-gear { border-color: var(--tc); }
+.sky-gear b { color: var(--tc); }
+.sky-gear .sky-pic img.shade { filter: brightness(0); opacity: .55; }
+.sky-gear .sky-pic i { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--tc); font: 800 22px var(--font); font-style: normal; text-shadow: 0 1px 0 #14101c; }
 .sky-egg b { font-size: 13px; }
 .sky-egg span.small { color: var(--muted); font-size: 11px; line-height: 1.25; flex: 1; }
 .sky-pic { position: relative; }
@@ -1619,3 +1628,71 @@ body.touch #hud .bag-btn { right: calc(58px + env(safe-area-inset-right)); }
   .card.evo-card .val { font-size: 12px; line-height: 1.25; }
   .lvl-evolve .lvl-sub { display: none; }
 }
+
+/* ---- Workshop gear (1.08): the hero with six slots around them, and the piece looked at */
+.wsx { display: grid; grid-template-columns: minmax(230px, 40%) 1fr; gap: 10px; align-items: start; }
+.ws-left { display: flex; flex-direction: column; gap: 6px; }
+.doll { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; padding: 8px; background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; }
+.doll-col { display: flex; flex-direction: column; gap: 6px; }
+.doll-mid { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; text-align: center; }
+.doll-mid b { font-size: 14px; }
+.doll-mid .small { color: var(--muted); font-size: 11px; }
+.doll-hero { width: 96px; height: 112px; object-fit: contain; }
+.dslot, .wpiece { position: relative; width: 52px; height: 52px; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.28); border: 2px solid var(--tc, var(--ink)); border-radius: 8px; color: var(--muted); font: 700 9px var(--font); cursor: pointer; }
+.dslot img, .wpiece img { width: 40px; height: 40px; object-fit: contain; }
+.dslot i, .wpiece i { position: absolute; right: 1px; bottom: 0; padding: 0 3px; border-radius: 4px; background: rgba(10,8,16,.8); color: var(--text); font: 800 9px/12px var(--font); font-style: normal; }
+.dslot.empty { border-style: dashed; }
+.pstar { position: absolute; left: 1px; top: 0; padding: 0 2px; border-radius: 4px; background: rgba(10,8,16,.8); color: var(--gold); font: 800 9px/12px var(--font); font-style: normal; }
+.wpiece.on .pstar { left: auto; right: 1px; }
+/* a piece's stars and its blueprints toward the next one */
+.wd-stars { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; }
+.wd-stars .stars { color: var(--gold); font-size: 15px; letter-spacing: 1px; line-height: 1; }
+.wd-stars .stars s { color: rgba(255,255,255,.2); text-decoration: none; }
+.wd-stars .bp { position: relative; min-width: 104px; padding: 1px 8px; border: 1px solid #5aa8e8; border-radius: 9px; background: rgba(40,90,150,.35); overflow: hidden; text-align: center; }
+.wd-stars .bp u { position: absolute; left: 0; top: 0; bottom: 0; background: #3a7ac8; }
+.wd-stars .bp b { position: relative; color: #e8f4ff; font: 800 11px/15px var(--font); }
+.wd-stars .bp.full { border-color: var(--gold); background: rgba(255,200,60,.18); }
+.wd-stars .small { color: var(--muted); font-size: 11px; }
+.dslot.sel, .wpiece.sel { box-shadow: 0 0 0 2px var(--gold); }
+.ws-detail { --tc: var(--ink); display: flex; flex-direction: column; gap: 8px; padding: 8px 10px; background: var(--panel-2); border: 2px solid var(--ink); border-top: 4px solid var(--tc); border-radius: 8px; min-width: 0; }
+.wd-head { display: flex; align-items: center; gap: 8px; }
+.wd-head > img { width: 44px; height: 44px; flex: none; object-fit: contain; }
+.wd-name { flex: 1; min-width: 0; }
+.wd-name b { font-size: 15px; }
+.wd-name .small { color: var(--muted); font-size: 12px; }
+.wd-tier { padding: 0 6px; border-radius: 8px; background: var(--tc); color: #14101c; font: 800 10px/15px var(--font); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.wd-on { padding: 2px 8px; border: 1px solid var(--gold); border-radius: 10px; color: var(--gold); font: 800 11px var(--font); }
+.wd-up { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; font-size: 12px; }
+.wd-up .next { flex: 1; min-width: 120px; color: var(--muted); }
+.wd-pieces { display: flex; flex-wrap: wrap; gap: 6px; }
+.wpiece { width: 46px; height: 46px; }
+.wpiece img { width: 34px; height: 34px; }
+.wpiece.on::after { content: '✓'; position: absolute; left: 2px; top: 0; color: var(--gold); font: 800 11px var(--font); }
+.wpiece.none { cursor: default; border-style: dashed; opacity: .8; }
+.wpiece.none img { filter: brightness(0); opacity: .45; }
+.wd-set { font-size: 12px; }
+/* Active bonuses, under the hero: the totals of everything worn, then each set's effects that are on */
+.ws-active { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; background: var(--panel-2); border: 2px solid var(--ink); border-radius: 8px; font-size: 12px; line-height: 1.3; }
+.wa-head { color: var(--gold); font: 800 11px var(--font); letter-spacing: .06em; text-transform: uppercase; }
+.wa-head i { color: var(--muted); font-style: normal; text-transform: none; letter-spacing: 0; }
+.wa-tot b { margin-right: 5px; color: var(--muted); font-weight: 800; }
+.wa-tot.off { color: var(--muted); }
+.wa-set { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.wa-set b { color: var(--tc, var(--text)); font-size: 12px; }
+@media (max-width: 620px) { .wsx { grid-template-columns: 1fr; } }
+@media (max-height: 480px) {
+  .dslot { width: 44px; height: 44px; } .dslot img { width: 34px; height: 34px; }
+  .doll { padding: 5px; gap: 4px; } .doll-col { gap: 4px; }
+  .doll-hero { width: 72px; height: 84px; }
+  .ws-detail { gap: 5px; padding: 6px 8px; }
+  .wd-head > img { width: 36px; height: 36px; }
+  .wpiece { width: 40px; height: 40px; } .wpiece img { width: 30px; height: 30px; }
+}
+.pg-workshop .ws-tabs { display: flex; gap: 4px; width: 100%; }
+.pg-workshop .ws-tabs .hero-chip { flex: 1; flex-direction: row; justify-content: center; gap: 4px; padding: 2px 4px; min-width: 0; font-size: 11px; }
+.pg-workshop .ws-tabs .hero-chip img { width: 22px; height: 22px; flex: none; }
+.pg-workshop .ws-tabs .hero-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* art in a What's new note: a picture, or a row of the game's icons */
+.news-img { display: block; width: 100%; max-width: 520px; height: auto; margin: 4px 0 6px; border: 2px solid var(--ink); border-radius: 8px; image-rendering: pixelated; }
+.news-icons { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 6px; }
+.news-icons img { width: 44px; height: 44px; padding: 3px; background: rgba(0,0,0,.28); border: 2px solid var(--ink); border-radius: 8px; }
