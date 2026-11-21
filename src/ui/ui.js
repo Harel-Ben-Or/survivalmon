@@ -31,6 +31,7 @@ import { armorPct } from '../systems/armor.js';
 import { cardRowsHTML } from './card_preview.js';
 import { itemName, itemText } from '../content/shop.js';
 import { unseenUpdates, gameVersion } from '../content/changelog.js';
+import { COMMUNITY_URL } from '../systems/community.js';
 // "1:05:12" / "4:30": time left on a town timer
 const countdown = (sec) => { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = Math.floor(sec % 60); return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; };
 
@@ -150,6 +151,7 @@ export class UI {
       <div class="title-bar">
         <button class="t-pill" data-act="help">❔ How to play</button>
         <button class="t-pill news-pill ${news ? 'glow' : ''}" data-act="news">✨ What's new</button>
+        <a class="t-pill" href="${COMMUNITY_URL}" target="_blank" rel="noopener" data-act="community">💬 Community</a>
         <button class="t-pill" data-act="profiles">👤 ${esc(Profiles.active.name)}</button>
         <button class="t-pill" data-act="controls">📱 ${this.controlsLabel()}</button>
         ${document.fullscreenEnabled && !standalone() ? '<button class="t-pill" data-act="fullscreen">⛶ Fullscreen</button>' : ''}
@@ -990,6 +992,8 @@ export class UI {
       case 'rank-tab': case 'rank-mon': case 'rank-back': case 'rank-retry': case 'rank-toggle': this.rankAct(t.dataset.act, t); break;
       case 'news': this.closeModal(); this.openNews(); break;
       case 'gift': this.claimNewsGift(t.dataset.v); break;
+      case 'community': this.communityOpened(); break; // (a real link: the browser opens the Discord invite itself)
+      case 'buginfo': this.copyBugInfo(); break;
       case 'goal-claim': this.claimGoal(t.dataset.id); break;
       case 'install': {
         const p = window.__install;

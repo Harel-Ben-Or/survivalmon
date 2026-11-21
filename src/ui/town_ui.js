@@ -11,6 +11,7 @@ import { SPECIES, DEX_IDS } from '../content/species.js';
 import { Box, monName } from '../systems/collection.js';
 import { Goals } from '../systems/goals.js';
 import { CHANGELOG, gameVersion, unseenUpdates, giftOpen, giftText } from '../content/changelog.js';
+import { COMMUNITY_URL, bugInfo } from '../systems/community.js';
 import { MATERIALS } from '../content/buildings.js';
 import { ITEMS } from '../content/shop.js';
 import { pickTile, skillName, viewMons, listBar, gridTile, listTools, lvDrawer, starBadge, stars, skillChips, statBars } from './mons_ui.js';
@@ -686,6 +687,20 @@ export const TownUI = {
     this.showTown();
   },
 
+  communityOpened() { Analytics.track('community_open'); },
+  // Copies a few lines for a bug report (version, device, how far the save is; no names). Where the
+  // page can't write to the clipboard, the text is shown to be copied by hand.
+  copyBugInfo() {
+    const text = bugInfo(this.g);
+    Analytics.track('bug_info');
+    const done = () => this.toast('Bug info copied. Paste it into your bug report.');
+    const show = () => {
+      this.openModal(`<div class="modal-box panel bug-box"><h2>Bug info</h2><p class="pg-note">Select these lines and copy them into your bug report:</p>
+        <textarea class="bug-info" readonly rows="5">${esc(text)}</textarea><div class="loot-actions"><button class="btn" data-act="close">Close</button></div></div>`);
+      this.el.modal.querySelector('.bug-info')?.select();
+    };
+    try { navigator.clipboard.writeText(text).then(done, show); } catch { show(); }
+  },
   // ------------------------------------------------------------ town menu (pause button / Esc)
   openTownMenu() {
     this.g.modal = 'townmenu';
@@ -710,7 +725,11 @@ export const TownUI = {
           <button class="btn secondary" data-act="profiles">👤 Players</button>
           <button class="btn secondary" data-act="title">Title screen</button>
         </div>
-        ${appVersion() ? `<div class="app-version">Version ${esc(appVersion())}</div>` : ''}
+        <div class="menu-foot">
+          <a class="btn small secondary" href="${COMMUNITY_URL}" target="_blank" rel="noopener" data-act="community">💬 Community</a>
+          <button class="btn small secondary" data-act="buginfo">🐞 Copy bug info</button>
+          ${appVersion() ? `<span class="app-version">Version ${esc(appVersion())}</span>` : ''}
+        </div>
       </div>`);
     this.modalKind = 'townmenu';
   },

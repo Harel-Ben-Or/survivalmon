@@ -80,6 +80,11 @@ img.px, canvas.px { image-rendering: pixelated; image-rendering: crisp-edges; }
 .title-bar { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 8px; }
 .t-pill { font: 700 13px var(--font); color: var(--text); background: rgba(16,10,24,.72); border: 2px solid rgba(255,255,255,.2); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
 .t-pill:hover { background: rgba(44,30,60,.88); }
+a.t-pill, a.btn { display: inline-block; text-decoration: none; text-align: center; } /* (the Community link is a real link, dressed as a button) */
+.bug-info { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 2px solid var(--ink); border-radius: 8px; background: rgba(0,0,0,.3); color: var(--text); font: 12px/1.4 ui-monospace, Consolas, monospace; resize: none; }
+.bug-box { max-width: 520px; }
+.menu-foot { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 10px; margin-top: 6px; } /* the town menu's last row: the community, bug info and the version */
+.menu-foot .app-version { margin: 0; }
 .t-pill.glow { border-color: var(--gold); color: #ffe9a0; box-shadow: 0 0 0 2px rgba(255,216,74,.3); animation: newsGlow 1.8s ease-in-out infinite; }
 .t-pill.go { background: #9af08a; color: #1d2a14; border-color: var(--ink); }
 .title-ver { position: absolute; top: calc(6px + env(safe-area-inset-top)); right: calc(10px + env(safe-area-inset-right)); font: 700 12px var(--font); color: rgba(255,255,255,.75); text-shadow: 1px 1px 0 #1b1022; }

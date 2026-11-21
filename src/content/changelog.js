@@ -8,6 +8,13 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.09', date: '21 Nov 2026',
+    notes: [
+      { h: 'Join the Survivalmon community', t: "The game now has a Discord server for updates, your ideas and bug reports. Tap Community on the title screen or in the town menu to join." },
+      "Found a bug? The town menu has a Copy bug info button. It copies the game's version and your device, ready to paste into your report. It holds nothing about who you are.",
+    ],
+  },
+  {
     v: '1.08', date: '21 Nov 2026',
     gift: { until: '2026-12-05', coins: 2000, shards: 100, gear: 'e' }, // (the player's choice, Nov 21)
     notes: [
