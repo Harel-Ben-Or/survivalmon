@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-mornstar 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 1.png",
+   "frame": {
+    "x": 182,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 2.png",
+   "frame": {
+    "x": 364,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 3.png",
+   "frame": {
+    "x": 546,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 4.png",
+   "frame": {
+    "x": 0,
+    "y": 214,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 5.png",
+   "frame": {
+    "x": 182,
+    "y": 214,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 6.png",
+   "frame": {
+    "x": 364,
+    "y": 214,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 7.png",
+   "frame": {
+    "x": 546,
+    "y": 214,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 8.png",
+   "frame": {
+    "x": 0,
+    "y": 428,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 9.png",
+   "frame": {
+    "x": 182,
+    "y": 428,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 10.png",
+   "frame": {
+    "x": 364,
+    "y": 428,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 11.png",
+   "frame": {
+    "x": 546,
+    "y": 428,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 12.png",
+   "frame": {
+    "x": 0,
+    "y": 642,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 13.png",
+   "frame": {
+    "x": 182,
+    "y": 642,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mornstar 14.png",
+   "frame": {
+    "x": 364,
+    "y": 642,
+    "w": 182,
+    "h": 214
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 182,
+    "h": 214
+   },
+   "sourceSize": {
+    "w": 182,
+    "h": 214
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.780373831775701
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-mornstar.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 728,
+   "h": 856
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 91,
+   "y": 167
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-mornstar",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

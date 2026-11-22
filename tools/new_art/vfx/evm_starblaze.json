@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evm-starblaze 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 1.png",
+   "frame": {
+    "x": 69,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 2.png",
+   "frame": {
+    "x": 138,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 3.png",
+   "frame": {
+    "x": 0,
+    "y": 30,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 4.png",
+   "frame": {
+    "x": 69,
+    "y": 30,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 5.png",
+   "frame": {
+    "x": 138,
+    "y": 30,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 6.png",
+   "frame": {
+    "x": 0,
+    "y": 60,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-starblaze 7.png",
+   "frame": {
+    "x": 69,
+    "y": 60,
+    "w": 69,
+    "h": 30
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 69,
+    "h": 30
+   },
+   "sourceSize": {
+    "w": 69,
+    "h": 30
+   },
+   "pivot": {
+    "x": 0.782608695652174,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evm-starblaze.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 207,
+   "h": 90
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 54,
+   "y": 15
+  },
+  "frameTags": [
+   {
+    "name": "sm-evm-starblaze",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-mystwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 1.png",
+   "frame": {
+    "x": 130,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 2.png",
+   "frame": {
+    "x": 260,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 3.png",
+   "frame": {
+    "x": 390,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 228,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 5.png",
+   "frame": {
+    "x": 130,
+    "y": 228,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 6.png",
+   "frame": {
+    "x": 260,
+    "y": 228,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 7.png",
+   "frame": {
+    "x": 390,
+    "y": 228,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 456,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 9.png",
+   "frame": {
+    "x": 130,
+    "y": 456,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 10.png",
+   "frame": {
+    "x": 260,
+    "y": 456,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 11.png",
+   "frame": {
+    "x": 390,
+    "y": 456,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 684,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 13.png",
+   "frame": {
+    "x": 130,
+    "y": 684,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-mystwyvern 14.png",
+   "frame": {
+    "x": 260,
+    "y": 684,
+    "w": 130,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7807017543859649
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-mystwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 520,
+   "h": 912
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 65,
+   "y": 178
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-mystwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

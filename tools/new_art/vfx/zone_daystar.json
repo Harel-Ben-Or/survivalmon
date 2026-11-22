@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-zone-daystar 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 1.png",
+   "frame": {
+    "x": 114,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 2.png",
+   "frame": {
+    "x": 228,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 3.png",
+   "frame": {
+    "x": 342,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 4.png",
+   "frame": {
+    "x": 0,
+    "y": 92,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 5.png",
+   "frame": {
+    "x": 114,
+    "y": 92,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 6.png",
+   "frame": {
+    "x": 228,
+    "y": 92,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 7.png",
+   "frame": {
+    "x": 342,
+    "y": 92,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 8.png",
+   "frame": {
+    "x": 0,
+    "y": 184,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-daystar 9.png",
+   "frame": {
+    "x": 114,
+    "y": 184,
+    "w": 114,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 114,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 114,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-zone-daystar.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 456,
+   "h": 276
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 57,
+   "y": 46
+  },
+  "frameTags": [
+   {
+    "name": "sm-zone-daystar",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

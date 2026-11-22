@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-orbiter 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 1.png",
+   "frame": {
+    "x": 204,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 2.png",
+   "frame": {
+    "x": 408,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 3.png",
+   "frame": {
+    "x": 612,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 4.png",
+   "frame": {
+    "x": 0,
+    "y": 163,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 5.png",
+   "frame": {
+    "x": 204,
+    "y": 163,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 6.png",
+   "frame": {
+    "x": 408,
+    "y": 163,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 7.png",
+   "frame": {
+    "x": 612,
+    "y": 163,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 8.png",
+   "frame": {
+    "x": 0,
+    "y": 326,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 9.png",
+   "frame": {
+    "x": 204,
+    "y": 326,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 10.png",
+   "frame": {
+    "x": 408,
+    "y": 326,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 11.png",
+   "frame": {
+    "x": 612,
+    "y": 326,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 12.png",
+   "frame": {
+    "x": 0,
+    "y": 489,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-orbiter 13.png",
+   "frame": {
+    "x": 204,
+    "y": 489,
+    "w": 204,
+    "h": 163
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 204,
+    "h": 163
+   },
+   "sourceSize": {
+    "w": 204,
+    "h": 163
+   },
+   "pivot": {
+    "x": 0.4852941176470588,
+    "y": 0.5337423312883436
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-orbiter.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 816,
+   "h": 652
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 99,
+   "y": 87
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-orbiter",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

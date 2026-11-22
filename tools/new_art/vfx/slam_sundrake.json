@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-slam-sundrake 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 1.png",
+   "frame": {
+    "x": 190,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 2.png",
+   "frame": {
+    "x": 380,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 3.png",
+   "frame": {
+    "x": 570,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 4.png",
+   "frame": {
+    "x": 0,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 5.png",
+   "frame": {
+    "x": 190,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 6.png",
+   "frame": {
+    "x": 380,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 7.png",
+   "frame": {
+    "x": 570,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 8.png",
+   "frame": {
+    "x": 0,
+    "y": 320,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-sundrake 9.png",
+   "frame": {
+    "x": 190,
+    "y": 320,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-slam-sundrake.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 760,
+   "h": 480
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 95,
+   "y": 84
+  },
+  "frameTags": [
+   {
+    "name": "sm-slam-sundrake",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

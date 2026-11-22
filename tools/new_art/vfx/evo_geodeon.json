@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-geodeon 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 1.png",
+   "frame": {
+    "x": 196,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 2.png",
+   "frame": {
+    "x": 392,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 3.png",
+   "frame": {
+    "x": 588,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 4.png",
+   "frame": {
+    "x": 0,
+    "y": 166,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 5.png",
+   "frame": {
+    "x": 196,
+    "y": 166,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 6.png",
+   "frame": {
+    "x": 392,
+    "y": 166,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 7.png",
+   "frame": {
+    "x": 588,
+    "y": 166,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 8.png",
+   "frame": {
+    "x": 0,
+    "y": 332,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 9.png",
+   "frame": {
+    "x": 196,
+    "y": 332,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 10.png",
+   "frame": {
+    "x": 392,
+    "y": 332,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 11.png",
+   "frame": {
+    "x": 588,
+    "y": 332,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 12.png",
+   "frame": {
+    "x": 0,
+    "y": 498,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geodeon 13.png",
+   "frame": {
+    "x": 196,
+    "y": 498,
+    "w": 196,
+    "h": 166
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 166
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 166
+   },
+   "pivot": {
+    "x": 0.5102040816326531,
+    "y": 0.5783132530120482
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-geodeon.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 784,
+   "h": 664
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 100,
+   "y": 96
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-geodeon",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

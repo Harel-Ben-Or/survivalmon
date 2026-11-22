@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evm-blazeram 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 1.png",
+   "frame": {
+    "x": 67,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 2.png",
+   "frame": {
+    "x": 134,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 3.png",
+   "frame": {
+    "x": 0,
+    "y": 28,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 4.png",
+   "frame": {
+    "x": 67,
+    "y": 28,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 5.png",
+   "frame": {
+    "x": 134,
+    "y": 28,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 6.png",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-blazeram 7.png",
+   "frame": {
+    "x": 67,
+    "y": 56,
+    "w": 67,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 28
+   },
+   "pivot": {
+    "x": 0.7313432835820896,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evm-blazeram.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 201,
+   "h": 84
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 49,
+   "y": 14
+  },
+  "frameTags": [
+   {
+    "name": "sm-evm-blazeram",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

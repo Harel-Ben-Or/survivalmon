@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-wyrmcrown 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 1.png",
+   "frame": {
+    "x": 212,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 2.png",
+   "frame": {
+    "x": 424,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 3.png",
+   "frame": {
+    "x": 636,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 4.png",
+   "frame": {
+    "x": 0,
+    "y": 205,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 5.png",
+   "frame": {
+    "x": 212,
+    "y": 205,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 6.png",
+   "frame": {
+    "x": 424,
+    "y": 205,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 7.png",
+   "frame": {
+    "x": 636,
+    "y": 205,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 8.png",
+   "frame": {
+    "x": 0,
+    "y": 410,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 9.png",
+   "frame": {
+    "x": 212,
+    "y": 410,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 10.png",
+   "frame": {
+    "x": 424,
+    "y": 410,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 11.png",
+   "frame": {
+    "x": 636,
+    "y": 410,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 12.png",
+   "frame": {
+    "x": 0,
+    "y": 615,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 13.png",
+   "frame": {
+    "x": 212,
+    "y": 615,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wyrmcrown 14.png",
+   "frame": {
+    "x": 424,
+    "y": 615,
+    "w": 212,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-wyrmcrown.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 848,
+   "h": 820
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 106,
+   "y": 122
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-wyrmcrown",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-cometwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 1.png",
+   "frame": {
+    "x": 212,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 2.png",
+   "frame": {
+    "x": 424,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 3.png",
+   "frame": {
+    "x": 636,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 224,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 5.png",
+   "frame": {
+    "x": 212,
+    "y": 224,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 6.png",
+   "frame": {
+    "x": 424,
+    "y": 224,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 7.png",
+   "frame": {
+    "x": 636,
+    "y": 224,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 448,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 9.png",
+   "frame": {
+    "x": 212,
+    "y": 448,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 10.png",
+   "frame": {
+    "x": 424,
+    "y": 448,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 11.png",
+   "frame": {
+    "x": 636,
+    "y": 448,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 672,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 13.png",
+   "frame": {
+    "x": 212,
+    "y": 672,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cometwyvern 14.png",
+   "frame": {
+    "x": 424,
+    "y": 672,
+    "w": 212,
+    "h": 224
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 212,
+    "h": 224
+   },
+   "sourceSize": {
+    "w": 212,
+    "h": 224
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6383928571428571
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-cometwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 848,
+   "h": 896
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 106,
+   "y": 143
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-cometwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

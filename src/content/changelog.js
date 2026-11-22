@@ -1,12 +1,21 @@
 // What changed in each version, newest first, for the What's new page (town_ui: openNews).
 // The game went to 1.0 on 20 Nov 2026 and the list started over then. Every push to GitHub Pages
-// raises window.SURVIVALMON_VERSION in index.html one step (1.0, 1.01, 1.02, ... 1.09, 1.10) and adds
+// raises window.SURVIVALMON_VERSION in index.html one step (1.0, 1.01, 1.02, ... 1.09, 1.10, 1.11) and adds
 // an entry here, written for players. A note is either a short line (a small fix or tweak: "Fixed a bug
 // when Voltowl attacked") or { h: heading, t: a short paragraph } for a bigger change. A bigger change
 // can show art above its text: img (a picture file, assets/news/...) and/or icons (a row of the game's
 // own icons, by id).
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
+  {
+    v: '1.11', date: '22 Nov 2026',
+    notes: [
+      { h: 'Attacks of their own', img: 'assets/news/new_attacks.png', t: "The four new families no longer borrow the older survivalmons' attacks. They have 102 new effects: every breed has its own shot, spark, pool or ground ring, and every evolution has its own big move." },
+      { h: 'An egg for every new breed', icons: ['egg_light', 'egg_dragon', 'egg_mind', 'egg_cosmic', 'egg_raingleam', 'egg_frostwhelp', 'egg_riddlekit', 'egg_rockit'], t: "Each of the 50 new breeds now hatches from its own egg, and the Light, Dragon, Mind and Cosmic eggs were redrawn." },
+      { h: 'Redrawn survivalmons', t: "Darkmatter, Xenowyrm and Cosmodragon were redrawn as proper final forms. Cinderdrake, Blazewyrm, Emberlord and Sproutdrake grew horns, Starbud has a tail that matches its coat, and Planetoid has its two moons." },
+      "Clearer attack animations for Starpaw, Sagedrake, Singulynx, Zodiarch, Faedragon and Twilynx. Glorihorn keeps its halo, and Lumolith's beams stay on while it walks.",
+    ],
+  },
   {
     v: '1.10', date: '22 Nov 2026',
     notes: [

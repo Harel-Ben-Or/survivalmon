@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-rimewyrm 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 1.png",
+   "frame": {
+    "x": 224,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 2.png",
+   "frame": {
+    "x": 448,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 3.png",
+   "frame": {
+    "x": 672,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 4.png",
+   "frame": {
+    "x": 0,
+    "y": 207,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 5.png",
+   "frame": {
+    "x": 224,
+    "y": 207,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 6.png",
+   "frame": {
+    "x": 448,
+    "y": 207,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 7.png",
+   "frame": {
+    "x": 672,
+    "y": 207,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 8.png",
+   "frame": {
+    "x": 0,
+    "y": 414,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 9.png",
+   "frame": {
+    "x": 224,
+    "y": 414,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 10.png",
+   "frame": {
+    "x": 448,
+    "y": 414,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 11.png",
+   "frame": {
+    "x": 672,
+    "y": 414,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 12.png",
+   "frame": {
+    "x": 0,
+    "y": 621,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 13.png",
+   "frame": {
+    "x": 224,
+    "y": 621,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-rimewyrm 14.png",
+   "frame": {
+    "x": 448,
+    "y": 621,
+    "w": 224,
+    "h": 207
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 207
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 207
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5893719806763285
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-rimewyrm.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 896,
+   "h": 828
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 112,
+   "y": 122
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-rimewyrm",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

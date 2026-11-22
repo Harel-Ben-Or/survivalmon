@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-wondertoad 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 1.png",
+   "frame": {
+    "x": 166,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 2.png",
+   "frame": {
+    "x": 332,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 3.png",
+   "frame": {
+    "x": 498,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 4.png",
+   "frame": {
+    "x": 0,
+    "y": 205,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 5.png",
+   "frame": {
+    "x": 166,
+    "y": 205,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 6.png",
+   "frame": {
+    "x": 332,
+    "y": 205,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 7.png",
+   "frame": {
+    "x": 498,
+    "y": 205,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 8.png",
+   "frame": {
+    "x": 0,
+    "y": 410,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 9.png",
+   "frame": {
+    "x": 166,
+    "y": 410,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 10.png",
+   "frame": {
+    "x": 332,
+    "y": 410,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 11.png",
+   "frame": {
+    "x": 498,
+    "y": 410,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 12.png",
+   "frame": {
+    "x": 0,
+    "y": 615,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 13.png",
+   "frame": {
+    "x": 166,
+    "y": 615,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-wondertoad 14.png",
+   "frame": {
+    "x": 332,
+    "y": 615,
+    "w": 166,
+    "h": 205
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 166,
+    "h": 205
+   },
+   "sourceSize": {
+    "w": 166,
+    "h": 205
+   },
+   "pivot": {
+    "x": 0.5301204819277109,
+    "y": 0.5951219512195122
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-wondertoad.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 664,
+   "h": 820
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 88,
+   "y": 122
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-wondertoad",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

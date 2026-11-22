@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-zone-acidrake 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 1.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 2.png",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 3.png",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 4.png",
+   "frame": {
+    "x": 0,
+    "y": 90,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 5.png",
+   "frame": {
+    "x": 116,
+    "y": 90,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 6.png",
+   "frame": {
+    "x": 232,
+    "y": 90,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 7.png",
+   "frame": {
+    "x": 348,
+    "y": 90,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 8.png",
+   "frame": {
+    "x": 0,
+    "y": 180,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-acidrake 9.png",
+   "frame": {
+    "x": 116,
+    "y": 180,
+    "w": 116,
+    "h": 90
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 90
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 90
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5555555555555556
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-zone-acidrake.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 464,
+   "h": 270
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 58,
+   "y": 50
+  },
+  "frameTags": [
+   {
+    "name": "sm-zone-acidrake",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

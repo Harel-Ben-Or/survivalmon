@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-asteron 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 1.png",
+   "frame": {
+    "x": 196,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 2.png",
+   "frame": {
+    "x": 392,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 3.png",
+   "frame": {
+    "x": 588,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 4.png",
+   "frame": {
+    "x": 0,
+    "y": 178,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 5.png",
+   "frame": {
+    "x": 196,
+    "y": 178,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 6.png",
+   "frame": {
+    "x": 392,
+    "y": 178,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 7.png",
+   "frame": {
+    "x": 588,
+    "y": 178,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 8.png",
+   "frame": {
+    "x": 0,
+    "y": 356,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 9.png",
+   "frame": {
+    "x": 196,
+    "y": 356,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 10.png",
+   "frame": {
+    "x": 392,
+    "y": 356,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 11.png",
+   "frame": {
+    "x": 588,
+    "y": 356,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 12.png",
+   "frame": {
+    "x": 0,
+    "y": 534,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-asteron 13.png",
+   "frame": {
+    "x": 196,
+    "y": 534,
+    "w": 196,
+    "h": 178
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 178
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 178
+   },
+   "pivot": {
+    "x": 0.46938775510204084,
+    "y": 0.6292134831460674
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-asteron.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 784,
+   "h": 712
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 92,
+   "y": 112
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-asteron",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

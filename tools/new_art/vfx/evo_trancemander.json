@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-trancemander 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 1.png",
+   "frame": {
+    "x": 139,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 2.png",
+   "frame": {
+    "x": 278,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 3.png",
+   "frame": {
+    "x": 417,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 4.png",
+   "frame": {
+    "x": 0,
+    "y": 171,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 5.png",
+   "frame": {
+    "x": 139,
+    "y": 171,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 6.png",
+   "frame": {
+    "x": 278,
+    "y": 171,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 7.png",
+   "frame": {
+    "x": 417,
+    "y": 171,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 8.png",
+   "frame": {
+    "x": 0,
+    "y": 342,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 9.png",
+   "frame": {
+    "x": 139,
+    "y": 342,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 10.png",
+   "frame": {
+    "x": 278,
+    "y": 342,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 11.png",
+   "frame": {
+    "x": 417,
+    "y": 342,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 12.png",
+   "frame": {
+    "x": 0,
+    "y": 513,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 13.png",
+   "frame": {
+    "x": 139,
+    "y": 513,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-trancemander 14.png",
+   "frame": {
+    "x": 278,
+    "y": 513,
+    "w": 139,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 139,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 139,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5035971223021583,
+    "y": 0.7368421052631579
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-trancemander.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 556,
+   "h": 684
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 70,
+   "y": 126
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-trancemander",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

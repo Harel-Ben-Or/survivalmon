@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-irisfrog 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 1.png",
+   "frame": {
+    "x": 180,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 2.png",
+   "frame": {
+    "x": 360,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 3.png",
+   "frame": {
+    "x": 540,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 4.png",
+   "frame": {
+    "x": 0,
+    "y": 212,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 5.png",
+   "frame": {
+    "x": 180,
+    "y": 212,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 6.png",
+   "frame": {
+    "x": 360,
+    "y": 212,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 7.png",
+   "frame": {
+    "x": 540,
+    "y": 212,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 8.png",
+   "frame": {
+    "x": 0,
+    "y": 424,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 9.png",
+   "frame": {
+    "x": 180,
+    "y": 424,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 10.png",
+   "frame": {
+    "x": 360,
+    "y": 424,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 11.png",
+   "frame": {
+    "x": 540,
+    "y": 424,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 12.png",
+   "frame": {
+    "x": 0,
+    "y": 636,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 13.png",
+   "frame": {
+    "x": 180,
+    "y": 636,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-irisfrog 14.png",
+   "frame": {
+    "x": 360,
+    "y": 636,
+    "w": 180,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 180,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 180,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6273584905660378
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-irisfrog.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 720,
+   "h": 848
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 90,
+   "y": 133
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-irisfrog",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

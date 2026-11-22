@@ -1,0 +1,443 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-enigmacat 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 1.png",
+   "frame": {
+    "x": 216,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 2.png",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 3.png",
+   "frame": {
+    "x": 648,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 4.png",
+   "frame": {
+    "x": 0,
+    "y": 164,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 5.png",
+   "frame": {
+    "x": 216,
+    "y": 164,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 6.png",
+   "frame": {
+    "x": 432,
+    "y": 164,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 7.png",
+   "frame": {
+    "x": 648,
+    "y": 164,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 8.png",
+   "frame": {
+    "x": 0,
+    "y": 328,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 9.png",
+   "frame": {
+    "x": 216,
+    "y": 328,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 10.png",
+   "frame": {
+    "x": 432,
+    "y": 328,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 11.png",
+   "frame": {
+    "x": 648,
+    "y": 328,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 12.png",
+   "frame": {
+    "x": 0,
+    "y": 492,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 13.png",
+   "frame": {
+    "x": 216,
+    "y": 492,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 14.png",
+   "frame": {
+    "x": 432,
+    "y": 492,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-enigmacat 15.png",
+   "frame": {
+    "x": 648,
+    "y": 492,
+    "w": 216,
+    "h": 164
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 164
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 164
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-enigmacat.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 864,
+   "h": 656
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 108,
+   "y": 82
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-enigmacat",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ]
+ }
+}

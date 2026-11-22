@@ -313,19 +313,32 @@ function blank(c) {
 }
 
 // ---------------------------------------------------------------- loading
+// A big page of the Claude link's pack that is fetched on demand (the new families' sheets and effects).
+// Many of its pictures are often wanted at once (a Survidex page, a team joining a fight), so the page is
+// kept for a few seconds after its last use instead of being fetched and decoded again for each one.
+const PAGE_KEEP = 8000, pageCache = new Map();
+function lazyPage(url) {
+  let e = pageCache.get(url);
+  if (!e) { e = { img: loadImage(url), timer: 0 }; pageCache.set(url, e); }
+  clearTimeout(e.timer);
+  e.timer = setTimeout(() => pageCache.delete(url), PAGE_KEEP);
+  return e.img;
+}
+let ANIM_PACK = null, ART_BASE = 'assets/sprites'; // the Claude link's pack (null elsewhere) and where the art lives
 export async function loadArt(base = 'assets/sprites') {
   // The Claude link can hold only so many files, so there the animation sheets come packed into a few
   // big pages (creatures/anim/pack.json: page file names, and for each sheet [page, x, y, w, h]).
   // Elsewhere there is no pack and each sheet is its own file.
   const pack = await fetch(`${base}/creatures/anim/pack.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
   // (pages listed in pack.lazy hold only the new families' sheets: each is fetched when one of its sheets is wanted)
+  ANIM_PACK = pack; ART_BASE = base;
   const pages = pack ? await Promise.all(pack.pages.map((p, i) => (pack.lazy?.includes(i) ? null : loadImage(`${base}/creatures/anim/${p}`)))) : [];
   const packed = (id) => { const e = pack?.sheets[id]; return e && pages[e[0]] ? cut(pages[e[0]], e[1], e[2], e[3], e[4]) : null; };
   const A = await newAtlas(base);
   const later = (id) => async () => {
     const e = pack?.sheets[id];
     if (!e) return loadImage(`${base}/creatures/anim/${id}.png`);
-    const page = await loadImage(`${base}/creatures/anim/${pack.pages[e[0]]}`);
+    const page = await lazyPage(`${base}/creatures/anim/${pack.pages[e[0]]}`);
     return page ? cut(page, e[1], e[2], e[3], e[4]) : null;
   };
   await Promise.all(CREATURE_IDS.map(async (id) => {
@@ -736,13 +749,34 @@ export async function loadGearIcons(order, slots, base = 'assets/sprites/icons')
 
 // ---------------------------------------------------------------- attack effects
 // Animated effects drawn with PixelLab's effects tool, packed into atlas pages (see content/vfx_data.js).
+// The new families' effects (VFX_NEW there) are not loaded with the game: each is its own small picture
+// (vfx/new/<id>.png, built by tools/pack_vfx_new.py), fetched by warmVfx when a survivalmon that uses it
+// shows up. Until it arrives the effect draws nothing; its timing and damage do not wait for it.
 export const VFX = {};       // id -> { fps, loop, ax, ay, hit, f: frames, dur }
-const VFX_IMG = [];
+const VFX_IMG = [];          // the atlas pages
+const VFX_OWN = {};          // id -> a new-family effect's own picture (null while it is on its way)
+let VFX_BASE = 'assets/sprites/vfx';
 export async function loadVfxArt(base = 'assets/sprites/vfx') {
-  const { VFX_PAGES, VFX_DATA } = await import('../content/vfx_data.js').catch(() => ({ VFX_PAGES: 0, VFX_DATA: {} }));
+  const { VFX_PAGES, VFX_DATA, VFX_NEW = {} } = await import('../content/vfx_data.js').catch(() => ({ VFX_PAGES: 0, VFX_DATA: {} }));
   const imgs = await Promise.all(Array.from({ length: VFX_PAGES }, (_, i) => loadImage(`${base}/vfx_${i}.png`)));
   imgs.forEach((im, i) => { VFX_IMG[i] = im; });
+  VFX_BASE = base;
   for (const [id, d] of Object.entries(VFX_DATA)) VFX[id] = { ...d, dur: d.f.length / d.fps };
+  // (their frames are [x, y, w, h, offset x, offset y] in their own picture: the id stands in for the page)
+  for (const [id, d] of Object.entries(VFX_NEW)) VFX[id] = { ...d, own: true, f: d.f.map((f) => f && [id, ...f]), dur: d.f.length / d.fps };
+}
+// Starts fetching the pictures of these effects (the ones that are fetched on demand and not asked for yet)
+export function warmVfx(ids) {
+  for (const id of ids) {
+    if (!VFX[id]?.own || id in VFX_OWN) continue;
+    VFX_OWN[id] = null;
+    const e = ANIM_PACK?.vfx?.[id]; // the Claude link: [page, x, y, w, h] in a page of the anim pack
+    const got = e
+      ? lazyPage(`${ART_BASE}/creatures/anim/${ANIM_PACK.pages[e[0]]}`).then((page) => page && cut(page, e[1], e[2], e[3], e[4]))
+      : loadImage(`${VFX_BASE}/new/${id}.png`);
+    const again = () => setTimeout(() => { delete VFX_OWN[id]; }, 15000); // (it did not arrive: ask again later, not on every frame)
+    got.then((img) => { if (img) VFX_OWN[id] = img; else again(); }).catch(again);
+  }
 }
 export const hasVfx = (id) => !!(id && VFX[id]);
 // Seconds into an effect when its attack lands
@@ -755,8 +789,8 @@ export function drawVfx(ctx, id, t, x, y, o = {}) {
   if (v.loop) i %= v.f.length; else if (i >= v.f.length) return false;
   const f = v.f[Math.max(0, i)];
   if (!f) return true;
-  const img = VFX_IMG[f[0]];
-  if (!img) return true;
+  const img = v.own ? VFX_OWN[id] : VFX_IMG[f[0]];
+  if (!img) { if (v.own) warmVfx([id]); return true; }
   const s = (o.scale || 1) / WS;
   if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
   if (o.rot || o.flip) {

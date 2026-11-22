@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-zone-cometail 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 1.png",
+   "frame": {
+    "x": 111,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 2.png",
+   "frame": {
+    "x": 222,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 3.png",
+   "frame": {
+    "x": 333,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 4.png",
+   "frame": {
+    "x": 0,
+    "y": 82,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 5.png",
+   "frame": {
+    "x": 111,
+    "y": 82,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 6.png",
+   "frame": {
+    "x": 222,
+    "y": 82,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 7.png",
+   "frame": {
+    "x": 333,
+    "y": 82,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 8.png",
+   "frame": {
+    "x": 0,
+    "y": 164,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-cometail 9.png",
+   "frame": {
+    "x": 111,
+    "y": 164,
+    "w": 111,
+    "h": 82
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 111,
+    "h": 82
+   },
+   "sourceSize": {
+    "w": 111,
+    "h": 82
+   },
+   "pivot": {
+    "x": 0.4954954954954955,
+    "y": 0.5
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-zone-cometail.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 444,
+   "h": 246
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 55,
+   "y": 41
+  },
+  "frameTags": [
+   {
+    "name": "sm-zone-cometail",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

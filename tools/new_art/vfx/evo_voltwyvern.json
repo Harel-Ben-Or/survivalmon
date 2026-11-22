@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-voltwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 1.png",
+   "frame": {
+    "x": 125,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 2.png",
+   "frame": {
+    "x": 250,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 3.png",
+   "frame": {
+    "x": 375,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 228,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 5.png",
+   "frame": {
+    "x": 125,
+    "y": 228,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 6.png",
+   "frame": {
+    "x": 250,
+    "y": 228,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 7.png",
+   "frame": {
+    "x": 375,
+    "y": 228,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 456,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 9.png",
+   "frame": {
+    "x": 125,
+    "y": 456,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 10.png",
+   "frame": {
+    "x": 250,
+    "y": 456,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 11.png",
+   "frame": {
+    "x": 375,
+    "y": 456,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 684,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 13.png",
+   "frame": {
+    "x": 125,
+    "y": 684,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-voltwyvern 14.png",
+   "frame": {
+    "x": 250,
+    "y": 684,
+    "w": 125,
+    "h": 228
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 125,
+    "h": 228
+   },
+   "sourceSize": {
+    "w": 125,
+    "h": 228
+   },
+   "pivot": {
+    "x": 0.48,
+    "y": 0.7982456140350878
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-voltwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 500,
+   "h": 912
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 60,
+   "y": 182
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-voltwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

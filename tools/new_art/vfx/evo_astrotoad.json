@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-astrotoad 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 1.png",
+   "frame": {
+    "x": 206,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 2.png",
+   "frame": {
+    "x": 412,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 3.png",
+   "frame": {
+    "x": 618,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 4.png",
+   "frame": {
+    "x": 0,
+    "y": 215,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 5.png",
+   "frame": {
+    "x": 206,
+    "y": 215,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 6.png",
+   "frame": {
+    "x": 412,
+    "y": 215,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 7.png",
+   "frame": {
+    "x": 618,
+    "y": 215,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 8.png",
+   "frame": {
+    "x": 0,
+    "y": 430,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 9.png",
+   "frame": {
+    "x": 206,
+    "y": 430,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 10.png",
+   "frame": {
+    "x": 412,
+    "y": 430,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 11.png",
+   "frame": {
+    "x": 618,
+    "y": 430,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 12.png",
+   "frame": {
+    "x": 0,
+    "y": 645,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 13.png",
+   "frame": {
+    "x": 206,
+    "y": 645,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-astrotoad 14.png",
+   "frame": {
+    "x": 412,
+    "y": 645,
+    "w": 206,
+    "h": 215
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 215
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 215
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6325581395348837
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-astrotoad.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 824,
+   "h": 860
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 103,
+   "y": 136
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-astrotoad",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

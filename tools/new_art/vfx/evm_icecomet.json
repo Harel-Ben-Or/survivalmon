@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evm-icecomet 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 1.png",
+   "frame": {
+    "x": 68,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 2.png",
+   "frame": {
+    "x": 136,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 3.png",
+   "frame": {
+    "x": 0,
+    "y": 34,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 4.png",
+   "frame": {
+    "x": 68,
+    "y": 34,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 5.png",
+   "frame": {
+    "x": 136,
+    "y": 34,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 6.png",
+   "frame": {
+    "x": 0,
+    "y": 68,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-icecomet 7.png",
+   "frame": {
+    "x": 68,
+    "y": 68,
+    "w": 68,
+    "h": 34
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 34
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 34
+   },
+   "pivot": {
+    "x": 0.75,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evm-icecomet.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 204,
+   "h": 102
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 51,
+   "y": 17
+  },
+  "frameTags": [
+   {
+    "name": "sm-evm-icecomet",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-glyphstone 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 1.png",
+   "frame": {
+    "x": 189,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 2.png",
+   "frame": {
+    "x": 378,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 3.png",
+   "frame": {
+    "x": 567,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 4.png",
+   "frame": {
+    "x": 0,
+    "y": 141,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 5.png",
+   "frame": {
+    "x": 189,
+    "y": 141,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 6.png",
+   "frame": {
+    "x": 378,
+    "y": 141,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 7.png",
+   "frame": {
+    "x": 567,
+    "y": 141,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 8.png",
+   "frame": {
+    "x": 0,
+    "y": 282,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 9.png",
+   "frame": {
+    "x": 189,
+    "y": 282,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 10.png",
+   "frame": {
+    "x": 378,
+    "y": 282,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 11.png",
+   "frame": {
+    "x": 567,
+    "y": 282,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 12.png",
+   "frame": {
+    "x": 0,
+    "y": 423,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glyphstone 13.png",
+   "frame": {
+    "x": 189,
+    "y": 423,
+    "w": 189,
+    "h": 141
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 141
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 141
+   },
+   "pivot": {
+    "x": 0.4708994708994709,
+    "y": 0.5460992907801419
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-glyphstone.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 756,
+   "h": 564
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 89,
+   "y": 77
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-glyphstone",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

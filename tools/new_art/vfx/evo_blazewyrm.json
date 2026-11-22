@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-blazewyrm 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 1.png",
+   "frame": {
+    "x": 178,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 2.png",
+   "frame": {
+    "x": 356,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 3.png",
+   "frame": {
+    "x": 534,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 4.png",
+   "frame": {
+    "x": 0,
+    "y": 171,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 5.png",
+   "frame": {
+    "x": 178,
+    "y": 171,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 6.png",
+   "frame": {
+    "x": 356,
+    "y": 171,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 7.png",
+   "frame": {
+    "x": 534,
+    "y": 171,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 8.png",
+   "frame": {
+    "x": 0,
+    "y": 342,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 9.png",
+   "frame": {
+    "x": 178,
+    "y": 342,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 10.png",
+   "frame": {
+    "x": 356,
+    "y": 342,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 11.png",
+   "frame": {
+    "x": 534,
+    "y": 342,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 12.png",
+   "frame": {
+    "x": 0,
+    "y": 513,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-blazewyrm 13.png",
+   "frame": {
+    "x": 178,
+    "y": 513,
+    "w": 178,
+    "h": 171
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 178,
+    "h": 171
+   },
+   "sourceSize": {
+    "w": 178,
+    "h": 171
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.4678362573099415
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-blazewyrm.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 712,
+   "h": 684
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 89,
+   "y": 80
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-blazewyrm",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-ironwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 1.png",
+   "frame": {
+    "x": 224,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 2.png",
+   "frame": {
+    "x": 448,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 3.png",
+   "frame": {
+    "x": 672,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 233,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 5.png",
+   "frame": {
+    "x": 224,
+    "y": 233,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 6.png",
+   "frame": {
+    "x": 448,
+    "y": 233,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 7.png",
+   "frame": {
+    "x": 672,
+    "y": 233,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 466,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 9.png",
+   "frame": {
+    "x": 224,
+    "y": 466,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 10.png",
+   "frame": {
+    "x": 448,
+    "y": 466,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 11.png",
+   "frame": {
+    "x": 672,
+    "y": 466,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 699,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 13.png",
+   "frame": {
+    "x": 224,
+    "y": 699,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-ironwyvern 14.png",
+   "frame": {
+    "x": 448,
+    "y": 699,
+    "w": 224,
+    "h": 233
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 233
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 233
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5836909871244635
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-ironwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 896,
+   "h": 932
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 112,
+   "y": 136
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-ironwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

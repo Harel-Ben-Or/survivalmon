@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-novatail 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 1.png",
+   "frame": {
+    "x": 216,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 2.png",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 3.png",
+   "frame": {
+    "x": 648,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 4.png",
+   "frame": {
+    "x": 0,
+    "y": 174,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 5.png",
+   "frame": {
+    "x": 216,
+    "y": 174,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 6.png",
+   "frame": {
+    "x": 432,
+    "y": 174,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 7.png",
+   "frame": {
+    "x": 648,
+    "y": 174,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 8.png",
+   "frame": {
+    "x": 0,
+    "y": 348,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 9.png",
+   "frame": {
+    "x": 216,
+    "y": 348,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 10.png",
+   "frame": {
+    "x": 432,
+    "y": 348,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 11.png",
+   "frame": {
+    "x": 648,
+    "y": 348,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 12.png",
+   "frame": {
+    "x": 0,
+    "y": 522,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 13.png",
+   "frame": {
+    "x": 216,
+    "y": 522,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-novatail 14.png",
+   "frame": {
+    "x": 432,
+    "y": 522,
+    "w": 216,
+    "h": 174
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 174
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 174
+   },
+   "pivot": {
+    "x": 0.4722222222222222,
+    "y": 0.7126436781609196
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-novatail.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 864,
+   "h": 696
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 102,
+   "y": 124
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-novatail",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

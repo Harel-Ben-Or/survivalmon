@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-glarewing 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 1.png",
+   "frame": {
+    "x": 164,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 2.png",
+   "frame": {
+    "x": 328,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 3.png",
+   "frame": {
+    "x": 492,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 4.png",
+   "frame": {
+    "x": 0,
+    "y": 249,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 5.png",
+   "frame": {
+    "x": 164,
+    "y": 249,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 6.png",
+   "frame": {
+    "x": 328,
+    "y": 249,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 7.png",
+   "frame": {
+    "x": 492,
+    "y": 249,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 8.png",
+   "frame": {
+    "x": 0,
+    "y": 498,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 9.png",
+   "frame": {
+    "x": 164,
+    "y": 498,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 10.png",
+   "frame": {
+    "x": 328,
+    "y": 498,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 11.png",
+   "frame": {
+    "x": 492,
+    "y": 498,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 12.png",
+   "frame": {
+    "x": 0,
+    "y": 747,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 13.png",
+   "frame": {
+    "x": 164,
+    "y": 747,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-glarewing 14.png",
+   "frame": {
+    "x": 328,
+    "y": 747,
+    "w": 164,
+    "h": 249
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 164,
+    "h": 249
+   },
+   "sourceSize": {
+    "w": 164,
+    "h": 249
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7269076305220884
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-glarewing.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 656,
+   "h": 996
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 82,
+   "y": 181
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-glarewing",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

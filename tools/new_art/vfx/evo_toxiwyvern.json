@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-toxiwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 1.png",
+   "frame": {
+    "x": 194,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 2.png",
+   "frame": {
+    "x": 388,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 3.png",
+   "frame": {
+    "x": 582,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 154,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 5.png",
+   "frame": {
+    "x": 194,
+    "y": 154,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 6.png",
+   "frame": {
+    "x": 388,
+    "y": 154,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 7.png",
+   "frame": {
+    "x": 582,
+    "y": 154,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 308,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 9.png",
+   "frame": {
+    "x": 194,
+    "y": 308,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 10.png",
+   "frame": {
+    "x": 388,
+    "y": 308,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 11.png",
+   "frame": {
+    "x": 582,
+    "y": 308,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 462,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 13.png",
+   "frame": {
+    "x": 194,
+    "y": 462,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-toxiwyvern 14.png",
+   "frame": {
+    "x": 388,
+    "y": 462,
+    "w": 194,
+    "h": 154
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 194,
+    "h": 154
+   },
+   "sourceSize": {
+    "w": 194,
+    "h": 154
+   },
+   "pivot": {
+    "x": 0.5051546391752577,
+    "y": 0.6493506493506493
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-toxiwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 776,
+   "h": 616
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 98,
+   "y": 100
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-toxiwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

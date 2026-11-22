@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-dawnwyvern 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 1.png",
+   "frame": {
+    "x": 224,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 2.png",
+   "frame": {
+    "x": 448,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 3.png",
+   "frame": {
+    "x": 672,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 4.png",
+   "frame": {
+    "x": 0,
+    "y": 170,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 5.png",
+   "frame": {
+    "x": 224,
+    "y": 170,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 6.png",
+   "frame": {
+    "x": 448,
+    "y": 170,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 7.png",
+   "frame": {
+    "x": 672,
+    "y": 170,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 8.png",
+   "frame": {
+    "x": 0,
+    "y": 340,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 9.png",
+   "frame": {
+    "x": 224,
+    "y": 340,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 10.png",
+   "frame": {
+    "x": 448,
+    "y": 340,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 11.png",
+   "frame": {
+    "x": 672,
+    "y": 340,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 12.png",
+   "frame": {
+    "x": 0,
+    "y": 510,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 13.png",
+   "frame": {
+    "x": 224,
+    "y": 510,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dawnwyvern 14.png",
+   "frame": {
+    "x": 448,
+    "y": 510,
+    "w": 224,
+    "h": 170
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 224,
+    "h": 170
+   },
+   "sourceSize": {
+    "w": 224,
+    "h": 170
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-dawnwyvern.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 896,
+   "h": 680
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 112,
+   "y": 85
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-dawnwyvern",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

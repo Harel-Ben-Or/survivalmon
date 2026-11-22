@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-starseer 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 1.png",
+   "frame": {
+    "x": 138,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 2.png",
+   "frame": {
+    "x": 276,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 3.png",
+   "frame": {
+    "x": 414,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 4.png",
+   "frame": {
+    "x": 0,
+    "y": 234,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 5.png",
+   "frame": {
+    "x": 138,
+    "y": 234,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 6.png",
+   "frame": {
+    "x": 276,
+    "y": 234,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 7.png",
+   "frame": {
+    "x": 414,
+    "y": 234,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 8.png",
+   "frame": {
+    "x": 0,
+    "y": 468,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 9.png",
+   "frame": {
+    "x": 138,
+    "y": 468,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 10.png",
+   "frame": {
+    "x": 276,
+    "y": 468,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 11.png",
+   "frame": {
+    "x": 414,
+    "y": 468,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 12.png",
+   "frame": {
+    "x": 0,
+    "y": 702,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 13.png",
+   "frame": {
+    "x": 138,
+    "y": 702,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starseer 14.png",
+   "frame": {
+    "x": 276,
+    "y": 702,
+    "w": 138,
+    "h": 234
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 138,
+    "h": 234
+   },
+   "sourceSize": {
+    "w": 138,
+    "h": 234
+   },
+   "pivot": {
+    "x": 0.4927536231884058,
+    "y": 0.7777777777777778
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-starseer.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 552,
+   "h": 936
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 68,
+   "y": 182
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-starseer",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

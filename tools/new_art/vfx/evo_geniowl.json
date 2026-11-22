@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-geniowl 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 1.png",
+   "frame": {
+    "x": 130,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 2.png",
+   "frame": {
+    "x": 260,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 3.png",
+   "frame": {
+    "x": 390,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 4.png",
+   "frame": {
+    "x": 0,
+    "y": 221,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 5.png",
+   "frame": {
+    "x": 130,
+    "y": 221,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 6.png",
+   "frame": {
+    "x": 260,
+    "y": 221,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 7.png",
+   "frame": {
+    "x": 390,
+    "y": 221,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 8.png",
+   "frame": {
+    "x": 0,
+    "y": 442,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 9.png",
+   "frame": {
+    "x": 130,
+    "y": 442,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 10.png",
+   "frame": {
+    "x": 260,
+    "y": 442,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 11.png",
+   "frame": {
+    "x": 390,
+    "y": 442,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 12.png",
+   "frame": {
+    "x": 0,
+    "y": 663,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 13.png",
+   "frame": {
+    "x": 130,
+    "y": 663,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-geniowl 14.png",
+   "frame": {
+    "x": 260,
+    "y": 663,
+    "w": 130,
+    "h": 221
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 130,
+    "h": 221
+   },
+   "sourceSize": {
+    "w": 130,
+    "h": 221
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7737556561085973
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-geniowl.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 520,
+   "h": 884
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 65,
+   "y": 171
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-geniowl",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

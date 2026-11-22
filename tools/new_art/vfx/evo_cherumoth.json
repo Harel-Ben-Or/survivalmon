@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-cherumoth 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 1.png",
+   "frame": {
+    "x": 250,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 2.png",
+   "frame": {
+    "x": 500,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 3.png",
+   "frame": {
+    "x": 750,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 4.png",
+   "frame": {
+    "x": 0,
+    "y": 232,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 5.png",
+   "frame": {
+    "x": 250,
+    "y": 232,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 6.png",
+   "frame": {
+    "x": 500,
+    "y": 232,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 7.png",
+   "frame": {
+    "x": 750,
+    "y": 232,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 8.png",
+   "frame": {
+    "x": 0,
+    "y": 464,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 9.png",
+   "frame": {
+    "x": 250,
+    "y": 464,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 10.png",
+   "frame": {
+    "x": 500,
+    "y": 464,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 11.png",
+   "frame": {
+    "x": 750,
+    "y": 464,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 12.png",
+   "frame": {
+    "x": 0,
+    "y": 696,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 13.png",
+   "frame": {
+    "x": 250,
+    "y": 696,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-cherumoth 14.png",
+   "frame": {
+    "x": 500,
+    "y": 696,
+    "w": 250,
+    "h": 232
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 250,
+    "h": 232
+   },
+   "sourceSize": {
+    "w": 250,
+    "h": 232
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6120689655172413
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-cherumoth.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1000,
+   "h": 928
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 125,
+   "y": 142
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-cherumoth",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

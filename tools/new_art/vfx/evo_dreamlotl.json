@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-dreamlotl 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 1.png",
+   "frame": {
+    "x": 116,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 2.png",
+   "frame": {
+    "x": 232,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 3.png",
+   "frame": {
+    "x": 348,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 4.png",
+   "frame": {
+    "x": 0,
+    "y": 213,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 5.png",
+   "frame": {
+    "x": 116,
+    "y": 213,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 6.png",
+   "frame": {
+    "x": 232,
+    "y": 213,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 7.png",
+   "frame": {
+    "x": 348,
+    "y": 213,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 8.png",
+   "frame": {
+    "x": 0,
+    "y": 426,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 9.png",
+   "frame": {
+    "x": 116,
+    "y": 426,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 10.png",
+   "frame": {
+    "x": 232,
+    "y": 426,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 11.png",
+   "frame": {
+    "x": 348,
+    "y": 426,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 12.png",
+   "frame": {
+    "x": 0,
+    "y": 639,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 13.png",
+   "frame": {
+    "x": 116,
+    "y": 639,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-dreamlotl 14.png",
+   "frame": {
+    "x": 232,
+    "y": 639,
+    "w": 116,
+    "h": 213
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 116,
+    "h": 213
+   },
+   "sourceSize": {
+    "w": 116,
+    "h": 213
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.784037558685446
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-dreamlotl.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 464,
+   "h": 852
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 58,
+   "y": 167
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-dreamlotl",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

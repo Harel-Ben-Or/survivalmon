@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-singulynx 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 1.png",
+   "frame": {
+    "x": 208,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 2.png",
+   "frame": {
+    "x": 416,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 3.png",
+   "frame": {
+    "x": 624,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 4.png",
+   "frame": {
+    "x": 0,
+    "y": 212,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 5.png",
+   "frame": {
+    "x": 208,
+    "y": 212,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 6.png",
+   "frame": {
+    "x": 416,
+    "y": 212,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 7.png",
+   "frame": {
+    "x": 624,
+    "y": 212,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 8.png",
+   "frame": {
+    "x": 0,
+    "y": 424,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 9.png",
+   "frame": {
+    "x": 208,
+    "y": 424,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 10.png",
+   "frame": {
+    "x": 416,
+    "y": 424,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 11.png",
+   "frame": {
+    "x": 624,
+    "y": 424,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 12.png",
+   "frame": {
+    "x": 0,
+    "y": 636,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 13.png",
+   "frame": {
+    "x": 208,
+    "y": 636,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-singulynx 14.png",
+   "frame": {
+    "x": 416,
+    "y": 636,
+    "w": 208,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 208,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 208,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6509433962264151
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-singulynx.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 832,
+   "h": 848
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 104,
+   "y": 138
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-singulynx",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

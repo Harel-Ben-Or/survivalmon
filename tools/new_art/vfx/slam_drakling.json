@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-slam-drakling 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 1.png",
+   "frame": {
+    "x": 190,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 2.png",
+   "frame": {
+    "x": 380,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 3.png",
+   "frame": {
+    "x": 570,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 4.png",
+   "frame": {
+    "x": 0,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 5.png",
+   "frame": {
+    "x": 190,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 6.png",
+   "frame": {
+    "x": 380,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 7.png",
+   "frame": {
+    "x": 570,
+    "y": 160,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 8.png",
+   "frame": {
+    "x": 0,
+    "y": 320,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-slam-drakling 9.png",
+   "frame": {
+    "x": 190,
+    "y": 320,
+    "w": 190,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 190,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 190,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.525
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-slam-drakling.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 760,
+   "h": 480
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 95,
+   "y": 84
+  },
+  "frameTags": [
+   {
+    "name": "sm-slam-drakling",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

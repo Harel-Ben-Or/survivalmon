@@ -1,0 +1,391 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-goldfang 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 1.png",
+   "frame": {
+    "x": 189,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 2.png",
+   "frame": {
+    "x": 378,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 3.png",
+   "frame": {
+    "x": 567,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 4.png",
+   "frame": {
+    "x": 0,
+    "y": 187,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 5.png",
+   "frame": {
+    "x": 189,
+    "y": 187,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 6.png",
+   "frame": {
+    "x": 378,
+    "y": 187,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 7.png",
+   "frame": {
+    "x": 567,
+    "y": 187,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 8.png",
+   "frame": {
+    "x": 0,
+    "y": 374,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 9.png",
+   "frame": {
+    "x": 189,
+    "y": 374,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 10.png",
+   "frame": {
+    "x": 378,
+    "y": 374,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 11.png",
+   "frame": {
+    "x": 567,
+    "y": 374,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 12.png",
+   "frame": {
+    "x": 0,
+    "y": 561,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-goldfang 13.png",
+   "frame": {
+    "x": 189,
+    "y": 561,
+    "w": 189,
+    "h": 187
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 189,
+    "h": 187
+   },
+   "sourceSize": {
+    "w": 189,
+    "h": 187
+   },
+   "pivot": {
+    "x": 0.5291005291005291,
+    "y": 0.6310160427807486
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-goldfang.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 756,
+   "h": 748
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 100,
+   "y": 118
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-goldfang",
+    "from": 0,
+    "to": 13,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-frostsage 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 1.png",
+   "frame": {
+    "x": 136,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 2.png",
+   "frame": {
+    "x": 272,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 3.png",
+   "frame": {
+    "x": 408,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 4.png",
+   "frame": {
+    "x": 0,
+    "y": 222,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 5.png",
+   "frame": {
+    "x": 136,
+    "y": 222,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 6.png",
+   "frame": {
+    "x": 272,
+    "y": 222,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 7.png",
+   "frame": {
+    "x": 408,
+    "y": 222,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 8.png",
+   "frame": {
+    "x": 0,
+    "y": 444,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 9.png",
+   "frame": {
+    "x": 136,
+    "y": 444,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 10.png",
+   "frame": {
+    "x": 272,
+    "y": 444,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 11.png",
+   "frame": {
+    "x": 408,
+    "y": 444,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 12.png",
+   "frame": {
+    "x": 0,
+    "y": 666,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 13.png",
+   "frame": {
+    "x": 136,
+    "y": 666,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-frostsage 14.png",
+   "frame": {
+    "x": 272,
+    "y": 666,
+    "w": 136,
+    "h": 222
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 136,
+    "h": 222
+   },
+   "sourceSize": {
+    "w": 136,
+    "h": 222
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7657657657657657
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-frostsage.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 544,
+   "h": 888
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 68,
+   "y": 170
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-frostsage",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

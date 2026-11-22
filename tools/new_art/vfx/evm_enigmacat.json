@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evm-enigmacat 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 1.png",
+   "frame": {
+    "x": 67,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 2.png",
+   "frame": {
+    "x": 134,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 3.png",
+   "frame": {
+    "x": 0,
+    "y": 33,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 4.png",
+   "frame": {
+    "x": 67,
+    "y": 33,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 5.png",
+   "frame": {
+    "x": 134,
+    "y": 33,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 6.png",
+   "frame": {
+    "x": 0,
+    "y": 66,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-evm-enigmacat 7.png",
+   "frame": {
+    "x": 67,
+    "y": 66,
+    "w": 67,
+    "h": 33
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 67,
+    "h": 33
+   },
+   "sourceSize": {
+    "w": 67,
+    "h": 33
+   },
+   "pivot": {
+    "x": 0.7611940298507462,
+    "y": 0.5151515151515151
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evm-enigmacat.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 201,
+   "h": 99
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 51,
+   "y": 17
+  },
+  "frameTags": [
+   {
+    "name": "sm-evm-enigmacat",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

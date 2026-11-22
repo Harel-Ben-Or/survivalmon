@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-neonmander 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 1.png",
+   "frame": {
+    "x": 170,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 2.png",
+   "frame": {
+    "x": 340,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 3.png",
+   "frame": {
+    "x": 510,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 4.png",
+   "frame": {
+    "x": 0,
+    "y": 193,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 5.png",
+   "frame": {
+    "x": 170,
+    "y": 193,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 6.png",
+   "frame": {
+    "x": 340,
+    "y": 193,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 7.png",
+   "frame": {
+    "x": 510,
+    "y": 193,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 8.png",
+   "frame": {
+    "x": 0,
+    "y": 386,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 9.png",
+   "frame": {
+    "x": 170,
+    "y": 386,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 10.png",
+   "frame": {
+    "x": 340,
+    "y": 386,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 11.png",
+   "frame": {
+    "x": 510,
+    "y": 386,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 12.png",
+   "frame": {
+    "x": 0,
+    "y": 579,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 13.png",
+   "frame": {
+    "x": 170,
+    "y": 579,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-neonmander 14.png",
+   "frame": {
+    "x": 340,
+    "y": 579,
+    "w": 170,
+    "h": 193
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 193
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 193
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.7409326424870466
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-neonmander.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 680,
+   "h": 772
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 85,
+   "y": 143
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-neonmander",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

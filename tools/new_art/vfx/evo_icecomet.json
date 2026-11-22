@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-icecomet 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 1.png",
+   "frame": {
+    "x": 216,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 2.png",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 3.png",
+   "frame": {
+    "x": 648,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 4.png",
+   "frame": {
+    "x": 0,
+    "y": 219,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 5.png",
+   "frame": {
+    "x": 216,
+    "y": 219,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 6.png",
+   "frame": {
+    "x": 432,
+    "y": 219,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 7.png",
+   "frame": {
+    "x": 648,
+    "y": 219,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 8.png",
+   "frame": {
+    "x": 0,
+    "y": 438,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 9.png",
+   "frame": {
+    "x": 216,
+    "y": 438,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 10.png",
+   "frame": {
+    "x": 432,
+    "y": 438,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 11.png",
+   "frame": {
+    "x": 648,
+    "y": 438,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 12.png",
+   "frame": {
+    "x": 0,
+    "y": 657,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 13.png",
+   "frame": {
+    "x": 216,
+    "y": 657,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-icecomet 14.png",
+   "frame": {
+    "x": 432,
+    "y": 657,
+    "w": 216,
+    "h": 219
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 216,
+    "h": 219
+   },
+   "sourceSize": {
+    "w": 216,
+    "h": 219
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5342465753424658
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-icecomet.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 864,
+   "h": 876
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 108,
+   "y": 117
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-icecomet",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

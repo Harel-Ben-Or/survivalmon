@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "sm-zone-neonewt 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 1.png",
+   "frame": {
+    "x": 110,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 2.png",
+   "frame": {
+    "x": 220,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 3.png",
+   "frame": {
+    "x": 330,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 4.png",
+   "frame": {
+    "x": 0,
+    "y": 86,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 5.png",
+   "frame": {
+    "x": 110,
+    "y": 86,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 6.png",
+   "frame": {
+    "x": 220,
+    "y": 86,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 7.png",
+   "frame": {
+    "x": 330,
+    "y": 86,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 8.png",
+   "frame": {
+    "x": 0,
+    "y": 172,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sm-zone-neonewt 9.png",
+   "frame": {
+    "x": 110,
+    "y": 172,
+    "w": 110,
+    "h": 86
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 110,
+    "h": 86
+   },
+   "sourceSize": {
+    "w": 110,
+    "h": 86
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 100
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-zone-neonewt.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 440,
+   "h": 258
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 55,
+   "y": 43
+  },
+  "frameTags": [
+   {
+    "name": "sm-zone-neonewt",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

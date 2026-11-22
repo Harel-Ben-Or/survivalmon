@@ -1,0 +1,183 @@
+{
+ "frames": [
+  {
+   "filename": "sm-pr-twilit 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-pr-twilit 1.png",
+   "frame": {
+    "x": 34,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-pr-twilit 2.png",
+   "frame": {
+    "x": 68,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-pr-twilit 3.png",
+   "frame": {
+    "x": 0,
+    "y": 24,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-pr-twilit 4.png",
+   "frame": {
+    "x": 34,
+    "y": 24,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "sm-pr-twilit 5.png",
+   "frame": {
+    "x": 68,
+    "y": 24,
+    "w": 34,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 34,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 34,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.6764705882352942,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-pr-twilit.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 102,
+   "h": 48
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 23,
+   "y": 12
+  },
+  "frameTags": [
+   {
+    "name": "sm-pr-twilit",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -3,6 +3,8 @@
 # {id: [page, x, y, w, h]}}). The game (gfx/art.js loadArt) uses the pack when pack.json is there and
 # the single sheets otherwise. The pack isn't committed; build it into a folder of its own and publish
 # it in place of the single sheets.
+# The new families' attack effects (assets/sprites/vfx/new/<id>.png, see tools/pack_vfx_new.py) share those
+# on-demand pages, listed in pack.json as vfx: {id: [page, x, y, w, h]}.
 #   python tools/pack_anims.py <out folder>
 import glob, json, os, sys
 from PIL import Image
@@ -20,12 +22,12 @@ atlas = os.path.join(ROOT, 'assets', 'sprites', 'creatures', 'new', 'atlas.json'
 later = set(json.load(open(atlas))['stills']) if os.path.exists(atlas) else set()
 sheets = sorted(((os.path.basename(p)[:-4], Image.open(p).convert('RGBA')) for p in glob.glob(os.path.join(SRC, '*.png'))
                  if not os.path.basename(p).startswith('pack')), key=lambda s: (-s[1].height, s[0]))
-names, where, lazy = [], {}, []
-def pack(group, size, prefix):
+names, where, lazy, vfx = [], {}, [], {}
+def pack(group, size, prefix):  # group: (id, picture, the map its place goes into)
     pages, page = [], None
     x = y = row_h = 0
     first = len(names)
-    for id_, im in group:
+    for id_, im, into in group:
         w, h = im.size
         if page is None or x + w > size:  # next row
             x, y, row_h = 0, y + row_h, 0
@@ -33,7 +35,7 @@ def pack(group, size, prefix):
             page = Image.new('RGBA', (size, size), (0, 0, 0, 0)); pages.append(page)
             x = y = row_h = 0
         page.paste(im, (x, y))
-        where[id_] = [first + len(pages) - 1, x, y, w, h]
+        into[id_] = [first + len(pages) - 1, x, y, w, h]
         x += w; row_h = max(row_h, h)
     for i, pg in enumerate(pages):
         bb = pg.getbbox()
@@ -42,8 +44,10 @@ def pack(group, size, prefix):
         pg.save(os.path.join(out, name), 'WEBP', lossless=True, exact=True, quality=100, method=6)
         names.append(name)
     return list(range(first, first + len(pages)))
-pack([s for s in sheets if s[0] not in later], PAGE, 'pack')
-lazy = pack([s for s in sheets if s[0] in later], PAGE_LAZY, 'packn')
-json.dump({'pages': names, 'sheets': where, 'lazy': lazy}, open(os.path.join(out, 'pack.json'), 'w'), separators=(',', ':'))
+pack([(i, im, where) for i, im in sheets if i not in later], PAGE, 'pack')
+effects = sorted(((os.path.basename(p)[:-4], Image.open(p).convert('RGBA')) for p in glob.glob(os.path.join(ROOT, 'assets', 'sprites', 'vfx', 'new', '*.png'))),
+                 key=lambda s: (-s[1].height, s[0]))
+lazy = pack(sorted([(i, im, where) for i, im in sheets if i in later] + [(i, im, vfx) for i, im in effects], key=lambda s: (-s[1].height, s[0])), PAGE_LAZY, 'packn')
+json.dump({'pages': names, 'sheets': where, 'lazy': lazy, 'vfx': vfx}, open(os.path.join(out, 'pack.json'), 'w'), separators=(',', ':'))
 size = sum(os.path.getsize(os.path.join(out, n)) for n in names)
-print(f'{len(where)} sheets in {len(names)} pages ({len(lazy)} of them fetched on demand), {size // 1024} KB')
+print(f'{len(where)} sheets and {len(vfx)} effects in {len(names)} pages ({len(lazy)} of them fetched on demand), {size // 1024} KB')

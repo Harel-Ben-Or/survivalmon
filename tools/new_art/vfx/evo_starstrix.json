@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-starstrix 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 1.png",
+   "frame": {
+    "x": 160,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 2.png",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 3.png",
+   "frame": {
+    "x": 480,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 4.png",
+   "frame": {
+    "x": 0,
+    "y": 237,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 5.png",
+   "frame": {
+    "x": 160,
+    "y": 237,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 6.png",
+   "frame": {
+    "x": 320,
+    "y": 237,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 7.png",
+   "frame": {
+    "x": 480,
+    "y": 237,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 8.png",
+   "frame": {
+    "x": 0,
+    "y": 474,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 9.png",
+   "frame": {
+    "x": 160,
+    "y": 474,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 10.png",
+   "frame": {
+    "x": 320,
+    "y": 474,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 11.png",
+   "frame": {
+    "x": 480,
+    "y": 474,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 12.png",
+   "frame": {
+    "x": 0,
+    "y": 711,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 13.png",
+   "frame": {
+    "x": 160,
+    "y": 711,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-starstrix 14.png",
+   "frame": {
+    "x": 320,
+    "y": 711,
+    "w": 160,
+    "h": 237
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 237
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 237
+   },
+   "pivot": {
+    "x": 0.4375,
+    "y": 0.7341772151898734
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-starstrix.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 640,
+   "h": 948
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 70,
+   "y": 174
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-starstrix",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -2,7 +2,7 @@
 // inherited skill keeps its own look. Base forms and breeds fire basic projectiles; evolutions
 // fire one big animated signature move (sig) instead (see pet.js).
 import { SPECIES, TYPES } from './species.js';
-import { hasVfx } from '../gfx/art.js';
+import { hasVfx, warmVfx } from '../gfx/art.js';
 
 // Chain-lightning colours: the bolt takes the colour of the breed's other type
 const BOLT = {
@@ -47,6 +47,7 @@ export function attackFx(spId) {
     if (sig) { fx.sig = `evo_${sig}`; if (hasVfx(`evm_${sig}`)) fx.missile = `evm_${sig}`; }
   }
   fx.color = TYPES[sp.types[1] || sp.types[0]]?.color;
+  warmVfx([fx.proj, fx.hit, fx.glob, fx.zone, fx.slam, fx.sig, fx.missile]); // (the new families' pictures are fetched now, before its first attack)
   return (cache[spId] = fx);
 }
 const SPIN = new Set(['vinegear', 'shurikat']);

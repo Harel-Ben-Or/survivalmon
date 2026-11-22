@@ -1,0 +1,417 @@
+{
+ "frames": [
+  {
+   "filename": "sm-evo-thornwyrm 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 1.png",
+   "frame": {
+    "x": 218,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 2.png",
+   "frame": {
+    "x": 436,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 3.png",
+   "frame": {
+    "x": 654,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 4.png",
+   "frame": {
+    "x": 0,
+    "y": 212,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 5.png",
+   "frame": {
+    "x": 218,
+    "y": 212,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 6.png",
+   "frame": {
+    "x": 436,
+    "y": 212,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 7.png",
+   "frame": {
+    "x": 654,
+    "y": 212,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 8.png",
+   "frame": {
+    "x": 0,
+    "y": 424,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 9.png",
+   "frame": {
+    "x": 218,
+    "y": 424,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 10.png",
+   "frame": {
+    "x": 436,
+    "y": 424,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 11.png",
+   "frame": {
+    "x": 654,
+    "y": 424,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 12.png",
+   "frame": {
+    "x": 0,
+    "y": 636,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 13.png",
+   "frame": {
+    "x": 218,
+    "y": 636,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  },
+  {
+   "filename": "sm-evo-thornwyrm 14.png",
+   "frame": {
+    "x": 436,
+    "y": 636,
+    "w": 218,
+    "h": 212
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 218,
+    "h": 212
+   },
+   "sourceSize": {
+    "w": 218,
+    "h": 212
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.6084905660377359
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "sm-evo-thornwyrm.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 872,
+   "h": 848
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 109,
+   "y": 129
+  },
+  "frameTags": [
+   {
+    "name": "sm-evo-thornwyrm",
+    "from": 0,
+    "to": 14,
+    "direction": "forward"
+   }
+  ]
+ }
+}
