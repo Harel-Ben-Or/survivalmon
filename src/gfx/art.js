@@ -1,6 +1,7 @@
 // PixelLab sprite art: loads the PNGs and prepares flipped, hit-flash and outlined variants.
 // World art is drawn at 2x the logical resolution (WS), so a 64px sprite is 32 logical px.
-import { SPECIES, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, DEX_IDS } from '../content/species.js';
+import { SPECIES, BASE_IDS, PURE_IDS, MIXED_IDS, EVOLVED_IDS, FINAL_IDS, DEX_IDS, LIVE_NEW } from '../content/species.js';
+import { NEW_MOTION } from '../content/species_new.js';
 
 export const WS = 2;
 
@@ -40,6 +41,7 @@ export const MOTION = {
   thornling: 'walk', bogcrab: 'walk', sawbeetle: 'walk', cinderimp: 'fly', snowgolem: 'walk', wiltsprite: 'fly',
   poacher: 'walk', slinger: 'walk', drone: 'fly', inkking: 'hop', elder: 'walk', snareboss: 'walk',
 };
+Object.assign(MOTION, NEW_MOTION); // the new families (only the live ones are ever looked up)
 // Monsters that have drawn animation sheets (creatures/anim/<id>.png) like the survivalmons
 export const ENEMY_ANIM = ['blob', 'inkwing', 'hound', 'spitter', 'shardooze', 'bloater', 'thornling', 'bogcrab', 'sawbeetle',
   'cinderimp', 'snowgolem', 'wiltsprite', 'poacher', 'slinger', 'drone', 'inkking', 'elder', 'snareboss', 'night_lord', 'moonfang', 'witch'];
@@ -229,30 +231,66 @@ function makeCreature(id, canvas) {
 function cut(img, x, y, w, h) { const c = canvasOf(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return c; }
 // Sheets drawn facing left. The game treats every sprite as facing right, so these are mirrored as
 // they load; otherwise they walk backwards.
-const FACES_LEFT = new Set(['emberpup', 'leafkit', 'puddlit', 'scaldfrog', 'magmaul', 'lilypaw', 'zapgill']);
-// A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
-function animatedCreature(id, sheet) {
+const FACES_LEFT = new Set(['emberpup', 'leafkit', 'puddlit', 'magmaul', 'lilypaw', 'lotusage', 'blossomwisp']);
+// A sheet's animations: move, idle, attack (or a roller's curl-up and its turning ball) and faint
+function cutAnims(id, sheet) {
   const c = sheet.width / 8, rows = Math.round(sheet.height / c);
   const mirror = FACES_LEFT.has(id);
   const frame = (i, row) => { const f = cut(sheet, i * c, row * c, c, c); return mirror ? flip(f) : f; };
-  const a = makeCreature(id, frame(0, 0));
-  // its animations are cut from the sheet the first time it's animated (most of the 175 survivalmons
+  const anim = {};
+  const roller = SPECIES[id]?.q?.spin;
+  for (const [kind, row] of ANIM_ROWS) {
+    if (row >= rows) continue;
+    const k = roller && kind === 'attack' ? 'curl' : kind;
+    const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
+    if (row >= 2 && frames.every(blank)) continue; // e.g. a roller still without its curl-up
+    anim[k] = frames.map(pair);
+  }
+  if (anim.curl) anim.ball = ballTurns(anim.curl[anim.curl.length - 1].R).map(pair);
+  return anim;
+}
+// A survivalmon from its animation sheet: the still sprite (frame 0) plus moving and idle frames.
+function animatedCreature(id, sheet) {
+  const c = sheet.width / 8;
+  const f0 = cut(sheet, 0, 0, c, c);
+  const a = makeCreature(id, FACES_LEFT.has(id) ? flip(f0) : f0);
+  // its animations are cut from the sheet the first time it's animated (most of the survivalmons
   // never show up in a session)
-  lazy(a, 'anim', () => {
-    const anim = {};
-    const roller = SPECIES[id]?.q?.spin;
-    for (const [kind, row] of ANIM_ROWS) {
-      if (row >= rows) continue;
-      const k = roller && kind === 'attack' ? 'curl' : kind;
-      const frames = Array.from({ length: ANIM_FRAMES[k] }, (_, i) => frame(i, row));
-      if (row >= 2 && frames.every(blank)) continue; // e.g. a roller still without its curl-up
-      anim[k] = frames.map(pair);
-    }
-    if (anim.curl) anim.ball = ballTurns(anim.curl[anim.curl.length - 1].R).map(pair);
-    return anim;
+  lazy(a, 'anim', () => cutAnims(id, sheet));
+  return a;
+}
+// A survivalmon of the new families. There are as many of them as of all the others together, so their
+// sheets are not loaded with the game: the standing picture comes from the small atlas, and the sheet
+// is fetched the first time something animates it. Until it arrives it is drawn standing (every reader
+// of `anim` already copes with a creature that has none).
+function deferredCreature(id, still, fetchSheet) {
+  const a = makeCreature(id, still);
+  let anim, asked = false;
+  Object.defineProperty(a, 'anim', {
+    configurable: true, enumerable: true,
+    get() {
+      if (!asked) {
+        asked = true;
+        fetchSheet().then((sheet) => { if (sheet) anim = cutAnims(id, sheet); }).catch(() => { /* it stays a standing picture */ });
+      }
+      return anim;
+    },
   });
   return a;
 }
+// The new families' atlas (creatures/new/atlas.png + atlas.json, built by tools/pack_new.py): every new
+// survivalmon's standing picture ({stills: {id: [x, y, w, h, cell, ox, oy]}}) and the new types' stone and
+// egg icons and shots ({icons, proj: {id: [x, y, w, h]}}). Loaded once, only when a new family is live.
+let ATLAS = null;
+function newAtlas(base = 'assets/sprites') {
+  return (ATLAS ||= (async () => {
+    if (!LIVE_NEW.length) return null;
+    const map = await fetch(`${base}/creatures/new/atlas.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    const img = map ? await loadImage(`${base}/creatures/new/atlas.png`) : null;
+    return img ? { map, img } : null;
+  })());
+}
+const atlasCut = (A, e) => cut(A.img, e[0], e[1], e[2], e[3]);
 // A curled-up survivalmon turning as it rolls: BALL_STEPS turns of one frame, clockwise, about the
 // ball's middle, pixel for pixel (no smoothing), so moving right it rolls forward. Each turn gets a
 // margin all round, so a ball that fills its cell keeps its edges when turned (drawCreature centres
@@ -280,9 +318,24 @@ export async function loadArt(base = 'assets/sprites') {
   // big pages (creatures/anim/pack.json: page file names, and for each sheet [page, x, y, w, h]).
   // Elsewhere there is no pack and each sheet is its own file.
   const pack = await fetch(`${base}/creatures/anim/pack.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
-  const pages = pack ? await Promise.all(pack.pages.map((p) => loadImage(`${base}/creatures/anim/${p}`))) : [];
+  // (pages listed in pack.lazy hold only the new families' sheets: each is fetched when one of its sheets is wanted)
+  const pages = pack ? await Promise.all(pack.pages.map((p, i) => (pack.lazy?.includes(i) ? null : loadImage(`${base}/creatures/anim/${p}`)))) : [];
   const packed = (id) => { const e = pack?.sheets[id]; return e && pages[e[0]] ? cut(pages[e[0]], e[1], e[2], e[3], e[4]) : null; };
+  const A = await newAtlas(base);
+  const later = (id) => async () => {
+    const e = pack?.sheets[id];
+    if (!e) return loadImage(`${base}/creatures/anim/${id}.png`);
+    const page = await loadImage(`${base}/creatures/anim/${pack.pages[e[0]]}`);
+    return page ? cut(page, e[1], e[2], e[3], e[4]) : null;
+  };
   await Promise.all(CREATURE_IDS.map(async (id) => {
+    const st = A?.map.stills?.[id];
+    if (st) {
+      const still = canvasOf(st[4], st[4]);
+      still.getContext('2d').drawImage(A.img, st[0], st[1], st[2], st[3], st[5], st[6], st[2], st[3]);
+      CREATURE[id] = deferredCreature(id, still, later(id));
+      return;
+    }
     const sheet = SPECIES[id] || HAS_SHEET.has(id) ? packed(id) || await loadImage(`${base}/creatures/anim/${id}.png`) : null;
     if (sheet) { CREATURE[id] = animatedCreature(id, sheet); return; }
     const img = await loadImage(`${base}/creatures/${id}.png`);
@@ -652,13 +705,21 @@ export async function loadProjArt(SPR, base = 'assets/sprites/projectiles') {
     const c = cropped(fromImage(img));
     SPR[`p_${id}`] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS / 2, frames: [c], png: true };
   }));
+  // the new types' shots (ray, star, mind, dragonfire) are in the new families' atlas
+  const A = await newAtlas();
+  for (const [id, e] of Object.entries(A?.map.proj || {})) {
+    const c = cropped(atlasCut(A, e));
+    SPR[`p_${id}`] = { w: c.width / WS, h: c.height / WS, ax: c.width / WS / 2, ay: c.height / WS / 2, frames: [c], png: true };
+  }
 }
 
 // Icons (32px PNGs shown at 16 logical px in the world, any size in the UI)
 export async function loadIconArt(ids, base = 'assets/sprites/icons') {
+  const A = await newAtlas(); // the new types' stone and egg icons are in the new families' atlas
   await Promise.all(ids.map(async (id) => {
-    const img = await loadImage(`${base}/${id}.png`);
-    if (img) { const full = fromImage(img), c = cropped(full); ICON_ART[id] = { img: c, full, w: c.width / WS, h: c.height / WS }; }
+    const e = A?.map.icons?.[id];
+    const full = e ? atlasCut(A, e) : await loadImage(`${base}/${id}.png`).then((img) => img && fromImage(img));
+    if (full) { const c = cropped(full); ICON_ART[id] = { img: c, full, w: c.width / WS, h: c.height / WS }; }
   }));
 }
 

@@ -4,6 +4,7 @@
 // monster flow field, which only covers the area around the hero.
 import { mulberry32, fbm, hash2, clamp } from '../core/util.js';
 import { PC } from '../gfx/assets.js';
+import { SPECIES, LIVE_NEW } from '../content/species.js';
 
 export const TILE = 16;
 export const T = { GRASS: 0, DIRT: 1, FARM: 2, WATER: 3, DARK: 4, STONE: 5, SAND: 6, ASH: 7, GRAVEL: 8, FROST: 9, BLOSSOM: 10 };
@@ -32,6 +33,14 @@ export const ZONES = {
   storm: { name: 'Windy Highlands', mons: ['voltowl', 'snowpip'], native: 'snowgolem', color: '#9ac0d8', note: 'Voltowl and Snowpip live here' },
   fairy: { name: 'Blossom Glades', mons: ['glimmoth'], native: 'wiltsprite', color: '#f0a8d8', note: 'Glimmoth lives here' },
 };
+// where the new basic survivalmons live, once they are live
+const NEW_HOME = { lumilamb: 'grass', drakling: 'fire', psylotl: 'fairy', cometail: 'storm' };
+for (const id of LIVE_NEW) {
+  const z = ZONES[NEW_HOME[id]]; if (!z) continue;
+  z.mons.push(id);
+  const names = z.mons.map((m) => SPECIES[m].name);
+  z.note = `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]} live here`;
+}
 const ZONE_IDS = Object.keys(ZONES);
 
 // what each zone grows: tree mix, forest level, ponds, houses, gathering spots

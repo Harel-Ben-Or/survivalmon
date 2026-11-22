@@ -2,6 +2,24 @@
 // mixed breeds and the mixed breeds' evolutions. Monsters live in creatures.js and are never caught.
 // stage 1 = species (wild, starter eggs; they never evolve) · 2 = breeds · 3 = first evolutions (Lv 30) · 4 = final evolutions (Lv 55).
 
+import { NEW_TYPES, NEW_STONES, NEW_SIZE, NEW_BASE, NEW_PURE, NEW_MIXED, NEW_LINE_EVOS, NEW_FINAL_EVOS } from './species_new.js';
+
+// New basic survivalmons that are live, in the order they went live. A family (the basic mon, its grown
+// line, its breeds with every other live basic mon, and their evolutions) exists in the game only once
+// its basic mon is listed here: nothing about an unlisted one is loaded, shown, found or hatched.
+// On a dev machine, ?mons=all in the address (or localStorage survivelmon.dev.mons = 'all') switches every
+// family on, and ?mons=lumilamb,drakling switches on just those, in that order, to test a release before it is live.
+export const RELEASED = ['lumilamb', 'drakling', 'psylotl', 'cometail']; // all four went live together in 1.10 (22 Nov 2026)
+const DEV_MONS = (() => {
+  try {
+    if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return null;
+    const v = new URLSearchParams(location.search).get('mons') || localStorage.getItem('survivelmon.dev.mons');
+    if (!v) return null;
+    return v === 'all' ? Object.keys(NEW_BASE) : v.split(',').filter((id) => NEW_BASE[id]);
+  } catch { return null; }
+})();
+export const LIVE_NEW = DEV_MONS ? [...new Set([...RELEASED.filter((id) => NEW_BASE[id]), ...DEV_MONS])] : RELEASED.filter((id) => NEW_BASE[id]);
+
 export const TYPES = {
   fire: { name: 'Fire', color: '#f08a3c' },
   water: { name: 'Water', color: '#4aa3df' },
@@ -14,6 +32,7 @@ export const TYPES = {
   toxic: { name: 'Toxic', color: '#a6c83a' },
   metal: { name: 'Metal', color: '#9aa8bc' },
 };
+for (const id of LIVE_NEW) TYPES[NEW_BASE[id].type] = NEW_TYPES[NEW_BASE[id].type];
 
 // Attack types: how a survivalmon's attack skill hits. Skills, survivalmons and upgrade cards say
 // which type they are or work on. `perk` is what a type card adds besides damage.
@@ -59,6 +78,8 @@ export const STONES = {
 };
 export const STONE_OF = { fire: 'ember_stone', water: 'tide_stone', grass: 'leaf_stone', storm: 'thunder_stone', rock: 'earth_stone', fairy: 'moon_stone',
   shadow: 'dusk_stone', ice: 'frost_stone', toxic: 'venom_stone', metal: 'steel_stone' };
+
+for (const [id, st] of Object.entries(NEW_STONES)) if (TYPES[st.type]) { STONES[id] = st; STONE_OF[st.type] = id; }
 
 // Every breed evolves twice: at Lv 30, then at Lv 55, each time with a stone of its type (species never evolve)
 export const EVO_LEVELS = [30, 55];
@@ -127,6 +148,8 @@ const BASE = {
   },
 };
 
+for (const id of LIVE_NEW) BASE[id] = NEW_BASE[id];
+
 // ---------------------------------------------------------------- same-species breeds
 // Two of the same species hatch its grown-up form (the art the game already had).
 const PURE = {
@@ -141,6 +164,8 @@ const PURE = {
   venomander: { from: 'venewt', name: 'Venomander', desc: 'A salamander dragon with dripping spikes.', mod: { radius: 8, burn: 3 }, unique: { name: 'Acid Bog', desc: 'Wider puddles of stronger poison.' } },
   steelfang: { from: 'ferrit', name: 'Steelfang', desc: 'A steel wolverine with a twin-blade tail.', mod: { count: 1, pierce: 2 }, unique: { name: 'Twin Blades', desc: 'Two spinning blades that cut deeper.' } },
 };
+
+for (const [id, p] of Object.entries(NEW_PURE)) if (BASE[p.from] && NEW_BASE[p.from]) PURE[id] = p;
 
 // ---------------------------------------------------------------- mixed breeds and their evolutions
 // pair = the two parent species; the breed's own skill fuses both parents' styles.
@@ -337,6 +362,8 @@ const MIXED = {
     evo: { id: 'scrapdrake', name: 'Scrapdrake', desc: 'It eats rust and breathes acid.' } },
 };
 
+for (const [id, m] of Object.entries(NEW_MIXED)) if (m.pair.every((b) => BASE[b])) MIXED[id] = m;
+
 export const SPECIES = {};
 for (const [id, s] of Object.entries(BASE)) {
   SPECIES[id] = { ...s, id, stage: 1, kind: 'base', types: [s.type], lines: [id], line: id };
@@ -345,6 +372,7 @@ for (const [id, p] of Object.entries(PURE)) {
   const b = BASE[p.from];
   const q = { ...b.q, dmg: Math.round(b.q.dmg * 1.6) };
   for (const [k, v] of Object.entries(p.mod)) q[k] = (q[k] || 0) + v;
+  if (p.bless) q.bless = p.bless;
   SPECIES[id] = { ...b, id, stage: 2, kind: 'pure', name: p.name, desc: p.desc, q, hp: Math.round(b.hp * 1.7), unique: p.unique,
     types: [b.type], type: b.type, lines: [p.from, p.from], line: p.from, pair: [p.from, p.from] };
 }
@@ -436,6 +464,8 @@ function addEvo(fromId, [id, name, desc], stage) {
     baseUnique: base, types: f.types, type: f.type, lines: f.lines, line: f.line, pair: f.pair, from: fromId, fly: !!f.fly || !!q.fly };
   f.evo = id;
 }
+for (const [id, e] of Object.entries(NEW_LINE_EVOS)) if (PURE[id]) LINE_EVOS[id] = e;
+for (const [id, e] of Object.entries(NEW_FINAL_EVOS)) if (SPECIES[id]) FINAL_EVOS[id] = e;
 for (const [from, [first, last]] of Object.entries(LINE_EVOS)) { addEvo(from, first, 3); addEvo(first[0], last, 4); }
 for (const [from, last] of Object.entries(FINAL_EVOS)) addEvo(from, last, 4);
 
@@ -456,6 +486,7 @@ for (const sp of Object.values(SPECIES)) {
 // used in play. Breeds take after their parents and grow on when they evolve; weight goes with height³.
 const BASE_SIZE = { emberpup: [35, 6], leafkit: [30, 3.5], voltowl: [32, 1.8], puddlit: [28, 5], pebblet: [25, 18],
   glimmoth: [18, 0.4], duskit: [30, 4], snowpip: [34, 7], venewt: [26, 2.5], ferrit: [38, 9] };
+Object.assign(BASE_SIZE, NEW_SIZE);
 const jitter = (id) => { let h = 7; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return 0.9 + ((h % 1000) / 1000) * 0.2; };
 export const SIZE = {};
 function sizeOf(id) {
@@ -498,7 +529,11 @@ export const MIXED_IDS = Object.keys(MIXED);
 // first evolutions (the mixed breeds', then the species' and same-species breeds') and final evolutions
 export const EVOLVED_IDS = [...MIXED_IDS.map((id) => MIXED[id].evo.id), ...Object.values(LINE_EVOS).map(([first]) => first[0])];
 export const FINAL_IDS = Object.keys(SPECIES).filter((id) => SPECIES[id].stage === 4);
-export const DEX_IDS = [...BASE_IDS, ...PURE_IDS, ...MIXED_IDS, ...EVOLVED_IDS, ...FINAL_IDS];
+// The Survidex order. The first 175 keep their numbers; each new family follows whole, in the order it went live
+// (a breed of two new basic mons belongs to the one that went live later).
+const family = (id) => Math.max(...SPECIES[id].lines.map((b) => LIVE_NEW.indexOf(b)));
+export const DEX_IDS = [...BASE_IDS, ...PURE_IDS, ...MIXED_IDS, ...EVOLVED_IDS, ...FINAL_IDS]
+  .map((id, i) => [family(id), i, id]).sort((a, b) => a[0] - b[0] || a[1] - b[1]).map((x) => x[2]);
 // Starter eggs: every species but Glimmoth, which only turns up in the wild.
 export const STARTERS = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'];
 

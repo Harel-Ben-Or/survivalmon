@@ -78,6 +78,10 @@ export const ICONS = {
   stone_ice() { return stone('#7ad0f0', '#e8fbff', '#2a7aa0'); },
   stone_toxic() { return stone('#8a4ac0', '#c8f070', '#4a2470'); },
   stone_metal() { return stone('#8a98ac', '#e0e8f0', '#4a5466'); },
+  stone_light() { return stone('#f2d25c', '#fff8d0', '#a8862a'); },
+  stone_dragon() { return stone('#d0454c', '#ffb0a0', '#7a1a24'); },
+  stone_mind() { return stone('#d870d8', '#ffd0fa', '#8a2a90'); },
+  stone_cosmic() { return stone('#4a58c8', '#c0c8ff', '#1e2470'); },
 
   // ---------------- misc
   egg() { const p = I(); p.ellipse(8, 9, 5, 6.5, '#fff6e0'); p.circle(6, 7, 1.4, '#6cc24e'); p.circle(10, 11, 1.6, '#f6a03a'); p.circle(10, 5, 1, '#5ab0f0'); p.set(5, 5, '#ffffff'); return p.outline(OUT); },

@@ -8,6 +8,17 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.10', date: '22 Nov 2026',
+    notes: [
+      { h: 'Four new survivalmons, four new types', img: 'assets/news/new_four.png', t: "Meet Lumilamb (Light), Drakling (Dragon), Psylotl (Mind) and Cometail (Cosmic). They live in the wild and hatch from eggs like the other species: Lumilamb in the Leafy Meadow, Drakling in the Ember Fields, Psylotl in the Blossom Glades and Cometail in the Windy Highlands." },
+      { h: '154 new survivalmons to find', t: "Each of the four breeds with every other species, and every new breed evolves twice. That is 50 new breeds and 100 new evolutions. The Survidex now holds 329 survivalmons." },
+      { h: 'New ways to fight', t: "Lumilamb is the first Support species: every few seconds it heals you and the team, and everyone hits a little harder for a while. Drakling's roar hurts every foe around it and throws them back. Psylotl's thought jumps between foes and dazes them. Cometail drops a star that leaves stardust on the ground, and foes in it are hurt and slowed." },
+      { h: 'Four new evolution stones', icons: ['stone_light', 'stone_dragon', 'stone_mind', 'stone_cosmic'], t: "The Sun Stone, Dragon Stone, Dream Stone and Comet Stone evolve the new breeds. They drop the same way as the other stones." },
+      'More to earn: the Collector, Every species, Breeder, Evolver and Final forms achievements each have one more tier for the bigger Survidex.',
+      { h: 'Animation fixes', t: "Scaldfrog, Zapgill, Lotusage and Blossomwisp no longer walk backwards. 13 survivalmons whose attack or faint was cut off at the edges were redrawn, and Eclipsar's sun ring no longer flickers." },
+    ],
+  },
+  {
     v: '1.09', date: '21 Nov 2026',
     notes: [
       { h: 'Join the Survivalmon community', t: "The game now has a Discord server for updates, your ideas and bug reports. Tap Community on the title screen or in the town menu to join." },

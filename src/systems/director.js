@@ -2,7 +2,7 @@
 import { WAVES, EVENTS, ENEMIES, TOUGH } from '../content/creatures.js';
 import { weightedChoice, rand, TAU, dist2 } from '../core/util.js';
 import { Audio } from '../core/audio.js';
-import { SPECIES } from '../content/species.js';
+import { SPECIES, LIVE_NEW } from '../content/species.js';
 import { ZONES } from '../world/world.js';
 
 // The longest run. Waves, bosses and monster scaling were written for a 25 minute run; PACE
@@ -13,7 +13,7 @@ export const PACE = 2.5;
 const FINAL_BOSS_AT = RUN_LENGTH - 30;
 // Glimmoth only turns up in the wild, and more rarely
 const WILD_POOL = ['emberpup', 'leafkit', 'puddlit', 'voltowl', 'pebblet'].map((type) => ({ type, weight: 2 }))
-  .concat(['glimmoth', 'duskit', 'snowpip', 'venewt', 'ferrit'].map((type) => ({ type, weight: 1 })));
+  .concat(['glimmoth', 'duskit', 'snowpip', 'venewt', 'ferrit', ...LIVE_NEW].map((type) => ({ type, weight: 1 })));
 // Kills come PACE times faster than they used to, so each pays a bit more EXP to keep levelling up in a short run.
 export const XP_PACE = Math.sqrt(PACE);
 const MAX_ENEMIES = 320;

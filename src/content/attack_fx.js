@@ -9,6 +9,7 @@ const BOLT = {
   storm: ['#ffe680', '#ffffff'], fire: ['#ff8a3c', '#fff0b0'], water: ['#5ac8ff', '#e8fbff'], fairy: ['#ff9ae0', '#fff0fa'],
   shadow: ['#9a70ff', '#e8d8ff'], ice: ['#9ff0ff', '#ffffff'], toxic: ['#b8e040', '#f4ffb0'], metal: ['#a8c0e0', '#ffffff'],
   grass: ['#8ae060', '#f0ffd0'], rock: ['#d8c8a8', '#ffffff'],
+  light: ['#ffe27a', '#ffffff'], dragon: ['#ff6a5a', '#ffe0c8'], mind: ['#f07ae8', '#ffe8fc'], cosmic: ['#8f9cff', '#f0f2ff'],
 };
 // Lobbers: whose blob and pool a species uses (a same-species breed borrows its parent's)
 const LOB_OF = { venomander: 'venewt' };

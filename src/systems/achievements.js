@@ -25,15 +25,20 @@ const how = (k) => Object.values(Box.data.dex).reduce((s, r) => s + (r.how?.[k] 
 const medalGoal = (id, name, what) => ({ id, name, desc: (n) => (n === 1 ? `Win your first ${what} medal` : `Win the ${what} medal on ${n} different survivalmons`),
   tiers: [1, 5, 15, 40], pay: [10, 20, 50, 120], have: () => medals(id) });
 
+// The first 175 survivalmons' tiers stay as they were (10 species, 55 breeds, 55 first and 55 final evolutions).
+// When new families are live, each of these gets one more tier for the new total (more(list, old) -> [total],
+// more(list, old, pay) -> [pay]); nothing a player already earned moves.
+const more = (list, old, pay) => (list.length > old ? [pay ?? list.length] : []);
+const BREEDS = [...PURE_IDS, ...MIXED_IDS];
 export const ACHIEVEMENTS = [
   { id: 'collector', name: 'Collector', desc: (n) => (n === DEX_IDS.length ? `Find all ${n} survivalmons` : `Find ${n} different survivalmons`),
-    tiers: [5, 15, 35, 70, 120, DEX_IDS.length], pay: [5, 10, 20, 40, 80, 150], have: () => had(DEX_IDS) },
-  { id: 'species', name: 'Every species', desc: (n) => (n === BASE_IDS.length ? 'Have all 10 species' : `Have ${n} different species`),
-    tiers: [3, 6, BASE_IDS.length], pay: [10, 20, 40], have: () => had(BASE_IDS) },
+    tiers: [5, 15, 35, 70, 120, 175, ...more(DEX_IDS, 175)], pay: [5, 10, 20, 40, 80, 150, ...more(DEX_IDS, 175, 300)], have: () => had(DEX_IDS) },
+  { id: 'species', name: 'Every species', desc: (n) => (n === BASE_IDS.length ? `Have all ${n} species` : `Have ${n} different species`),
+    tiers: [3, 6, 10, ...more(BASE_IDS, 10)], pay: [10, 20, 40, ...more(BASE_IDS, 10, 60)], have: () => had(BASE_IDS) },
   { id: 'wild', name: 'Wild catcher', desc: (n) => `Catch ${n} wild survivalmons`, tiers: [5, 25, 100, 300], pay: [5, 15, 40, 100], have: () => how('wild') },
-  { id: 'breeder', name: 'Breeder', desc: (n) => `Find ${n} different breeds`, tiers: [3, 10, 25, 55], pay: [10, 25, 60, 150], have: () => had([...PURE_IDS, ...MIXED_IDS]) },
-  { id: 'evolver', name: 'Evolver', desc: (n) => (n === 1 ? 'Evolve a survivalmon for the first time' : `Find ${n} different first evolutions`), tiers: [1, 10, 30, 55], pay: [15, 30, 80, 180], have: () => had(EVOLVED_IDS) },
-  { id: 'finalist', name: 'Final forms', desc: (n) => (n === 1 ? 'Find your first final evolution' : `Find ${n} different final evolutions`), tiers: [1, 10, 30, 55], pay: [25, 50, 120, 300], have: () => had(FINAL_IDS) },
+  { id: 'breeder', name: 'Breeder', desc: (n) => `Find ${n} different breeds`, tiers: [3, 10, 25, 55, ...more(BREEDS, 55)], pay: [10, 25, 60, 150, ...more(BREEDS, 55, 300)], have: () => had(BREEDS) },
+  { id: 'evolver', name: 'Evolver', desc: (n) => (n === 1 ? 'Evolve a survivalmon for the first time' : `Find ${n} different first evolutions`), tiers: [1, 10, 30, 55, ...more(EVOLVED_IDS, 55)], pay: [15, 30, 80, 180, ...more(EVOLVED_IDS, 55, 350)], have: () => had(EVOLVED_IDS) },
+  { id: 'finalist', name: 'Final forms', desc: (n) => (n === 1 ? 'Find your first final evolution' : `Find ${n} different final evolutions`), tiers: [1, 10, 30, 55, ...more(FINAL_IDS, 55)], pay: [25, 50, 120, 300, ...more(FINAL_IDS, 55, 500)], have: () => had(FINAL_IDS) },
   medalGoal('giant', 'Giant hunter', 'Giant'),
   medalGoal('mini', 'Tiny finder', 'Mini'),
   medalGoal('heavy', 'Heavy lifter', 'Heavyweight'),
@@ -46,7 +51,7 @@ export const ACHIEVEMENTS = [
   { id: 'perfect', name: 'Perfect', desc: () => 'Have a survivalmon with every skill at S', tiers: [1], pay: [150],
     have: () => (Box.mons.some((m) => m.skills.length > 1 && m.skills.every((k) => k.t === 4)) ? 1 : 0) },
 ];
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 export const tierName = (a, t) => (a.tiers.length > 1 ? `${a.name} ${ROMAN[t]}` : a.name);
 export const tiersReached = (a) => Box.data.achv?.[a.id] || 0;
 

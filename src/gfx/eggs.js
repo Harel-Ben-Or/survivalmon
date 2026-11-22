@@ -2,9 +2,9 @@
 // (icons/egg_<type>.png) and every mixed breed has an egg of its own that blends its two types
 // (icons/egg_<species>.png), and so does every same-species breed. icons/egg.png is the confetti egg for eggs not yet in the Hatchery.
 import { ICON_ART } from './art.js';
-import { SPECIES, PURE_IDS, MIXED_IDS } from '../content/species.js';
+import { SPECIES, TYPES, PURE_IDS, MIXED_IDS } from '../content/species.js';
 
-export const EGG_TYPES = ['fire', 'water', 'grass', 'storm', 'rock', 'fairy', 'shadow', 'ice', 'toxic', 'metal'];
+export const EGG_TYPES = Object.keys(TYPES); // every live type has a shell of its own
 export const EGG_ICONS = [...EGG_TYPES, ...PURE_IDS, ...MIXED_IDS].map((t) => `egg_${t}`);
 export const EGG_SIZE = 32;
 // The row the shell splits at when it hatches, per column: a zigzag across the middle of the egg
