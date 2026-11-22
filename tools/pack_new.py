@@ -5,12 +5,15 @@
 # (assets/sprites/creatures/anim/<id>.png) is fetched only when it is first animated (gfx/art.js).
 # Run it again whenever a new survivalmon's sheet or one of those pictures changes:
 #   python tools/pack_new.py
-import glob, json, os, re
+# The Claude link holds at most 511 files, so its atlas also carries the older eggs' icons and their single
+# files are left out there (the game takes an icon from the atlas before it looks for a file):
+#   python tools/pack_new.py <out folder> "assets/sprites/icons/egg*.png"      (more patterns may follow)
+import glob, json, os, re, sys
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHEETS = os.path.join(ROOT, 'assets', 'sprites', 'creatures', 'anim')
-OUT = os.path.join(ROOT, 'assets', 'sprites', 'creatures', 'new')
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, 'assets', 'sprites', 'creatures', 'new')
 SRC = os.path.join(ROOT, 'tools', 'new_art')
 W = 1024
 js = open(os.path.join(ROOT, 'src', 'content', 'species_new.js'), encoding='utf-8').read()
@@ -26,6 +29,11 @@ for i in ids:
 for group in ('icons', 'proj'):
     for path in sorted(glob.glob(os.path.join(SRC, group, '*.png'))):
         tiles.append((group, os.path.basename(path)[:-4], Image.open(path).convert('RGBA'), []))
+have = {t[1] for t in tiles if t[0] == 'icons'}
+for pattern in sys.argv[2:]:  # more icons, for the Claude link's atlas
+    for path in sorted(glob.glob(os.path.join(ROOT, pattern))):
+        name = os.path.basename(path)[:-4]
+        if name not in have: have.add(name); tiles.append(('icons', name, Image.open(path).convert('RGBA'), []))
 tiles.sort(key=lambda t: (-t[2].height, t[1]))
 x = y = row = 0; place = []
 for group, i, im, extra in tiles:

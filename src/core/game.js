@@ -929,6 +929,9 @@ export class Game {
     this.fx?.berry?.(n);
     if (P.berries == null) { P.berries = 0; P.teamNext = 5; P.teamLevel = 0; P.teamPicks = 0; }
     P.berries += n;
+    // (from 1.12) every berry also gives each survivalmon on the team 1 EXP (times the gate's survivalmon EXP),
+    // through the run's mon EXP pool, so it is shared out at the end with the kills
+    this.monPool = (this.monPool || 0) + n * P.pets.length * (this.tierMult?.petXp || 1);
     while (P.berries >= P.teamNext) { P.berries -= P.teamNext; P.teamNext += 2; P.teamPicks++; }
     Audio.play('gem');
   }

@@ -27,7 +27,9 @@ export const GATE_DMG = (t) => Math.pow(1 + 0.6 * t, 1.2);
 // Spirit (what your survivalmons' kills and your catches earn) grows GATE_SPIRIT times a gate: Shrine
 // upgrades cost 1.35x a level, so 1.5 keeps Spirit in step with them the way coins are with the Training Hall.
 // An evolution stone is always a single stone, at any gate: only the chance of one grows.
-export const GATE_COINS = 1.6, GATE_MATS = 1.3, GATE_SPIRIT = 1.5;
+// Survivalmon EXP (kills, catches, berries) grows GATE_PETXP times a gate up to PETXP_MAX (from 1.12; it was
+// 1 + 0.25 a gate): a new survivalmon catches up at the harder gates, and the far gates don't make levels free.
+export const GATE_COINS = 1.6, GATE_MATS = 1.3, GATE_SPIRIT = 1.5, GATE_PETXP = 1.4, PETXP_MAX = 7;
 
 // What a tier does to a run. Monsters: hp and dmg. Coins, materials and Spirit: see above. The other rewards
 // grow gently (EXP for the hero's gems and the survivalmons' kills, the chance of an evolution stone)
@@ -35,7 +37,7 @@ export const GATE_COINS = 1.6, GATE_MATS = 1.3, GATE_SPIRIT = 1.5;
 export function tierMult(tier) {
   return {
     hp: GATE_HP(tier), dmg: GATE_DMG(tier),
-    coins: Math.pow(GATE_COINS, tier), xp: 1 + 0.25 * tier, petXp: 1 + 0.25 * tier, spirit: Math.pow(GATE_SPIRIT, tier),
+    coins: Math.pow(GATE_COINS, tier), xp: 1 + 0.25 * tier, petXp: Math.min(PETXP_MAX, Math.pow(GATE_PETXP, tier)), spirit: Math.pow(GATE_SPIRIT, tier),
     stone: 1 + 0.25 * tier, mats: Math.pow(GATE_MATS, tier), wildLv: 4 * tier,
     haze: tier ? Math.min(0.6, 0.3 + 0.03 * (tier - 1)) : 0,
   };
@@ -46,5 +48,5 @@ export function gateBlurb(tier) {
   const m = tierMult(tier), x = (v) => `×${v >= 10 ? Math.round(v).toLocaleString() : +v.toFixed(1)}`;
   const ep = Math.round(epicChance(tier) * 100), lg = Math.round(legendChance(tier) * 100);
   const gear = ` Gear: ${ep}% of drops are Epic${lg ? `, and the Night Lord leaves a Legendary piece ${lg}% of the time` : ''}.`;
-  return `The Blight is thicker: monsters have ${x(m.hp)} health and hit ${x(m.dmg)} harder. Rewards: ${x(m.coins)} coins, ${x(m.mats)} materials, ${x(m.spirit)} Spirit, ${x(m.xp)} EXP, wild survivalmons ${m.wildLv} levels higher.${gear}`;
+  return `The Blight is thicker: monsters have ${x(m.hp)} health and hit ${x(m.dmg)} harder. Rewards: ${x(m.coins)} coins, ${x(m.mats)} materials, ${x(m.spirit)} Spirit, ${x(m.xp)} EXP, ${x(m.petXp)} survivalmon EXP, wild survivalmons ${m.wildLv} levels higher.${gear}`;
 }

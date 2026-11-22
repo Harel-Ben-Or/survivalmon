@@ -37,7 +37,7 @@ export const TIPS = {
   ],
   teambar: [
     { t: "Berries! They fill the thin teal line under your EXP bar: that is your team's berry bar.", focus: '.teambar' },
-    'When it fills up, your survivalmons get an upgrade card. Berries drop from monsters and berry bushes.',
+    'When it fills up, your survivalmons get an upgrade card. Every berry also gives each of them EXP. Berries drop from monsters and berry bushes.',
   ],
   evolve: [
     'Your weapon evolves! Pick one of the two. Each choice changes what the next evolve offers.',

@@ -551,7 +551,7 @@ export const Combat = {
     this.fx?.wild?.();
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);
     if (Math.random() < 0.12) this.dropGear(e.x + 10, e.y);
-    if (o.petRef || o.by) this.monPool = (this.monPool || 0) + 4 * Math.max(1, P.pets.length);
+    if (o.petRef || o.by) this.monPool = (this.monPool || 0) + 4 * Math.max(1, P.pets.length) * (this.tierMult?.petXp || 1);
     // a freed survivalmon leaves 5 berries as its thanks
     for (let i = 0; i < 5; i++) this.spawnPickup('berry', e.x + rand(-12, 12), e.y + rand(-8, 8));
     Audio.play('hatch'); setTimeout(() => Audio.play('chest'), 250);

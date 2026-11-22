@@ -8,6 +8,13 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.12', date: '23 Nov 2026',
+    notes: [
+      { h: 'Survivalmons level up faster', t: "Every berry now also gives EXP to each survivalmon on your team, on top of filling the berry bar. And the harder gates pay much more survivalmon EXP: 1.4 times more for each gate, up to 7 times at the far gates. A new level 1 survivalmon now reaches about level 17 in a full run at the East Gate, where it used to reach level 13." },
+      'The gate picker now shows how much survivalmon EXP each gate gives.',
+    ],
+  },
+  {
     v: '1.11', date: '22 Nov 2026',
     notes: [
       { h: 'Attacks of their own', img: 'assets/news/new_attacks.png', t: "The four new families no longer borrow the older survivalmons' attacks. They have 102 new effects: every breed has its own shot, spark, pool or ground ring, and every evolution has its own big move." },
