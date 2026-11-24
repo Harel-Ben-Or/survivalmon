@@ -82,8 +82,15 @@ export const TIPS = {
     "Hearthvale is home now, {name}! Here you grow stronger between runs, and I know where everything is.",
     'Walk up to a door and {act} to go in. Every building has a keeper inside. Talk to them and pick their button to use it.',
     { t: 'Up here is what you brought home. Coins pay for almost everything. Spirit pays for the Spirit Shrine. Skyfall Shards are rare treasure.', focus: '.town-hud .town-chip:first-child' },
-    "Follow the arrow and I'll show you round! First stop: Coach Hale's Training Hall. Spend your coins on Run time so your next run lasts longer.",
+    "Granny Wren asked to see you. Follow the arrow to her Hatchery, then Ollie at the North Gate will let you out for your first hunt.",
   ],
+  bundle: [
+    "You made it back, {name}! Here's a starter bundle from me: 500 coins and an egg.",
+    { t: 'The coins are up here. Spend them on upgrades to grow stronger.', focus: '.town-hud .town-chip:first-child' },
+    "Take the egg to Granny Wren's Hatchery: follow the arrow. It warms up while you're out in the wild and hatches when you come home.",
+  ],
+  intro_training: ["Coins piling up? Coach Hale's Training Hall turns them into a stronger hero. Run time is the big one: longer runs bring more coins. Follow the arrow!"],
+  intro_ranch: ["Every survivalmon you free waits at Dell's Ranch. Pick your team there, and train the ones you leave home. Follow the arrow!"],
   b_training: [
     "Coach Hale's upgrades make your hero stronger for good. Run time is the big one: longer runs bring more coins.",
     'Bosses come at 2:00, 4:00 and 6:00, and the Night Lord at 7:30. Beat the Night Lord to win a full run!',

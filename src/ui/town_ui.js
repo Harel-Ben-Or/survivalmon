@@ -7,8 +7,9 @@ import { playOpening, playEnding } from './story.js';
 import { gateArrivalScene, friendTownScene, endingScene } from '../content/story_scenes.js';
 import { gateSide } from '../content/gates.js';
 import { HEROES } from '../content/heroes.js';
-import { SPECIES, DEX_IDS } from '../content/species.js';
-import { Box, monName } from '../systems/collection.js';
+import { SPECIES, DEX_IDS, BASE_IDS } from '../content/species.js';
+import { Box, monName, rollSkills, STARTER_HATCH } from '../systems/collection.js';
+import { Shrine } from '../systems/shrine.js';
 import { Goals } from '../systems/goals.js';
 import { CHANGELOG, gameVersion, unseenUpdates, giftOpen, giftText } from '../content/changelog.js';
 import { COMMUNITY_URL, bugInfo } from '../systems/community.js';
@@ -44,6 +45,10 @@ const RANK_TABS = [
 
 // What the arrow says about each stop of the tour
 const PLACE_WHY = { training: 'Spend coins on Run time', hatchery: 'Granny Wren is waiting', ranch: 'Where your survivalmons rest' };
+const placeWhy = (id) => (id === 'hatchery' && (Meta.data.intro || 0) >= 2 ? 'Your new egg is here' : PLACE_WHY[id]);
+// A new player's first runs from town: after each of the next three, Moss shows one more thing
+// (intro 1: the starter bundle and the Hatchery, 2: the Training Hall, 3: the Ranch; 4: done)
+const INTRO_COINS = 500;
 
 export const TownUI = {
   // ------------------------------------------------------------ town HUD
@@ -81,7 +86,7 @@ export const TownUI = {
       if (n) { at = [n.x, n.y - 30]; name = 'Ollie, North Gate'; why = 'Head out on a run'; }
     } else {
       const d = g.town.doors.find((x) => x.id === id);
-      if (d) { at = [d.x, d.py - 4]; name = d.name; why = PLACE_WHY[id] || 'Just opened!'; }
+      if (d) { at = [d.x, d.py - 4]; name = d.name; why = placeWhy(id) || 'Just opened!'; }
     }
     if (!at) { Meta.visitPlace(id); return hide(); } // nowhere to point (no such door): skip it
     if (!el) {
@@ -640,10 +645,13 @@ export const TownUI = {
     if (!Meta.data.metWren && Meta.data.sawOpening && ((Meta.data.runs || 0) <= 2 || this.g.fromRoad)) {
       this.g.fromRoad = false;
       Meta.data.metWren = true;
-      Meta.data.tour = ['training', 'hatchery', 'ranch', 'gate']; // the arrow shows the way round town
+      Meta.data.tour = ['hatchery', 'gate']; // the arrow: find Granny Wren, then out through the North Gate
+      Meta.data.intro = 1; Meta.data.introAt = Meta.data.runs || 0; // the rest of the town comes over the next runs
       this.g.playScene(gateArrivalScene(this.g)).then(after(() => { if (!this.storyBeats(found)) this.tip('town'); }));
       return true;
     }
+    // back from one of a new player's first runs: one more part of town (see INTRO_COINS)
+    if (this.introStep()) return false;
     // a friend found past a gate walks in with you
     if (found.length) {
       const id = found[0];
@@ -661,6 +669,29 @@ export const TownUI = {
       return true;
     }
     return false;
+  },
+
+  // A new player's next step, once per run home (Meta.data.intro): Moss's starter bundle after the first
+  // run out of town, then the Training Hall, then the Ranch. The arrow points the way each time.
+  introStep() {
+    const d = Meta.data, step = d.intro || 0;
+    if (step < 1 || step > 3 || (d.runs || 0) <= (d.introAt || 0)) return false;
+    d.introAt = d.runs; d.intro = step + 1;
+    if (step === 1) {
+      d.coins += INTRO_COINS;
+      const species = BASE_IDS[(Math.random() * BASE_IDS.length) | 0];
+      const egg = Box.addEgg({ species, skills: rollSkills(species, { odds: Shrine.odds() }), need: STARTER_HATCH, kind: 'found' });
+      Box.save();
+      d.tour = egg ? ['hatchery', 'gate'] : ['gate'];
+      Analytics.track('starter_bundle', { egg: !!egg });
+      Audio.play('chest');
+      if (!this.tip('bundle')) this.toast(`Moss gave you a starter bundle: ${INTRO_COINS} coins${egg ? ' and an egg for your Hatchery' : ''}.`);
+    } else {
+      d.tour = [step === 2 ? 'training' : 'ranch', 'gate'];
+      this.tip(step === 2 ? 'intro_training' : 'intro_ranch');
+    }
+    Meta.save(); // (the coins up top and the arrow update by themselves)
+    return true;
   },
 
   // ------------------------------------------------------------ the opening story

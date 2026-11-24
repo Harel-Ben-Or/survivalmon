@@ -52,8 +52,9 @@ export function trainCost(base, L) {
   return Math.round(c);
 }
 
-// 20 s at first, growing a little faster each level, up to the longest run (8 minutes at level 18).
-export function runLengthAt(L) { return Math.min(RUN_LENGTH, 20 + 10 * L + L * L); }
+// 30 s at first (a new player's first run out of town), growing a little faster each level, up to
+// the longest run (8 minutes at level 18). From level 4 on it's the same as before 1.13 (20 + 10L + L²).
+export function runLengthAt(L) { return Math.min(RUN_LENGTH, L * L + Math.max(20 + 10 * L, 30 + 7 * L)); }
 // A name typed by the player: trimmed, single spaces, at most 14 characters
 export const cleanName = (n) => String(n || '').replace(/[<>"&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 14);
 function fmtTime(s) { return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; }

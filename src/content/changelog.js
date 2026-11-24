@@ -8,6 +8,14 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.13', date: '24 Nov 2026',
+    notes: [
+      { h: 'A better start', t: "New players now go out for their first hunt right after meeting Granny Wren. The first run lasts 30 seconds, and a wild survivalmon shows up after just 10 seconds, so everyone frees their first one early. Back home, Moss gives you a starter bundle: 500 coins and an egg. The rest of Hearthvale is shown over your next few runs." },
+      { h: 'Your first survivalmon is a celebration', t: "When you free your very first wild survivalmon, it flashes, turns back to its own colours, hops with a heart and runs to your side." },
+      'Run time now starts at 30 seconds, and its first levels are a little longer.',
+    ],
+  },
+  {
     v: '1.12', date: '23 Nov 2026',
     notes: [
       { h: 'Survivalmons level up faster', t: "Every berry now also gives EXP to each survivalmon on your team, on top of filling the berry bar. And the harder gates pay much more survivalmon EXP: 1.4 times more for each gate, up to 7 times at the far gates. A new level 1 survivalmon now reaches about level 17 in a full run at the East Gate, where it used to reach level 13." },

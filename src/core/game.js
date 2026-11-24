@@ -272,7 +272,8 @@ export class Game {
     if (story) this.startStoryRoad();
     for (const mon of Box.team()) if (mon.hp > 0) this.addPet(mon, true);
     this.applyTeamPassives();
-    this.director.catchT = 75 / (this.wildMult || 1);
+    // until you've freed your first one, a wild survivalmon turns up 10 s into the run
+    this.director.catchT = Meta.isUnlocked('survidex') ? 75 / (this.wildMult || 1) : 10;
     this.runStart = { petLv: new Map(P.pets.map((p) => [p.mon.id, p.mon.level])) };
     this.evolveAsked = new Set();
     this.evolveQueue = [];

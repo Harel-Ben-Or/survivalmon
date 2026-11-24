@@ -9,6 +9,11 @@ import { TIERS, PASSIVES, tierOdds } from '../content/skills.js';
 import { SHARD_DROP } from '../content/shop.js';
 import { Box, rollSkills } from './collection.js';
 import { Meta } from './meta.js';
+
+// How long a freed survivalmon's celebration lasts (seconds): the flash, the change back, a happy hop
+const FREED_T = 1.5;
+// A small pixel heart, row by row
+const HEART = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
 import { LANTERN } from '../entities/enemy.js';
 import { dmgMarks, tryFreeze } from '../content/wcore.js';
 
@@ -332,6 +337,38 @@ export const Combat = {
           if (fade < 1) { ctx.globalAlpha = 1 - fade; ctx.fillStyle = '#bff8ff'; ctx.beginPath(); ctx.arc(x, y - 6, 3 + 9 * (1 - fade), 0, TAU); ctx.fill(); }
           break;
         }
+        case 'monfreed': {
+          // 0-0.5 s: still under the star, it shakes and flickers white; 0.5 s: a burst of light;
+          // after that it's itself again and hops for joy, a heart over its head. With no room in the
+          // team it shrinks to a light and floats off to the Ranch at the end.
+          const t = e.age, a = e.art, top = (a.ch || 24) + 6, turn = 0.5;
+          if (t < turn) {
+            const shake = Math.round(Math.sin(t * 60) * (t / turn) * 1.5);
+            drawCreature(ctx, a, x + shake, y, { left: e.left, anim: 'idle', at: t, blight: true, flash: Math.floor(t * 14) % 3 === 2 && t > 0.15 });
+          } else {
+            const u = t - turn, hop = u < 0.7 ? Math.abs(Math.sin(u * Math.PI / 0.35)) * 6 : 0;
+            const away = e.away ? Math.max(0, Math.min(1, (t - 1.1) / 0.4)) : 0, sc = 1 - away * 0.7;
+            drawCreature(ctx, a, x, y - away * 18, { left: e.left, anim: 'idle', at: t, bob: hop, alpha: 1 - away, sx: sc, sy: sc, flash: u < 0.08 });
+            if (away > 0) { ctx.globalAlpha = away * (1 - away) * 3; ctx.fillStyle = '#bff8ff'; ctx.beginPath(); ctx.arc(x, y - 8 - away * 18, 3 + 5 * away, 0, TAU); ctx.fill(); ctx.globalAlpha = 1; }
+            // the heart pops up and drifts a little higher
+            const hs = Math.min(1, u / 0.12), hy = y - top - hop - Math.min(u, 0.8) * 8;
+            ctx.globalAlpha = Math.max(0, Math.min(1, (e.maxLife - t) / 0.3)) * (1 - away);
+            ctx.fillStyle = '#ff5a8a';
+            const px = hs >= 1 ? 1 : 0.6;
+            HEART.forEach((row, j) => { for (let i = 0; i < row.length; i++) if (row[i] === '#') ctx.fillRect(Math.round(x - 3.5 * px + i * px), Math.round(hy + j * px), Math.ceil(px), Math.ceil(px)); });
+            ctx.globalAlpha = 1;
+            // the burst: a white flash and rays, quickly gone
+            if (u < 0.35) {
+              const k2 = u / 0.35;
+              ctx.globalAlpha = 1 - k2; ctx.fillStyle = '#ffffff';
+              ctx.beginPath(); ctx.ellipse(x, y - 8, 6 + 22 * k2, (6 + 22 * k2) * 0.8, 0, 0, TAU); ctx.fill();
+              ctx.strokeStyle = '#ffe07a'; ctx.lineWidth = 2;
+              for (let r = 0; r < 8; r++) { const an = r * TAU / 8 + 0.2, r0 = 8 + 20 * k2, r1 = r0 + 8; ctx.beginPath(); ctx.moveTo(x + Math.cos(an) * r0, y - 8 + Math.sin(an) * r0 * 0.8); ctx.lineTo(x + Math.cos(an) * r1, y - 8 + Math.sin(an) * r1 * 0.8); ctx.stroke(); }
+              ctx.globalAlpha = 1;
+            }
+          }
+          break;
+        }
         case 'ring': {
           const r = e.R * (0.2 + 0.8 * Math.sqrt(k));
           ctx.globalAlpha = 1 - k; ctx.strokeStyle = e.color; ctx.lineWidth = 2;
@@ -535,18 +572,27 @@ export const Combat = {
     this.gainCoins(10, e.x, e.y - 14, true);
     this.particles.burst(e.x, e.y - 8, { n: 30, colors: ['#7af0ff', '#ffe07a', '#ffffff'], speed: 90, life: 0.6 });
     // it faints where it stood, then shrinks away in a flash of light as it's caught
-    if (e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
+    // the star's hold breaks: it flashes white, turns back to its own colours, hops for joy and runs to you
+    // (or, with no room in the team, floats off to the Ranch as a light)
+    // (only your very first one gets the celebration; later ones faint and are caught as before)
+    const first = !Meta.isUnlocked('survidex');
+    const freed = first && e.corrupted && e.art ? this.addEffect({ type: 'monfreed', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: FREED_T }) : null;
+    if (!freed && e.art?.anim?.faint) this.addEffect({ type: 'monfaint', x: e.x, y: e.y, art: e.art, left: e.face < 0, life: 1.4, blight: e.corrupted });
     // wild ones met later in a run are further grown
     const level = Math.min(MAX_PET_LEVEL, 1 + Math.floor(this.time / 60) + (this.tierMult?.wildLv || 0)); // past the newer gates they're far more grown
     const odds = e.lure ? tierOdds(this.tierOdds, e.lure) : this.tierOdds; // called by a Lure Horn II or better
     const mon = Box.add(species, { skills: rollSkills(species, { odds }), joinTeam: false, origin: 'wild', level, where: this.world.zoneAtPx(e.x, e.y) });
     P.caught.push(species); (P.caughtMons ||= []).push(mon.id);
     Analytics.track('catch', { species, level, grades: mon.skills.map((k) => TIERS[k.t]).join('') });
-    const joined = Box.toggleTeam(mon.id) && !!this.addPet(mon, true);
+    const pet = Box.toggleTeam(mon.id) ? this.addPet(mon, true) : null, joined = !!pet;
     if (!joined && Box.inTeam(mon.id)) Box.toggleTeam(mon.id);
+    if (freed && pet) { pet.x = e.x; pet.y = e.y; pet.freeT = FREED_T; } // it sets off after you from where it was freed
+    else if (freed) freed.away = true;
     const skills = mon.skills.map((k) => `${k.k === 'u' ? SPECIES[k.sp].unique.name : PASSIVES[k.id].name} ${TIERS[k.t]}`).join(' · ');
     this.ui.catchCard(mon, { joined, freed: e.corrupted }); // its grades at a glance, instead of a banner
-    this.ui.tip('caught', () => { this.ui.catchUntil = Math.max(this.ui.catchUntil, performance.now() + 3000); }); // the card stays a moment after Moss explains it
+    // Moss explains it once the celebration has played (his box pauses the run)
+    const explain = () => this.ui.tip('caught', () => { this.ui.catchUntil = Math.max(this.ui.catchUntil, performance.now() + 3000); }); // the card stays a moment after Moss explains it
+    if (freed) this.after(FREED_T, () => { if (this.mode === 'world') explain(); }); else explain();
     if (Meta.unlock('survidex')) this.toast('The Survidex is open in town!');
     this.fx?.wild?.();
     if (Math.random() < 0.04 * (this.tierMult?.stone || 1)) this.spawnPickup('stone', e.x, e.y - 8, STONE_OF[SPECIES[species].type]);

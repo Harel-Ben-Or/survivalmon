@@ -153,6 +153,7 @@ export class Pet {
   update(dt, index, inRoom) {
     const g = this.g, P = g.player;
     this.flash = Math.max(0, this.flash - dt);
+    if (this.freeT > 0) { this.freeT -= dt; return; } // just freed: its celebration is playing (systems/combat.js)
     // carried off by a Cage Drone: it moves us; we just hang there
     if (this.carriedBy) { if (!this.carriedBy.dead) { if (this.fainted) this.faintT += dt; return; } this.carriedBy = null; }
     if (this.atkT >= 0) { this.atkT += dt; if (this.atkT * ANIM_FPS.attack >= 6) this.atkT = -1; }
@@ -272,6 +273,7 @@ export class Pet {
   }
 
   draw(ctx, cam) {
+    if (this.freeT > 0) return; // the celebration draws it
     const x = snap(this.x) - cam.x, y = snap(this.y) - cam.y;
     const a = this.art;
     ctx.globalAlpha = 0.28; ctx.fillStyle = '#1a2a10';
