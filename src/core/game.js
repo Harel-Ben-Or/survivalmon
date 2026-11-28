@@ -25,6 +25,7 @@ import { Meta } from '../systems/meta.js';
 import { TownMode } from '../world/town.js';
 import { SceneMode } from '../world/scene.js';
 import { StoryRoad } from '../world/story_road.js';
+import { TDMode } from '../td/td.js';
 import { reunionScene, FRIEND_AT_TIER } from '../content/story_scenes.js';
 import { HEROES } from '../content/heroes.js';
 import { checkAchievements, MEDALS } from '../systems/achievements.js';
@@ -109,6 +110,7 @@ export class Game {
 
   autoPause() {
     if ((this.mode === 'world' || this.mode === 'house') && !this.modal) this.ui.openPause();
+    else if (this.mode === 'td' && !this.modal && this.td?.state !== 'over') this.ui.openTDPause();
   }
 
   // Phones play in landscape: holding it upright mid-run pauses behind a "turn sideways" screen.
@@ -429,6 +431,9 @@ export class Game {
     } else if (this.mode === 'town') {
       if (Input.anyPressed('Escape', 'KeyP') && !this.modal) this.ui.openTownMenu();
       if (!this.modal) this.updateTown(dt);
+    } else if (this.mode === 'td') {
+      if (Input.anyPressed('Escape', 'KeyP')) { if (this.modal === 'pause') this.ui.closeTDPause(); else if (!this.modal) this.ui.openTDPause(); }
+      if (!this.modal) this.updateTD(dt);
     } else if (this.mode === 'title') {
       const c = this.world.center;
       const t = this.realTime * 0.06;
@@ -451,6 +456,10 @@ export class Game {
       const b = this.boss && !this.boss.dead ? this.boss : null;
       want = this.finalStand || b?.type === 'night_lord' ? 'final' : b ? 'boss' : this.dayMinute > 17 ? 'night' : 'day';
       if (this.time > 100 && !b) Audio.preload(this.dayMinute > 15 ? 'night' : 'boss'); // the next one, ready in time
+    }
+    else if (this.mode === 'td') {
+      const b = this.enemies.find((e) => e.boss && !e.dead);
+      want = b ? (b.type === 'night_lord' ? 'final' : 'boss') : 'day';
     }
     if (this.ui.screen === 'story' || this.modal === 'story' || !this.settings.music) want = null;
     Audio.music(want);
@@ -1133,6 +1142,7 @@ export class Game {
     ctx.imageSmoothingEnabled = false;
     if (this.mode === 'house') this.renderHouse();
     else if (this.mode === 'town') this.renderTown();
+    else if (this.mode === 'td') this.renderTD();
     else if (this.mode === 'boot') { ctx.fillStyle = '#1a1218'; ctx.fillRect(0, 0, this.view.w, this.view.h); }
     else this.renderWorld();
   }
@@ -1388,5 +1398,5 @@ export class Game {
   }
 }
 
-Object.assign(Game.prototype, Combat, Pickups, TownMode, SceneMode, StoryRoad);
+Object.assign(Game.prototype, Combat, Pickups, TownMode, SceneMode, StoryRoad, TDMode);
 export { HEROES, TAU };

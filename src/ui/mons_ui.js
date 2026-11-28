@@ -726,6 +726,7 @@ export const MonsUI = {
 
   // ------------------------------------------------------------ buttons
   monsAct(act, el) {
+    if (act.startsWith('td-') && this.tdAct(act, el)) return; // Tower Defense (td_ui.js)
     if (this.shopAct(act, el)) return;
     const id = +el.dataset.id;
     switch (act) {

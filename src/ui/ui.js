@@ -18,6 +18,7 @@ import { Audio } from '../core/audio.js';
 import { Input } from '../core/input.js';
 import { TouchControls } from './touch.js';
 import { TownUI } from './town_ui.js';
+import { TDUI } from './td_ui.js';
 import { ProfilesUI } from './profiles_ui.js';
 import { GuideUI } from './guide_ui.js';
 import { NPCS } from '../content/npcs.js';
@@ -451,7 +452,7 @@ export class UI {
   // The same line again within a few seconds just counts up (×2) instead of adding another.
   feed(text, color = '#eef6f0') {
     const box = this.h?.feed;
-    if (!box || this.screen !== 'hud') { this.toast(text); return; }
+    if (!box || (this.screen !== 'hud' && this.screen !== 'td')) { this.toast(text); return; }
     const now = performance.now();
     const same = [...box.children].find((el) => el.dataset.text === text);
     if (same) {
@@ -1137,10 +1138,11 @@ export class UI {
       this.tickFeed();
       if (this.g.touchMode) this.touch.update();
     }
+    if (this.g.mode === 'td' && this.screen === 'td') this.tickFeed();
     void dt;
   }
 }
 
-Object.assign(UI.prototype, TownUI, MonsUI, ShopUI, ProfilesUI, GuideUI);
+Object.assign(UI.prototype, TownUI, MonsUI, ShopUI, ProfilesUI, GuideUI, TDUI);
 
 export { iconOf };

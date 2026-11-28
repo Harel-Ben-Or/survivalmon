@@ -587,6 +587,12 @@ const TOWN_ROOMS = {
     items: [['bookshelf', 26, BACK], ['bookshelf', 52, BACK], ['tp_case', 112, BACK + 2], ['clock', 82, BACK], ['bookshelf', 172, BACK], ['bookshelf', 198, BACK],
       ['tp_desk', 112, 100, { solidH: 10 }], ['plant', 22, 132], ['plant', 202, 132]],
   },
+  watchtower: {
+    w: 12, h: 9, floor: 'floor_wood', wall: 'wall_stone', who: 'marlo', npc: [96, 76], windows: [46, 146],
+    rugs: [['rug_b', 96, 108]],
+    items: [['tp_desk', 96, 92, { solidH: 10 }], ['bookshelf', 24, BACK], ['clock', 70, BACK], ['tp_lantern', 124, BACK + 4], ['bookshelf', 170, BACK],
+      ['barrel', 20, 120], ['crate', 174, 122], ['plant', 18, 96], ['plant', 176, 96]],
+  },
   hall: {
     w: 14, h: 10, floor: 'floor_stone', wall: 'wall_stone', who: 'brann', npc: [112, 80], windows: [62, 162],
     rugs: [['rug_r', 112, 116]], painting: { n: 0, x: 104 },

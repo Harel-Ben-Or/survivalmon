@@ -8,6 +8,15 @@
 export const CHANGELOG = [
   // newest first, e.g. { v: '1.02', date: '...', notes: ['Fixed a bug when Voltowl attacked', { h: 'A new thing', t: 'A short paragraph.' }] },
   {
+    v: '1.14', date: '28 Nov 2026',
+    notes: [
+      { h: 'Tower Defense (beta)', img: 'assets/news/td.png', t: "A new way to play! Once you have 5 different basic mons, Old Marlo opens the Watchtower by the West Gate. Bring 5 basic mons and drag them onto the board beside the road to stop the star's creatures. Don't let 20 of them get through! Every summon costs a few more berries than the last." },
+      { h: 'Merge into breeds', t: "Drop one tower on another to merge them into their breed. Then merge two of the same breed into its level 2 form, and two of those into its level 3. Only breeds you have unlocked in the main game can be made, so every breed you raise in the Hatchery helps out here too. Each of the 14 basic mons and all 105 level 1 breeds has its own TD skill." },
+      '30 waves on Leafy Meadow, with bosses at waves 10 and 20 and the Night Lord at wave 30. Your run is saved between waves.',
+      'Rewards: coins and Spirit for every wave, materials, an evolution stone when you win, and an egg and Skyfall Shards for your first win.',
+    ],
+  },
+  {
     v: '1.13', date: '24 Nov 2026',
     notes: [
       { h: 'A better start', t: "New players now go out for their first hunt right after meeting Granny Wren. The first run lasts 30 seconds, and a wild survivalmon shows up after just 10 seconds, so everyone frees their first one early. Back home, Moss gives you a starter bundle: 500 coins and an egg. The rest of Hearthvale is shown over your next few runs." },

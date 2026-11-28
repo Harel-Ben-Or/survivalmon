@@ -130,8 +130,19 @@ export const TIPS = {
   gates: ['A new gate is open! Past each new gate the monsters are much tougher, but they pay more. Pick your gate on the team screen.'],
   achv: ['An achievement! They pay Skyfall Shards. See them all in the Survidex.'],
   goals: [{ t: 'A goal is done! Tap Goals up here to claim its reward. Goals pay coins, Spirit and materials, and sometimes something rare, like an evolution stone or an egg.', focus: '.t-goals' }],
+  // ---------------------------------------------------------------- Tower Defense (td/td.js)
+  td_start: [
+    "The star's creatures walk this road toward town, {name}. Don't let 20 of them get through!",
+    { t: 'Drag one of your 5 basic mons from the bar onto a green spot to summon it. Every summon costs a few more berries than the last.', focus: '.td-bar' },
+    { t: 'Ready? Tap Go to send in the first wave.', focus: '.td-go' },
+  ],
+  td_merge: ['Drop one tower on another to merge them into their breed, if you have unlocked it in the main game. Two of the same breed merge into its next form!'],
+  td_break: ["A short break before the next wave. Tap Go now for 10 bonus berries."],
+  td_evolve: ['A level 2 breed! Merge two of the same level 2 breed for its level 3 form, the strongest tower there is.'],
+  watchtower: ['The Watchtower is open! You have 5 basic mons now, enough to defend the road. Follow the arrow.'],
+  b_watchtower: ['Pick 5 basic mons to bring. They become towers by the road, and every breed you have unlocked here in town can be made by merging them.'],
   stars: ['Stars! Each one gives that survivalmon +10% damage and HP. At 3 stars its attack goes up a grade, and at 5 it shines gold. Stars are paid with the coins of its kind, which you get by freeing survivalmons.'],
 };
 
 // town pages that have their own tip
-export const PAGE_TIPS = { training: 'b_training', hatchery: 'b_hatchery', ranch: 'b_ranch', clinic: 'b_clinic', shrine: 'b_shrine', survidex: 'b_survidex', workshop: 'b_workshop', merchant: 'b_merchant', team: 'b_team' };
+export const PAGE_TIPS = { training: 'b_training', hatchery: 'b_hatchery', ranch: 'b_ranch', clinic: 'b_clinic', shrine: 'b_shrine', survidex: 'b_survidex', workshop: 'b_workshop', merchant: 'b_merchant', team: 'b_team', watchtower: 'b_watchtower' };

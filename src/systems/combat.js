@@ -30,6 +30,7 @@ export const Combat = {
   },
   // A survivalmon's target: a Beacon Shot's glowing target when it's in reach, else the nearest foe
   petTarget(x, y, maxD, filter) {
+    if (this.mode === 'td') return this.tdTarget(x, y, maxD, filter); // TD: the foe closest to getting through
     const b = this.beacon;
     if (b && !b.dead && b.glow > 0 && !b.hidden && dist2(x, y, b.x, b.y) < maxD * maxD && (!filter || filter(b))) return b;
     return this.nearestEnemy(x, y, maxD, filter);
@@ -426,6 +427,7 @@ export const Combat = {
 
   // ------------------------------------------------------------ damage
   damageEnemy(e, base, o = {}) {
+    if (this.mode === 'td') return this.tdDamage(e, base, o); // Tower Defense has its own (td/td.js)
     if (e.dead || e.hidden || e.fainted) return { crit: false, dmg: 0 };
     const S = this.player.stats;
     let dmg = base * dmgMarks(this, e, o); // the main weapon's evolves: foes that take more from everything
@@ -490,6 +492,7 @@ export const Combat = {
   },
 
   killEnemy(e, o = {}) {
+    if (this.mode === 'td') return this.tdKill(e, o);
     if (e.dead) return;
     e.dead = true;
     const P = this.player, S = P.stats;

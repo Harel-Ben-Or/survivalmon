@@ -21,6 +21,7 @@ import { Meta } from '../systems/meta.js';
 import { NPCS, NPC_IDS } from '../content/npcs.js';
 import { buildTownRoom, TOWN_ROOM_IDS } from './interior.js';
 import { gateSide, gateName } from '../content/gates.js';
+import { tdOpen } from '../td/td.js';
 
 const GX = 20; // the North Gate's column: the road to the wild runs north from it
 const GSX = 15; // the South Gate's column
@@ -43,6 +44,7 @@ const BUILDINGS = [
   { id: 'hall', name: 'Hall of Fame', spr: 'town_hall', door: [36, 9], yard: T.STONE, bushes: false }, // the ranking (Champion Brann)
   { id: 'hatchery', name: 'Hatchery', spr: 'town_hatchery', door: [11, 23], always: true, yard: T.DIRT },
   { id: 'ranch', name: 'Ranch', spr: 'town_ranch', door: [25, 23], always: true, yard: T.DIRT }, // the pasture is beside it
+  { id: 'watchtower', name: 'Watchtower', spr: 'town_watchtower', door: [4, 27] }, // Tower Defense (td/td.js): opens with 5 different basic mons
 ];
 // Props around each building, as [sprite, dx, dy] from the middle of its base (logical px)
 const DECOR = {
@@ -226,6 +228,7 @@ export class Town {
     this.road(T.DIRT, [[16.5, 22.6], [15.5, 26], [GSX, 30]]);                      // South Gate
     this.road(T.DIRT, [[34, 16], [37, 16.4], [40.6, 16.4]]);                        // on past the Survidex to the East Gate
     this.road(T.DIRT, [[7.5, 17], [4.5, 16.4], [1.2, 16.4]]);                        // West Gate
+    this.road(T.DIRT, [[5.6, 17], [5.9, 21.5], [4.5, 27.4]]);                         // down to the Watchtower
     this.disc(T.STONE, GX, 13, 4.2);                                                // the square
     this.rect(T.STONE, 25, 14, 30, 15);                                             // the market stall's paving
     // a pond in the south with lily pads on it
@@ -639,6 +642,8 @@ export const TownMode = {
     if (hatched.length && Meta.unlock('merchant')) notes.push('The Merchant opened a stall by the square.');
     if (Box.mons.length >= 3 && Meta.unlock('shrine')) notes.push('The Spirit Shrine is open: upgrades for every survivalmon.');
     if (Meta.data.runs > 0 && Meta.unlock('hall')) notes.push('The Hall of Fame opened past the Workshop: see how you rank against everyone who plays.');
+    const tower = tdOpen() && Meta.unlock('watchtower'); // Tower Defense: 5 different basic mons
+    if (tower) notes.push('The Watchtower opened by the West Gate: defend the road with 5 of your basic mons.');
     // new heroes
     // your friends: one is found past each gate, the first time you win at its Lv 1 (old saves keep theirs)
     const found = [];
@@ -659,6 +664,7 @@ export const TownMode = {
       // the beginner's guide: a first survivalmon, a new gate, an achievement earned out in the wild
       if (hatched.length) this.ui.tip('hatched');
       if (opened) this.ui.tip('gates');
+      if (tower) this.ui.tip('watchtower');
       if (this.achvTip) { this.achvTip = false; this.ui.tip('achv'); }
     };
     if (hatched.length) {

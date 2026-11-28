@@ -41,6 +41,7 @@ export const UNLOCK_TEXT = {
   shrine: 'Opens when you own 3 survivalmons',
   workshop: 'Opens when you find your first gear',
   hall: 'Opens after your first run',
+  watchtower: 'Opens when you have 5 different basic mons',
 };
 
 // The Merchant's goods are in content/shop.js.

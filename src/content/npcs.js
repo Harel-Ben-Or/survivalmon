@@ -8,7 +8,7 @@
 // (DIR8 order), then an idle cycle facing south (keepers) or walk cycles south, north, east
 // (villagers; west is east mirrored).
 
-export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss', 'tove', 'kestrel', 'rook', 'brann'];
+export const NPC_IDS = ['wren', 'hale', 'tamsin', 'sol', 'poppy', 'quill', 'dell', 'mags', 'ollie', 'tib', 'juniper', 'fen', 'barrow', 'moss', 'tove', 'kestrel', 'rook', 'brann', 'marlo'];
 
 // home: the building they keep (their room), 'stall' / 'gate' (stands outside) or 'roam'.
 // act: the button that opens the building, and the screen it opens.
@@ -88,6 +88,16 @@ export const NPCS = {
       { text: 'Every gate you open, every survivalmon you raise: it all goes up on the board.' },
       { text: 'See the statues? The village cast its first four survivalmons in gold. Maybe yours will be next.' },
       { text: 'Beat the Night Lord and the whole village will know your name.' },
+    ],
+  },
+  marlo: {
+    name: 'Old Marlo', role: 'Watchtower', home: 'watchtower', act: ['Defend', 'showWatchtower'],
+    hello: 'Ho there, {name}! Mind the stairs, they creak worse than my knees.',
+    lines: [
+      { text: 'Fifty years I have watched that road. Since the star fell, something walks down it every night.' },
+      { text: 'Bring five of your basic mons and set them by the road. Merge them, and they grow into breeds!' },
+      { text: 'Only the breeds you have raised in the Hatchery will answer the call out there.' },
+      { text: 'Twenty of them get past us and I blow the horn. I would rather not blow the horn.' },
     ],
   },
   dell: {

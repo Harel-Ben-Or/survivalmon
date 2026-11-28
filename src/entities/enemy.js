@@ -149,6 +149,7 @@ export class Enemy {
       if (Math.random() < dt * 6) g.particles.add({ x: this.x + rand(-6, 6), y: this.y - rand(4, 16), vx: 0, vy: -10, life: 0.4, color: Math.random() < 0.5 ? '#fff6c8' : '#ffe07a' });
     }
 
+    if (this.tdPath) { g.tdMoveEnemy(this, dt); return; } // Tower Defense: it walks the road (td/td.js)
     const dx = P.x - this.x, dy = P.y - this.y;
     const dist = Math.hypot(dx, dy) || 1;
     let mx = 0, my = 0;

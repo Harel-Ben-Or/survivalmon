@@ -335,7 +335,7 @@ export class Pet {
 // ---------------------------------------------------------------- fighting styles
 // Each takes the skill's numbers (q) and its pictures (fx, see content/attack_fx.js) and returns the
 // cooldown until the next attack. An evolution's own skill (fx.sig) is one big animated signature move.
-const ARCH = {
+export const ARCH = {
   shooter(pet, g, q, fx) {
     const t = g.petTarget(pet.x, pet.y, q.range || 150);
     if (!t) return 0.3;
